@@ -1,0 +1,316 @@
+# =============================================================================
+# Synthetic SME generator configuration
+# Governed by: Behavioral Profile Feature Schema v2.9 (the schema wins over the SOP)
+#   §12  configuration, not randomization — every generative parameter lives here
+#   §14  latent-variable-driven labels, sector-conditional shock sensitivity
+#   §17  zakat_seed for a non-zero Zakat demo
+#   §20  two-stage sector → size sampling, plus age tier | sector × size
+#   §22  Hijri seasonality (Ramadan / Eid)
+#   §23  two populations: disjoint seeds AND disjoint ID ranges
+#   §24  sector-consistent balance sheets
+#
+# Held-out anomaly types are deliberately NOT in this file (§12). They live only
+# in the evaluation harness so precision-at-K is not circular.
+# =============================================================================
+schema_version: "v2.9"
+config_version: "1.0"
+
+# --- §12 window placement ------------------------------------------------------
+# 180 days from 2026-02-01 runs to 2026-07-30 and overlaps Ramadan 1447
+# (2026-02-18 → 2026-03-19) and Eid al-Fitr (2026-03-20 → 2026-03-22).
+start_date: "2026-02-01"
+window_days: 180
+
+# --- §23 dual-scale populations ------------------------------------------------
+populations:
+  research: { seed: 42, id_range: [1, 10000] }
+  serving:  { seed: 43, id_range: [10001, 11000] }
+
+# --- §20 stage 1 + stage 2: sector weight, then size | sector -----------------
+# Sector weights must sum to 1.0; each size_tiers block must sum to 1.0.
+sector_size_distribution:
+  retail_trade:          { weight: 0.35, size_tiers: { micro: 0.85, small: 0.13, medium: 0.02 } }
+  construction:          { weight: 0.20, size_tiers: { micro: 0.45, small: 0.40, medium: 0.15 } }
+  food_beverage:         { weight: 0.20, size_tiers: { micro: 0.90, small: 0.09, medium: 0.01 } }
+  professional_services: { weight: 0.25, size_tiers: { micro: 0.75, small: 0.20, medium: 0.05 } }
+
+# --- §20 stage 3: age tier | sector × size -------------------------------------
+# Young businesses skew micro and skew toward F&B/retail; a medium construction
+# firm under a year old is rare. "<1yr" businesses begin operating part-way
+# through the window (see thin_file), which is what produces the §15 thin-file
+# population as a consequence of age rather than an arbitrary carve-out.
+age_tier_distribution:
+  retail_trade:
+    micro:  { "<1yr": 0.30, "1-3yr": 0.35, "3-7yr": 0.25, "7yr+": 0.10 }
+    small:  { "<1yr": 0.12, "1-3yr": 0.33, "3-7yr": 0.35, "7yr+": 0.20 }
+    medium: { "<1yr": 0.03, "1-3yr": 0.17, "3-7yr": 0.40, "7yr+": 0.40 }
+  construction:
+    micro:  { "<1yr": 0.22, "1-3yr": 0.38, "3-7yr": 0.28, "7yr+": 0.12 }
+    small:  { "<1yr": 0.08, "1-3yr": 0.30, "3-7yr": 0.40, "7yr+": 0.22 }
+    medium: { "<1yr": 0.02, "1-3yr": 0.13, "3-7yr": 0.40, "7yr+": 0.45 }
+  food_beverage:
+    micro:  { "<1yr": 0.35, "1-3yr": 0.35, "3-7yr": 0.22, "7yr+": 0.08 }
+    small:  { "<1yr": 0.15, "1-3yr": 0.35, "3-7yr": 0.33, "7yr+": 0.17 }
+    medium: { "<1yr": 0.03, "1-3yr": 0.17, "3-7yr": 0.40, "7yr+": 0.40 }
+  professional_services:
+    micro:  { "<1yr": 0.32, "1-3yr": 0.36, "3-7yr": 0.22, "7yr+": 0.10 }
+    small:  { "<1yr": 0.12, "1-3yr": 0.33, "3-7yr": 0.35, "7yr+": 0.20 }
+    medium: { "<1yr": 0.03, "1-3yr": 0.17, "3-7yr": 0.40, "7yr+": 0.40 }
+
+thin_file:
+  # "<1yr" businesses start operating this many days after the window start
+  # (uniform). Anything beyond ~120 leaves < 60 coverage days in the trailing 90
+  # → the §15 insufficient_data state appears in the population naturally.
+  under_1yr_operating_start_offset_days: [0, 150]
+
+# --- §14 latent variables (hidden; never exposed to any lens) ------------------
+latents:
+  management_quality: { alpha: 4.0, beta: 4.0 }      # shared across sectors
+  market_shock_sensitivity:                         # sector-specific Beta(α_s, β_s)
+    retail_trade:          { alpha: 3.0, beta: 3.0 }  # mean 0.50
+    construction:          { alpha: 5.0, beta: 2.0 }  # mean 0.71 — highest true risk
+    food_beverage:         { alpha: 4.0, beta: 2.5 }  # mean 0.62
+    professional_services: { alpha: 2.0, beta: 5.0 }  # mean 0.29 — lowest true risk
+
+# §14 "closes the side door": observables are ρ-correlated noisy reflections of
+# the latent risk index, each with its own independent noise term.
+latent_to_observable_correlation: 0.6
+
+# Default label: logit(p) = intercept + shock_coef·(shock−0.5) − management_coef·(mgmt−0.5) + N(0, σ)
+# The aggregate default rate is NOT set here — it emerges (§21). Coefficients are
+# calibration inputs; label_noise_sigma is the §14 reporting axis (AUC vs. noise).
+default_label_model:
+  intercept: -3.4
+  shock_coef: 2.5
+  management_coef: 2.0
+  label_noise_sigma: 0.2
+
+# How the latent risk index maps onto observable behaviour. U ∈ [0,1] is the
+# ρ-correlated, independently-noised rank of the business's latent risk
+# (U → 1 = riskier). Each line: value = lo + U·(hi − lo) unless stated.
+observable_mapping:
+  # Receipt lumpiness (DECISIONS.md #1): the inflow arrival rate is multiplied by
+  # a persistent lognormal AR(1) shock — good weeks / bad weeks, not good days /
+  # bad days — so it is visible even at 0.3 receipts/day (construction). σ is
+  # the stationary sd of the log-rate; persistence φ gives a ~4-day half-life.
+  # Poorly-managed businesses have burstier receipts, which is what features 3
+  # (timing-interval CV) and 11 (net-flow sd) actually measure. Per-transaction
+  # amount noise stays at the sector's daily_cv and carries no latent signal.
+  inflow_dispersion_sigma: [0.15, 0.90]      # safe → risky
+  inflow_dispersion_persistence: 0.85
+  # Second channel, same latent rank: per-receipt amount dispersion. This is
+  # what carries the signal in milestone-billed sectors (construction,
+  # professional) where ~1 receipt every 3 days leaves timing dominated by the
+  # billing cycle itself. × sector daily_cv.
+  amount_dispersion_multiplier: [0.7, 1.3]   # safe → risky
+  cost_ratio_multiplier: [0.92, 1.08]        # × sector cost_ratio
+  opening_balance_months_of_outflow: [2.0, 0.3]   # safe → risky (reversed on purpose)
+  window_growth_range: 0.30                  # growth over window = (0.5 − U) × this
+  counterparty_dirichlet_alpha: [2.3, 0.3]   # safe → risky (lower α = more concentrated)
+  idiosyncratic_scale_sigma: 0.25            # lognormal σ on business size within a tier
+
+# --- sector economics (feeds transactions.csv / daily_aggregates.csv) -----------
+sector_economics:
+  retail_trade:
+    base_monthly_inflow_sar: 60000
+    inflow_tx_per_day: 5.0           # deliberately low vs. real POS counts to bound transactions.csv size
+    outflow_tx_per_day: 1.5
+    cost_ratio: 0.86
+    recurring_share: 0.30
+    rent_share_of_recurring: 0.45
+    daily_cv: 0.35
+    operating_days: all_week
+    weekend_activity: 1.0
+    business_hours: [8, 23]
+    customer_pool: [40, 200]
+    supplier_pool: [4, 12]
+    mcc_codes: [5311, 5331, 5411, 5999]
+  construction:
+    base_monthly_inflow_sar: 180000
+    inflow_tx_per_day: 0.30          # milestone billing: few, large receipts
+    outflow_tx_per_day: 3.0          # materials, fuel, subcontractor draws — most days have a payment
+    cost_ratio: 0.85
+    recurring_share: 0.45
+    rent_share_of_recurring: 0.20
+    daily_cv: 0.55                   # per-invoice size dispersion (was 1.10: so heavy-tailed the sample std was set by one invoice)
+    operating_days: sun_thu
+    weekend_activity: 0.30           # card settlements / online payments still land Fri–Sat
+    business_hours: [7, 17]
+    customer_pool: [2, 8]
+    supplier_pool: [6, 20]
+    mcc_codes: [1520, 1711, 1731, 1771]
+  food_beverage:
+    base_monthly_inflow_sar: 45000
+    inflow_tx_per_day: 6.0
+    outflow_tx_per_day: 1.5
+    cost_ratio: 0.82
+    recurring_share: 0.35
+    rent_share_of_recurring: 0.40
+    daily_cv: 0.30
+    operating_days: all_week
+    weekend_activity: 1.0
+    business_hours: [10, 24]
+    customer_pool: [60, 300]
+    supplier_pool: [4, 10]
+    mcc_codes: [5812, 5814, 5462]
+  professional_services:
+    base_monthly_inflow_sar: 90000
+    inflow_tx_per_day: 0.50          # invoice-based
+    outflow_tx_per_day: 2.2          # subscriptions, travel, contractors
+    cost_ratio: 0.70
+    recurring_share: 0.65            # payroll-heavy (§24)
+    rent_share_of_recurring: 0.15
+    daily_cv: 0.50                   # per-invoice size dispersion (was 0.90, same reason as construction)
+    operating_days: sun_thu
+    weekend_activity: 0.30
+    business_hours: [9, 18]
+    customer_pool: [3, 15]
+    supplier_pool: [2, 8]
+    mcc_codes: [7392, 8931, 7372, 8111]
+
+size_tier_scale:    { micro: 1.0, small: 4.0, medium: 15.0 }   # × base_monthly_inflow
+size_tier_tx_scale: { micro: 1.0, small: 1.5, medium: 2.5 }    # × tx per day
+
+# Existing obligations (§31, feature 41): share of businesses with a recurring
+# repayment to a financial-institution counterparty, and its size.
+financing:
+  share_of_businesses: 0.35
+  monthly_outflow_share: 0.08
+
+# --- §24 sector-consistent balance sheets --------------------------------------
+# Position within each band is the ρ-correlated risk rank (slower collection,
+# heavier inventory = riskier). Realized implied_* values are recomputed by the
+# gate harness from the tables via the §30 formula — the bands below are chosen
+# so construction lands inside [60,120] DSO and professional stays < 5 DIO
+# after balance-sheet noise, not equal to those limits.
+balance_sheet_archetypes:
+  retail_trade:          { dso_days: [5, 25],   dio_days: [30, 70],  dpo_days: [20, 45], stl_months_of_outflow: [0.4, 0.9] }
+  construction:          { dso_days: [72, 108], dio_days: [3, 12],   dpo_days: [45, 90], stl_months_of_outflow: [1.0, 2.0] }
+  food_beverage:         { dso_days: [1, 8],    dio_days: [4, 14],   dpo_days: [15, 40], stl_months_of_outflow: [0.3, 0.7] }
+  professional_services: { dso_days: [25, 55],  dio_days: [0.0, 3.5], dpo_days: [5, 20], stl_months_of_outflow: [0.3, 0.6] }
+balance_sheet_noise_sd: 0.03
+
+# --- §22 Hijri seasonality -----------------------------------------------------
+# Pinned Gregorian dates for Ramadan / Eid al-Fitr (Umm al-Qura based).
+# Verify against the official Umm al-Qura calendar before the defense; a table is
+# used instead of a runtime Hijri library so the generated data is reproducible
+# from this file alone.
+ramadan_calendar:
+  - { hijri_year: 1445, ramadan_start: "2024-03-11", ramadan_end: "2024-04-09", eid_start: "2024-04-10", eid_end: "2024-04-12" }
+  - { hijri_year: 1446, ramadan_start: "2025-03-01", ramadan_end: "2025-03-29", eid_start: "2025-03-30", eid_end: "2025-04-01" }
+  - { hijri_year: 1447, ramadan_start: "2026-02-18", ramadan_end: "2026-03-19", eid_start: "2026-03-20", eid_end: "2026-03-22" }
+  - { hijri_year: 1448, ramadan_start: "2027-02-08", ramadan_end: "2027-03-09", eid_start: "2027-03-10", eid_end: "2027-03-12" }
+
+# Multipliers on expected daily inflow. Placeholders until β_Ramadan / β_Eid are
+# estimated from mada bulletins per the §22 NNLS method — treat as a calibration
+# input to be replaced, not a finding.
+seasonality_multipliers:
+  retail_trade:          { pre_ramadan_10d: 1.10, ramadan: 1.30, eid: 2.20, post_eid_7d: 0.80 }
+  food_beverage:         { pre_ramadan_10d: 1.05, ramadan: 1.45, eid: 1.80, post_eid_7d: 0.85 }
+  construction:          { pre_ramadan_10d: 1.00, ramadan: 0.80, eid: 0.25, post_eid_7d: 0.90 }
+  professional_services: { pre_ramadan_10d: 1.00, ramadan: 0.90, eid: 0.40, post_eid_7d: 0.95 }
+
+# --- demo businesses (serving population; §12, §17) ----------------------------
+# Fully specified so the two required contrasts are reproducible on demand:
+#   10001  window overlaps Ramadan 1447; zakat-seeded (hawl completes in-window)
+#   10002  window placed entirely outside Ramadan; no zakat seed → hawl_incomplete
+#   10003  "<1yr" professional-services firm operating < 60 days → insufficient_data
+# Injected anomaly types listed here are the *known* set. Held-out types: harness only.
+demo_businesses:
+  - id: 10001
+    name: "Ramadan-overlap retail (zakat-seeded)"
+    sector: retail_trade
+    size_tier: small
+    age_tier: "3-7yr"
+    start_date: "2026-02-01"
+    zakat_seed: { hawl_start_date: "2025-08-01", opening_net_assets_sar: 120000 }
+    inject_cash_crunch: { week: 18, severity_pct: 30 }
+    inject_anomalies:
+      - { type: large_transfer, week: 9 }
+      - { type: odd_hours_transaction, week: 11 }
+  - id: 10002
+    name: "Non-overlap retail (no zakat seed)"
+    sector: retail_trade
+    size_tier: small
+    age_tier: "3-7yr"
+    start_date: "2025-08-01"        # 180 days → 2026-01-27, ends before Ramadan 1447
+  - id: 10003
+    name: "Thin-file professional services"
+    sector: professional_services
+    size_tier: micro
+    age_tier: "<1yr"
+    start_date: "2026-02-01"
+    operating_start_date: "2026-06-20"   # ~40 operating days → coverage < 60
+
+# --- §21 emergent validation targets (pre-registered BEFORE any validation run) --
+# The generator is never told these. Each carries a tolerance band committed
+# here so "did you tune until it matched?" has a dated answer. A miss is a
+# FINDING — status_on_fail is never "retune".
+emergent_validation_targets:
+  # Published figures the targets are derived from. Kept as raw numbers so the
+  # derivation is visible, not a pre-digested ratio. Checked by validate_emergent.py.
+  published_sources:
+    gastat_2022_sme_revenue_bn_sar:
+      source: "GASTAT, 'Operating Revenues by Economic Activity and Size 2022'"
+      source_status: archived   # §21 source discipline satisfied — see archive_path
+      archive_path: "sources/gastat/SME_2022.xlsx"
+      archive_sheet: "الايرادات التشغيلية"  # Operating Revenues; rows keyed by ISIC letter, cols B/C/D = Micro/Small/Medium (thousand SAR)
+      archived_on: "2026-09-15"
+      note: >
+        Four modelled sectors only, exact figures from the archived workbook
+        (thousand SAR / 1e6, ISIC row → sector): G 'Wholesale and retail
+        trade' → retail_trade; F 'Construction' → construction; I
+        'Accommodation and food service' → food_beverage; M 'Professional
+        activities' → professional_services. The workbook's own Total row
+        (all activities, all tiers) is the source for the
+        all_sectors_context_only target below: medium share =
+        684,379,007.65 / 1,456,380,093.23 = 0.470.
+      retail_trade:          { micro: 259.950221, small: 130.858815, medium: 126.543103 }
+      construction:          { micro: 34.913537,  small: 74.416527,  medium: 111.022996 }
+      food_beverage:         { micro: 18.035476,  small: 33.249549,  medium: 40.333973 }
+      professional_services: { micro: 4.255456,   small: 10.141435,  medium: 18.098164 }
+  targets:
+    - metric: revenue_share_medium_tier
+      basis: modelled_sectors                  # like-for-like: same four sectors as the generator
+      definition: "sum(inflow_total | size_tier=medium) / sum(inflow_total), research population"
+      derived_from: gastat_2022_sme_revenue_bn_sar   # → 0.343
+      tolerance_rel: 0.15
+      status_on_fail: report_as_finding
+    - metric: revenue_share_medium_tier
+      basis: all_sectors_context_only          # NOT comparable: includes sectors the generator does not model
+      published_value: 0.470                   # workbook Total row, all 18 ISIC activities — see note above
+      source: "GASTAT, 'Operating Revenues by Economic Activity and Size 2022' — Total row"
+      comparable: false
+    - metric: sector_revenue_share
+      definition: "sector share of total inflow_total, research population; total-variation distance ½Σ|p−q| (sectors are unordered, so KS is not defined)"
+      derived_from: gastat_2022_sme_revenue_bn_sar
+      tolerance_abs: 0.10
+      status_on_fail: report_as_finding
+    - metric: within_sector_size_revenue_share
+      definition: "per sector: revenue share by size tier (micro<small<medium ordered); KS D = max|F_sim − F_pub|"
+      derived_from: gastat_2022_sme_revenue_bn_sar
+      tolerance_abs: 0.10
+      status_on_fail: report_as_finding
+    - metric: aggregate_default_rate
+      definition: "mean(default_label), research population"
+      source: "SAMA Financial Stability Report — SME-specific NPL series, if one exists (§21 Week-1 check)"
+      source_status: pending_week1_check     # drop this target if no citable SME series exists
+      published_value: null
+      tolerance_rel: null
+      status_on_fail: report_as_finding
+  # Calibration inputs, listed so they are never mistaken for emergent targets:
+  #   sector count weights, size | sector, age | sector×size, latents, ρ,
+  #   base_monthly_inflow_sar, size_tier_scale. Revenue shares must EMERGE from
+  #   these; if base inflows are ever set from the GASTAT revenue table above,
+  #   the revenue-share targets stop being emergent and must be removed here.
+
+# --- output ---------------------------------------------------------------------
+output:
+  dir: "."
+  # §7 says daily_aggregates is "max ~90 rows per business", but features 4, 9
+  # and 45 need a prior 90-day window. null = emit the full window (180 rows);
+  # set 90 for the literal §7 reading. Needs a change-control decision (§9 SOP).
+  daily_aggregates_trailing_days: null
+  data_source: synthetic
+
+quick_mode_n_per_population: 300

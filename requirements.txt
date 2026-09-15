@@ -1,0 +1,19 @@
+# Pinned to what generator.py, schemas.py, gate_week3.py, validate_emergent.py
+# and heldout_anomalies.py were built and verified against (Python 3.13).
+pandas==2.3.3
+numpy==2.3.4
+scipy==1.16.3
+scikit-learn==1.7.2
+matplotlib==3.10.7
+PyYAML==6.0.3
+pandera==0.33.1
+openpyxl==3.1.5        # reads sources/gastat/SME_2022.xlsx for the §21 archive check
+
+# Schema §37.2 — required tooling, not yet wired into any script. Install now
+# so it's available the day a receipted DuckDB query (§21 distributional
+# comparison) is added. Remember: `SET threads TO 1` immediately after
+# connecting, for any query feeding a receipted value.
+duckdb==1.5.5
+
+# Schema §37.3 — dev-only, not a runtime dependency.
+ruff==0.16.7

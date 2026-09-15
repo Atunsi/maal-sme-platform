@@ -1,0 +1,2 @@
+# Schema v2.9 §37.3 / SOP §8: ruff with its default rule set. No custom rules.
+line-length = 110
