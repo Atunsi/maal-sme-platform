@@ -23,8 +23,9 @@ Design points that map straight to the schema:
   §24  balance sheets derive from the business's own realised cash flows
   §29  data_source stamped on every row at generation
 
-Run:  python generator.py            (full: N=10,000 research + N=1,000 serving)
-      python generator.py --quick    (first quick_mode_n_per_population of each)
+Run (from the repo root):
+      python -m generator.generate            (full: N=10,000 research + N=1,000 serving)
+      python -m generator.generate --quick    (first quick_mode_n_per_population of each)
 """
 
 from __future__ import annotations
@@ -42,10 +43,10 @@ import yaml
 from scipy.special import expit
 from scipy.stats import norm
 
-import schemas
+from generator import schemas
 
 # --------------------------------------------------------------------------- #
-# Config + calendar helpers (also imported by gate_week3.py)
+# Config + calendar helpers (also imported by eval/gate_week3.py)
 # --------------------------------------------------------------------------- #
 
 CP_TYPES = np.array(schemas.COUNTERPARTY_TYPES)
@@ -587,12 +588,12 @@ def validate_and_write(tables: dict[str, pd.DataFrame], out_dir: Path) -> None:
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--config", default="config.yaml")
-    ap.add_argument("--out-dir", default=None, help="defaults to output.dir in config ('quick_out' with --quick)")
+    ap.add_argument("--out-dir", default=None, help="defaults to output.dir in config (output.quick_dir with --quick)")
     ap.add_argument("--quick", action="store_true", help="generate only quick_mode_n_per_population per population")
     args = ap.parse_args(argv)
 
     cfg = load_config(args.config)
-    out_dir = Path(args.out_dir or ("quick_out" if args.quick else cfg["output"]["dir"]))
+    out_dir = Path(args.out_dir or (cfg["output"]["quick_dir"] if args.quick else cfg["output"]["dir"]))
     tables = generate(cfg, quick=args.quick)
     validate_and_write(tables, out_dir)
     print(f"done → {out_dir.resolve()}")

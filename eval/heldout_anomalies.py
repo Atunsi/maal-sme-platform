@@ -1,9 +1,10 @@
 """Held-out anomaly types — Schema v2.9 §12.
 
 These anomaly types are defined HERE and nowhere else. They must never appear
-in config.yaml, generator.py, or injected_anomalies.csv; `assert_held_out`
-enforces that. Precision-at-K is reported separately for injected vs. held-out
-types, so the detector is scored on something the generator never saw.
+in config.yaml, anywhere in the generator/ package, or in
+injected_anomalies.csv; `assert_held_out` enforces that. Precision-at-K is
+reported separately for injected vs. held-out types, so the detector is scored
+on something the generator never saw.
 
 Types:
   round_trip_transfer   an outflow to a fresh counterparty followed 1–3 days
@@ -13,8 +14,9 @@ Types:
   duplicate_payment     an existing supplier payment repeated on the same day
                         with the same amount (a double-charge / double-pay).
 
-Usage (eval harness only):
+Usage (eval harness only), from the repo root:
     tx, truth = inject_held_out(transactions, businesses, seed=7, n_businesses=50)
+    python -m eval.heldout_anomalies        # self-test against data/
 """
 
 from __future__ import annotations
@@ -28,21 +30,29 @@ import pandas as pd
 HELD_OUT_TYPES = ("round_trip_transfer", "duplicate_payment")
 
 
-def assert_held_out(project_dir: str | Path = ".") -> None:
-    """Fail if any held-out type name leaks into the generator's inputs or outputs."""
-    d = Path(project_dir)
+def assert_held_out(repo_root: str | Path = ".", data_dir: str | Path | None = None) -> None:
+    """Fail if any held-out type name leaks into the generator's inputs or outputs.
+
+    Scans config.yaml and every .py in generator/ — a new generator module is
+    covered automatically, rather than silently escaping a hard-coded file list.
+    """
+    root = Path(repo_root)
     pattern = re.compile("|".join(HELD_OUT_TYPES))
-    for name in ("config.yaml", "generator.py"):
-        text = (d / name).read_text(encoding="utf-8")
-        hits = pattern.findall(text)
+    targets = [root / "config.yaml", *sorted((root / "generator").glob("*.py"))]
+    for path in targets:
+        if not path.exists():
+            raise AssertionError(f"{path} not found — run from the repo root, or pass repo_root=")
+        hits = pattern.findall(path.read_text(encoding="utf-8"))
         if hits:
-            raise AssertionError(f"{name} mentions held-out anomaly type(s) {sorted(set(hits))} — §12 violation")
-    inj = d / "injected_anomalies.csv"
+            raise AssertionError(
+                f"{path.as_posix()} mentions held-out anomaly type(s) {sorted(set(hits))} — §12 violation"
+            )
+    inj = Path(data_dir or root / "data") / "injected_anomalies.csv"
     if inj.exists():
         types = set(pd.read_csv(inj)["anomaly_type"])
         leaked = types & set(HELD_OUT_TYPES)
         if leaked:
-            raise AssertionError(f"injected_anomalies.csv contains held-out type(s) {leaked} — §12 violation")
+            raise AssertionError(f"{inj.as_posix()} contains held-out type(s) {leaked} — §12 violation")
 
 
 def inject_held_out(
@@ -105,13 +115,20 @@ def inject_held_out(
 
 
 if __name__ == "__main__":  # self-test against the generated tables
-    assert_held_out(".")
-    tx = pd.read_csv("transactions.csv")
-    biz = pd.read_csv("businesses.csv")
-    tx2, truth = inject_held_out(tx, biz, seed=7, n_businesses=50)
-    import schemas
+    import argparse
 
+    from generator import schemas
+
+    ap = argparse.ArgumentParser(description="Self-test the held-out anomaly injector.")
+    ap.add_argument("--dir", default="data", help="directory holding the generated tables")
+    args = ap.parse_args()
+    d = Path(args.dir)
+
+    assert_held_out(".", data_dir=d)
+    tx = pd.read_csv(d / "transactions.csv")
+    biz = pd.read_csv(d / "businesses.csv")
+    tx2, truth = inject_held_out(tx, biz, seed=7, n_businesses=50)
     schemas.transactions_schema.validate(tx2, lazy=True)
-    print("held-out types never appear in config/generator/injected_anomalies: OK")
+    print("held-out types never appear in config / generator package / injected_anomalies: OK")
     print(f"injected {len(truth)} held-out rows across {truth['business_id'].nunique()} businesses:")
     print(truth["anomaly_type"].value_counts().to_string())

@@ -11,7 +11,8 @@ Rules (Schema v2.9 §21):
 
 Exit code is 0 whether or not there are findings — findings are results.
 
-Usage:  python validate_emergent.py [--dir .] [--config config.yaml]
+Usage (from the repo root):
+        python -m eval.validate_emergent [--dir data] [--config config.yaml]
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from generator import load_config
+from generator.generate import load_config
 
 SIZE_ORDER = ["micro", "small", "medium"]
 
@@ -47,7 +48,7 @@ def tv_unordered(sim: pd.Series, pub: pd.Series) -> float:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dir", default=".")
+    ap.add_argument("--dir", default="data", help="directory holding the generated tables")
     ap.add_argument("--config", default="config.yaml")
     args = ap.parse_args(argv)
     cfg = load_config(args.config)

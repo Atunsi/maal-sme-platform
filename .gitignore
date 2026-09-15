@@ -1,16 +1,11 @@
-# Generated data tables — deterministic from config.yaml + generator.py (§23
-# seeded per business). Regenerate with `python generator.py`. Not committed:
-# transactions.csv alone runs ~720MB at full scale (N=11,000), well past
-# GitHub's 100MB per-file limit.
-*.csv
-!sources/**/*.csv
-
-# Generated plots (regenerate with `python gate_week3.py`)
-ramadan_pos_check*.png
-
-# Quick-mode / scratch output directories
-quick_out/
-/out/
+# Generated data tables and plots — deterministic from config.yaml + the
+# generator (§23 seeds per business). Regenerate with:
+#     python -m generator.generate
+# Not committed: transactions.csv alone runs ~720MB at full scale (N=11,000),
+# well past GitHub's 100MB per-file limit, and committed data drifts silently
+# out of sync with the config that is supposed to define it.
+data/*
+!data/.gitkeep
 
 # Pre-git manual snapshot of the generator taken before the schema-alignment
 # rewrite (2026-09-14). Superseded by git history now that this is a repo —

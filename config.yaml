@@ -306,7 +306,8 @@ emergent_validation_targets:
 
 # --- output ---------------------------------------------------------------------
 output:
-  dir: "."
+  dir: "data"            # git-ignored; regenerate rather than commit (see README)
+  quick_dir: "data/quick"
   # §7 says daily_aggregates is "max ~90 rows per business", but features 4, 9
   # and 45 need a prior 90-day window. null = emit the full window (180 rows);
   # set 90 for the literal §7 reading. Needs a change-control decision (§9 SOP).

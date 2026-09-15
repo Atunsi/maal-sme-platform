@@ -19,7 +19,8 @@ parameters), so every assertion here can actually fail:
   Criterion 3 §22 Ramadan/Eid plot for the two demo businesses, plus a
               quantitative overlap ratio check.
 
-Usage:  python gate_week3.py [--dir .] [--config config.yaml]
+Usage (from the repo root):
+        python -m eval.gate_week3 [--dir data] [--config config.yaml]
 Exit code 0 = PASS, 1 = FAIL.
 """
 
@@ -36,8 +37,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import pairwise_distances, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 
-import schemas
-from generator import calendar_masks, load_config
+from generator import schemas
+from generator.generate import calendar_masks, load_config
 
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt  # backend must be set before pyplot import
@@ -269,7 +270,7 @@ def criterion_3(cfg: dict, t: dict[str, pd.DataFrame], out_png: Path) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dir", default=".")
+    ap.add_argument("--dir", default="data", help="directory holding the generated tables")
     ap.add_argument("--config", default="config.yaml")
     args = ap.parse_args(argv)
     d = Path(args.dir)
