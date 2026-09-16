@@ -1,0 +1,17 @@
+{
+  "file": "pos_aggregate_1995_2026.csv",
+  "sha256": "c08b693ad7f520d16415d437a9778480ead35a34b9c77bdf77383c95a1564f6e",
+  "bytes": 258497,
+  "access_date": "2026-09-16",
+  "origin_body": "Saudi Central Bank (SAMA)",
+  "publication": "SAMA Monetary and Financial Statistics — Points of Sale Transactions (aggregate)",
+  "retrieval": "KAPSARC Data Portal mirror (OpenDataSoft export API)",
+  "retrieval_url": "https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/pos-transactions/exports/csv?delimiter=%3B&use_labels=true",
+  "dataset_page": "https://datasource.kapsarc.org/explore/dataset/pos-transactions/",
+  "edition": "KAPSARC export as served on the access date; span recorded below after loading",
+  "span": [
+    "1995-01-01",
+    "2026-07-01"
+  ],
+  "rows_tidy": 1683
+}

@@ -1,0 +1,17 @@
+{
+  "file": "pos_by_sector_weekly_2020_2025.csv",
+  "sha256": "4966f401e979564676236406b411a4de0093e2e9003ce8b2513b1e4d61f00d40",
+  "bytes": 2480236,
+  "access_date": "2026-09-16",
+  "origin_body": "Saudi Central Bank (SAMA)",
+  "publication": "SAMA Weekly Points of Sale Transactions (by activity and city)",
+  "retrieval": "KAPSARC Data Portal mirror (OpenDataSoft export API)",
+  "retrieval_url": "https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/point-of-sale-transactions-by-sector-and-city/exports/csv?delimiter=%3B&use_labels=true",
+  "dataset_page": "https://datasource.kapsarc.org/explore/dataset/point-of-sale-transactions-by-sector-and-city/",
+  "edition": "KAPSARC export as served on the access date; span recorded below after loading",
+  "span": [
+    "2020-05-10",
+    "2025-07-06"
+  ],
+  "rows_tidy": 9720
+}

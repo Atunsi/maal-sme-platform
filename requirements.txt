@@ -8,6 +8,7 @@ matplotlib==3.10.7
 PyYAML==6.0.3
 pandera==0.33.1
 openpyxl==3.1.5        # reads sources/gastat/SME_2022.xlsx for the §21 archive check
+hijridate==2.6.0        # Umm al-Qura Hijri↔Gregorian conversion for the §22 seasonality decomposition (calibration/hijri.py)
 
 # Schema §37.2 — required tooling, not yet wired into any script. Install now
 # so it's available the day a receipted DuckDB query (§21 distributional

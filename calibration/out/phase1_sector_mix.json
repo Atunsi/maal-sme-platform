@@ -1,0 +1,22 @@
+{
+  "run_at": "2026-09-16T09:49:07+00:00",
+  "config_implied_aggregate_size_split": {
+    "micro": 0.755,
+    "small": 0.1935,
+    "medium": 0.0515
+  },
+  "monshaat_published_national_size_split_q4_2023": {
+    "counts": {
+      "micro": 1138588,
+      "small": 150788,
+      "medium": 18723
+    },
+    "shares": {
+      "micro": 0.8704,
+      "small": 0.1153,
+      "medium": 0.0143
+    },
+    "source": "Monsha'at SME Monitor Q4 2023, via monshaat.gov.sa/en/node/53859 (national totals only; no sector detail)"
+  },
+  "status": "blocked_no_archive"
+}

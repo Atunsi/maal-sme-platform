@@ -1,0 +1,77 @@
+{
+  "run_at": "2026-09-16T09:49:10+00:00",
+  "latest_quarter": "2026-04-01",
+  "first_quarter": "2021-07-01",
+  "total_credit_mn_sar": 3419326.45403674,
+  "individuals_loans_share": 0.42551836666866744,
+  "business_credit_mn_sar": 1964340.24620806,
+  "share_of_business_credit_all_activities": {
+    "Real Estate Activities": 0.2134185646670328,
+    "Electricity, Gas and Water Supplies": 0.12668693231916225,
+    "Wholesale and Retail Trade": 0.11240165171805562,
+    "Manufacturing": 0.1015212798816318,
+    "Financial and Insurance Activities": 0.09956587668412221,
+    "Other Activities": 0.09062366530130893,
+    "Construction": 0.07679107586032112,
+    "Administrative and Support Service Activities": 0.0383833045958037,
+    "Transportation and Storage": 0.03814240116088529,
+    "Accommodation and Food Service Activities": 0.031037612955849662,
+    "Mining and Quarrying": 0.023626470052522802,
+    "Human Health and Social Work Activities": 0.01649990222493091,
+    "Information and Communication": 0.014267515515686023,
+    "Professional, Scientific and Technical Activities": 0.007469106243701417,
+    "Agriculture, Forestry and Fishing": 0.005245657426146625,
+    "Education": 0.004318983392838805
+  },
+  "cagr_all_activities": {
+    "Accommodation and Food Service Activities": 0.15370781566457925,
+    "Administrative and Support Service Activities": 0.15384439658101257,
+    "Agriculture, Forestry and Fishing": -0.01909435054381936,
+    "Construction": 0.07878074272553759,
+    "Education": 0.2608348122343531,
+    "Electricity, Gas and Water Supplies": 0.26225772350378507,
+    "Financial and Insurance Activities": 0.2083261641427343,
+    "Human Health and Social Work Activities": 0.19377767719490868,
+    "Information and Communication": 0.09741599750371854,
+    "Manufacturing": 0.02933420982171331,
+    "Mining and Quarrying": 0.08999226650062475,
+    "Other Activities": 0.13908915995152737,
+    "Professional, Scientific and Technical Activities": 0.21644951753682862,
+    "Real Estate Activities": 0.2529853123928729,
+    "Transportation and Storage": 0.10503706285593895,
+    "Wholesale and Retail Trade": 0.060843514827374046
+  },
+  "sectors": {
+    "retail_trade": {
+      "activity": "Wholesale and Retail Trade",
+      "credit_mn_sar_latest": 220795.088210038,
+      "share_of_total_credit": 0.06457268446812818,
+      "share_of_business_credit": 0.11240165171805562,
+      "cagr_2021q3_to_latest": 0.060843514827374046
+    },
+    "construction": {
+      "activity": "Construction",
+      "credit_mn_sar_latest": 150843.800862045,
+      "share_of_total_credit": 0.044115062685507536,
+      "share_of_business_credit": 0.07679107586032112,
+      "cagr_2021q3_to_latest": 0.07878074272553759
+    },
+    "food_beverage": {
+      "activity": "Accommodation and Food Service Activities",
+      "credit_mn_sar_latest": 60968.4322754042,
+      "share_of_total_credit": 0.017830538585582242,
+      "share_of_business_credit": 0.031037612955849662,
+      "cagr_2021q3_to_latest": 0.15370781566457925
+    },
+    "professional_services": {
+      "activity": "Professional, Scientific and Technical Activities",
+      "credit_mn_sar_latest": 14671.8659977066,
+      "share_of_total_credit": 0.004290864354406844,
+      "share_of_business_credit": 0.007469106243701417,
+      "cagr_2021q3_to_latest": 0.21644951753682862
+    }
+  },
+  "limitation": "Total bank credit by activity, not SME credit; no SME-vs-large split, no NPLs. Construction's share is dominated by large contractors. Index is relative only; absolute level stays judgement (§7.4). §21 NPL target remains pending_week1_check.",
+  "status": "index_blocked_no_sme_counts",
+  "note": "Phase 1 (Monsha'at) blocked — credit shares reported, per-business index and config proposal withheld (§7.3)"
+}

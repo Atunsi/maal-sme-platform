@@ -1,0 +1,17 @@
+{
+  "file": "bank_credit_by_activity_2021_2026.csv",
+  "sha256": "10cefcf7b76ac3e05fcaaafb2116c77966d1e7a57f00ef1e410150da896136af",
+  "bytes": 122679,
+  "access_date": "2026-09-16",
+  "origin_body": "Saudi Central Bank (SAMA)",
+  "publication": "SAMA Monetary and Financial Statistics — Bank Credit by Economic Activity (17 sectors)",
+  "retrieval": "KAPSARC Data Portal mirror (OpenDataSoft export API)",
+  "retrieval_url": "https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/bank-credit-by-economic-activity-17-sectors/exports/csv?delimiter=%3B&use_labels=true",
+  "dataset_page": "https://datasource.kapsarc.org/explore/dataset/bank-credit-by-economic-activity-17-sectors/",
+  "edition": "KAPSARC export as served on the access date; span recorded below after loading",
+  "span": [
+    "2021-07-01",
+    "2026-04-01"
+  ],
+  "rows_tidy": 360
+}

@@ -1,0 +1,143 @@
+{
+  "run_at": "2026-09-16T09:49:05+00:00",
+  "sama_archives": [
+    {
+      "file": "pos_by_sector_monthly_2016_2023.csv",
+      "sha256": "4aea3d0ed44ccd50b26f311c640e8ae609f96155e549e7341d8028adda49360c",
+      "bytes": 540125,
+      "access_date": "2026-09-16",
+      "origin_body": "Saudi Central Bank (SAMA)",
+      "publication": "SAMA Monetary and Financial Statistics, Table 30d — Points of Sale Transactions by Sectors",
+      "retrieval": "KAPSARC Data Portal mirror (OpenDataSoft export API)",
+      "retrieval_url": "https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/points-of-sale-transactions-and-sales-by-sector/exports/csv?delimiter=%3B&use_labels=true",
+      "dataset_page": "https://datasource.kapsarc.org/explore/dataset/points-of-sale-transactions-and-sales-by-sector/",
+      "edition": "KAPSARC export as served on the access date; span recorded below after loading",
+      "span": [
+        "2016-01-01",
+        "2023-12-01"
+      ],
+      "rows_tidy": 3264
+    },
+    {
+      "file": "pos_aggregate_1995_2026.csv",
+      "sha256": "c08b693ad7f520d16415d437a9778480ead35a34b9c77bdf77383c95a1564f6e",
+      "bytes": 258497,
+      "access_date": "2026-09-16",
+      "origin_body": "Saudi Central Bank (SAMA)",
+      "publication": "SAMA Monetary and Financial Statistics — Points of Sale Transactions (aggregate)",
+      "retrieval": "KAPSARC Data Portal mirror (OpenDataSoft export API)",
+      "retrieval_url": "https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/pos-transactions/exports/csv?delimiter=%3B&use_labels=true",
+      "dataset_page": "https://datasource.kapsarc.org/explore/dataset/pos-transactions/",
+      "edition": "KAPSARC export as served on the access date; span recorded below after loading",
+      "span": [
+        "1995-01-01",
+        "2026-07-01"
+      ],
+      "rows_tidy": 1683
+    },
+    {
+      "file": "bank_credit_by_activity_2021_2026.csv",
+      "sha256": "10cefcf7b76ac3e05fcaaafb2116c77966d1e7a57f00ef1e410150da896136af",
+      "bytes": 122679,
+      "access_date": "2026-09-16",
+      "origin_body": "Saudi Central Bank (SAMA)",
+      "publication": "SAMA Monetary and Financial Statistics — Bank Credit by Economic Activity (17 sectors)",
+      "retrieval": "KAPSARC Data Portal mirror (OpenDataSoft export API)",
+      "retrieval_url": "https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/bank-credit-by-economic-activity-17-sectors/exports/csv?delimiter=%3B&use_labels=true",
+      "dataset_page": "https://datasource.kapsarc.org/explore/dataset/bank-credit-by-economic-activity-17-sectors/",
+      "edition": "KAPSARC export as served on the access date; span recorded below after loading",
+      "span": [
+        "2021-07-01",
+        "2026-04-01"
+      ],
+      "rows_tidy": 360
+    },
+    {
+      "file": "pos_by_sector_weekly_2020_2025.csv",
+      "sha256": "4966f401e979564676236406b411a4de0093e2e9003ce8b2513b1e4d61f00d40",
+      "bytes": 2480236,
+      "access_date": "2026-09-16",
+      "origin_body": "Saudi Central Bank (SAMA)",
+      "publication": "SAMA Weekly Points of Sale Transactions (by activity and city)",
+      "retrieval": "KAPSARC Data Portal mirror (OpenDataSoft export API)",
+      "retrieval_url": "https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/point-of-sale-transactions-by-sector-and-city/exports/csv?delimiter=%3B&use_labels=true",
+      "dataset_page": "https://datasource.kapsarc.org/explore/dataset/point-of-sale-transactions-by-sector-and-city/",
+      "edition": "KAPSARC export as served on the access date; span recorded below after loading",
+      "span": [
+        "2020-05-10",
+        "2025-07-06"
+      ],
+      "rows_tidy": 9720
+    },
+    {
+      "file": "sama_weekly_pos_bulletin_2026-09-12.pdf",
+      "sha256": "c2b285f3aa57bc9c97f8874000139626ba50c4141f155477cd2021476d01e3cd",
+      "bytes": 244564,
+      "access_date": "2026-09-16",
+      "origin_body": "Saudi Central Bank (SAMA)",
+      "publication": "Weekly Points of Sale Transactions — report for the week 6–12 Sep 2026 (Table 1: by activity; Tables 2.1–2.2: by city)",
+      "retrieval": "SAMA website, direct PDF",
+      "retrieval_url": "https://www.sama.gov.sa/en-US/Statistics/Indices/POS_EN/Weekly_Points_of_Sale_Transactions_Report_12-Sep-2026.pdf",
+      "edition": "12-Sep-2026 bulletin (four weeks: 16 Aug–12 Sep 2026)"
+    }
+  ],
+  "spans": {
+    "pos_by_sector_monthly_2016_2023.csv": {
+      "rows_tidy": 3264,
+      "months": 96,
+      "sectors": 17,
+      "span": [
+        "2016-01-01",
+        "2023-12-01"
+      ]
+    },
+    "pos_aggregate_1995_2026.csv": {
+      "rows_tidy": 1683,
+      "indicators": 9,
+      "span": [
+        "1995-01-01",
+        "2026-07-01"
+      ],
+      "monthly_sales_obs": 379
+    },
+    "pos_by_sector_weekly_2020_2025.csv": {
+      "rows_tidy": 9720,
+      "weeks": 270,
+      "sectors": 18,
+      "span": [
+        "2020-05-10",
+        "2025-07-06"
+      ]
+    },
+    "bank_credit_by_activity_2021_2026.csv": {
+      "rows_tidy": 360,
+      "activities_excl_total": 17,
+      "span": [
+        "2021-07-01",
+        "2026-04-01"
+      ],
+      "individuals_loans_share_latest": 0.4255
+    }
+  },
+  "ramadan_calendar_findings": [
+    {
+      "hijri_year": 1448,
+      "config_vs_umm_al_qura": {
+        "ramadan_end": [
+          "2027-03-09",
+          "2027-03-08"
+        ],
+        "eid_start": [
+          "2027-03-10",
+          "2027-03-09"
+        ],
+        "eid_end": [
+          "2027-03-12",
+          "2027-03-11"
+        ]
+      },
+      "ramadan_days_umm_al_qura": 29
+    }
+  ],
+  "monshaat_probe": null
+}

@@ -1,0 +1,509 @@
+{
+  "run_at": "2026-09-16T09:49:13+00:00",
+  "held_out_years": [
+    2024,
+    2025
+  ],
+  "tolerance_abs": 0.1,
+  "aggregate": {
+    "sales": {
+      "beta_ramadan_calibrated": 1.111,
+      "calibration_years": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2021,
+        2022,
+        2023
+      ],
+      "held_out": {
+        "2024": {
+          "ramadan_month": "2024-03-01",
+          "ramadan_index_actual": 1.089,
+          "ramadan_index_predicted": 1.151,
+          "abs_error_ramadan": 0.062,
+          "mae_all_months": 0.031,
+          "within_tolerance": true,
+          "monthly": {
+            "2024-01-01": [
+              0.991,
+              0.998
+            ],
+            "2024-02-01": [
+              0.985,
+              0.927
+            ],
+            "2024-03-01": [
+              1.089,
+              1.151
+            ],
+            "2024-04-01": [
+              0.962,
+              0.907
+            ],
+            "2024-05-01": [
+              1.022,
+              1.034
+            ],
+            "2024-06-01": [
+              0.95,
+              0.979
+            ],
+            "2024-07-01": [
+              0.97,
+              1.016
+            ],
+            "2024-08-01": [
+              1.044,
+              1.054
+            ],
+            "2024-09-01": [
+              0.974,
+              0.995
+            ],
+            "2024-10-01": [
+              0.985,
+              0.968
+            ],
+            "2024-11-01": [
+              0.993,
+              0.955
+            ],
+            "2024-12-01": [
+              1.035,
+              1.016
+            ]
+          }
+        },
+        "2025": {
+          "ramadan_month": "2025-03-01",
+          "ramadan_index_actual": 1.126,
+          "ramadan_index_predicted": 1.144,
+          "abs_error_ramadan": 0.018,
+          "mae_all_months": 0.032,
+          "within_tolerance": true,
+          "monthly": {
+            "2025-01-01": [
+              1.004,
+              1.008
+            ],
+            "2025-02-01": [
+              0.995,
+              0.945
+            ],
+            "2025-03-01": [
+              1.126,
+              1.144
+            ],
+            "2025-04-01": [
+              0.893,
+              0.833
+            ],
+            "2025-05-01": [
+              1.014,
+              1.066
+            ],
+            "2025-06-01": [
+              0.917,
+              0.98
+            ],
+            "2025-07-01": [
+              0.998,
+              1.034
+            ],
+            "2025-08-01": [
+              1.057,
+              1.06
+            ],
+            "2025-09-01": [
+              0.981,
+              0.995
+            ],
+            "2025-10-01": [
+              1.005,
+              0.962
+            ],
+            "2025-11-01": [
+              0.988,
+              0.95
+            ],
+            "2025-12-01": [
+              1.021,
+              1.023
+            ]
+          }
+        }
+      }
+    },
+    "count": {
+      "beta_ramadan_calibrated": 0.978,
+      "calibration_years": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2021,
+        2022,
+        2023
+      ],
+      "held_out": {
+        "2024": {
+          "ramadan_month": "2024-03-01",
+          "ramadan_index_actual": 0.982,
+          "ramadan_index_predicted": 1.042,
+          "abs_error_ramadan": 0.06,
+          "mae_all_months": 0.033,
+          "within_tolerance": true,
+          "monthly": {
+            "2024-01-01": [
+              1.034,
+              1.041
+            ],
+            "2024-02-01": [
+              0.991,
+              0.937
+            ],
+            "2024-03-01": [
+              0.982,
+              1.042
+            ],
+            "2024-04-01": [
+              0.956,
+              0.898
+            ],
+            "2024-05-01": [
+              1.057,
+              1.044
+            ],
+            "2024-06-01": [
+              0.963,
+              1.02
+            ],
+            "2024-07-01": [
+              0.994,
+              1.023
+            ],
+            "2024-08-01": [
+              1.021,
+              1.054
+            ],
+            "2024-09-01": [
+              0.992,
+              1.001
+            ],
+            "2024-10-01": [
+              1.02,
+              0.988
+            ],
+            "2024-11-01": [
+              0.983,
+              0.962
+            ],
+            "2024-12-01": [
+              1.006,
+              0.99
+            ]
+          }
+        },
+        "2025": {
+          "ramadan_month": "2025-03-01",
+          "ramadan_index_actual": 0.972,
+          "ramadan_index_predicted": 1.018,
+          "abs_error_ramadan": 0.046,
+          "mae_all_months": 0.033,
+          "within_tolerance": true,
+          "monthly": {
+            "2025-01-01": [
+              1.049,
+              1.055
+            ],
+            "2025-02-01": [
+              0.973,
+              0.933
+            ],
+            "2025-03-01": [
+              0.972,
+              1.018
+            ],
+            "2025-04-01": [
+              0.958,
+              0.875
+            ],
+            "2025-05-01": [
+              1.049,
+              1.07
+            ],
+            "2025-06-01": [
+              0.963,
+              1.021
+            ],
+            "2025-07-01": [
+              1.018,
+              1.039
+            ],
+            "2025-08-01": [
+              1.024,
+              1.059
+            ],
+            "2025-09-01": [
+              0.993,
+              0.991
+            ],
+            "2025-10-01": [
+              1.031,
+              0.981
+            ],
+            "2025-11-01": [
+              0.979,
+              0.955
+            ],
+            "2025-12-01": [
+              0.99,
+              1.002
+            ]
+          }
+        }
+      }
+    }
+  },
+  "per_sector": {
+    "food_beverage": {
+      "pos_series": "Restaurants & Café",
+      "sales": {
+        "2024": {
+          "ramadan_actual": 0.827,
+          "ramadan_pred_monthly_beta": 0.8163,
+          "ramadan_pred_weekly_window": 0.759,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 1.206,
+          "eid_pred_weekly_window": 1.663,
+          "eid_pred_ci95": [
+            1.4358,
+            1.8902
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        },
+        "2025": {
+          "ramadan_actual": 0.852,
+          "ramadan_pred_monthly_beta": 0.8163,
+          "ramadan_pred_weekly_window": 0.759,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 1.221,
+          "eid_pred_weekly_window": 1.663,
+          "eid_pred_ci95": [
+            1.4358,
+            1.8902
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        }
+      },
+      "count": {
+        "2024": {
+          "ramadan_actual": 0.708,
+          "ramadan_pred_monthly_beta": 0.6951,
+          "ramadan_pred_weekly_window": 0.6676,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.904,
+          "eid_pred_weekly_window": 0.9726,
+          "eid_pred_ci95": [
+            0.9199,
+            1.0253
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        },
+        "2025": {
+          "ramadan_actual": 0.721,
+          "ramadan_pred_monthly_beta": 0.6951,
+          "ramadan_pred_weekly_window": 0.6676,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.979,
+          "eid_pred_weekly_window": 0.9726,
+          "eid_pred_ci95": [
+            0.9199,
+            1.0253
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        }
+      }
+    },
+    "retail_trade": {
+      "pos_series": "retail_composite",
+      "sales": {
+        "2024": {
+          "ramadan_actual": 1.28,
+          "ramadan_pred_monthly_beta": 1.3384,
+          "ramadan_pred_weekly_window": 1.4188,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.945,
+          "eid_pred_weekly_window": 0.9395,
+          "eid_pred_ci95": [
+            0.1895,
+            1.6894
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        },
+        "2025": {
+          "ramadan_actual": 1.433,
+          "ramadan_pred_monthly_beta": 1.3384,
+          "ramadan_pred_weekly_window": 1.4188,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.713,
+          "eid_pred_weekly_window": 0.9395,
+          "eid_pred_ci95": [
+            0.1895,
+            1.6894
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        }
+      },
+      "count": {
+        "2024": {
+          "ramadan_actual": 1.035,
+          "ramadan_pred_monthly_beta": 1.1248,
+          "ramadan_pred_weekly_window": 1.0986,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.937,
+          "eid_pred_weekly_window": 0.9508,
+          "eid_pred_ci95": [
+            0.7473,
+            1.1542
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        },
+        "2025": {
+          "ramadan_actual": 1.082,
+          "ramadan_pred_monthly_beta": 1.1248,
+          "ramadan_pred_weekly_window": 1.0986,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.853,
+          "eid_pred_weekly_window": 0.9508,
+          "eid_pred_ci95": [
+            0.7473,
+            1.1542
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        }
+      }
+    },
+    "construction": {
+      "pos_series": "Construction & Building Materials",
+      "sales": {
+        "2024": {
+          "ramadan_actual": 0.814,
+          "ramadan_pred_monthly_beta": 0.7072,
+          "ramadan_pred_weekly_window": 0.7871,
+          "ramadan_within_tol_vs_monthly": false,
+          "eid_week_actual": 0.355,
+          "eid_pred_weekly_window": 0.0,
+          "eid_pred_ci95": [
+            0.0,
+            0.0
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        },
+        "2025": {
+          "ramadan_actual": 0.906,
+          "ramadan_pred_monthly_beta": 0.7072,
+          "ramadan_pred_weekly_window": 0.7871,
+          "ramadan_within_tol_vs_monthly": false,
+          "eid_week_actual": 0.433,
+          "eid_pred_weekly_window": 0.0,
+          "eid_pred_ci95": [
+            0.0,
+            0.0
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        }
+      },
+      "count": {
+        "2024": {
+          "ramadan_actual": 0.964,
+          "ramadan_pred_monthly_beta": 0.9049,
+          "ramadan_pred_weekly_window": 0.9679,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.722,
+          "eid_pred_weekly_window": 0.4021,
+          "eid_pred_ci95": [
+            0.2814,
+            0.5229
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        },
+        "2025": {
+          "ramadan_actual": 1.037,
+          "ramadan_pred_monthly_beta": 0.9049,
+          "ramadan_pred_weekly_window": 0.9679,
+          "ramadan_within_tol_vs_monthly": false,
+          "eid_week_actual": 0.656,
+          "eid_pred_weekly_window": 0.4021,
+          "eid_pred_ci95": [
+            0.2814,
+            0.5229
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        }
+      }
+    },
+    "total": {
+      "pos_series": "Total",
+      "sales": {
+        "2024": {
+          "ramadan_actual": 1.054,
+          "ramadan_pred_monthly_beta": 1.1108,
+          "ramadan_pred_weekly_window": 1.1347,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.884,
+          "eid_pred_weekly_window": 0.816,
+          "eid_pred_ci95": [
+            0.4088,
+            1.2232
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        },
+        "2025": {
+          "ramadan_actual": 1.157,
+          "ramadan_pred_monthly_beta": 1.1108,
+          "ramadan_pred_weekly_window": 1.1347,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.78,
+          "eid_pred_weekly_window": 0.816,
+          "eid_pred_ci95": [
+            0.4088,
+            1.2232
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        }
+      },
+      "count": {
+        "2024": {
+          "ramadan_actual": 0.905,
+          "ramadan_pred_monthly_beta": 0.9778,
+          "ramadan_pred_weekly_window": 0.9296,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.931,
+          "eid_pred_weekly_window": 0.948,
+          "eid_pred_ci95": [
+            0.7975,
+            1.0985
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        },
+        "2025": {
+          "ramadan_actual": 0.948,
+          "ramadan_pred_monthly_beta": 0.9778,
+          "ramadan_pred_weekly_window": 0.9296,
+          "ramadan_within_tol_vs_monthly": true,
+          "eid_week_actual": 0.893,
+          "eid_pred_weekly_window": 0.948,
+          "eid_pred_ci95": [
+            0.7975,
+            1.0985
+          ],
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+        }
+      }
+    }
+  },
+  "note": "Fits read from calibration/out/phase2_seasonality.json (≤2023). 2025 weekly data end 2025-07-06, which covers Ramadan/Eid 1446 (Mar 2025) fully."
+}
