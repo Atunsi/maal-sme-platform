@@ -11,7 +11,8 @@ deliverables.
 | File | Purpose | Exit code |
 |---|---|---|
 | `gate_week3.py` | Week 3 "Generator Accepted" gate — the three pass/fail criteria (§19) plus structural checks | 0 = PASS, 1 = FAIL |
-| `validate_emergent.py` | §21 emergent macro validation against archived GASTAT figures, bands pre-registered in `config.yaml` | always 0 — **findings are results** |
+| `validate_emergent.py` | §21 validation: section A prints the **calibration-derived** revenue-share checks next to their closed form (they are inputs, not emergent — DECISIONS.md entry 12); section B the emergent targets (`days_negative_balance_distribution`, `realised_dso_vs_archetype`, `ramadan_amplitude_recovered`, `aggregate_default_rate`, `real_vs_synthetic_signal_strength`) → `out/emergent_validation.md` | always 0 — **findings are results** |
+| `seasonal_recovery.py` | shared by the gate (criterion 3) and §21: fits the §22 window decomposition to the generated data per sector (equal-weighted businesses, trend + day-of-week + window dummies) and compares recovered value and count multipliers with `config.yaml` | library |
 | `heldout_anomalies.py` | §12 held-out anomaly types, defined only here | 0, or raises on a §12 leak |
 | `berka_coverage.py` | Phase 2: coverage bands + evidence registry on the Berka engine output → `out/berka_coverage.md` | 0 = accepted |
 | `compare_real.py` | Phase 4: real-vs-synthetic comparison-set AUC, per-feature transfer, §8.4 findings → `out/real_vs_synthetic.md`. Asserts config hash unchanged, no look-ahead (self-tested), class-A scale-free set, §21 target pre-registered. | 0 |
@@ -27,6 +28,8 @@ deliverables.
 - **Two models, never one on both sources.** Comparison set is class A and scale-free, asserted against `profile_engine/evidence.py`.
 - **No class-C feature with a single performance number** — `sensitivity.py` refuses any parameter outside the `ungrounded.` block, and the evidence table names the class of every feature.
 - **§23 minimum-cell rule** (≥30 businesses and ≥10 defaults) — `gate_week3` reports thin cells as a loud `SKIP`; reuse it.
+- **Thinned POS sales rows** — `transactions.sample_weight` is 1/rate on POS `sales` rows (SOP_Saudi_Calibration §6.1); the gate checks outflows exactly, inflows exactly on un-thinned businesses and Σ amount × sample_weight within ±2% elsewhere. Anything that sums inflow amounts from `transactions.csv` must weight by it.
+- **Seasonality is gated on the population, not one business** — criterion 3 requires the configured value AND count multipliers to be recovered within ±0.08 for the class-B (SAMA-measured) sectors; class-C sectors are printed only.
 
 ## Still missing (Week 6–7)
 

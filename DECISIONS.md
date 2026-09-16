@@ -802,9 +802,49 @@ is now measured on the synthetic side. Unchanged C: sector weights and tier spli
 blocked), `base_monthly_inflow_sar`, construction / professional seasonality and arrival rates,
 financing share, everything in the `ungrounded` block. §21 NPL target: still unregistered.
 
-### 13.13 Phase 5 re-run at full scale — results
+### 13.13 Phase 5 re-run at full scale — results (2026-09-16, N = 10,000 research + 1,000 serving)
 
-_(filled from the re-run below; see also `/maal/saudi_calibration_report.md` §4)_
+Order followed as the SOP requires: reclassification committed (`5c106da`), then the
+calibration inputs (`43486c1`), then this re-run.
+
+**Week 3 gate: PASS** (`eval/out/gate_week3_after_calibration.txt`). Structural: Pandera on all
+tables; outflows equal Σ transactions exactly; inflows exact on the 4,997 un-thinned businesses;
+Σ amount × sample_weight / Σ inflow_total = **1.0003** on the 6,003 thinned POS-sector
+businesses (99.9% within ±20% per business). Criterion 1: construction `implied_dso_days`
+66.0 / 95.5 / 115.7 (min / median / max, n = 2,099), professional `implied_dio_days` max 3.58
+(n = 2,405) — unchanged. Criterion 2: sector differential **3.45×**, in-sample AUC **0.639**
+(was 0.641), closest cross-label pair 0.180 vs typical 0.443 — labels and latents are drawn before
+any inflow, so the label side did not move. Criterion 3 (redefined, 13.8): every class-B window
+recovered — retail value 1.28 / 1.32 / 0.91 / 0.83 vs configured 1.28 / 1.34 / 0.94 / 0.84 and
+count 1.09 / 1.11 / 0.92 / 0.85 vs 1.09 / 1.12 / 0.95 / 0.86 (n = 2,502); F&B value
+1.00 / 0.82 / 1.70 / 0.99 vs 1.00 / 0.82 / 1.66 / 0.96 and count 1.00 / 0.70 / 1.00 / 0.95 vs
+1.00 / 0.70 / 0.97 / 0.92 (n = 1,348); directions match. Class-C sectors recovered their
+judgement values within 0.02 (reported, not gated). Restaurants now dip in Ramadan: the
+seasonality wiring took. 1,208 thin-file exclusions (was 1,213). `transactions.csv`
+10,395,208 rows / 1.19 GB (was 9,810,364 / 1.08 GB) at a 10% POS sales thinning.
+
+**§21 (`eval/out/emergent_validation.md`): 0 emergent findings; 4 input-consistency misses.**
+`days_negative_balance_distribution`: 14.4% of 8,909 scorable research businesses have ≥ 1
+negative day (construction 34.4%, F&B 13.1%, retail 10.2%, professional 4.1%); p50/p90/p99
+33 / 90 / 90 — reported, no Saudi comparator. `realised_dso_vs_archetype`: medians 14.9 / 95.4 /
+5.1 / 34.5 all inside their bands. `ramadan_amplitude_recovered`: PASS in all 8 sector × kind rows
+(max deviation 0.04, on the 3-day Eid). `aggregate_default_rate` 4.06% (406 / 10,000), still
+unregistered. Calibration-derived checks: unchanged by construction — medium-tier share 0.440 vs
+GASTAT 0.343, sector TV distance 0.519, F&B and professional size gradients off — because the
+inputs they are a function of (`sector_size_distribution`, `base_monthly_inflow_sar`) did not
+change (13.2).
+
+**`eval.compare_real` (before → after):** synthetic comparison-set AUC **0.594 [0.567, 0.621] →
+0.610 [0.584, 0.636]** (5 contiguous-ID entity folds, 25 class-A scale-free features, 9,424
+scored); Berka unchanged at 0.901 [0.835, 0.955] (secondary, censored) / 0.740 [0.558, 0.902]
+(primary, expanding folds). Gap **0.307 → 0.291**, still a FINDING against ±0.10. Nothing was
+tuned toward it; the movement is the real POS receipt frequency now carried by feature 2 and the
+count seasonality, not a coupling change (ρ = 0.6, σ = 0.2 untouched). Evidence table unchanged:
+A 43 / B 3 / C 25 registry entries. `dimensions_check` PASS; `heldout_anomalies` self-test now
+runs (13.11).
+
+**Not moved, by design:** sector weights, tier splits, base inflows, financing share, and every
+class-C dimension.
 
 **Recorded by:** generator owner, 2026-09-16.
 **Sign-off:** ☐ generator owner (13.3–13.8) ☐ profile engine owner (`sample_weight` column, feature 2 now at POS frequency) ☐ team (13.2 blocked status, 13.6 schema change)

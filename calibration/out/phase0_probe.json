@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-09-16T09:49:05+00:00",
+  "run_at": "2026-09-16T09:54:10+00:00",
   "sama_archives": [
     {
       "file": "pos_by_sector_monthly_2016_2023.csv",
@@ -119,25 +119,6 @@
       "individuals_loans_share_latest": 0.4255
     }
   },
-  "ramadan_calendar_findings": [
-    {
-      "hijri_year": 1448,
-      "config_vs_umm_al_qura": {
-        "ramadan_end": [
-          "2027-03-09",
-          "2027-03-08"
-        ],
-        "eid_start": [
-          "2027-03-10",
-          "2027-03-09"
-        ],
-        "eid_end": [
-          "2027-03-12",
-          "2027-03-11"
-        ]
-      },
-      "ramadan_days_umm_al_qura": 29
-    }
-  ],
+  "ramadan_calendar_findings": [],
   "monshaat_probe": null
 }

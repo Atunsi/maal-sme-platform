@@ -90,6 +90,17 @@ python -m eval.compare_real                          # Phase 4 → eval/out/real
 python -m eval.sensitivity --all                     # §13.4 class-C ranges → eval/out/sensitivity_*.md
 python -m eval.evidence_table                        # §13.5 → eval/out/evidence_table.md
 
+# Saudi national source calibration (SOP_Saudi_Calibration_Sources — see calibration/README.md)
+python -m calibration.probe_sources                  # Phase 0: archive SAMA tables + bulletin, assert quirks, probe Monsha'at
+python -m calibration.monshaat_pull                  # Phase 1: register pull (exit 2 while the gateway is down)
+python -m calibration.sector_mix                     # Phase 1: ISIC → four sectors (blocked until a pull succeeds)
+python -m calibration.seasonality                    # Phase 2: §22 NNLS + weekly Eid window model → calibration/out/
+python -m calibration.ticket_size                    # Phase 3
+python -m calibration.holdout_validate               # Phase 3: 2024–2025 held out, never refitted
+python -m calibration.credit_intensity               # Phase 4
+python -m calibration.check_config                   # config.yaml == measured values (exit 1 on drift)
+python -m calibration.write_report                   # Phase 6 → ../saudi_calibration_report.md
+
 python -m ruff check .              # §37.3
 ```
 
@@ -111,6 +122,8 @@ config.yaml           Every generative parameter (§12). Show this in the demo �
 generator/            The generator + Pandera schemas + Phase 5 dimensions. [BUILT]
 berka_adapter/        PKDD'99 Berka → the same table contract.  [BUILT]
 eval/                 Gates, validation, comparison, sensitivity harnesses; reports in eval/out/. [BUILT]
+calibration/          Saudi national source calibration: SAMA POS seasonality, ticket sizes, credit,
+                      Monsha'at register pull; measurements in calibration/out/. [BUILT — Phase 1 blocked]
 profile_engine/       Features 1–69, evidence registry, /profile membership lists. [BUILT]
 lenses/               credit · forecast · anomaly · zakat.      [stubs + contracts]
 compliance/           Sharia screening, PDPL note.              [stub + contract]
@@ -118,34 +131,51 @@ api/                  The five read-paths (§8).                 [stub + contrac
 data/                 Generated tables (+ data/berka/, data/berka_raw/). Git-ignored.
 docs/                 The schema and the SOP.
 sources/gastat/       Archived GASTAT publications (§21 source discipline).
+sources/sama/         Archived SAMA POS / credit tables + weekly bulletin, each with .sha256 and .meta.json.
+sources/monshaat/     Monsha'at register pulls (empty until the gateway answers — see DECISIONS.md 13.2).
 sources/berka/        Archived Berka dataset + SOURCE.md (hash, access date, citation).
 DECISIONS.md          Change-control log.
 ```
 
 ---
 
-## Current state of the data (2026-09-15)
+## Current state of the data (2026-09-16, after the Saudi source calibration)
 
 **Week 3 "Generator Accepted" gate: PASS** at full scale (N=10,000 research +
-N=1,000 serving).
+N=1,000 serving), re-run after the SAMA-measured inputs landed
+(`eval/out/gate_week3_after_calibration.txt`).
 
 | Criterion | Result |
 |---|---|
-| 1. Sector-consistent balance sheets (§24, §30) | construction `implied_dso_days` ∈ [60,120] for all 2,103 scorable; professional `implied_dio_days` < 5 for all 2,401 |
-| 2. Labels not a function of observables (§14) | ground-truth default rate construction 6.1% vs professional 1.8% (3.4×); in-sample AUC on observables 0.64; closest cross-label pair (0.15) closer than a typical neighbour (0.44) |
-| 3. POS/inflow tracks Ramadan/Eid (§22) | demo business 10001: Ramadan 1.29× baseline, Eid 3.68× |
+| 1. Sector-consistent balance sheets (§24, §30) | construction `implied_dso_days` 66.0 / 95.5 / 115.7 (min/median/max) for all 2,099 scorable; professional `implied_dio_days` max 3.58 for all 2,405 |
+| 2. Labels not a function of observables (§14) | ground-truth default rate construction 6.2% vs professional 1.8% (3.45×); in-sample AUC on observables 0.64; closest cross-label pair (0.18) closer than a typical neighbour (0.44) |
+| 3. POS/inflow tracks Ramadan/Eid (§22) | population-level recovery of the **measured** multipliers: restaurants Ramadan 0.82 value / 0.70 count (down, as SAMA POS shows), Eid 1.70; retail Ramadan 1.32 / 1.11 — all class-B windows within ±0.08 of config |
 
-**§21 emergent macro validation: 4 findings, 0 retuned.** The generator's
-sector revenue mix does not match GASTAT 2022 — medium-tier revenue share is
-43.9% generated vs 34.3% published on the same four sectors, and the sector mix
-is off materially (construction 60.6% vs 25.6%, retail 13.9% vs 60.0%). Per
-§21 this is **reported as a finding, not corrected by tuning the generator to
-hit the target** — doing so would convert an emergent validation into a
-calibration input wearing a validation label. Root cause and resolution path:
-[`DECISIONS.md` entry 6](DECISIONS.md).
+**Saudi national source calibration (`SOP_Saudi_Calibration_Sources`, 2026-09-16)** —
+report at [`../saudi_calibration_report.md`](../saudi_calibration_report.md), decisions
+in [`DECISIONS.md` entries 12–13](DECISIONS.md). Measured from SAMA and now class B:
+Ramadan/Eid **value and count** multipliers for retail and F&B (the old placeholder had
+food service *rising* 1.45× in Ramadan; it falls to 0.82×), and POS ticket sizes (retail
+61.5 SAR, restaurants 29.0 SAR against a config-implied 400 / 250). 2024 and 2025 held out
+against the ≤2023 fit and never refitted. **Blocked:** the Monsha'at register gateway
+returned no data, so sector weights, tier splits and the financing share are unchanged
+and still judgement.
+
+**§21 validation: 0 emergent findings; 4 input-consistency misses.** The revenue-share
+metrics were reclassified as *calibration-derived checks* (they are a closed-form
+function of sector weight × base inflow × size scale — entry 12), so the GASTAT gap
+(medium tier 44.0% vs 34.3%; construction 60.9% vs 25.6% of revenue) is now stated for
+what it is: the inputs differ from GASTAT, and only a sourced size mix or a sourced base
+inflow moves it. The genuinely emergent targets — days-negative shape, realised DSO vs
+archetype, Ramadan amplitude recovered — all pass or are reported.
 
 **Do not put any cross-sector revenue total on a slide** (aggregate Zakat,
-portfolio amounts) until that entry's step 3 lands.
+portfolio amounts) until entry 6's step 3 lands.
+
+**`transactions.csv` carries `sample_weight`.** POS receipts are generated at the measured
+ticket (~33/day for a micro shop) and the `sales` rows of POS sectors are a 10% unbiased
+thinning (weight 10.0); `daily_aggregates` keeps the full counts and is authoritative.
+Anything that sums inflow amounts from `transactions.csv` must weight by it.
 
 ## Real-data grounding (2026-09-16) — what is measured and what is judged
 
@@ -156,7 +186,7 @@ portfolio amounts) until that entry's step 3 lands.
 | Completeness gate | 4,500 / 4,500 accounts chain (0.21 CZK month-end tolerance) | `data/berka/build_summary.json` |
 | §15 rule on real data | **excludes 100%** of accounts as written; scored under `external_real: 10` (3,947 / 4,500) | [entry 9](DECISIONS.md) |
 | Evidence classes | **A 43, B 3, C 25** of 71 registry entries (69 numbered features + 18b, 62b) | [`eval/out/evidence_table.md`](eval/out/evidence_table.md) |
-| Real vs synthetic AUC | synthetic **0.594 [0.567, 0.621]** (N=10,000, entity folds) vs Berka **0.901 [0.835, 0.955]** (secondary/censored, temporal holdout) / **0.740 [0.558, 0.902]** (primary, expanding folds) — **FINDING**, not retuned | [`eval/out/real_vs_synthetic.md`](eval/out/real_vs_synthetic.md), [entry 10](DECISIONS.md) |
+| Real vs synthetic AUC | synthetic **0.610 [0.584, 0.636]** (N=10,000, entity folds; 0.594 before the calibration) vs Berka **0.901 [0.835, 0.955]** (secondary/censored, temporal holdout) / **0.740 [0.558, 0.902]** (primary, expanding folds) — gap 0.29, **FINDING**, not retuned | [`eval/out/real_vs_synthetic.md`](eval/out/real_vs_synthetic.md), [entry 10](DECISIONS.md), [13.13](DECISIONS.md) |
 | Class-C features | sensitivity ranges only, never a single number | `eval/out/sensitivity_*.md` |
 
 The three-column evidence table is the honest answer to "you have no real
@@ -201,11 +231,16 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
 - **The 0.1 tolerance on `real_vs_synthetic_signal_strength` was missed by 0.30**
   in the direction of *more* real signal. The generator's ρ = 0.6 / σ = 0.2 is
   untouched; revisit only through a recorded §21 decision.
-- **Seasonality multipliers are placeholders** until β_Ramadan / β_Eid are
-  estimated from mada bulletins by the §22 NNLS method.
-- **Ramadan/Eid dates are a pinned table** in `config.yaml` (1445–1448), not a
-  runtime Hijri library — reproducible from the file alone, but verify against
-  the Umm al-Qura calendar before the defense.
+- **Seasonality is measured only for retail and F&B.** Construction and
+  professional-services multipliers stay author judgement (class C): SAMA POS
+  measures consumer card spend, not contractor or firm receipts.
+- **Sector weights, tier splits and the financing share are still judgement.**
+  The Monsha'at Enterprises Statistics gateway returned no data on 2026-09-16;
+  the pull and mapping scripts are complete and `sector_size_distribution` is
+  unchanged until it answers (DECISIONS.md 13.2).
+- **Ramadan/Eid dates are a pinned table** in `config.yaml` (1445–1448), asserted
+  against the Umm al-Qura converter by `calibration/hijri.py` (1448 was one day
+  off and was corrected from the converter).
 - **SAMA SME-specific NPL target is unregistered** pending the §21 Week-1 check
   that a citable published series exists at all. Drop the target rather than
   assert an untraceable number.
@@ -243,8 +278,27 @@ Added by the real-data grounding SOP (§16):
   the rest are B or C and the membership list is published.
 - Berka's `C` status is **censored**, not a confirmed non-default. Both label
   treatments are reported and the censoring is named.
-- The real-versus-synthetic AUC gap (0.30, real side higher) is **reported as a
+- The real-versus-synthetic AUC gap (0.29, real side higher) is **reported as a
   finding**.
+
+Added by the Saudi source calibration (2026-09-16):
+
+- Ramadan/Eid seasonality is **measured from SAMA POS for retail and food service
+  only** (class B, with confidence intervals in `config.yaml`); construction and
+  professional-services seasonality remains author judgement (class C) because POS
+  measures consumer card spend, not contractor or firm receipts.
+- **Food service falls in Ramadan** (0.82× value, 0.70× count, down in every one of
+  seven years) and spikes at Eid (1.66×). The biggest Eid effect in the data is
+  **clothing** (β 1.90), which no generator sector isolates.
+- **Sector weights, tier splits and the financing share are unsourced.** The
+  Monsha'at register was unreachable on the calibration date; the config-implied
+  aggregate size split (75.5 / 19.4 / 5.2 %) differs from Monsha'at's published
+  national 87.0 / 11.5 / 1.4 %. Bank credit by activity is total credit, not SME
+  credit, and has no NPL field.
+- Ticket sizes are **one bulletin edition** (12 Sep 2026, four weeks); earlier editions
+  differ by up to 20% as card adoption keeps changing the mix.
+- 2024 and 2025 were **held out** and never refitted; the aggregate and per-sector
+  Ramadan predictions land within ±0.10, the consumer building-materials line does not.
 - **No public dataset contains direct debits, scheduled payments, or credit
   facilities.** These are class C, synthesised, reported with sensitivity ranges.
 - MCC is coverage-limited per §12.3: only 90% of retail/F&B and 15–25% of

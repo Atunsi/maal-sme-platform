@@ -34,6 +34,14 @@ here (§12), so the config alone reproduces the dataset.
   business_id)`, so a business reproduces identically regardless of what else
   is generated, and `--quick` output matches the full run for shared IDs.
 - **`data_source` stamped on every row** at generation (§29).
+- **POS receipts arrive at the SAMA-measured average ticket** (retail 61.5 SAR, restaurants
+  29.0 SAR — `avg_inflow_ticket_sar`), so `daily_aggregates.inflow_count` is real POS
+  frequency (~33/day for a micro shop). To bound `transactions.csv`, the `sales` rows of POS
+  sectors are an unbiased 10% thinning carrying `sample_weight = 10.0`; every other row is 1.0
+  and `daily_aggregates` stays authoritative (SOP_Saudi_Calibration §6.1, DECISIONS.md 13.6).
+- **Ramadan/Eid multipliers are measured, value and count separately**, for retail and F&B
+  (`seasonality_value_multiplier`, `seasonality_count_multiplier`, class B); construction and
+  professional services keep judgement values labelled class C.
 - Thin-file businesses (`coverage_days_90d < 60`) occur naturally from the
   sampled age tier (§15, §20) — ~1,200 of 11,000. They are the `insufficient_data`
   population the Week 8 gate must surface as a distinct state.
