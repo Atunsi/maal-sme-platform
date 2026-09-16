@@ -3,8 +3,10 @@
 Shared by eval.validate_emergent and eval.gate_week3 (criterion 3) so both agree on the definition:
 
   per sector, research population, businesses operating for the whole window (thin-file starts excluded
-  because they contribute to the baseline but not to Ramadan):
-      y_t = log Σ_b inflow_total[b, t]      (value)      and     log Σ_b inflow_count[b, t]   (count)
+  because they contribute to the baseline but not to Ramadan). Each business's daily series is divided by
+  its own window mean and the sector series is the equal-weighted mean across businesses, so a few
+  medium-tier businesses cannot dominate:
+      y_t = log mean_b( inflow_total[b, t] / mean_t inflow_total[b, ·] )   (value)   and the same on inflow_count (count)
       y_t = α + β·t/T + Σ_dow δ_dow + Σ_w θ_w · 1[t ∈ window w] + ε_t
   recovered multiplier for window w = exp(θ_w). Day-of-week dummies matter: Eid 1447 (20–22 Mar 2026)
   falls on Fri–Sun, so for sun_thu sectors a raw window mean would confound Eid with the weekend.
@@ -33,12 +35,25 @@ def configured_multipliers(cfg: dict) -> dict[str, dict[str, dict[str, float]]]:
     return {s: {"value": {w: float(legacy[s][w]) for w in WINDOWS}, "count": {w: 1.0 for w in WINDOWS}} for s in legacy}
 
 
+def _equal_weight_series(d: pd.DataFrame, col: str) -> pd.Series:
+    """Mean over businesses of each business's series divided by its own window mean.
+
+    Equal weighting, not a raw sector sum: a raw sum is dominated by the handful of medium-tier
+    businesses (15× scale) whose persistent AR(1) receipt lumpiness then masquerades as a
+    sector-wide level shift — visible as a uniform bias across all four windows at quick scale.
+    """
+    piv = d.pivot_table(index="date", columns="business_id", values=col, aggfunc="sum").sort_index()
+    means = piv.mean(axis=0)
+    piv = piv.loc[:, means > 0]
+    return (piv / piv.mean(axis=0)).mean(axis=1)
+
+
 def recover(daily: pd.DataFrame, businesses: pd.DataFrame, cfg: dict, population: str = "research") -> dict:
     biz = businesses[(businesses["population"] == population) & (businesses["operating_start_date"] == businesses["start_date"])]
     out = {}
     for sector, ids in biz.groupby("sector")["business_id"]:
         d = daily[daily["business_id"].isin(set(ids))]
-        agg = d.groupby("date")[["inflow_total", "inflow_count"]].sum().sort_index()
+        agg = pd.DataFrame({"inflow_total": _equal_weight_series(d, "inflow_total"), "inflow_count": _equal_weight_series(d, "inflow_count")})
         dates = pd.DatetimeIndex(agg.index)
         masks = calendar_masks(cfg, dates)
         T = len(dates)

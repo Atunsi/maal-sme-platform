@@ -100,10 +100,22 @@ def calendar_masks(cfg: dict, dates: pd.DatetimeIndex) -> dict[str, np.ndarray]:
     return m
 
 
-def seasonal_multiplier(cfg: dict, sector: str, dates: pd.DatetimeIndex) -> np.ndarray:
+def seasonal_multiplier(cfg: dict, sector: str, dates: pd.DatetimeIndex, kind: str = "value") -> np.ndarray:
+    """Per-day multiplier on expected inflow VALUE or on receipt COUNT (§22; SOP_Saudi_Calibration §5.4).
+
+    SAMA POS shows the two move differently in Ramadan (Total: value ×1.11, count ×0.98), so the
+    generator carries both: `seasonality_value_multiplier` and `seasonality_count_multiplier`.
+    The legacy single block `seasonality_multipliers` is read as value-only with count = 1.0.
+    """
     masks = calendar_masks(cfg, dates)
     mult = np.ones(len(dates))
-    sm = cfg["seasonality_multipliers"][sector]
+    if "seasonality_value_multiplier" in cfg:
+        block = cfg["seasonality_value_multiplier"] if kind == "value" else cfg.get("seasonality_count_multiplier", {})
+        sm = block.get(sector)
+    else:
+        sm = cfg["seasonality_multipliers"][sector] if kind == "value" else None
+    if sm is None:
+        return mult
     for key in ("pre_ramadan_10d", "ramadan", "eid", "post_eid_7d"):
         mult[masks[key]] = sm[key]
     return mult
@@ -263,21 +275,32 @@ def generate_business(cfg: dict, biz: dict, stats: dict) -> dict:
     activity = activity_level(dates, econ)
     op_frac = activity.mean()
     active = np.asarray(dates >= biz["operating_start_date"])
-    season = seasonal_multiplier(cfg, sec, dates)
+    season = seasonal_multiplier(cfg, sec, dates, "value")
+    season_count = seasonal_multiplier(cfg, sec, dates, "count")
     growth = (0.5 - u_trend) * om["window_growth_range"]
     trend = 1.0 + growth * np.arange(T) / (T - 1)
     crunch = np.ones(T)
     if biz["inject_cash_crunch"]:
         wk = biz["inject_cash_crunch"]["week"]
         crunch[np.arange(T) // 7 + 1 >= wk] = 1.0 - biz["inject_cash_crunch"]["severity_pct"] / 100.0
-    demand = trend * season * crunch * activity * active  # shape (T,)
-    tx_rate = activity * active  # transaction counts scale with activity, not with seasonal amount
+    demand = trend * season * crunch * activity * active  # expected VALUE per day, shape (T,)
+    count_demand = trend * season_count * crunch * activity * active  # expected receipt COUNT per day
+    tx_rate = activity * active
 
     # inflows: persistent AR(1) log-rate shock on arrivals (lumpiness ↑ with latent risk),
     # Poisson count given that rate, per-transaction amount so E[day total] = expected.
     tx_scale = cfg["size_tier_tx_scale"][biz["size_tier"]]
-    lam_in = econ["inflow_tx_per_day"] * tx_scale
     expected_in = monthly_inflow / (30.0 * op_frac) * demand
+    ticket = econ.get("avg_inflow_ticket_sar")
+    if ticket:
+        # POS sectors (SOP_Saudi_Calibration §6.1): the receipt count follows revenue at the measured
+        # average ticket, so E[day total] / E[receipts] = ticket × value_season / count_season — in
+        # Ramadan fewer, larger baskets emerge instead of a single revenue multiplier.
+        lam_in_day = monthly_inflow / (30.0 * op_frac) * count_demand / float(ticket)
+    else:
+        # invoice-billed sectors: a fixed arrival rate (author judgement, class C); count seasonality
+        # is whatever config supplies (1.0 unless measured).
+        lam_in_day = econ["inflow_tx_per_day"] * tx_scale * tx_rate * season_count
     disp = band(om["inflow_dispersion_sigma"], u_vol)
     phi = om["inflow_dispersion_persistence"]
     x = np.empty(T)
@@ -286,10 +309,10 @@ def generate_business(cfg: dict, biz: dict, stats: dict) -> dict:
     for t in range(1, T):
         x[t] = phi * x[t - 1] + innov[t]
     day_shock = np.exp(x - 0.5 * disp * disp)  # stationary mean 1
-    n_in_day = rng.poisson(lam_in * tx_rate * day_shock)
+    n_in_day = rng.poisson(lam_in_day * day_shock)
     day_in = np.repeat(np.arange(T), n_in_day)
     sigma_in = float(np.clip(econ["daily_cv"] * band(om["amount_dispersion_multiplier"], u_vol), 0.1, 1.5))
-    per_tx_in = expected_in / np.maximum(lam_in * tx_rate, 1e-9)  # E[day total] = λ·activity·E[shock] · per-tx mean
+    per_tx_in = expected_in / np.maximum(lam_in_day, 1e-9)  # E[day total] = λ_day·E[shock] · per-tx mean
     amt_in = per_tx_in[day_in] * _lognormal_unit_mean(rng, sigma_in, len(day_in))
     hrs = econ["business_hours"]
     hour_in = rng.integers(hrs[0], hrs[1], len(day_in)) % 24
@@ -306,7 +329,10 @@ def generate_business(cfg: dict, biz: dict, stats: dict) -> dict:
     rec_monthly = monthly_outflow * econ["recurring_share"]
     rent = rec_monthly * econ["rent_share_of_recurring"]
     payroll = rec_monthly - rent
-    has_fin = rng.random() < cfg["financing"]["share_of_businesses"]
+    fin_share = cfg["financing"]["share_of_businesses"]
+    if isinstance(fin_share, dict):  # sector-conditional (SOP_Saudi_Calibration §7.3) once Phase 4 has its denominator
+        fin_share = fin_share[sec]
+    has_fin = rng.random() < float(fin_share)
     loan = monthly_outflow * cfg["financing"]["monthly_outflow_share"] if has_fin else 0.0
 
     dom = dates.day.to_numpy()
@@ -418,15 +444,39 @@ def generate_business(cfg: dict, biz: dict, stats: dict) -> dict:
             }
         )
 
+    # ---- SOP_Saudi_Calibration §6.1 (DECISIONS.md entry 13): POS receipts are generated at ticket
+    # granularity (~30–50 per day for a micro shop), which would put transactions.csv near 7 GB. The
+    # `sales` rows of POS sectors are therefore an unbiased thinning at
+    # output.pos_sales_transaction_sample_rate, each kept row carrying sample_weight = 1/rate.
+    # daily_aggregates above were computed from the FULL stream and stay authoritative; outflows and
+    # injected anomaly rows are never thinned. Σ amount × sample_weight reproduces inflow_total in
+    # expectation, which is what the gate checks.
+    rate = float(cfg["output"].get("pos_sales_transaction_sample_rate", 1.0)) if ticket else 1.0
+    n_all = len(order)
+    keep = np.ones(n_all, dtype=bool)
+    weight = np.ones(n_all)
+    if rate < 1.0:
+        sales_in = (direction[order] == 1) & (category[order] == CAT_SALES)
+        anomaly_pos = np.zeros(n_all, dtype=bool)
+        anomaly_pos[[i for i, _ in anomalies]] = True
+        thinnable = sales_in & ~anomaly_pos
+        thin_rng = np.random.default_rng([biz["seed"], b_id, 3])  # own stream: nothing else moves
+        keep = ~(thinnable & (thin_rng.random(n_all) >= rate))
+        weight[thinnable] = 1.0 / rate
+        new_pos = np.cumsum(keep) - 1
+        anomalies = [(int(new_pos[i]), t) for i, t in anomalies]
+    sel = order[keep]
+
     return {
         "tx": {
-            "day": day[order],
-            "hour": hour[order].astype(np.int16),
-            "direction": direction[order],
-            "amount": amount[order],
-            "cptype": cptype[order],
-            "category": category[order],
-            "cpid": cpid[order],
+            "day": day[sel],
+            "hour": hour[sel].astype(np.int16),
+            "direction": direction[sel],
+            "amount": amount[sel],
+            "cptype": cptype[sel],
+            "category": category[sel],
+            "cpid": cpid[sel],
+            "sample_weight": weight[keep],
             "dates": dates,
         },
         "daily": {
@@ -517,6 +567,7 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
                     "cpid": tx["cpid"],
                     "cptype": tx["cptype"],
                     "category": tx["category"],
+                    "sample_weight": tx["sample_weight"],
                 }
             )
             tx_offset += n_tx
@@ -553,6 +604,7 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
     )
     transactions["subfamily"] = transactions["category"].map(schemas.CATEGORY_SUBFAMILY)
     transactions["own_transfer_flag"] = False  # one account per business by construction (DECISIONS.md entry 7)
+    transactions["sample_weight"] = stack(tx_parts, "sample_weight")  # 1/rate on thinned POS sales rows, else 1.0
     transactions["evidence_class"] = evc
     daily = pd.DataFrame({k: stack(daily_parts, k) for k in daily_parts[0]})
     for c in ("inflow_total", "outflow_total", "recurring_outflow_total", "net_flow", "eod_balance"):

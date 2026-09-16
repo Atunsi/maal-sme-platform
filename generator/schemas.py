@@ -100,6 +100,10 @@ transactions_schema = DataFrameSchema(
         "value_date": Column(pa.DateTime, nullable=True, coerce=True),
         "status": Column(str, Check.isin(TX_STATUSES)),
         "charge_amount": Column(float, nullable=True),
+        # SOP_Saudi_Calibration §6.1 / DECISIONS.md entry 13: generator POS `sales` rows are an unbiased
+        # thinning at output.pos_sales_transaction_sample_rate and carry 1/rate; every other row (and
+        # every Berka row) carries 1.0. Σ amount × sample_weight reproduces daily_aggregates.inflow_total.
+        "sample_weight": Column(float, Check.ge(1.0)),
         "data_source": _src,
         "evidence_class": _evc,
     },

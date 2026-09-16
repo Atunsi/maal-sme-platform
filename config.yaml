@@ -28,6 +28,14 @@ populations:
 
 # --- §20 stage 1 + stage 2: sector weight, then size | sector -----------------
 # Sector weights must sum to 1.0; each size_tiers block must sum to 1.0.
+# STATUS 2026-09-16 (SOP_Saudi_Calibration Phase 1, DECISIONS.md entry 13): still author judgement
+# (class C). The Monsha'at Enterprises Statistics gateway answered statusCode 1016 (provider timeout)
+# and 1009 (No Data Found) for every quarter on the access date, so the national ISIC × size counts
+# could not be pulled; calibration/monshaat_pull.py + sector_mix.py are ready to write this block the
+# day it answers. Known consistency gap: these values imply an aggregate micro/small/medium split of
+# 75.5 / 19.4 / 5.2 %, against Monsha'at's published national 87.0 / 11.5 / 1.4 % (Q4 2023,
+# 1,138,588 / 150,788 / 18,723) — construction's 45/40/15 is the outlier. Not rescaled by hand: that
+# would be a judgement wearing a source's name.
 sector_size_distribution:
   retail_trade:          { weight: 0.35, size_tiers: { micro: 0.85, small: 0.13, medium: 0.02 } }
   construction:          { weight: 0.20, size_tiers: { micro: 0.45, small: 0.40, medium: 0.15 } }
@@ -112,8 +120,14 @@ observable_mapping:
 # --- sector economics (feeds transactions.csv / daily_aggregates.csv) -----------
 sector_economics:
   retail_trade:
-    base_monthly_inflow_sar: 60000
-    inflow_tx_per_day: 5.0           # deliberately low vs. real POS counts to bound transactions.csv size
+    base_monthly_inflow_sar: 60000   # author judgement (class C) — SOP_Saudi_Calibration §10.6: unsourced, deliberately left
+    # SOP_Saudi_Calibration Phase 3 (DECISIONS.md entry 13): receipts arrive at the MEASURED average ticket,
+    # so the receipt count is base inflow ÷ ticket (~33/day for a micro shop, not the old 5.0 which
+    # implied a 400 SAR ticket). Source: SAMA Weekly Points of Sale Transactions bulletin 12-Sep-2026,
+    # Table 1, four weeks 16 Aug–12 Sep 2026, Σvalue ÷ Σcount over Apparel + Food & Beverages (grocery) +
+    # Electronics + Furniture & Home Supplies + Jewelry (sources/sama/sama_weekly_pos_bulletin_2026-09-12.pdf).
+    # Stability: weekly series Jan–Jul 2025 63.4; monthly Table 30d 2023 69.9 (calibration/out/phase3_ticket_size.json).
+    avg_inflow_ticket_sar: 61.5      # class B
     outflow_tx_per_day: 1.5
     cost_ratio: 0.86
     recurring_share: 0.30
@@ -126,8 +140,8 @@ sector_economics:
     supplier_pool: [4, 12]
     mcc_codes: [5311, 5331, 5411, 5999]
   construction:
-    base_monthly_inflow_sar: 180000
-    inflow_tx_per_day: 0.30          # milestone billing: few, large receipts
+    base_monthly_inflow_sar: 180000  # author judgement (class C)
+    inflow_tx_per_day: 0.30          # milestone billing: few, large receipts — class C; the POS "Construction & Building Materials" ticket (128 SAR) is consumer purchases, not contractor invoices, and is NOT applied (SOP_Saudi_Calibration §6.1)
     outflow_tx_per_day: 3.0          # materials, fuel, subcontractor draws — most days have a payment
     cost_ratio: 0.85
     recurring_share: 0.45
@@ -140,8 +154,10 @@ sector_economics:
     supplier_pool: [6, 20]
     mcc_codes: [1520, 1711, 1731, 1771]
   food_beverage:
-    base_monthly_inflow_sar: 45000
-    inflow_tx_per_day: 6.0
+    base_monthly_inflow_sar: 45000   # author judgement (class C)
+    # Same bulletin edition as retail: Restaurants & Cafés 29.0 SAR (latest week 27.9; weekly 2025 32.5;
+    # monthly 2023 34.9). Bakeries & Pastries read 38.6 in the same bulletin and are not modelled separately.
+    avg_inflow_ticket_sar: 29.0      # class B — replaces inflow_tx_per_day 6.0 (implied 250 SAR)
     outflow_tx_per_day: 1.5
     cost_ratio: 0.82
     recurring_share: 0.35
@@ -154,8 +170,8 @@ sector_economics:
     supplier_pool: [4, 10]
     mcc_codes: [5812, 5814, 5462]
   professional_services:
-    base_monthly_inflow_sar: 90000
-    inflow_tx_per_day: 0.50          # invoice-based
+    base_monthly_inflow_sar: 90000   # author judgement (class C)
+    inflow_tx_per_day: 0.50          # invoice-based — class C; the bulletin's "Professional & Business Services" (53 SAR) is a consumer-facing POS line, NOT applied
     outflow_tx_per_day: 2.2          # subscriptions, travel, contractors
     cost_ratio: 0.70
     recurring_share: 0.65            # payroll-heavy (§24)
@@ -174,6 +190,12 @@ size_tier_tx_scale: { micro: 1.0, small: 1.5, medium: 2.5 }    # × tx per day
 # Existing obligations (§31, feature 41): share of businesses with a recurring
 # repayment to a financial-institution counterparty, and its size.
 financing:
+  # SOP_Saudi_Calibration Phase 4: SAMA bank credit by activity (Individuals' Loans excluded) gives the
+  # RELATIVE credit intensity per sector once divided by Monsha'at SME counts — retail carries 1.5× the
+  # credit of construction, food service a quarter (calibration/out/phase4_credit_intensity.json). The
+  # per-sector index is withheld because the Monsha'at denominator (Phase 1) was unreachable on
+  # 2026-09-16; the generator already accepts a per-sector map here. Uniform 0.35 remains author
+  # judgement (class C) and the absolute level would stay judgement even with the index (§7.4).
   share_of_businesses: 0.35
   monthly_outflow_share: 0.08
 
@@ -199,16 +221,40 @@ ramadan_calendar:
   - { hijri_year: 1445, ramadan_start: "2024-03-11", ramadan_end: "2024-04-09", eid_start: "2024-04-10", eid_end: "2024-04-12" }
   - { hijri_year: 1446, ramadan_start: "2025-03-01", ramadan_end: "2025-03-29", eid_start: "2025-03-30", eid_end: "2025-04-01" }
   - { hijri_year: 1447, ramadan_start: "2026-02-18", ramadan_end: "2026-03-19", eid_start: "2026-03-20", eid_end: "2026-03-22" }
-  - { hijri_year: 1448, ramadan_start: "2027-02-08", ramadan_end: "2027-03-09", eid_start: "2027-03-10", eid_end: "2027-03-12" }
+  # 1448 corrected 2026-09-16: Ramadan 1448 has 29 days on the Umm al-Qura calendar (hijridate 2.6.0),
+  # so Shawwal 1 = 2027-03-09, not 03-10 (SOP_Saudi_Calibration Phase 0 finding; calibration/hijri.py
+  # asserts every row of this table against the converter).
+  - { hijri_year: 1448, ramadan_start: "2027-02-08", ramadan_end: "2027-03-08", eid_start: "2027-03-09", eid_end: "2027-03-11" }
 
-# Multipliers on expected daily inflow. Placeholders until β_Ramadan / β_Eid are
-# estimated from mada bulletins per the §22 NNLS method — treat as a calibration
-# input to be replaced, not a finding.
-seasonality_multipliers:
-  retail_trade:          { pre_ramadan_10d: 1.10, ramadan: 1.30, eid: 2.20, post_eid_7d: 0.80 }
-  food_beverage:         { pre_ramadan_10d: 1.05, ramadan: 1.45, eid: 1.80, post_eid_7d: 0.85 }
-  construction:          { pre_ramadan_10d: 1.00, ramadan: 0.80, eid: 0.25, post_eid_7d: 0.90 }
-  professional_services: { pre_ramadan_10d: 1.00, ramadan: 0.90, eid: 0.40, post_eid_7d: 0.95 }
+# MEASURED for retail_trade and food_beverage from SAMA POS by sector (SOP_Saudi_Calibration Phase 2,
+# DECISIONS.md entry 13; measurements in calibration/out/phase2_seasonality.json). Two multipliers per
+# window (§5.4): VALUE scales expected daily inflow, COUNT scales the receipt arrival rate; their ratio
+# is the average-ticket effect (Ramadan: fewer, larger baskets).
+#   ramadan            — §22 NNLS decomposition of SAMA Monetary & Financial Statistics Table 30d,
+#                        monthly 2016–2023, 2020 excluded, Gregorian controls + LOWESS adoption trend;
+#                        95% CI = leave-one-year-out jackknife (7 years).
+#   pre / eid / post   — weekly SAMA POS series 2021–2023, window model with day-overlap weights
+#                        (a monthly series cannot resolve the 3-day Eid); jackknife over 3 years.
+#   Held out, never refitted: 2024 and 2025 → calibration/out/phase3_holdout.json.
+#   Edition: KAPSARC mirror exports archived 2026-09-16, sources/sama/*.meta.json (SHA-256 recorded).
+# food_beverage ← "Restaurants & Café" (clean). retail_trade ← value-weighted composite of Clothing and
+# Footwear + Beverage and Food + Electronic & Electric Devices + Furniture + Jewelry (entry 13).
+# DIRECTION CORRECTION: restaurants FALL in Ramadan (0.82, down in every one of 7 years; count 0.70) and
+# spike at Eid (1.66); the previous placeholder had them rising 1.45× / 1.80×. The Eid spike in the POS
+# data is CLOTHING (β_Ramadan 1.90, weekly Eid 1.49) — no generator sector isolates it.
+# construction / professional_services stay author judgement (class C): the POS "Construction &
+# Building Materials" line (β_Ramadan 0.71) measures consumers buying materials, not contractor
+# receipts, and no POS line measures professional-services revenue. Not applied (§5.3).
+seasonality_value_multiplier:
+  retail_trade:          { pre_ramadan_10d: 1.28, ramadan: 1.34, eid: 0.94, post_eid_7d: 0.84, evidence_class: B }  # CI: pre [0.68,1.88] ramadan [1.28,1.39] eid [0.19,1.69] post [0.73,0.94]
+  food_beverage:         { pre_ramadan_10d: 1.00, ramadan: 0.82, eid: 1.66, post_eid_7d: 0.96, evidence_class: B }  # CI: pre [0.67,1.32] ramadan [0.76,0.87] eid [1.44,1.89] post [0.95,0.98]
+  construction:          { pre_ramadan_10d: 1.00, ramadan: 0.80, eid: 0.25, post_eid_7d: 0.90, evidence_class: C }  # unchanged judgement; POS does not measure contractor revenue
+  professional_services: { pre_ramadan_10d: 1.00, ramadan: 0.90, eid: 0.40, post_eid_7d: 0.95, evidence_class: C }  # unchanged judgement; no POS line
+seasonality_count_multiplier:
+  retail_trade:          { pre_ramadan_10d: 1.09, ramadan: 1.12, eid: 0.95, post_eid_7d: 0.86, evidence_class: B }  # CI: pre [0.84,1.35] ramadan [1.05,1.20] eid [0.75,1.15] post [0.79,0.94]
+  food_beverage:         { pre_ramadan_10d: 1.00, ramadan: 0.70, eid: 0.97, post_eid_7d: 0.92, evidence_class: B }  # CI: pre [0.82,1.19] ramadan [0.66,0.73] eid [0.92,1.03] post [0.87,0.97]
+  construction:          { pre_ramadan_10d: 1.00, ramadan: 1.00, eid: 1.00, post_eid_7d: 1.00, evidence_class: C }  # count seasonality of B2B receipts unmeasured
+  professional_services: { pre_ramadan_10d: 1.00, ramadan: 1.00, eid: 1.00, post_eid_7d: 1.00, evidence_class: C }
 
 # --- demo businesses (serving population; §12, §17) ----------------------------
 # Fully specified so the two required contrasts are reproducible on demand:
@@ -450,6 +496,12 @@ output:
   # and 45 need a prior 90-day window. null = emit the full window (180 rows);
   # set 90 for the literal §7 reading. Needs a change-control decision (§9 SOP).
   daily_aggregates_trailing_days: null
+  # SOP_Saudi_Calibration §6.1 (DECISIONS.md entry 13): POS receipts are generated at the measured ticket
+  # (~70M rows at full scale, ~7 GB). Resolution chosen: DECOUPLE count from file size — daily_aggregates
+  # keep the full counts and totals (features 1–4 read them), while the `sales` rows of POS sectors in
+  # transactions.csv are an unbiased thinning at this rate, each carrying sample_weight = 1/rate.
+  # Outflows and injected anomaly rows are never thinned; Berka rows are 1.0. Set to 1.0 for a full dump.
+  pos_sales_transaction_sample_rate: 0.10
   data_source: synthetic
   # SOP_Data_Grounding §1: base synthetic tables are class B (grounded synthetic).
   # Tables generated from the `ungrounded:` block are stamped C by the generator itself.

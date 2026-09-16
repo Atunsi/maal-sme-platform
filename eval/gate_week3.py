@@ -16,8 +16,9 @@ parameters), so every assertion here can actually fail:
                   not recoverable from the features,
               (c) ground-truth sector differential: construction default rate
                   ≥ 1.5 × professional services (research population).
-  Criterion 3 §22 Ramadan/Eid plot for the two demo businesses, plus a
-              quantitative overlap ratio check.
+  Criterion 3 §22 Ramadan/Eid plot for the demo businesses, plus the population-level
+              recovery of the configured (SAMA-measured) value and count multipliers per
+              sector via the §22 window decomposition fitted to the generated data.
 
 Usage (from the repo root):
         python -m eval.gate_week3 [--dir data] [--config config.yaml]
@@ -37,6 +38,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import pairwise_distances, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 
+from eval import seasonal_recovery as sr
 from generator import schemas
 from generator.generate import calendar_masks, load_config
 
@@ -131,13 +133,25 @@ def structural_checks(cfg: dict, t: dict[str, pd.DataFrame]) -> None:
         cols = [c for c in t[name].columns if c.startswith("latent_") or c in ("p_default", "default_label")]
         check(not cols, f"{name}: no latent/label columns (found {cols})")
 
-    # daily aggregates must agree with transactions (one coherent story, §24)
+    # daily aggregates must agree with transactions (one coherent story, §24). POS `sales` rows are an
+    # unbiased thinning carrying sample_weight = 1/rate (SOP_Saudi_Calibration §6.1), so the inflow side
+    # is checked exactly where nothing was thinned and in weighted expectation where it was.
     tx = t["transactions"]
-    agg = tx.groupby(["business_id", "date", "direction"])["amount"].sum().unstack(fill_value=0.0)
+    weighted = tx["amount"] * tx["sample_weight"]
+    agg = tx.assign(w=weighted).groupby(["business_id", "date", "direction"])["w"].sum().unstack(fill_value=0.0)
     d = t["daily_aggregates"].set_index(["business_id", "date"])
     joined = d.join(agg, how="left").fillna(0.0)
-    check(np.allclose(joined["inflow_total"], joined.get("in", 0.0), atol=0.05), "daily_aggregates.inflow_total == Σ transactions[in]")
-    check(np.allclose(joined["outflow_total"], joined.get("out", 0.0), atol=0.05), "daily_aggregates.outflow_total == Σ transactions[out]")
+    check(np.allclose(joined["outflow_total"], joined.get("out", 0.0), atol=0.05), "daily_aggregates.outflow_total == Σ transactions[out] (outflows are never thinned)")
+    thinned_biz = set(tx.loc[tx["sample_weight"] > 1.0, "business_id"])
+    full = joined[~joined.index.get_level_values("business_id").isin(thinned_biz)]
+    check(np.allclose(full["inflow_total"], full.get("in", 0.0), atol=0.05), f"daily_aggregates.inflow_total == Σ transactions[in] exactly on the {full.index.get_level_values('business_id').nunique()} businesses with no thinned rows")
+    thin = joined[joined.index.get_level_values("business_id").isin(thinned_biz)]
+    if len(thin):
+        ratio = float(thin.get("in", 0.0).sum() / thin["inflow_total"].sum())
+        check(abs(ratio - 1.0) <= 0.02, f"Σ amount×sample_weight [in] / Σ inflow_total = {ratio:.4f} on the {len(thinned_biz)} thinned (POS-sector) businesses — within ±2% (unbiased thinning)")
+        per_biz = thin.groupby(level="business_id").sum()
+        r_biz = per_biz.get("in", 0.0) / per_biz["inflow_total"]
+        check(r_biz.between(0.8, 1.2).mean() > 0.95, f"per-business weighted inflow within ±20% of inflow_total for {r_biz.between(0.8, 1.2).mean():.1%} of thinned businesses (> 95%)")
 
 
 def criterion_1(f: pd.DataFrame) -> None:
@@ -249,15 +263,37 @@ def criterion_3(cfg: dict, t: dict[str, pd.DataFrame], out_png: Path) -> None:
             check(in_window, f"ID {d_id}: window overlaps Ramadan")
             base = g.loc[~masks["ramadan"] & ~masks["eid"] & ~masks["pre_ramadan_10d"] & ~masks["post_eid_7d"], "inflow_total"]
             base = base[base > 0]
-            ram = g.loc[masks["ramadan"], "inflow_total"]
-            eid = g.loc[masks["eid"], "inflow_total"]
-            r_ratio = ram.mean() / base.mean()
-            e_ratio = eid.mean() / base.mean()
-            print(f"  ID {d_id}: Ramadan/base = {r_ratio:.2f}, Eid/base = {e_ratio:.2f}")
-            check(r_ratio > 1.15, f"ID {d_id}: Ramadan inflow visibly above baseline (ratio {r_ratio:.2f} > 1.15)")
-            check(e_ratio > r_ratio, f"ID {d_id}: Eid peak above Ramadan level")
+            r_ratio = g.loc[masks["ramadan"], "inflow_total"].mean() / base.mean()
+            e_ratio = g.loc[masks["eid"], "inflow_total"].mean() / base.mean()
+            print(f"  ID {d_id} ({sector}): Ramadan/base = {r_ratio:.2f}, Eid/base = {e_ratio:.2f}  (one business — plotted, not gated)")
         elif "Non-overlap" in d["name"]:
             check(not in_window, f"ID {d_id}: window contains no Ramadan days")
+
+    # The quantitative test is population-level (SOP_Saudi_Calibration §9 step 3, DECISIONS.md entry 13):
+    # fit the §22 window decomposition to the generated research population per sector and require it to
+    # recover the configured multipliers, value AND count, within the pre-registered tolerance — for the
+    # sectors whose multipliers are measured (class B). Class-C sectors are reported, not gated. This
+    # replaces the placeholder "Ramadan > 1.15, Eid > Ramadan" thresholds (DECISIONS.md entry 3), which
+    # encoded the direction the measurement contradicted for food service.
+    tol = next(x for x in cfg["emergent_validation_targets"]["targets"] if x["metric"] == "ramadan_amplitude_recovered")["tolerance_abs"]
+    rec = sr.recover(daily, t["businesses"], cfg)
+    rows = sr.compare(rec, cfg, tol)
+    measured = {s for s, v in cfg.get("seasonality_value_multiplier", {}).items() if v.get("evidence_class") == "B"}
+    for s in rec:
+        for kind in ("value", "count"):
+            cells = {r["window"]: r for r in rows if r["sector"] == s and r["kind"] == kind}
+            txt = "  ".join(f"{w} {cells[w]['recovered']:.2f}/{cells[w]['configured']:.2f}" for w in sr.WINDOWS)
+            ok = all(cells[w]["ok"] for w in ("ramadan", "eid"))
+            if s in measured:
+                check(ok, f"{s} {kind}: recovered/configured  {txt}  — ramadan & eid within ±{tol} (class B, n={rec[s]['n_businesses']})")
+            else:
+                print(f"  INFO  {s} {kind}: recovered/configured  {txt}  (class C, reported only)")
+    if measured:
+        conf = sr.configured_multipliers(cfg)
+        for s in sorted(measured):
+            want_down = conf[s]["value"]["ramadan"] < 1.0
+            got_down = rec[s]["value"]["ramadan"] < 1.0
+            check(want_down == got_down, f"{s}: Ramadan VALUE direction {'down' if got_down else 'up'} matches the measured direction ({'down' if want_down else 'up'})")
     fig.tight_layout()
     try:
         fig.savefig(out_png, dpi=110)

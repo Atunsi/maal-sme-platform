@@ -595,3 +595,216 @@ Eid effect with the weekend.
 
 **Recorded by:** generator owner, 2026-09-16.
 **Sign-off (target-list change, §9):** ☐ team
+
+---
+
+## 13. Saudi national source calibration — SAMA measured, Monsha'at blocked (2026-09-16) — PROPOSED
+
+**Governed by:** `SOP_Saudi_Calibration_Sources.md` v1.0. **Report:** `/maal/saudi_calibration_report.md`.
+**Touches:** `config.yaml` (`seasonality_value_multiplier`, `seasonality_count_multiplier`,
+`sector_economics.*.avg_inflow_ticket_sar`, `output.pos_sales_transaction_sample_rate`,
+`ramadan_calendar` 1448), `generator/generate.py`, `generator/schemas.py` (`sample_weight`),
+`berka_adapter/build.py`, `eval/gate_week3.py` criterion 3, `eval/heldout_anomalies.py`,
+new `calibration/` package, new `sources/sama/`.
+
+Every judgement call the SOP asks for a DECISIONS entry on is below. Every number cites
+its archive (`sources/sama/*.meta.json`, SHA-256 recorded) and the JSON it was measured
+into (`calibration/out/`). `python -m calibration.check_config` asserts config still equals
+those measurements.
+
+### 13.1 Sources: what was archived, what was not
+
+| Source | Origin | Retrieval | Edition / span | Archive |
+|---|---|---|---|---|
+| POS by sector, monthly | SAMA (Monetary & Financial Statistics, Table 30d) | KAPSARC mirror, OpenDataSoft export API | 2016-01 → 2023-12, 17 sectors × sales/count | `pos_by_sector_monthly_2016_2023.csv`, sha256 `4aea3d0e…` |
+| POS aggregate, monthly | SAMA | KAPSARC mirror | 1995-01 → 2026-07, 9 indicators | `pos_aggregate_1995_2026.csv`, `c08b693a…` |
+| **POS by sector, weekly** (not in the SOP's inventory) | SAMA (Weekly Points of Sale Transactions) | KAPSARC mirror | 2020-05-10 → 2025-07-06, national total + 11 cities | `pos_by_sector_weekly_2020_2025.csv`, `4966f401…` |
+| Bank credit by activity | SAMA | KAPSARC mirror | 2021Q3 → 2026Q2, 17 activities + Total | `bank_credit_by_activity_2021_2026.csv`, `10cefcf7…` |
+| Weekly POS bulletin | SAMA website | direct PDF | week 6–12 Sep 2026 (four weeks shown) | `sama_weekly_pos_bulletin_2026-09-12.pdf`, `c2b285f3…` |
+| Enterprises Statistics | Monsha'at | OpenData gateway | — | **NOT ARCHIVED — gateway unavailable, see 13.2** |
+| GDP by institutional sector (s.a.) | GASTAT | — | — | **EXCLUDED — see 13.10** |
+
+The three CSVs the team had downloaded by hand were byte-identical (same SHA-256) to the
+API exports archived here, so the archive is the API pull and the retrieval path is recorded
+as the mirror; the origin body cited is SAMA in every case (SOP §1.2).
+
+### 13.2 Phase 1 BLOCKED: Monsha'at gateway — FINDING, nothing invented
+
+Every request to `pservices.monshaat.gov.sa/…/EnterprisesStatistics/{Year}/{Quarter}?paginationIndex=&recordsPerPage=`
+on 2026-09-16 returned either `statusCode 1016 "Request Timeout … before we receive any
+response from the provider"` (HTTP 408, 8–12 s) or `statusCode 1009 "No Data Found"` (HTTP
+404, 0.1 s). Tried: Gregorian 2022Q4–2026Q2, Hijri 1444–1447, page sizes 5–100,
+`paginationIndex` 0 (rejected: 1010 Validation Error — so the index is 1-based) and 1, and
+the unpaged URL (read timeout). A retry loop ran every five minutes for two hours. The
+national open-data portal (open.data.gov.sa) rejects programmatic access with a WAF page,
+and the Monsha'at SME Monitor PDFs (Q4 2024 – Q2 2025, downloaded and text-scanned) carry no
+activity × size table.
+
+Consequences, recorded rather than worked around:
+- `sector_size_distribution` is **unchanged** and still class C. `calibration/monshaat_pull.py`
+  and `sector_mix.py` are complete against the documented contract (paging required, 1-based,
+  de-dup on region × activity, Arabic labels verbatim, large tier excluded, three quarters for
+  stability) and write `calibration/out/phase1_sector_mix.json` → `proposed_config` the day the
+  gateway answers. §3.2's pagination semantics (250 records vs 76 pages) remain unresolved.
+- The Jazan sample in the SOP is one region and is **not** used (SOP §4.3: national figures only).
+- Consistency finding that needs no Monsha'at pull: the current weights imply an aggregate
+  micro/small/medium split of **75.5 / 19.4 / 5.2 %**; Monsha'at's published national split at
+  Q4 2023 is **87.0 / 11.5 / 1.4 %** (1,138,588 / 150,788 / 18,723; SME Monitor Q4 2023). The
+  outlier is construction's 45/40/15. Not rescaled by hand — allocating a national split across
+  sectors without the register would be judgement wearing a source's name.
+- Phase 4's per-business credit index is **withheld** (it needs the SME count denominator);
+  `financing.share_of_businesses` stays uniform 0.35, class C. The generator already accepts a
+  per-sector map so the change is a config edit when the denominator exists.
+
+### 13.3 ISIC → four-sector map (judgement; membership as implemented in `calibration/sector_mix.py`)
+
+Matching is by prefix on the normalised Arabic label; the labels actually matched are written
+to the phase-1 JSON in full when a pull succeeds.
+
+| Generator sector | ISIC divisions (Arabic prefix) | Choice recorded |
+|---|---|---|
+| `retail_trade` | G45 تجارة الجملة والتجزئة وإصلاح المركبات…; G46 تجارة الجملة…; G47 تجارة التجزئة… | **wholesale and vehicle trade/repair counted as retail trade** |
+| `construction` | F41 تشييد المباني; F42 الهندسة المدنية; F43 أنشطة التشييد المتخصصة | **civil engineering counted as construction** |
+| `food_beverage` | I56 أنشطة خدمات الأطعمة والمشروبات | accommodation (I55) excluded |
+| `professional_services` | M69 الأنشطة القانونية وأنشطة المحاسبة; M70 أنشطة المكاتب الرئيسية…; M71 الأنشطة المعمارية والهندسية…; J62 أنشطة البرمجة الحاسوبية…; M74 الأنشطة المهنية والعلمية والتقنية الأخرى | **J62 (a section-J activity) counted as professional services, per SOP §4.2** |
+| borderline, **not** mapped, reported | M72 البحث العلمي والتطوير; M73 الإعلان وبحوث السوق; M75 الأنشطة البيطرية | not in the SOP list; listed under "did not map cleanly" |
+
+### 13.4 POS category → sector map and the retail composition rule (judgement)
+
+- `food_beverage` ← **Restaurants & Café** (clean; the bulletin's Bakeries & Pastries line is
+  reported, not modelled).
+- `retail_trade` ← **value-weighted composite** of Clothing and Footwear + Beverage and Food
+  (grocery) + Electronic & Electric Devices + Furniture + Jewelry — Σ value ÷ Σ count for
+  tickets, Σ value per period for seasonality. A composite, not one line, because no POS line
+  is "retail trade"; the five are the consumer-goods lines that map to ISIC G47.
+- `construction` ← Construction & Building Materials **reported, never applied**: it measures
+  consumers buying materials at POS, not contractor receipts. `professional_services` ← no
+  monthly line at all; the bulletin's Professional & Business Services (53 SAR) is consumer-facing
+  and is context only. Both sectors keep their author-judgement multipliers and arrival rates,
+  labelled `evidence_class: C` in config (SOP §5.3, §12.5).
+
+### 13.5 Seasonality: method, selection rule, and the direction correction
+
+Method (`calibration/seasonality.py`): the §22 model `P_m ≈ T_m · Σ_h w_{m,h} β_h · exp(γ_g)` with
+Umm al-Qura overlap weights (hijridate 2.6.0, pinned), β ≥ 0 by NNLS with mean 1, **Gregorian
+month-of-year controls** fitted jointly by backfitting, and a LOWESS trend on the log series
+that absorbs card adoption (terminals 267,827 in 2016-12 → 2,330,051 in 2025-12; fitted trend
+×13 for restaurants, ×4 for Total). 2016–2023, **2020 excluded and asserted**. 95% intervals
+by leave-one-year-out jackknife. Value and count fitted separately (§5.4).
+
+Addition beyond the SOP: the weekly SAMA series lets a **window model** (pre_ramadan_10d /
+ramadan / eid / post_eid_7d with day-overlap weights per week) resolve the three-day Eid the
+monthly series cannot. Fitted on 2021–2023 only.
+
+**Selection rule written to config:** `ramadan` from the monthly NNLS (seven Ramadans, tighter
+interval); `pre_ramadan_10d`, `eid`, `post_eid_7d` from the weekly window model (the only series
+that resolves them). Both ≤ 2023; 2024–2025 held out (13.7).
+
+| Sector | β_Ramadan value [CI] | count [CI] | weekly Eid value [CI] | previous placeholder (value) |
+|---|---|---|---|---|
+| Restaurants & Café → `food_beverage` | **0.82 [0.76, 0.87]** — down in every one of 7 years | 0.70 [0.66, 0.73] | **1.66 [1.44, 1.89]** | ramadan 1.45, eid 1.80 — **direction wrong** |
+| retail composite → `retail_trade` | 1.34 [1.28, 1.39] | 1.12 [1.05, 1.20] | 0.94 [0.19, 1.69] (wide) | ramadan 1.30, eid 2.20 |
+| Clothing and Footwear (no generator sector) | **1.90 [1.77, 2.03]** | 1.72 | 1.49 [−0.76, 3.75] | — |
+| Construction & Building Materials (reported only) | 0.71 [0.63, 0.78] | 0.90 | 0.00 (NNLS boundary) | — |
+| Total POS | 1.11 [1.07, 1.15] | 0.98 | 0.82 [0.41, 1.22] | — |
+
+Findings the report must carry: (a) food service **falls** in Ramadan (daytime closure is not
+recovered by the evening surge) and spikes at Eid — the placeholder had both signs the other way;
+(b) the Eid spike in the POS data is **clothing** (β 1.90 monthly; the weekly Eid window for
+clothing is not identified), and no generator sector isolates it; (c) Total POS value ×1.11 while
+count ×0.98 — the average ticket rises ~14% in Ramadan (fewer, larger baskets), which is why the
+generator now carries two multipliers; (d) the retail Eid value interval is wide — a 3-day window
+inside weekly data on three years — so `eid: 0.94` for retail is a measured point estimate with an
+honest CI, not a precise number; (e) the weekly window model puts several sectors' Eid at exactly
+0 (NNLS boundary), which is the model saying "not identified", and those sectors are not applied.
+
+### 13.6 Ticket sizes and the count-versus-file-size resolution
+
+Measured (`calibration/ticket_size.py`, value ÷ count, SAR): restaurants **29.0** (bulletin 4-week;
+27.9 latest week; 32.5 weekly 2025; 34.9 monthly 2023), retail composite **61.5** (58.1 / 63.4 /
+69.9), construction materials 129, professional & business services 53, Total 59. The config
+implied **400** (retail) and **250** (F&B) — the SOP's "3–10× too high" confirmed.
+
+Applied edition: the archived 12-Sep-2026 bulletin, four-week Σvalue ÷ Σcount (pinned edition,
+SOP §1.3); the other three editions are the stability check and are in the JSON.
+
+**Resolution of the conflict SOP §6.1 names (decouple, not lower inflows):** `avg_inflow_ticket_sar`
+replaces `inflow_tx_per_day` for the two POS sectors; the receipt count is now base inflow ÷ ticket
+(~33/day for a micro shop, ~50 for a micro restaurant) and `daily_aggregates.inflow_count` carries
+the full count — feature 2 finally measures real POS frequency. That is ~70 M rows (~7 GB) at full
+scale, so the **`sales` rows of POS-sector businesses in `transactions.csv` are an unbiased thinning
+at `output.pos_sales_transaction_sample_rate` (0.10)**, each carrying a new column
+**`sample_weight` = 1/rate** (1.0 on every other row and on every Berka row). `daily_aggregates`
+stays authoritative (computed from the full stream); outflows and injected anomaly rows are never
+thinned; the thinning uses its own RNG stream `[seed, id, 3]`. The gate now checks outflows exactly,
+inflows exactly on un-thinned businesses, and Σ amount × sample_weight against inflow_total within
+±2% on thinned ones. Transaction-derived features (5, 10, 20–22, 41, 45, 46) are ratios and
+counts of counterparties, unbiased under thinning; anything that sums `transactions.amount` on
+the inflow side must multiply by `sample_weight`. `base_monthly_inflow_sar` is **not** lowered
+(SOP §10.6: it stays judgement). Schema change: one column, both producers, Pandera-enforced —
+raised here for §9 sign-off.
+
+### 13.7 Held-out 2024 and 2025 (never refitted) — `calibration/holdout_validate.py`
+
+Aggregate (SOP §6.2 as written), Total POS, monthly fit on 2016–2023 predicting each held-out
+year's within-year index: Ramadan-month index **actual 1.089 vs predicted 1.151 (2024), 1.126 vs
+1.144 (2025)** for value; 0.982 vs 1.042 and 0.972 vs 1.018 for count; MAE over all 12 months
+0.031–0.033. All inside ±0.10.
+
+Per sector — possible because the weekly series runs to 2025-07, which the SOP expected to be
+impossible: restaurants Ramadan **0.827 (2024) / 0.852 (2025) vs β 0.816**; retail composite
+**1.280 / 1.433 vs 1.338**; Total 1.054 / 1.157 vs 1.111 — all within ±0.10. Construction &
+Building Materials **misses** (0.814 / 0.906 vs 0.707) — a line the generator does not apply, but
+reported. Eid-week actuals (a 3-day window diluted over 7-day weeks, so a floor): restaurants
+1.21 / 1.22 vs the weekly-model 1.66 point estimate.
+
+### 13.8 Gate criterion 3 redefined (supersedes the placeholder thresholds in entry 3)
+
+The old check ("demo 10001 Ramadan/base > 1.15 and Eid > Ramadan") encoded the direction the
+measurement contradicted for food service and tested one business. It is replaced by the
+§21 target `ramadan_amplitude_recovered` run inside the gate: the §22 window decomposition
+fitted to the research population per sector (equal-weighted across businesses, day-of-week
+controlled) must recover the configured value **and** count multipliers within ±0.08 for the
+class-B sectors, plus a direction check; class-C sectors are printed, not gated. The demo plot
+stays. The recovery estimator equal-weights businesses because a raw sector sum at quick scale
+was dominated by two medium-tier retailers' AR(1) lumpiness — a uniform 0.1 bias across all four
+windows — while a generator-only test on 300 retail micro businesses recovered every window
+within 0.05; the definition was fixed before the full-scale run and is recorded here.
+
+### 13.9 Calendar correction from source
+
+`ramadan_calendar` 1448: Ramadan 1448 has 29 days on the Umm al-Qura calendar, so Shawwal 1 is
+2027-03-09, not 03-10 (config was one day late on `ramadan_end`, `eid_start`, `eid_end`). 1445–1447
+matched exactly. Corrected; `calibration/hijri.py` now asserts every row against the converter.
+Not in the 2026 window, so no generated number moved.
+
+### 13.10 Excluded source: GASTAT seasonally-adjusted real GDP by institutional sector (2023=100)
+
+Not used, for two reasons: (1) the export interleaves five `Unit` series (Index, SAR mn, Q-o-Q
+growth, two contribution series) under one `Institutional Sector` label, which is why the
+non-oil private sector reads 1.13 / 435,803 / 0.46 across consecutive quarters — not corrupt so
+much as un-pivoted, but unusable as an index series without a cleaning step no SOP phase needs;
+(2) "seasonally adjusted" removes exactly what Phase 2 measures, and oil / non-oil government /
+non-oil private is far too coarse for a four-sector calibration.
+
+### 13.11 Pre-existing defect fixed in passing
+
+`eval/heldout_anomalies.py` built injected rows without the Phase 5 columns (`subfamily`,
+`value_date`, `status`, `charge_amount`, `own_transfer_flag`, `evidence_class`) and had been
+failing with a KeyError since entry 8 landed; it now fills them (and `sample_weight` = 1.0).
+
+### 13.12 Evidence-class movement
+
+Class C → **B**: the Ramadan/Eid value and count multipliers for `retail_trade` and
+`food_beverage`; the POS average ticket (receipt count) for the same two sectors. Feature 36
+(`ramadan_adjusted`) itself stays C on Berka (calendar not covered) but the seasonality it gates
+is now measured on the synthetic side. Unchanged C: sector weights and tier splits (Monsha'at
+blocked), `base_monthly_inflow_sar`, construction / professional seasonality and arrival rates,
+financing share, everything in the `ungrounded` block. §21 NPL target: still unregistered.
+
+### 13.13 Phase 5 re-run at full scale — results
+
+_(filled from the re-run below; see also `/maal/saudi_calibration_report.md` §4)_
+
+**Recorded by:** generator owner, 2026-09-16.
+**Sign-off:** ☐ generator owner (13.3–13.8) ☐ profile engine owner (`sample_weight` column, feature 2 now at POS frequency) ☐ team (13.2 blocked status, 13.6 schema change)

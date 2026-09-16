@@ -185,6 +185,7 @@ def build_transactions(t: pd.DataFrame, order_keys: pd.DataFrame) -> pd.DataFram
             "value_date": pd.NaT,  # Berka has no value date (§12.2) — null, never a guessed lag
             "status": "booked",
             "charge_amount": np.nan,  # fees are separate SLUZBY rows in Berka, not a sub-field
+            "sample_weight": 1.0,  # a real feed is never thinned (SOP_Saudi_Calibration §6.1)
             "data_source": SOURCE,
             "evidence_class": EVIDENCE,
         }
