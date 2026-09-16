@@ -269,10 +269,18 @@ emergent_validation_targets:
       construction:          { micro: 34.913537,  small: 74.416527,  medium: 111.022996 }
       food_beverage:         { micro: 18.035476,  small: 33.249549,  medium: 40.333973 }
       professional_services: { micro: 4.255456,   small: 10.141435,  medium: 18.098164 }
-  targets:
+  # RECLASSIFIED 2026-09-16 (SOP_Saudi_Calibration_Sources §2.2, DECISIONS.md entry 12): the three
+  # revenue-share metrics below are NOT emergent. They are closed-form functions of four calibration
+  # inputs and involve no simulation:
+  #     revenue_weight(sector) = weight × base_monthly_inflow_sar × Σ_tier p(tier) × size_tier_scale[tier]
+  # Worked from this file: retail 35,070 / construction 154,800 / F&B 12,690 / professional 51,750
+  # → 13.8% / 60.9% / 5.0% / 20.3%, reproducing the harness figures (13.9% / 60.6%) to within rounding.
+  # They stay here as CONSISTENCY CHECKS on the inputs against GASTAT — never as evidence that the
+  # simulation reproduced anything. validate_emergent.py prints them under their own heading.
+  calibration_derived_checks:
     - metric: revenue_share_medium_tier
       basis: modelled_sectors                  # like-for-like: same four sectors as the generator
-      definition: "sum(inflow_total | size_tier=medium) / sum(inflow_total), research population"
+      definition: "sum(inflow_total | size_tier=medium) / sum(inflow_total), research population — closed form: Σ_s w_s·base_s·p_s(medium)·scale_medium / Σ_s w_s·base_s·E[scale|s]"
       derived_from: gastat_2022_sme_revenue_bn_sar   # → 0.343
       tolerance_rel: 0.15
       status_on_fail: report_as_finding
@@ -290,6 +298,42 @@ emergent_validation_targets:
       definition: "per sector: revenue share by size tier (micro<small<medium ordered); KS D = max|F_sim − F_pub|"
       derived_from: gastat_2022_sme_revenue_bn_sar
       tolerance_abs: 0.10
+      status_on_fail: report_as_finding
+  # Genuinely emergent targets — no closed form; each needs the simulation to run (SOP_Saudi_Calibration §2.3).
+  targets:
+    - metric: days_negative_balance_distribution
+      definition: >
+        Distributional SHAPE of days_negative_balance_90d over scorable research businesses: share with
+        ≥ 1 negative day, and the 50th / 90th / 99th percentiles among those. Emerges from opening-balance
+        bands, cost ratios, receipt lumpiness and latent shocks interacting over 180 days — no closed form.
+      source: "No Saudi SME source. Berka: 6.4% of accounts ever negative over their full history (Probe 1) — directional context only, different population and horizon"
+      source_status: pending_no_saudi_series
+      published_value: null
+      comparable: false
+      tolerance_abs: null
+      status_on_fail: report_as_finding
+    - metric: realised_dso_vs_archetype
+      definition: >
+        Per sector, the median implied_dso_days recomputed by the harness from balances_monthly and
+        daily_aggregates (§30 formula, after balance-sheet noise and receipt lumpiness) must fall inside
+        the §24 archetype dso_days band the generator was given. Tests the balance-sheet machinery, not
+        a published figure. Reference: balance_sheet_archetypes in this file.
+      source: "config-internal (machinery test)"
+      source_status: not_applicable
+      tolerance: inside_band
+      status_on_fail: report_as_finding
+    - metric: ramadan_amplitude_recovered
+      definition: >
+        Fit the §22 window decomposition to the GENERATED data — per sector, research population,
+        full-window businesses only: OLS of log(sector daily inflow total) and log(sector daily inflow
+        count) on a linear trend, day-of-week dummies and the four Hijri window dummies
+        (pre_ramadan_10d, ramadan, eid, post_eid_7d). exp(coef) must recover the seasonality multipliers
+        this file supplies, value and count separately. Tests the seasonality wiring (§22), not the
+        parameters. Reference: seasonality_value_multiplier / seasonality_count_multiplier (or the
+        legacy seasonality_multipliers block, with count multipliers of 1.0).
+      source: "config-internal (machinery test)"
+      source_status: not_applicable
+      tolerance_abs: 0.08
       status_on_fail: report_as_finding
     - metric: aggregate_default_rate
       definition: "mean(default_label), research population"
@@ -317,9 +361,10 @@ emergent_validation_targets:
       status_on_fail: report_as_finding   # never: retune
   # Calibration inputs, listed so they are never mistaken for emergent targets:
   #   sector count weights, size | sector, age | sector×size, latents, ρ,
-  #   base_monthly_inflow_sar, size_tier_scale. Revenue shares must EMERGE from
-  #   these; if base inflows are ever set from the GASTAT revenue table above,
-  #   the revenue-share targets stop being emergent and must be removed here.
+  #   base_monthly_inflow_sar, size_tier_scale, avg ticket sizes, seasonality multipliers.
+  #   The revenue shares are a multiplication of the first six (see calibration_derived_checks
+  #   above); they were removed from `targets` on 2026-09-16 for that reason, BEFORE any
+  #   size-mix correction from Monsha'at was applied (SOP_Saudi_Calibration §2.2 ordering rule).
 
 # --- SOP_Data_Grounding §13: parameters for the dimensions no public dataset contains ---
 # Two blocks, deliberately separate. `grounded_from_berka` = measured on the Berka transaction

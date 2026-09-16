@@ -539,3 +539,59 @@ before and after the Phase 5 code landed (`384fa221…`, `f08e169d…`, `c07a11b
 direct-debit / scheduled rows.
 
 **Sign-off:** ☐ generator owner ☐ profile engine owner (66–69) ☐ team
+
+---
+
+## 12. §21 target list: the revenue-share metrics are calibration inputs, not emergent — RECLASSIFIED (2026-09-16, before any size-mix correction)
+
+**Governed by:** `SOP_Saudi_Calibration_Sources.md` v1.0 §2.2–§2.3; Schema §21.
+**Touches:** `config.yaml` `emergent_validation_targets` block; `eval/validate_emergent.py`;
+new `eval/seasonal_recovery.py`.
+
+**Why this comes first, in its own commit:** the same SOP goes on to correct
+`sector_size_distribution` from the Monsha'at register. Done in the other order,
+that correction would look exactly like tuning a parameter until a validation
+target moved — even though it is not. So the reclassification is recorded and
+committed before any calibration input changes.
+
+**The derivation.** `revenue_share_medium_tier`, `sector_revenue_share` and
+`within_sector_size_revenue_share` involve no simulation. With
+`E[size_scale | s] = Σ_tier p_s(tier) · size_tier_scale[tier]`:
+
+```
+revenue_weight(s) = weight_s × base_monthly_inflow_sar_s × E[size_scale | s]
+
+retail       0.35 × 60,000  × 1.67 =  35,070   → 13.8%   (harness reported 13.9%)
+construction 0.20 × 180,000 × 4.30 = 154,800   → 60.9%   (harness reported 60.6%)
+F&B          0.20 × 45,000  × 1.41 =  12,690   →  5.0%
+prof         0.25 × 90,000  × 2.30 =  51,750   → 20.3%
+```
+
+The harness figures in entry 6 are reproduced to within rounding from four
+config lines. A metric that can be computed before the generator runs is a
+calibration input passed through a multiplication, whatever list it sits in.
+
+**Decision.** The three metrics move to `calibration_derived_checks`. They are
+still computed and still compared with GASTAT 2022, but under their own heading
+as a consistency check on the inputs: a miss there says the inputs differ from
+GASTAT, and the remedy is a sourced correction of the inputs (entry 6 step 1–3),
+not a validation result in either direction. `validate_emergent.py` now prints
+the closed form next to the realised value so the identity is visible every run.
+
+**Registered in their place** (no closed form; the simulation must run;
+`status_on_fail: report_as_finding` on every one):
+
+| target | what it tests | reference | band |
+|---|---|---|---|
+| `days_negative_balance_distribution` | shape of days-negative over scorable research businesses (share ≥ 1, p50/p90/p99) | none exists for Saudi SMEs; Berka 6.4% ever-negative is directional context, `comparable: false` | none — reported |
+| `realised_dso_vs_archetype` | median `implied_dso_days` per sector, recomputed by the harness after balance-sheet noise, sits inside the §24 archetype band | config-internal (machinery) | inside band |
+| `ramadan_amplitude_recovered` | fit the §22 window decomposition to the generated data (OLS on log sector-daily totals, trend + day-of-week + window dummies) and recover the configured multipliers, value and count separately | config-internal (machinery) | ±0.08 abs |
+| `aggregate_default_rate` | unchanged — still `pending_week1_check`, still unregistered | SAMA SME NPL series if one exists | none yet |
+| `real_vs_synthetic_signal_strength` | unchanged (entry 10) | Berka | ±0.10 abs |
+
+Day-of-week dummies in the recovery fit are not decoration: Eid 1447 (20–22 Mar
+2026) is Fri–Sun, so for `sun_thu` sectors a raw window mean would confound the
+Eid effect with the weekend.
+
+**Recorded by:** generator owner, 2026-09-16.
+**Sign-off (target-list change, §9):** ☐ team
