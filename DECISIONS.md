@@ -1034,3 +1034,55 @@ C 25 — the A1/A2 split is entry 16).
 
 **Recorded by:** generator owner, 2026-09-17.
 **Sign-off:** ☐ generator owner ☐ credit-lens owner (professional_services cell is below the §23 minimum at N = 10,000)
+
+---
+
+## 16. Evidence class A split into A1 (real-computed) and A2 (real-predictive) by a CI rule (2026-09-17) — Workstream B1
+
+**SOP:** `SOP_Monshaat_Unblock` B1, priority highest. Nothing in the generator changed.
+
+**The problem, as it stood.** `profile_engine/evidence.py` labelled 43 features class A with the
+claim "Predicts real outcomes", while `eval/out/real_vs_synthetic.md` showed several of them at
+chance on Berka (features 20–22 at 0.47–0.54, 4 and 9 at 0.45–0.50). "Computable on real data" and
+"predicts real outcomes" are different statements; the registry made the stronger one.
+
+**The rule, applied in code, no judgement.** `eval/feature_transfer.py` computes, for every typed-A
+feature, the univariate AUC against each Berka label set on the 615 scored labelled accounts (209
+with a primary label), with a 1,000-resample percentile bootstrap. **A2 ⇔ the 95% CI excludes 0.50
+on at least one label set** (either direction; the sign is reported as Spearman ρ); **otherwise A1**,
+including features not evaluable on Berka (constant or absent). `calibration/reclass_evidence.py`
+writes the result to `profile_engine/feature_transfer.json`; `evidence.py` reads it at import and
+resolves each typed A to A1/A2. If the file is absent every A is A1 — the weaker claim is the default.
+The registry never carries a hand-typed A2.
+
+**Result: 22 of 43 are A2; 21 are A1** (`eval/out/feature_transfer.md`).
+
+| | features |
+|---|---|
+| **A2** (22) | 2, 3, 7, 8, 10, 12, 13, 14, 15, 16, 17, 22, 32, 33, 49, 50, 51, 52, 53, 54, 60, 68 |
+| **A1** (21) | 1, 4, 5, 6, 9, 11, 18, 18b, 19, 20, 21, 26, 41, 42, 43, 44, 45, 46, 47, 48, 61 |
+
+Strongest by folded AUC: 17 `min_daily_balance_90d` 0.85, 52–54 `liquidity_hazard_*` 0.74–0.76,
+16 `avg_daily_balance` 0.74, 8 `recurring_expense_ratio` 0.70, 60 `committed_monthly_outflow` 0.67.
+As the SOP expected, the counterparty family (5, 20, 21, 45, 46) and the growth features (4, 9) are
+A1: 5, 45, 46 are constant on Berka (coverage), 20/21 sit at 0.47–0.54, 4/9 at 0.45–0.50. The
+volatility family is split: 15 `volatility_index` A2 (0.65 on the secondary set), 11
+`cash_flow_volatility` A1 (0.49) — consistent with entry 1's mechanism.
+
+**One caveat the rule produces and the record keeps:** feature 22 `new_counterparty_ratio_30d`
+qualifies as A2 on AUC 0.470 [0.45, 0.49] — an interval that excludes 0.50 only because the feature
+is near-constant (ties dominate), i.e. a negligible effect measured precisely. The rule is applied
+as written; the folded AUC is printed so the effect size is visible; an effect-size threshold would
+be a second, judgement-bearing rule and is not added.
+
+**Claim wording now in `CLASS_CLAIM`:** A2 "Computed on real bank data and predictive of real credit
+outcomes (univariate AUC with CI in eval/out/feature_transfer.md)"; A1 "Computed on real bank data;
+predictive performance reported per feature, not assumed". `eval.compare_real`'s comparison-set
+assertion accepts A1 ∪ A2 (unchanged membership; the file itself changes in entry 19). A mixed metric
+reports the weakest class in the order A2 > A1 > B > B-weak > C.
+
+**Population caveat carried on every A2:** univariate, 1990s Czech accounts, eligible population
+only (entry 19 shows the eligibility rule is selective on the label).
+
+**Recorded by:** profile engine owner, 2026-09-17.
+**Sign-off:** ☐ profile engine owner ☐ team (claim wording)

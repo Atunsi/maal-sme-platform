@@ -9,7 +9,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from profile_engine.evidence import CLASS_CLAIM, CLASS_LABELS, EVIDENCE
+from profile_engine.evidence import CLASS_CLAIM, CLASS_LABELS, CLASS_ORDER, EVIDENCE
 from profile_engine.registry import FEATURE_NAMES
 
 
@@ -18,17 +18,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", default="eval/out/evidence_table.md")
     args = ap.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    by_class = {c: [f for f in FEATURE_NAMES if EVIDENCE[f][0] == c] for c in "ABC"}
+    by_class = {c: [f for f in FEATURE_NAMES if EVIDENCE[f][0] == c] for c in CLASS_ORDER}
     md = [
         "# Evidence table (SOP_Data_Grounding §13.5)",
         "",
         "Generated from `profile_engine/evidence.py`. A class-C feature never carries a performance claim; it carries a functional",
         "demonstration and a sensitivity range (`eval/out/sensitivity_*.md`). A metric over mixed inputs reports the weakest class present.",
         "",
+        "Class A is split by a mechanical rule (SOP_Monshaat_Unblock B1): **A2** iff the feature's univariate Berka AUC has a 1,000-resample bootstrap CI that excludes 0.50",
+        "on at least one label set (`eval/out/feature_transfer.md`, applied by `calibration.reclass_evidence` → `profile_engine/feature_transfer.json`); otherwise **A1**.",
+        "No feature claims prediction without that interval. **B-weak** is a measured parameter whose interval contains the null (B2).",
+        "",
         "| Class | n | Features | Claim made |",
         "|---|---|---|---|",
     ]
-    for c in "ABC":
+    for c in CLASS_ORDER:
         feats = ", ".join(f"{f} `{FEATURE_NAMES[f]}`" for f in by_class[c])
         md.append(f"| **{c} — {CLASS_LABELS[c]}** | {len(by_class[c])} | {feats} | {CLASS_CLAIM[c]} |")
     md += ["", "## Basis per feature", "", "| # | Feature | Class | Basis |", "|---|---|---|---|"]

@@ -1,0 +1,901 @@
+{
+ "run_at": "2026-09-17T06:36:16+00:00",
+ "rule": "A2 iff the percentile-bootstrap 95% CI of the univariate Berka AUC excludes 0.50 on \u2265 1 label set (either direction); else A1",
+ "n_boot": 1000,
+ "population": "Berka labelled accounts scored under coverage_days_90d \u2265 10: 615 (primary label set non-null: 209)",
+ "counts": {
+  "A": 43,
+  "A2": 22,
+  "A1": 21
+ },
+ "features": {
+  "1": {
+   "feature": "avg_monthly_inflow",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.463,
+    "ci95": [
+     0.322,
+     0.608
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.45,
+    "ci95": [
+     0.362,
+     0.537
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "2": {
+   "feature": "inflow_count_per_month",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.672,
+    "ci95": [
+     0.556,
+     0.782
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.614,
+    "ci95": [
+     0.537,
+     0.685
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "3": {
+   "feature": "inflow_regularity_score",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.346,
+    "ci95": [
+     0.227,
+     0.475
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.394,
+    "ci95": [
+     0.323,
+     0.465
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "4": {
+   "feature": "revenue_growth_rate_90d",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.474,
+    "ci95": [
+     0.308,
+     0.646
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.452,
+    "ci95": [
+     0.357,
+     0.546
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "5": {
+   "feature": "largest_single_source_ratio",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": null,
+   "secondary": null
+  },
+  "6": {
+   "feature": "avg_monthly_outflow",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.467,
+    "ci95": [
+     0.334,
+     0.613
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.5,
+    "ci95": [
+     0.419,
+     0.578
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "7": {
+   "feature": "outflow_count_per_month",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary"
+   ],
+   "primary": {
+    "auc": 0.334,
+    "ci95": [
+     0.209,
+     0.463
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.438,
+    "ci95": [
+     0.359,
+     0.519
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "8": {
+   "feature": "recurring_expense_ratio",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.299,
+    "ci95": [
+     0.189,
+     0.431
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.295,
+    "ci95": [
+     0.228,
+     0.371
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "9": {
+   "feature": "expense_growth_rate_90d",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.452,
+    "ci95": [
+     0.297,
+     0.598
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.496,
+    "ci95": [
+     0.411,
+     0.58
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "10": {
+   "feature": "top_expense_category_share",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.629,
+    "ci95": [
+     0.527,
+     0.722
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.609,
+    "ci95": [
+     0.536,
+     0.676
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "11": {
+   "feature": "cash_flow_volatility",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.491,
+    "ci95": [
+     0.36,
+     0.627
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.484,
+    "ci95": [
+     0.404,
+     0.563
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "12": {
+   "feature": "inflow_outflow_ratio",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.497,
+    "ci95": [
+     0.356,
+     0.627
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.413,
+    "ci95": [
+     0.337,
+     0.496
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "13": {
+   "feature": "days_negative_balance_90d",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.568,
+    "ci95": [
+     0.5,
+     0.656
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.627,
+    "ci95": [
+     0.574,
+     0.685
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "14": {
+   "feature": "overdraft_events_90d",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.568,
+    "ci95": [
+     0.5,
+     0.652
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.627,
+    "ci95": [
+     0.571,
+     0.683
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "15": {
+   "feature": "volatility_index",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.602,
+    "ci95": [
+     0.464,
+     0.735
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.65,
+    "ci95": [
+     0.561,
+     0.733
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "16": {
+   "feature": "avg_daily_balance",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.291,
+    "ci95": [
+     0.168,
+     0.426
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.259,
+    "ci95": [
+     0.184,
+     0.332
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "17": {
+   "feature": "min_daily_balance_90d",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.158,
+    "ci95": [
+     0.064,
+     0.265
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.154,
+    "ci95": [
+     0.097,
+     0.225
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "18": {
+   "feature": "current_runway_days",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.467,
+    "ci95": [
+     0.313,
+     0.617
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.387,
+    "ci95": [
+     0.278,
+     0.501
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "18b": {
+   "feature": "runway_days_avg_balance",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.447,
+    "ci95": [
+     0.299,
+     0.604
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.395,
+    "ci95": [
+     0.295,
+     0.511
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "19": {
+   "feature": "liquidity_trend_slope",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.497,
+    "ci95": [
+     0.361,
+     0.633
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.488,
+    "ci95": [
+     0.413,
+     0.569
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "20": {
+   "feature": "unique_counterparties_count",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.466,
+    "ci95": [
+     0.303,
+     0.635
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.524,
+    "ci95": [
+     0.419,
+     0.641
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "21": {
+   "feature": "counterparty_concentration_index",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.54,
+    "ci95": [
+     0.39,
+     0.7
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.469,
+    "ci95": [
+     0.353,
+     0.593
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "22": {
+   "feature": "new_counterparty_ratio_30d",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.47,
+    "ci95": [
+     0.451,
+     0.487
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.472,
+    "ci95": [
+     0.461,
+     0.483
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "26": {
+   "feature": "governance_transparency_score",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": null,
+   "secondary": null
+  },
+  "32": {
+   "feature": "coverage_days_90d",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary"
+   ],
+   "primary": {
+    "auc": 0.358,
+    "ci95": [
+     0.246,
+     0.47
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.42,
+    "ci95": [
+     0.345,
+     0.502
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "33": {
+   "feature": "data_gap_ratio",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary"
+   ],
+   "primary": {
+    "auc": 0.631,
+    "ci95": [
+     0.51,
+     0.74
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.56,
+    "ci95": [
+     0.483,
+     0.637
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "41": {
+   "feature": "financing_outflow_ratio",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": null,
+   "secondary": null
+  },
+  "42": {
+   "feature": "installment_capacity_sar",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.522,
+    "ci95": [
+     0.398,
+     0.651
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.441,
+    "ci95": [
+     0.371,
+     0.518
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "43": {
+   "feature": "inflow_break_recency_days",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.42,
+    "ci95": [
+     0.205,
+     0.643
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.458,
+    "ci95": [
+     0.355,
+     0.565
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "44": {
+   "feature": "net_flow_autocorr_lag7",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.453,
+    "ci95": [
+     0.34,
+     0.577
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.446,
+    "ci95": [
+     0.369,
+     0.523
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "45": {
+   "feature": "counterparty_persistence_ratio",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": null,
+   "secondary": null
+  },
+  "46": {
+   "feature": "circular_counterparty_count",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": null,
+   "secondary": null
+  },
+  "47": {
+   "feature": "downside_semideviation_90d",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.515,
+    "ci95": [
+     0.389,
+     0.644
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.526,
+    "ci95": [
+     0.449,
+     0.604
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "48": {
+   "feature": "upside_semideviation_90d",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.466,
+    "ci95": [
+     0.339,
+     0.603
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.459,
+    "ci95": [
+     0.378,
+     0.541
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "49": {
+   "feature": "flow_asymmetry_ratio",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.624,
+    "ci95": [
+     0.473,
+     0.758
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.646,
+    "ci95": [
+     0.567,
+     0.727
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "50": {
+   "feature": "revenue_shock_absorption_pct",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.444,
+    "ci95": [
+     0.354,
+     0.529
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.384,
+    "ci95": [
+     0.319,
+     0.447
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "51": {
+   "feature": "fixed_obligation_coverage_months",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.236,
+    "ci95": [
+     0.008,
+     0.55
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.219,
+    "ci95": [
+     0.083,
+     0.361
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "52": {
+   "feature": "liquidity_hazard_30d",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.67,
+    "ci95": [
+     0.539,
+     0.791
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.759,
+    "ci95": [
+     0.691,
+     0.822
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "53": {
+   "feature": "liquidity_hazard_60d",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.654,
+    "ci95": [
+     0.519,
+     0.786
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.744,
+    "ci95": [
+     0.677,
+     0.811
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "54": {
+   "feature": "liquidity_hazard_90d",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.645,
+    "ci95": [
+     0.506,
+     0.771
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.735,
+    "ci95": [
+     0.662,
+     0.808
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "60": {
+   "feature": "committed_monthly_outflow",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.333,
+    "ci95": [
+     0.227,
+     0.46
+    ],
+    "excludes_0.5": true
+   },
+   "secondary": {
+    "auc": 0.332,
+    "ci95": [
+     0.264,
+     0.41
+    ],
+    "excludes_0.5": true
+   }
+  },
+  "61": {
+   "feature": "obligation_coverage_ratio",
+   "subclass": "A1",
+   "qualifying_label_sets": [],
+   "primary": {
+    "auc": 0.379,
+    "ci95": [
+     0.076,
+     0.728
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.376,
+    "ci95": [
+     0.2,
+     0.555
+    ],
+    "excludes_0.5": false
+   }
+  },
+  "68": {
+   "feature": "max_consecutive_overdraft_days",
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ],
+   "primary": {
+    "auc": 0.568,
+    "ci95": [
+     0.5,
+     0.647
+    ],
+    "excludes_0.5": false
+   },
+   "secondary": {
+    "auc": 0.627,
+    "ci95": [
+     0.575,
+     0.683
+    ],
+    "excludes_0.5": true
+   }
+  }
+ }
+}

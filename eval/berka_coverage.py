@@ -18,7 +18,7 @@ from pathlib import Path
 import pandas as pd
 
 from berka_adapter import coverage as cov
-from profile_engine.evidence import CLASS_LABELS, EVIDENCE
+from profile_engine.evidence import CLASS_LABELS, CLASS_ORDER, EVIDENCE
 from profile_engine.registry import COUNTERPARTY_FEATURE_IDS, FEATURE_NAMES
 
 F = FEATURE_NAMES
@@ -83,7 +83,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     counts = {b: sum(1 for r in rows if r[2] == b) for b in ("computable", "partial", "not_computable")}
-    cls_counts = {c: sum(1 for r in rows if r[3] == c) for c in "ABC"}
+    cls_counts = {c: sum(1 for r in rows if r[3] == c) for c in CLASS_ORDER}
     thr = "coverage_days_90d ≥ 10 for external_real (DECISIONS.md entry 9)"
 
     md = [
@@ -95,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
         "",
         (f"Band sizes: computable {counts['computable']}, partial {counts['partial']}, not_computable {counts['not_computable']} "
         f"(the SOP expected ~33 / ~10 / ~16 over 59 features; this registry has {len(rows)} entries because 18b, 60–65 and 62b are included)."),
-        f"Evidence classes: A {cls_counts['A']}, B {cls_counts['B']}, C {cls_counts['C']}.",
+        "Evidence classes: " + ", ".join(f"{c} {n}" for c, n in cls_counts.items()) + " (A2 = real and predictive by the CI rule, A1 = real-computed; SOP_Monshaat_Unblock B1).",
         "",
         "Population caveat: Czech retail and small-account banking data, 1993–1998. Never presented as Saudi SME data.",
         "",
