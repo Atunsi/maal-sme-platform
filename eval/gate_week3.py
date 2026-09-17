@@ -278,7 +278,9 @@ def criterion_3(cfg: dict, t: dict[str, pd.DataFrame], out_png: Path) -> None:
     tol = next(x for x in cfg["emergent_validation_targets"]["targets"] if x["metric"] == "ramadan_amplitude_recovered")["tolerance_abs"]
     rec = sr.recover(daily, t["businesses"], cfg)
     rows = sr.compare(rec, cfg, tol)
-    measured = {s for s, v in cfg.get("seasonality_value_multiplier", {}).items() if v.get("evidence_class") == "B"}
+    # measured sectors carry a per-window evidence_class map (B / B-weak, SOP_Monshaat_Unblock B2); judgement sectors a scalar C.
+    # The recovery test is a wiring test on the CONFIGURED values, so B-weak windows are gated exactly like B ones.
+    measured = {s for s, v in cfg.get("seasonality_value_multiplier", {}).items() if isinstance(v.get("evidence_class"), dict) or v.get("evidence_class") == "B"}
     for s in rec:
         for kind in ("value", "count"):
             cells = {r["window"]: r for r in rows if r["sector"] == s and r["kind"] == kind}

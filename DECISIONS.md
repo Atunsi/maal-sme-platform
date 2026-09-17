@@ -1086,3 +1086,56 @@ only (entry 19 shows the eligibility rule is selective on the label).
 
 **Recorded by:** profile engine owner, 2026-09-17.
 **Sign-off:** ☐ profile engine owner ☐ team (claim wording)
+
+---
+
+## 17. B-weak: a measured parameter whose interval contains the null is not class B (2026-09-17) — Workstream B2
+
+**SOP:** `SOP_Monshaat_Unblock` B2. Applied values unchanged; labels only.
+
+**Rule, implemented in `calibration/reclass_evidence.py` and asserted by `calibration/check_config.py`:**
+a measured multiplier is **B** iff its 95% CI excludes 1.0; otherwise **B-weak** — measured and
+applied (a weak measurement still beats an invented one), but not claimed as grounded. Applied to all
+sixteen SAMA-measured seasonality parameters from the leave-one-year-out intervals in
+`calibration/out/phase2_seasonality.json`. The two config blocks were rewritten by the script in block
+style with the CI carried as data (`ci95`) next to a per-window `evidence_class` map, so the rule can
+be re-checked mechanically (`check_config` fails if a label disagrees with its interval).
+
+| parameter | value | CI | class |
+|---|---|---|---|
+| retail value pre_ramadan_10d | 1.28 | [0.68, 1.88] | **B-weak** |
+| retail value ramadan | 1.34 | [1.28, 1.39] | B |
+| retail value eid | 0.94 | [0.19, 1.69] | **B-weak** |
+| retail value post_eid_7d | 0.84 | [0.73, 0.94] | B |
+| retail count pre_ramadan_10d | 1.09 | [0.84, 1.35] | **B-weak** |
+| retail count ramadan | 1.12 | [1.05, 1.20] | B |
+| retail count eid | 0.95 | [0.75, 1.15] | **B-weak** |
+| retail count post_eid_7d | 0.86 | [0.79, 0.94] | B |
+| F&B value pre_ramadan_10d | 1.00 | [0.67, 1.32] | **B-weak** |
+| F&B value ramadan | 0.82 | [0.76, 0.87] | B |
+| F&B value eid | 1.66 | [1.44, 1.89] | B |
+| F&B value post_eid_7d | 0.96 | [0.95, 0.98] | B |
+| F&B count pre_ramadan_10d | 1.00 | [0.82, 1.19] | **B-weak** |
+| F&B count ramadan | 0.70 | [0.66, 0.73] | B |
+| F&B count eid | 0.97 | [0.92, 1.03] | **B-weak** |
+| F&B count post_eid_7d | 0.92 | [0.87, 0.97] | B |
+
+**Seven of sixteen are B-weak**, as the SOP's own table predicted. The retail Eid value multiplier
+— the parameter entry 13.5 moved from 2.20 to 0.94 and labelled C → B — is the clearest case: the
+data cannot distinguish it from no effect. What is grounded about retail at Eid is only the sign of
+the change from the placeholder, not the value.
+
+**What did not change.** Every multiplier value; the gate (criterion 3 gates the wiring on the
+configured values and treats B-weak windows exactly like B ones — the test is that the generator
+reproduces what it was given, not that the given number is grounded); the generator-parameter hash.
+`check_config` now prints two hashes: the full-file sha256 (changed, `b26ee0c1…` → `9d60db77…`,
+because labels and CIs are in the file) and the **generator-parameter hash** (config with
+`evidence_class`, `ci95` and the §21/Berka blocks removed): **`a5b2bccab775fa71` before and after**.
+The Week 3 gate re-run after the relabel (`eval/out/gate_week3_after_b2.txt`) is line-for-line
+identical to `gate_week3_after_monshaat.txt` except timings.
+
+**Report consequence (entry 20):** §2 and §7 of the calibration report no longer say "C → B" for
+these sixteen; they say C → B for nine and C → B-weak for seven, with the interval on every row.
+
+**Recorded by:** generator owner, 2026-09-17.
+**Sign-off:** ☐ generator owner ☐ team (B-weak as a registry class)

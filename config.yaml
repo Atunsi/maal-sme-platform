@@ -257,15 +257,39 @@ ramadan_calendar:
 # Building Materials" line (β_Ramadan 0.71) measures consumers buying materials, not contractor
 # receipts, and no POS line measures professional-services revenue. Not applied (§5.3).
 seasonality_value_multiplier:
-  retail_trade:          { pre_ramadan_10d: 1.28, ramadan: 1.34, eid: 0.94, post_eid_7d: 0.84, evidence_class: B }  # CI: pre [0.68,1.88] ramadan [1.28,1.39] eid [0.19,1.69] post [0.73,0.94]
-  food_beverage:         { pre_ramadan_10d: 1.00, ramadan: 0.82, eid: 1.66, post_eid_7d: 0.96, evidence_class: B }  # CI: pre [0.67,1.32] ramadan [0.76,0.87] eid [1.44,1.89] post [0.95,0.98]
+  retail_trade:
+    pre_ramadan_10d: 1.28   # CI [0.68, 1.88] contains 1.0 → B-weak
+    ramadan:         1.34   # CI [1.28, 1.39] excludes 1.0 → B
+    eid:             0.94   # CI [0.19, 1.69] contains 1.0 → B-weak
+    post_eid_7d:     0.84   # CI [0.73, 0.94] excludes 1.0 → B
+    evidence_class: { pre_ramadan_10d: B-weak, ramadan: B, eid: B-weak, post_eid_7d: B }
+    ci95: { pre_ramadan_10d: [0.68, 1.88], ramadan: [1.28, 1.39], eid: [0.19, 1.69], post_eid_7d: [0.73, 0.94] }
+  food_beverage:
+    pre_ramadan_10d: 1.00   # CI [0.67, 1.32] contains 1.0 → B-weak
+    ramadan:         0.82   # CI [0.76, 0.87] excludes 1.0 → B
+    eid:             1.66   # CI [1.44, 1.89] excludes 1.0 → B
+    post_eid_7d:     0.96   # CI [0.95, 0.98] excludes 1.0 → B
+    evidence_class: { pre_ramadan_10d: B-weak, ramadan: B, eid: B, post_eid_7d: B }
+    ci95: { pre_ramadan_10d: [0.67, 1.32], ramadan: [0.76, 0.87], eid: [1.44, 1.89], post_eid_7d: [0.95, 0.98] }
   construction:          { pre_ramadan_10d: 1.00, ramadan: 0.80, eid: 0.25, post_eid_7d: 0.90, evidence_class: C }  # unchanged judgement; POS does not measure contractor revenue
   professional_services: { pre_ramadan_10d: 1.00, ramadan: 0.90, eid: 0.40, post_eid_7d: 0.95, evidence_class: C }  # unchanged judgement; no POS line
 seasonality_count_multiplier:
-  retail_trade:          { pre_ramadan_10d: 1.09, ramadan: 1.12, eid: 0.95, post_eid_7d: 0.86, evidence_class: B }  # CI: pre [0.84,1.35] ramadan [1.05,1.20] eid [0.75,1.15] post [0.79,0.94]
-  food_beverage:         { pre_ramadan_10d: 1.00, ramadan: 0.70, eid: 0.97, post_eid_7d: 0.92, evidence_class: B }  # CI: pre [0.82,1.19] ramadan [0.66,0.73] eid [0.92,1.03] post [0.87,0.97]
+  retail_trade:
+    pre_ramadan_10d: 1.09   # CI [0.84, 1.35] contains 1.0 → B-weak
+    ramadan:         1.12   # CI [1.05, 1.20] excludes 1.0 → B
+    eid:             0.95   # CI [0.75, 1.15] contains 1.0 → B-weak
+    post_eid_7d:     0.86   # CI [0.79, 0.94] excludes 1.0 → B
+    evidence_class: { pre_ramadan_10d: B-weak, ramadan: B, eid: B-weak, post_eid_7d: B }
+    ci95: { pre_ramadan_10d: [0.84, 1.35], ramadan: [1.05, 1.20], eid: [0.75, 1.15], post_eid_7d: [0.79, 0.94] }
+  food_beverage:
+    pre_ramadan_10d: 1.00   # CI [0.82, 1.19] contains 1.0 → B-weak
+    ramadan:         0.70   # CI [0.66, 0.73] excludes 1.0 → B
+    eid:             0.97   # CI [0.92, 1.03] contains 1.0 → B-weak
+    post_eid_7d:     0.92   # CI [0.87, 0.97] excludes 1.0 → B
+    evidence_class: { pre_ramadan_10d: B-weak, ramadan: B, eid: B-weak, post_eid_7d: B }
+    ci95: { pre_ramadan_10d: [0.82, 1.19], ramadan: [0.66, 0.73], eid: [0.92, 1.03], post_eid_7d: [0.87, 0.97] }
   construction:          { pre_ramadan_10d: 1.00, ramadan: 1.00, eid: 1.00, post_eid_7d: 1.00, evidence_class: C }  # count seasonality of B2B receipts unmeasured
-  professional_services: { pre_ramadan_10d: 1.00, ramadan: 1.00, eid: 1.00, post_eid_7d: 1.00, evidence_class: C }
+  professional_services: { pre_ramadan_10d: 1.00, ramadan: 1.00, eid: 1.00, post_eid_7d: 1.00, evidence_class: C }  # count seasonality of B2B receipts unmeasured
 
 # --- demo businesses (serving population; §12, §17) ----------------------------
 # Fully specified so the two required contrasts are reproducible on demand:
