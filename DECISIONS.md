@@ -848,3 +848,136 @@ class-C dimension.
 
 **Recorded by:** generator owner, 2026-09-16.
 **Sign-off:** ☐ generator owner (13.3–13.8) ☐ profile engine owner (`sample_weight` column, feature 2 now at POS frequency) ☐ team (13.2 blocked status, 13.6 schema change)
+
+---
+
+## 14. Monsha'at unblocked: the v1.0 "blocked gateway" was a misdiagnosis — sector mix and financing shape now from the register (2026-09-17) — PROPOSED
+
+**SOP:** `SOP_Monshaat_Unblock_And_Report_Corrections.md` v2.0, Workstream A. Supersedes 13.2.
+
+### 14.1 Root cause, stated as it actually was
+
+The gateway was never down. Entry 13.2's account is corrected on two points:
+
+- **The v1.0 code sent real, non-empty paging values** (`probe_sources.monshaat_get` and the old
+  `monshaat_pull.get_page` both formatted `?paginationIndex={page}&recordsPerPage={n}`). The empty
+  template `?paginationIndex=&recordsPerPage=` that 13.2 and the v1.0 report quote was the *URL as
+  documented*, not the URL as called. SOP v2.0 §A0 "Error 1" therefore does not describe this run;
+  it is recorded here so the SOP can be corrected rather than the history rewritten.
+- **The period range was the whole error.** The v1.0 probe called 2025 Q2, 2025 Q4 and 2026 Q1; the
+  pull's auto-scan walked back twelve quarters from 2026 Q3 and stopped at 2023 Q4; the two-hour retry
+  loop hit 2025 Q2 / 2024 Q2 / 2023 Q2. Every one of those quarters is outside the dataset, which
+  the probe below shows to be **2019 Q2 – 2021 Q4** (eleven quarters) — not "2019 to 2022" as SOP
+  v2.0 §A0 states either: 2022 Q1–Q4 return 1009. The one status that would have revealed this — a
+  fast 1009 — was read as "gateway unavailable". The diagnostic rule now in code and docstring:
+  **1009 in ~0.2 s is the service saying "no such period"; only 1011 / 1016 / HTTP 5xx / timeouts
+  are transient**, and the two are never collapsed into one status again.
+
+### 14.2 Endpoint contract as resolved by `calibration/monshaat_probe.py` (A2)
+
+`calibration/out/phase1_monshaat_probe.json`, 2026-09-17:
+
+| question | answer |
+|---|---|
+| periods with data | 2019 Q2 … 2021 Q4; 1009 confirmed at 2019 Q1 and at every quarter 2022 Q1 → 2026 Q3 |
+| `totalRecords` | rows on the page (10 at 10/page, 100 at 100/page, 250 at 250/page) |
+| `totalPages` | **not per quarter**: 188 at 100/page and 1877 at 10/page for every quarter, while a quarter ends after 17–18 pages at 100/page. Ignored; the loop stops at the first confirmed 1009 |
+| page sizes | 250, 200, 100, 50 all returned data at some point; 150/200/250 also returned HTTP 500 `1011 Internal Server Error` intermittently — 1011 succeeds on retry (page 3 at 200: fail, pass, fail, pass). Default 100 with six-try backoff |
+| ordering | deterministic — two full passes at 250/page and two at 100/page were identical row for row |
+| `paginationIndex` | 1-based (0 → 1010 Validation Error) |
+| rows per (region, activity) | **not a primary key**: the five large regions (Eastern 4 rows per key, Riyadh 3, Makkah 3, Madinah 2, Asir 2) return several rows with *different* counts; the eight small regions return one. The response names no sub-region field |
+
+**Aggregation rule (judgement, evidenced):** sum every row. The repeats are additive components of a
+hidden sub-region split, not revisions: summing 2021 Q4 gives **663,913 SMEs** (516,165 / 131,950 /
+15,798), against Monsha'at's published 663,190 at end-Q3 2021 and 752,560 at end-Q1 2022
+(599,790 / 136,740 / 16,030 — SME Monitor Q1 2022 p.14: small and medium within 4% of the pulled
+quarter, micro on its 2021–22 growth path). Keeping the first occurrence per key gives 434 k, which
+matches nothing. The v1.0 pull would have de-duplicated on (region, activity) and lost 40% of the
+counts; that code path is gone.
+
+### 14.3 What was pulled and archived (A3)
+
+`sources/monshaat/` — the latest quarter and the same quarter one and two years earlier:
+
+| archive | pages | rows | distinct region × activity | SMEs (Σ rows) | SHA-256 |
+|---|---|---|---|---|---|
+| `enterprises_2021Q4.json` | 18 | 1,756 | 1,051 | 663,913 | `b0601af6913dce85fa962a5aebcd72a83e62843c815a34beb9123fbbe5c4503a` |
+| `enterprises_2020Q4.json` | 18 | 1,730 | 1,040 | 626,669 | `ace25ac282cf1e59f78dbcbce90688d94ea92e66c92b2b8af0e08ea3227255e8` |
+| `enterprises_2019Q4.json` | 17 | 1,677 | 1,009 | 551,657 | `40427ec7bfb98ea2faef2878688a644991bafa589d8a9e87a901690bc77cb8ea` |
+
+13 regions and 87 ISIC activities (Arabic labels verbatim) in every quarter; retrieval URL, page
+count and the aggregation rule are in each `.meta.json`. Access date 2026-09-17.
+
+### 14.4 ISIC → four-sector map — confirmed on the real labels (supersedes 13.3)
+
+Two prefixes in 13.3 did not match the labels the gateway serves and were corrected before any
+number was read: M71 is served as **أنشطة المعمارية والهندسية ، والاختبارات الفنية والتحليل** (13.3 had
+الأنشطة …), and the borderline keys are served as **البحث والتطوير في المجال العلمي** (M72),
+**أبحاث الإعلان والسوق** (M73) and **الإقامة** (I55). Full membership as matched, 2021 Q4 SME counts:
+
+| sector | ISIC activities matched (label as served → count) |
+|---|---|
+| `retail_trade` | G47 تجارة التجزئة، باستثناء المركبات… 90,403; G46 تجارة الجملة ، باستثناء… 52,014; G45 تجارة الجملة والتجزئة ، وإصلاح المركبات… 34,606 → **177,023** |
+| `construction` | F41 تشييد المباني 91,343; F43 أنشطة التشييد المتخصصة 49,297; F42 الهندسة المدنية 1,037 → **141,677** |
+| `food_beverage` | I56 أنشطة خدمات الأطعمة والمشروبات → **63,424** |
+| `professional_services` | M71 (architecture, engineering, testing) 4,436; M70 أنشطة المكاتب الرئيسية ، وألأنشطة الاستشارية 2,434; J62 أنشطة البرمجة الحاسوبية والخبرة الاستشارية 2,154; M69 الأنشطة القانونية وأنشطة المحاسبة 1,346; M74 الأنشطة المهنية والعلمية والتقنية الأخرى 1,114 → **11,484** |
+| borderline, **excluded**, reported | M72 R&D 74; M73 advertising & market research 1,276; M75 veterinary 341; I55 accommodation 4,525 |
+
+Choices carried from 13.3 and confirmed: wholesale and vehicle trade/repair count as retail trade;
+civil engineering counts as construction; J62 counts as professional services (SOP §4.2);
+accommodation is not food service. Four-sector SMEs are 393,608 = 59.3% of all SMEs. 71 other
+activities are the rest of ISIC and are outside the generator's scope.
+
+### 14.5 `sector_size_distribution` written from the register (class C → B)
+
+| sector | weight before → **after** | micro / small / medium before → **after** | E[size_scale] before → after |
+|---|---|---|---|
+| retail_trade | 0.35 → **0.4498** | 0.85 / 0.13 / 0.02 → **0.7601 / 0.2191 / 0.0208** | 1.67 → 1.95 |
+| construction | 0.20 → **0.3599** | 0.45 / 0.40 / 0.15 → **0.7429 / 0.2288 / 0.0283** | 4.30 → 2.08 |
+| food_beverage | 0.20 → **0.1611** | 0.90 / 0.09 / 0.01 → **0.7564 / 0.2238 / 0.0198** | 1.41 → 1.95 |
+| professional_services | 0.25 → **0.0292** | 0.75 / 0.20 / 0.05 → **0.6929 / 0.2766 / 0.0305** | 2.30 → 2.26 |
+
+Rounded to four decimals with the residual placed on the largest share so each block sums to
+exactly 1.0 (the generator asserts it). Stability over the three quarters: retail weight
+0.446–0.454, construction 0.360–0.425, F&B 0.103–0.161, professional 0.026–0.029; micro share
+0.64–0.76 in every sector (construction 0.67 → 0.74 as the micro tier grew). Register counts are
+a census; the quarter-to-quarter range is the uncertainty statement, and the `.meta.json`
+carries the edition.
+
+**Two things this changes that are not tuning:** (1) professional services falls to 2.9% of the
+population — ~290 businesses and roughly five defaults in N = 10,000, below the §23 minimum cell
+(≥ 30 businesses and ≥ 10 defaults), so any per-sector check on that cell now reports
+`insufficient_sample`; that is the register's shape, not a modelling choice. (2) The tier split
+is far less skewed to micro (75/23/2) than Monsha'at's 2023 national 87/11.5/1.4 — the 2021
+register predates the 2022–23 micro-enterprise surge, and it is the same vintage as the GASTAT
+2022 revenue anchor, so the two inputs are at least contemporaneous.
+
+**Direction versus SOP v2.0 §A3's expectation:** the SOP expected construction ~85/14/1 and
+`E[size_scale]` falling from 4.30 to ~1.31. The register says 74/23/3 and 2.08. The expectation
+was extrapolated from a one-region sample and the 2023 national aggregate; the census is used,
+not the expectation.
+
+### 14.6 `financing.share_of_businesses` sector-conditional (relative shape C → B; level stays C)
+
+Credit per SME = SAMA bank credit by activity, 2026 Q2 (Individuals' Loans 42.6% of total
+excluded, asserted) ÷ Monsha'at 2021 Q4 SME count per sector:
+
+| sector | credit (SAR mn) | SMEs | credit per SME (SAR) | index (count-weighted mean 1) | share_of_businesses (level 0.35) |
+|---|---|---|---|---|---|
+| retail_trade | 220,795 | 177,023 | 1,247,268 | 1.10 | **0.384** |
+| construction | 150,844 | 141,677 | 1,064,702 | 0.94 | **0.328** |
+| food_beverage | 60,968 | 63,424 | 961,283 | 0.85 | **0.296** |
+| professional_services | 14,672 | 11,484 | 1,277,592 | 1.12 | **0.394** |
+
+The shape is nearly flat (0.85–1.12): the "retail carries 1.5× construction" of 13.2 was a share
+of *credit*, and construction has almost as many SMEs as retail. Limitations, unchanged and stated
+in the config comment: total bank credit, not SME credit, no SME/large split, no NPL field, and the
+numerator (2026) and denominator (2021) are five years apart. The absolute level 0.35 is judgement.
+
+### 14.7 Not changed
+
+`base_monthly_inflow_sar`, `size_tier_scale`, seasonality, tickets, latents, ρ, σ. No validation
+target was consulted while writing 14.5–14.6; the re-run results are in entry 15.
+
+**Recorded by:** generator owner, 2026-09-17.
+**Sign-off:** ☐ generator owner (14.2 aggregation rule, 14.4 map, 14.5) ☐ team (14.1 correction of 13.2, 14.6 level)

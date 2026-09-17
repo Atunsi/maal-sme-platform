@@ -1,0 +1,18 @@
+{
+  "file": "enterprises_2019Q4.json",
+  "sha256": "40427ec7bfb98ea2faef2878688a644991bafa589d8a9e87a901690bc77cb8ea",
+  "bytes": 457033,
+  "access_date": "2026-09-17",
+  "origin_body": "Monsha'at (Small and Medium Enterprises General Authority)",
+  "publication": "Enterprises Statistics, 2019 Q4 — region × ISIC economic activity × size tier",
+  "retrieval": "Monsha'at OpenData gateway (paged JSON; 1-based paginationIndex, stop at first 1009)",
+  "retrieval_url": "https://pservices.monshaat.gov.sa/BI/TaskService/OpenData/EnterprisesStatistics/2019/4?paginationIndex={1..17}&recordsPerPage=100",
+  "edition": "Monsha'at Enterprises Statistics 2019 Q4 (dataset covers 2019 Q2 – 2021 Q4 on the access date)",
+  "rows": 1677,
+  "pages": 17,
+  "regions": 13,
+  "activities": 87,
+  "distinct_region_activity": 1009,
+  "aggregation_rule": "sum every row; (region, activity) repeats are additive sub-region components with different counts (see module docstring)",
+  "national_sme_total_sum_all_rows": 551657
+}

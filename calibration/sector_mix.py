@@ -3,20 +3,25 @@
     python -m calibration.sector_mix
 
 Reads every archived sources/monshaat/enterprises_*.json, maps ISIC activities (Arabic labels,
-verbatim) onto the four generator sectors, aggregates all regions, EXCLUDES the large tier (scope
-is SMEs), and writes calibration/out/phase1_sector_mix.json with, per quarter and for the most
-recent quarter:
+verbatim) onto the four generator sectors, SUMS every row (the gateway returns 2–4 additive rows
+per (region, activity) in the five large regions — a hidden sub-region split; see monshaat_pull),
+aggregates all regions, EXCLUDES the large tier (scope is SMEs), and writes
+calibration/out/phase1_sector_mix.json with, per quarter and for the most recent quarter:
 
   * SME count per sector, share of the four-sector total  → `sector_size_distribution.<s>.weight`
   * micro / small / medium split per sector                → `sector_size_distribution.<s>.size_tiers`
   * the full ISIC membership actually matched, and every activity that did NOT map (§4.2, §10.5)
   * stability across the quarters pulled (§4.5)
   * a consistency check of the config-implied aggregate size split against the national split
-    Monsha'at published for Q4 2023 (micro 1,138,588 / small 150,788 / medium 18,723)
+    Monsha'at published for Q4 2023 (micro 1,138,588 / small 150,788 / medium 18,723) — context
+    only: the register edition served is 2021 Q4 (the dataset ends there), two years earlier
+
+The register's most recent edition is 2021 Q4: four years stale on the access date, but the same
+vintage as the GASTAT 2022 revenue anchor already in use (SOP_Monshaat_Unblock §A4).
 
 The ISIC → sector map is JUDGEMENT and is recorded in DECISIONS.md with this membership list.
 Nothing here reads a validation target. If no Monsha'at archive exists the script exits 2 and
-reports Phase 1 as blocked — it never falls back to a regional sample or an invented split.
+reports Phase 1 as not run — it never falls back to a regional sample or an invented split.
 """
 
 from __future__ import annotations
@@ -51,18 +56,22 @@ ISIC_MAP: dict[str, list[tuple[str, str]]] = {
         ("الأنشطة القانونية وأنشطة المحاسبة", "M69 legal and accounting"),
         ("الأنشطة القانونية والمحاسبة", "M69 legal and accounting (alternate label)"),
         ("أنشطة المكاتب الرئيسية", "M70 head offices; management consultancy"),
-        ("الأنشطة المعمارية والهندسية", "M71 architectural and engineering; technical testing"),
+        ("أنشطة المعمارية والهندسية", "M71 architectural and engineering; technical testing and analysis (label as served: أنشطة المعمارية والهندسية ، والاختبارات الفنية والتحليل)"),
+        ("الأنشطة المعمارية والهندسية", "M71 architectural and engineering (alternate label)"),
         ("أنشطة البرمجة الحاسوبية", "J62 computer programming, consultancy — counted as professional services (choice, per SOP §4.2)"),
         ("الأنشطة المهنية والعلمية والتقنية الأخرى", "M74 other professional, scientific and technical activities"),
     ],
 }
 # ISIC activities a reader would expect near the four sectors but which the SOP list leaves out —
 # reported as "did not map cleanly" rather than silently absorbed (§10.5).
-BORDERLINE = {
-    "البحث العلمي والتطوير": "M72 scientific research and development — not in the SOP membership list",
-    "الإعلان وبحوث السوق": "M73 advertising and market research — not in the SOP membership list",
-    "الأنشطة البيطرية": "M75 veterinary activities — not in the SOP membership list",
-    "أنشطة الإقامة": "I55 accommodation — not food service; excluded",
+BORDERLINE = {  # keys are the labels as the gateway serves them (2021 Q4 pull), prefix-matched after normalisation
+    "البحث والتطوير في المجال العلمي": "M72 scientific research and development — not in the SOP membership list; excluded (confirmed on the 2021 Q4 pull, DECISIONS.md entry 14)",
+    "البحث العلمي والتطوير": "M72 scientific research and development (alternate label) — excluded",
+    "أبحاث الإعلان والسوق": "M73 advertising and market research — not in the SOP membership list; excluded (confirmed on the pull)",
+    "الإعلان وبحوث السوق": "M73 advertising and market research (alternate label) — excluded",
+    "الأنشطة البيطرية": "M75 veterinary activities — not in the SOP membership list; excluded (confirmed on the pull)",
+    "الإقامة": "I55 accommodation — not food service; excluded (label as served: الإقامة)",
+    "أنشطة الإقامة": "I55 accommodation (alternate label) — excluded",
 }
 
 MONSHAAT_NATIONAL_Q4_2023 = {"micro": 1_138_588, "small": 150_788, "medium": 18_723}  # Monsha'at SME Monitor Q4 2023 (news release node/53859)
@@ -122,6 +131,15 @@ def summarise_quarter(rows: list[dict]) -> dict:
     }
 
 
+def normalised_round(d: dict, nd: int = 4) -> dict:
+    """Round shares to `nd` decimals and put the rounding residual on the largest share so they sum to exactly 1.0
+    (the generator asserts Σ weights = 1 and Σ size_tiers = 1; 0.9999 fails it)."""
+    r = {k: round(float(v), nd) for k, v in d.items()}
+    big = max(r, key=r.get)
+    r[big] = round(r[big] + (1.0 - sum(r.values())), nd)
+    return r
+
+
 def config_implied_aggregate_split(cfg: dict) -> dict:
     ssd = cfg["sector_size_distribution"]
     agg = {t: sum(v["weight"] * v["size_tiers"][t] for v in ssd.values()) for t in TIERS}
@@ -131,7 +149,7 @@ def config_implied_aggregate_split(cfg: dict) -> dict:
 def main(argv: list[str] | None = None) -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     cfg = load_config("config.yaml")
-    archives = sorted(S.MONSHAAT.glob("enterprises_*.json"))
+    archives = sorted(S.MONSHAAT.glob("enterprises_????Q?.json"))
     nat = MONSHAAT_NATIONAL_Q4_2023
     nat_split = {t: round(nat[t] / sum(nat.values()), 4) for t in TIERS}
     payload = {
@@ -140,8 +158,8 @@ def main(argv: list[str] | None = None) -> int:
         "monshaat_published_national_size_split_q4_2023": {"counts": nat, "shares": nat_split, "source": "Monsha'at SME Monitor Q4 2023, via monshaat.gov.sa/en/node/53859 (national totals only; no sector detail)"},
     }
     if not archives:
-        payload["status"] = "blocked_no_archive"
-        print("No sources/monshaat/enterprises_*.json archive — run calibration.monshaat_pull first. Phase 1 BLOCKED; nothing written to config.")
+        payload["status"] = "not_run_no_archive"
+        print("No sources/monshaat/enterprises_*.json archive — run calibration.monshaat_pull first. Phase 1 not run; nothing written to config.")
         print(f"  config-implied aggregate size split: {payload['config_implied_aggregate_size_split']}  vs  Monsha'at national Q4 2023: {nat_split}")
         S.write_out("phase1_sector_mix", payload)
         return 2
@@ -153,7 +171,8 @@ def main(argv: list[str] | None = None) -> int:
         key = f"{body['year']}Q{body['quarter']}"
         quarters[key] = summarise_quarter(body["rows"])
         q = quarters[key]
-        print(f"== {key}: {len(body['rows'])} rows, {q['n_regions']} regions, {q['n_activities']} activities; four-sector SMEs {q['four_sector_sme_total']:,} ({q['four_sector_share_of_all_smes']:.1%} of all SMEs) ==")
+        q["pull"] = {k: body.get(k) for k in ("n_rows", "pages_pulled", "distinct_region_activity", "rows_per_key_max", "multiplicity_by_region", "aggregation_rule", "national_sme_total_sum_all_rows")}
+        print(f"== {key}: {len(body['rows'])} rows summed ({body.get('distinct_region_activity')} distinct region × activity, up to {body.get('rows_per_key_max')} rows per key), {q['n_regions']} regions, {q['n_activities']} activities; all SMEs {sum(q['all_activities_sme_by_tier'].values()):,}; four-sector SMEs {q['four_sector_sme_total']:,} ({q['four_sector_share_of_all_smes']:.1%} of all SMEs) ==")
         for s in SECTORS:
             st = q["size_tiers"][s]
             print(f"  {s:22s} weight {q['weight'][s]:.3f}  micro/small/medium {st['micro']:.3f}/{st['small']:.3f}/{st['medium']:.3f}  (n={q['sme_total_by_sector'][s]:,}, large excluded {q['large_excluded'][s]:,})")
@@ -169,7 +188,7 @@ def main(argv: list[str] | None = None) -> int:
         }
         for s in SECTORS
     }
-    payload.update({"status": "ok", "latest_quarter": latest, "quarters": quarters, "stability_across_quarters": stability, "proposed_config": {"sector_size_distribution": {s: {"weight": quarters[latest]["weight"][s], "size_tiers": quarters[latest]["size_tiers"][s]} for s in SECTORS}}, "edition": f"Monsha'at Enterprises Statistics {latest[:4]} Q{latest[-1]}"})
+    payload.update({"status": "ok", "latest_quarter": latest, "quarters": quarters, "stability_across_quarters": stability, "proposed_config": {"sector_size_distribution": {s: {"weight": normalised_round(quarters[latest]["weight"])[s], "size_tiers": normalised_round(quarters[latest]["size_tiers"][s])} for s in SECTORS}, "rounding": "4 decimals; residual placed on the largest share so each block sums to exactly 1.0"}, "edition": f"Monsha'at Enterprises Statistics {latest[:4]} Q{latest[-1]}"})
     p = S.write_out("phase1_sector_mix", payload)
     print(f"\nlatest quarter {latest}; stability: {json.dumps(stability)}")
     print(f"→ {p}")

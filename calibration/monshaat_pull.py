@@ -1,154 +1,144 @@
-"""Phase 1 — pull every page of Monsha'at Enterprises Statistics for three quarters (SOP §4.1).
+"""Phase 1 — pull every page of Monsha'at Enterprises Statistics for three quarters (SOP §4.1; SOP_Monshaat_Unblock §A3).
 
-    python -m calibration.monshaat_pull [--quarters 2025Q2,2024Q2,2023Q2] [--per-page 100]
+    python -m calibration.monshaat_pull [--quarters 2021Q4,2020Q4,2019Q4] [--per-page 100]
 
-Without --quarters it scans backwards from the current quarter for the most recent quarter that
-returns data, then takes the quarters roughly one and two years earlier (§4.1: a single snapshot is
-weaker than it looks). The paging parameters are REQUIRED by the gateway (§3.1); the loop here is
-written against the pagination semantics recorded by `probe_sources` in calibration/out/phase0_probe.json
-and re-checks them on every pull: rows are de-duplicated on (region, economicActivity) and any
-duplicate across pages, or any page spanning a second period, is recorded as a finding.
+Without --quarters it takes the availability recorded by `calibration.monshaat_probe` (or scans
+2018Q1 … the current quarter itself) and pulls the latest quarter that returns data plus the same
+quarter one and two years earlier — a single snapshot is weaker than it looks (§4.1).
+
+Gateway contract as resolved by the probe on 2026-09-17 (calibration/out/phase1_monshaat_probe.json):
+  * both paging parameters are REQUIRED and must be non-empty; `paginationIndex` is 1-based;
+  * `totalRecords` = rows on the page and `totalPages` is NOT a per-quarter figure (188 at 100/page
+    for every quarter, while a quarter ends after ~18 pages) — the loop ignores it and stops at the
+    first confirmed `1009 No Data Found`;
+  * `1009` returning in ~0.2 s is the service saying "that period is not in the dataset" (the dataset
+    covers 2019 Q2 – 2021 Q4). It is FINAL and is never reported as a blocked gateway;
+  * `1011 Internal Server Error` (HTTP 500) and `1016 Request Timeout` (HTTP 408) are TRANSIENT —
+    they appear intermittently on any page and size and succeed on retry; retried with backoff;
+  * page ordering is deterministic (two full passes were identical), so paging is reproducible.
+
+Rows are NOT de-duplicated. (region, economicActivity) is not a primary key: the five large regions
+return 2–4 rows per key with DIFFERENT counts (a hidden sub-region split the response does not
+name); the small regions return exactly one. The rows are additive components — summing every row
+reproduces the published national SME total (2021 Q4: 663,913 vs Monsha'at's ~663 k) while keeping
+only the first occurrence gives 434 k. The multiplicity is recorded per region as a finding.
 
 Archives: sources/monshaat/enterprises_{YYYY}Q{Q}.json + .sha256 + .meta.json. Labels are kept in
-Arabic verbatim — they are the join key for `sector_mix` (§3.1).
-
-Gateway statusCode 1016 (Request Timeout) is retried with backoff and a smaller page; 1009
-(No Data Found) is final for that quarter. If no quarter returns data the script exits 2 and
-Phase 1 is BLOCKED — nothing is invented in its place (§1.1).
+Arabic verbatim — they are the join key for `sector_mix` (§3.1). A quarter that loses a page to an
+exhausted transient retry is reported `incomplete` and NOT archived. Exit 2 only when no requested
+quarter could be archived.
 """
 
 from __future__ import annotations
 
 import argparse
+import collections
 import json
 import sys
-import time
-from datetime import datetime, timezone
-
-import requests
 
 from calibration import sources as S
+from calibration.monshaat_probe import FIELDS, current_quarter, get, parse_q, quarters_between
 
-UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Accept": "application/json"}
-FIELDS = ("region", "economicActivity", "microEnterprisesCount", "smallEnterprisesCount", "mediumEnterprisesCount", "largeEnterprisesCount")
+TIERS = ("microEnterprisesCount", "smallEnterprisesCount", "mediumEnterprisesCount", "largeEnterprisesCount")
 
 
-def get_page(year: int, quarter: int, page: int, per_page: int, tries: int = 4) -> tuple[dict | None, list[dict]]:
-    """Returns (body or None, attempt log). Backs off and shrinks the page on 1016."""
-    log = []
-    for k in range(tries):
-        pp = max(10, per_page // (2**k))
-        url = S.MONSHAAT_ENDPOINT.format(year=year, quarter=quarter) + f"?paginationIndex={page}&recordsPerPage={pp}"
-        t0 = time.time()
-        try:
-            r = requests.get(url, timeout=150, headers=UA)
-            body = r.json()
-        except Exception as e:  # noqa: BLE001
-            log.append({"url": url, "try": k, "error": repr(e)[:160], "seconds": round(time.time() - t0, 1)})
-            time.sleep(8 * (k + 1))
+def pull_quarter(year: int, quarter: int, per_page: int) -> dict:
+    log: list[dict] = []
+    rows: list[dict] = []
+    page = 1
+    status = "ok"
+    while page <= 2000:
+        a = get(year, quarter, page, per_page, log=log)
+        if a["kind"] == "data":
+            rows.extend(a["rows"])
+            page += 1
             continue
-        code = body.get("statusCode") if isinstance(body, dict) else None
-        log.append({"url": url, "try": k, "http": r.status_code, "statusCode": code, "seconds": round(time.time() - t0, 1), "rows": len(body.get("statistics") or []) if isinstance(body, dict) else 0})
-        if isinstance(body, dict) and body.get("statistics") is not None and code in (None, 200, 0, 1000):
-            return body, log
-        if code == 1009:
-            return None, log
-        time.sleep(8 * (k + 1))
-    return None, log
-
-
-def pull_quarter(year: int, quarter: int, per_page: int) -> dict | None:
-    body, log = get_page(year, quarter, 1, per_page)
-    if body is None:
-        return {"year": year, "quarter": quarter, "status": "no_data", "log": log}
-    pagination = body.get("pagination") or {}
-    rows = list(body.get("statistics") or [])
-    seen = {(r.get("region"), r.get("economicActivity")) for r in rows}
-    duplicates, pages_pulled = 0, 1
-    total_pages = pagination.get("totalPages") or pagination.get("TotalPages")
-    page = 2
-    while True:
-        if total_pages is not None and page > int(total_pages):
+        if a["kind"] == "no_data":
+            status = "no_data_for_period" if page == 1 else "ok"
             break
-        nxt, l2 = get_page(year, quarter, page, per_page)
-        log.extend(l2)
-        if nxt is None or not nxt.get("statistics"):
-            break
-        pages_pulled += 1
-        for r in nxt["statistics"]:
-            key = (r.get("region"), r.get("economicActivity"))
-            if key in seen:
-                duplicates += 1
-                continue
-            seen.add(key)
-            rows.append(r)
-        page += 1
-        if page > 500:  # a runaway loop is a finding, not a pull
-            break
+        status = "incomplete"  # transient retries exhausted on this page — never skip it silently
+        break
+    if status != "ok":
+        return {"year": year, "quarter": quarter, "status": status, "pages_pulled": page - 1, "n_rows": len(rows), "log": log}
     for r in rows:
         missing = [f for f in FIELDS if f not in r]
         assert not missing, f"row lacks fields {missing}: {r}"
-    periods = {(r.get("year"), r.get("quarter")) for r in rows if "year" in r or "quarter" in r}
+    keys = [(r["region"], r["economicActivity"]) for r in rows]
+    mult = collections.Counter(keys)
+    per_region = collections.defaultdict(list)
+    for (reg, _), m in mult.items():
+        per_region[reg].append(m)
+    totals = {t: sum(int(r.get(t) or 0) for r in rows) for t in TIERS}
     return {
         "year": year,
         "quarter": quarter,
-        "status": "ok",
-        "pagination_first_page": pagination,
-        "pages_pulled": pages_pulled,
+        "status": status,
+        "pagination_first_page": log[0].get("pagination") if log else None,
+        "pages_pulled": page - 1,
+        "per_page": per_page,
         "rows": rows,
         "n_rows": len(rows),
-        "duplicates_across_pages": duplicates,
+        "distinct_region_activity": len(mult),
+        "rows_per_key_max": max(mult.values()),
+        "multiplicity_by_region": {reg: dict(sorted(collections.Counter(ms).items())) for reg, ms in per_region.items()},
+        "aggregation_rule": "sum every row; (region, activity) repeats are additive sub-region components with different counts (see module docstring)",
+        "national_totals_sum_all_rows": totals,
+        "national_sme_total_sum_all_rows": sum(totals[t] for t in TIERS[:3]),
         "distinct_regions": sorted({r["region"] for r in rows}),
         "distinct_activities": len({r["economicActivity"] for r in rows}),
-        "periods_in_rows": sorted(str(p) for p in periods),
         "log": log,
     }
 
 
-def auto_quarters(per_page: int) -> list[tuple[int, int]]:
-    today = datetime.now(tz=timezone.utc).date()
-    y, q = today.year, (today.month - 1) // 3 + 1
-    cand = []
-    for _ in range(12):
-        cand.append((y, q))
-        q -= 1
-        if q == 0:
-            y, q = y - 1, 4
-    latest = None
-    for yq in cand:
-        body, _ = get_page(*yq, 1, 10)
-        if body is not None and body.get("statistics"):
-            latest = yq
+def choose_quarters(per_page: int) -> tuple[list[tuple[int, int]], dict]:
+    probe_path = S.OUT / "phase1_monshaat_probe.json"
+    if probe_path.exists():
+        probe = S.read_out("phase1_monshaat_probe")
+        avail = [parse_q(k) for k, v in probe.get("availability", {}).items() if v.get("kind") == "data"]
+        source = f"phase1_monshaat_probe.json ({probe.get('run_at', '')[:10]})"
+    else:
+        avail, source = [], "live scan 2018Q1 … current quarter"
+        for y, q in quarters_between((2018, 1), current_quarter()):
+            if get(y, q, 1, 10)["kind"] == "data":
+                avail.append((y, q))
+    if not avail:
+        return [], {"source": source, "available": []}
+    latest = max(avail)
+    wanted = [latest, (latest[0] - 1, latest[1]), (latest[0] - 2, latest[1])]
+    chosen = [q for q in wanted if q in avail]
+    for q in sorted(avail, reverse=True):  # fall back to the next-earlier quarters if the same-quarter-earlier ones are absent
+        if len(chosen) >= 3:
             break
-    if latest is None:
-        return []
-    return [latest, (latest[0] - 1, latest[1]), (latest[0] - 2, latest[1])]
+        if q not in chosen:
+            chosen.append(q)
+    return chosen, {"source": source, "available": [f"{y}Q{q}" for y, q in sorted(avail)]}
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--quarters", default=None, help="comma-separated, e.g. 2025Q2,2024Q2,2023Q2")
-    ap.add_argument("--per-page", type=int, default=100)
+    ap.add_argument("--quarters", default=None, help="comma-separated, e.g. 2021Q4,2020Q4,2019Q4")
+    ap.add_argument("--per-page", type=int, default=100, help="100 is reliable; 250 works but 1011 is more frequent; 150/200 intermittent")
     args = ap.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     S.MONSHAAT.mkdir(parents=True, exist_ok=True)
 
     if args.quarters:
-        quarters = [(int(s[:4]), int(s[-1])) for s in args.quarters.split(",")]
+        quarters, chosen_from = [parse_q(s) for s in args.quarters.split(",")], {"source": "--quarters"}
     else:
-        quarters = auto_quarters(args.per_page)
+        quarters, chosen_from = choose_quarters(args.per_page)
         if not quarters:
-            print("Monsha'at gateway returned no data for any of the last 12 quarters — Phase 1 BLOCKED (nothing is invented in its place).")
-            S.write_out("phase1_monshaat_pull", {"run_at": S.now_iso(), "status": "blocked_gateway", "quarters": []})
+            print("No quarter between 2018Q1 and today returned data (every answer a fast 1009, or transient errors exhausted) — see phase1_monshaat_probe.json. Nothing invented.")
+            S.write_out("phase1_monshaat_pull", {"run_at": S.now_iso(), "status": "no_data_in_range", "chosen_from": chosen_from, "quarters": []})
             return 2
+    print(f"quarters: {', '.join(f'{y}Q{q}' for y, q in quarters)}  (chosen from {chosen_from['source']})")
 
     results = []
     for y, q in quarters:
         print(f"== {y}Q{q} ==")
         res = pull_quarter(y, q, args.per_page)
-        results.append({k: v for k, v in res.items() if k != "rows"})
+        results.append({k: v for k, v in res.items() if k not in ("rows", "log")} | {"last_call": res["log"][-1] if res.get("log") else None})
         if res["status"] != "ok":
-            print(f"  no data ({res['log'][-1] if res['log'] else 'no attempts'})")
+            print(f"  {res['status']} after {res['pages_pulled']} pages ({res['log'][-1] if res['log'] else 'no attempts'})")
             continue
         content = (json.dumps({k: v for k, v in res.items() if k != "log"}, ensure_ascii=False, indent=1) + "\n").encode("utf-8")
         rec = S.archive(
@@ -157,18 +147,23 @@ def main(argv: list[str] | None = None) -> int:
             {
                 "origin_body": "Monsha'at (Small and Medium Enterprises General Authority)",
                 "publication": f"Enterprises Statistics, {y} Q{q} — region × ISIC economic activity × size tier",
-                "retrieval": "Monsha'at OpenData gateway (paged JSON)",
-                "retrieval_url": S.MONSHAAT_ENDPOINT.format(year=y, quarter=q) + "?paginationIndex={n}&recordsPerPage={size}",
-                "edition": f"Monsha'at Enterprises Statistics {y} Q{q}",
+                "retrieval": "Monsha'at OpenData gateway (paged JSON; 1-based paginationIndex, stop at first 1009)",
+                "retrieval_url": S.MONSHAAT_ENDPOINT.format(year=y, quarter=q) + f"?paginationIndex={{1..{res['pages_pulled']}}}&recordsPerPage={args.per_page}",
+                "edition": f"Monsha'at Enterprises Statistics {y} Q{q} (dataset covers 2019 Q2 – 2021 Q4 on the access date)",
                 "rows": res["n_rows"],
                 "pages": res["pages_pulled"],
                 "regions": len(res["distinct_regions"]),
                 "activities": res["distinct_activities"],
+                "distinct_region_activity": res["distinct_region_activity"],
+                "aggregation_rule": res["aggregation_rule"],
+                "national_sme_total_sum_all_rows": res["national_sme_total_sum_all_rows"],
             },
         )
-        print(f"  archived {rec['file']}: {res['n_rows']} rows, {res['pages_pulled']} pages, {len(res['distinct_regions'])} regions, {res['distinct_activities']} activities, {res['duplicates_across_pages']} duplicates dropped")
+        t = res["national_totals_sum_all_rows"]
+        print(f"  archived {rec['file']}: {res['n_rows']} rows over {res['pages_pulled']} pages, {len(res['distinct_regions'])} regions, {res['distinct_activities']} activities, {res['distinct_region_activity']} distinct (region, activity), max {res['rows_per_key_max']} rows per key; SMEs {res['national_sme_total_sum_all_rows']:,} (micro {t[TIERS[0]]:,} / small {t[TIERS[1]]:,} / medium {t[TIERS[2]]:,}; large {t[TIERS[3]]:,} excluded downstream)")
     ok = [r for r in results if r["status"] == "ok"]
-    S.write_out("phase1_monshaat_pull", {"run_at": S.now_iso(), "status": "ok" if ok else "blocked_gateway", "quarters": results})
+    status = "ok" if ok else ("incomplete" if any(r["status"] == "incomplete" for r in results) else "no_data_for_period")
+    S.write_out("phase1_monshaat_pull", {"run_at": S.now_iso(), "status": status, "chosen_from": chosen_from, "quarters": results})
     return 0 if ok else 2
 
 

@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-09-16T09:49:10+00:00",
+  "run_at": "2026-09-17T06:16:09+00:00",
   "latest_quarter": "2026-04-01",
   "first_quarter": "2021-07-01",
   "total_credit_mn_sar": 3419326.45403674,
@@ -72,6 +72,27 @@
     }
   },
   "limitation": "Total bank credit by activity, not SME credit; no SME-vs-large split, no NPLs. Construction's share is dominated by large contractors. Index is relative only; absolute level stays judgement (§7.4). §21 NPL target remains pending_week1_check.",
-  "status": "index_blocked_no_sme_counts",
-  "note": "Phase 1 (Monsha'at) blocked — credit shares reported, per-business index and config proposal withheld (§7.3)"
+  "sme_counts_from": "phase1_sector_mix 2021Q4",
+  "credit_per_sme_sar": {
+    "retail_trade": 1247267.8025456467,
+    "construction": 1064702.1101663997,
+    "food_beverage": 961283.3040395465,
+    "professional_services": 1277591.9538232845
+  },
+  "relative_index_count_weighted_mean_1": {
+    "retail_trade": 1.097704426667708,
+    "construction": 0.9370306978395159,
+    "food_beverage": 0.8460131304378418,
+    "professional_services": 1.1243923240258105
+  },
+  "proposed_config": {
+    "financing.share_of_businesses": {
+      "retail_trade": 0.384,
+      "construction": 0.328,
+      "food_beverage": 0.296,
+      "professional_services": 0.394
+    },
+    "absolute_level_pinned_to": 0.35,
+    "evidence_class": "B (relative), C (level)"
+  }
 }

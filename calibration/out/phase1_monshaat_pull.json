@@ -1,51 +1,63 @@
 {
-  "run_at": "2026-09-16T10:09:57+00:00",
-  "status": "blocked_gateway",
+  "run_at": "2026-09-17T06:25:12+00:00",
+  "status": "no_data_for_period",
+  "chosen_from": {
+    "source": "--quarters"
+  },
   "quarters": [
     {
       "year": 2025,
       "quarter": 2,
-      "status": "no_data",
-      "log": [
-        {
-          "url": "https://pservices.monshaat.gov.sa/BI/TaskService/OpenData/EnterprisesStatistics/2025/2?paginationIndex=1&recordsPerPage=100",
-          "try": 0,
-          "http": 404,
-          "statusCode": 1009,
-          "seconds": 0.2,
-          "rows": 0
-        }
-      ]
+      "status": "no_data_for_period",
+      "pages_pulled": 0,
+      "n_rows": 0,
+      "last_call": {
+        "url": "https://pservices.monshaat.gov.sa/BI/TaskService/OpenData/EnterprisesStatistics/2025/2?paginationIndex=1&recordsPerPage=100",
+        "http": 404,
+        "statusCode": 1009,
+        "statusDescription": "No Data Found",
+        "pagination": null,
+        "seconds": 0.25,
+        "kind": "no_data",
+        "n_rows": 0,
+        "try": 0
+      }
     },
     {
       "year": 2024,
       "quarter": 2,
-      "status": "no_data",
-      "log": [
-        {
-          "url": "https://pservices.monshaat.gov.sa/BI/TaskService/OpenData/EnterprisesStatistics/2024/2?paginationIndex=1&recordsPerPage=100",
-          "try": 0,
-          "http": 404,
-          "statusCode": 1009,
-          "seconds": 0.2,
-          "rows": 0
-        }
-      ]
+      "status": "no_data_for_period",
+      "pages_pulled": 0,
+      "n_rows": 0,
+      "last_call": {
+        "url": "https://pservices.monshaat.gov.sa/BI/TaskService/OpenData/EnterprisesStatistics/2024/2?paginationIndex=1&recordsPerPage=100",
+        "http": 404,
+        "statusCode": 1009,
+        "statusDescription": "No Data Found",
+        "pagination": null,
+        "seconds": 0.17,
+        "kind": "no_data",
+        "n_rows": 0,
+        "try": 0
+      }
     },
     {
       "year": 2023,
       "quarter": 2,
-      "status": "no_data",
-      "log": [
-        {
-          "url": "https://pservices.monshaat.gov.sa/BI/TaskService/OpenData/EnterprisesStatistics/2023/2?paginationIndex=1&recordsPerPage=100",
-          "try": 0,
-          "http": 404,
-          "statusCode": 1009,
-          "seconds": 0.2,
-          "rows": 0
-        }
-      ]
+      "status": "no_data_for_period",
+      "pages_pulled": 0,
+      "n_rows": 0,
+      "last_call": {
+        "url": "https://pservices.monshaat.gov.sa/BI/TaskService/OpenData/EnterprisesStatistics/2023/2?paginationIndex=1&recordsPerPage=100",
+        "http": 404,
+        "statusCode": 1009,
+        "statusDescription": "No Data Found",
+        "pagination": null,
+        "seconds": 0.2,
+        "kind": "no_data",
+        "n_rows": 0,
+        "try": 0
+      }
     }
   ]
 }

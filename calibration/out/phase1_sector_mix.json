@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-09-16T09:49:07+00:00",
+  "run_at": "2026-09-17T06:16:05+00:00",
   "config_implied_aggregate_size_split": {
     "micro": 0.755,
     "small": 0.1935,
@@ -18,5 +18,2194 @@
     },
     "source": "Monsha'at SME Monitor Q4 2023, via monshaat.gov.sa/en/node/53859 (national totals only; no sector detail)"
   },
-  "status": "blocked_no_archive"
+  "status": "ok",
+  "latest_quarter": "2021Q4",
+  "quarters": {
+    "2019Q4": {
+      "regions": [
+        "المنطقة الشرقية",
+        "منطقة الباحة",
+        "منطقة الجوف",
+        "منطقة الحدود الشمالية",
+        "منطقة الرياض",
+        "منطقة القصيم",
+        "منطقة المدينة المنورة",
+        "منطقة تبوك",
+        "منطقة جازان",
+        "منطقة حائل",
+        "منطقة عسير",
+        "منطقة مكة المكرمة",
+        "منطقة نجران"
+      ],
+      "n_regions": 13,
+      "n_activities": 87,
+      "counts_by_sector_tier": {
+        "retail_trade": {
+          "micro": 99114,
+          "small": 41745,
+          "medium": 4158,
+          "large": 755
+        },
+        "construction": {
+          "micro": 92963,
+          "small": 41003,
+          "medium": 4437,
+          "large": 905
+        },
+        "food_beverage": {
+          "micro": 23470,
+          "small": 9160,
+          "medium": 864,
+          "large": 89
+        },
+        "professional_services": {
+          "micro": 5468,
+          "small": 2729,
+          "medium": 302,
+          "large": 72
+        }
+      },
+      "sme_total_by_sector": {
+        "retail_trade": 145017,
+        "construction": 138403,
+        "food_beverage": 33494,
+        "professional_services": 8499
+      },
+      "four_sector_sme_total": 325413,
+      "weight": {
+        "retail_trade": 0.4456,
+        "construction": 0.4253,
+        "food_beverage": 0.1029,
+        "professional_services": 0.0261
+      },
+      "size_tiers": {
+        "retail_trade": {
+          "micro": 0.6835,
+          "small": 0.2879,
+          "medium": 0.0287
+        },
+        "construction": {
+          "micro": 0.6717,
+          "small": 0.2963,
+          "medium": 0.0321
+        },
+        "food_beverage": {
+          "micro": 0.7007,
+          "small": 0.2735,
+          "medium": 0.0258
+        },
+        "professional_services": {
+          "micro": 0.6434,
+          "small": 0.3211,
+          "medium": 0.0355
+        }
+      },
+      "large_excluded": {
+        "retail_trade": 755,
+        "construction": 905,
+        "food_beverage": 89,
+        "professional_services": 72
+      },
+      "all_activities_sme_by_tier": {
+        "micro": 396038,
+        "small": 139604,
+        "medium": 16015
+      },
+      "four_sector_share_of_all_smes": 0.5899,
+      "membership": {
+        "retail_trade": {
+          "تجارة التجزئة، باستثناء المركبات ذات المحركات والدراجات النارية": {
+            "note": "G47 retail trade",
+            "micro": 45613,
+            "small": 18471,
+            "medium": 1884,
+            "large": 314
+          },
+          "تجارة الجملة ، باستثناء المركبات ذات المحركات والدراجات النارية": {
+            "note": "G46 wholesale trade — counted as retail trade (choice)",
+            "micro": 33859,
+            "small": 17275,
+            "medium": 2024,
+            "large": 399
+          },
+          "تجارة الجملة والتجزئة ، وإصلاح المركبات ذات المحركات والدراجات النارية": {
+            "note": "G45 wholesale & retail trade and repair of motor vehicles — counted as retail trade (choice)",
+            "micro": 19642,
+            "small": 5999,
+            "medium": 250,
+            "large": 42
+          }
+        },
+        "construction": {
+          "أنشطة التشييد المتخصصة": {
+            "note": "F43 specialised construction activities",
+            "micro": 29518,
+            "small": 12345,
+            "medium": 848,
+            "large": 100
+          },
+          "الهندسة المدنية": {
+            "note": "F42 civil engineering — counted as construction (choice)",
+            "micro": 127,
+            "small": 43,
+            "medium": 8,
+            "large": 0
+          },
+          "تشييد المباني": {
+            "note": "F41 construction of buildings",
+            "micro": 63318,
+            "small": 28615,
+            "medium": 3581,
+            "large": 805
+          }
+        },
+        "food_beverage": {
+          "أنشطة خدمات الأطعمة والمشروبات": {
+            "note": "I56 food and beverage service activities",
+            "micro": 23470,
+            "small": 9160,
+            "medium": 864,
+            "large": 89
+          }
+        },
+        "professional_services": {
+          "أنشطة البرمجة الحاسوبية والخبرة الاستشارية وما يتصل بها من أنشطة": {
+            "note": "J62 computer programming, consultancy — counted as professional services (choice, per SOP §4.2)",
+            "micro": 1058,
+            "small": 472,
+            "medium": 53,
+            "large": 7
+          },
+          "أنشطة المعمارية والهندسية ، والاختبارات الفنية والتحليل": {
+            "note": "M71 architectural and engineering; technical testing and analysis (label as served: أنشطة المعمارية والهندسية ، والاختبارات الفنية والتحليل)",
+            "micro": 2439,
+            "small": 1508,
+            "medium": 196,
+            "large": 57
+          },
+          "أنشطة المكاتب الرئيسية ، وألأنشطة الاستشارية في مجال الإدارة": {
+            "note": "M70 head offices; management consultancy",
+            "micro": 1325,
+            "small": 500,
+            "medium": 35,
+            "large": 5
+          },
+          "الأنشطة القانونية وأنشطة المحاسبة": {
+            "note": "M69 legal and accounting",
+            "micro": 197,
+            "small": 139,
+            "medium": 11,
+            "large": 2
+          },
+          "الأنشطة المهنية والعلمية والتقنية الأخرى": {
+            "note": "M74 other professional, scientific and technical activities",
+            "micro": 449,
+            "small": 110,
+            "medium": 7,
+            "large": 1
+          }
+        }
+      },
+      "borderline_not_mapped": {
+        "أبحاث الإعلان والسوق": {
+          "micro": 164,
+          "small": 21,
+          "medium": 0,
+          "large": 0,
+          "note": "M73 advertising and market research — not in the SOP membership list; excluded (confirmed on the pull)"
+        },
+        "الأنشطة البيطرية": {
+          "micro": 209,
+          "small": 106,
+          "medium": 8,
+          "large": 1,
+          "note": "M75 veterinary activities — not in the SOP membership list; excluded (confirmed on the pull)"
+        },
+        "الإقامة": {
+          "micro": 1987,
+          "small": 1122,
+          "medium": 192,
+          "large": 35,
+          "note": "I55 accommodation — not food service; excluded (label as served: الإقامة)"
+        },
+        "البحث والتطوير في المجال العلمي": {
+          "micro": 22,
+          "small": 13,
+          "medium": 1,
+          "large": 0,
+          "note": "M72 scientific research and development — not in the SOP membership list; excluded (confirmed on the 2021 Q4 pull, DECISIONS.md entry 14)"
+        }
+      },
+      "unmapped_activities": {
+        "أنشطة أنتاج الأفلام والبرامج التلفزيونية والتسجيلات الصوتية و نشرالموسيقى": {
+          "micro": 319,
+          "small": 94,
+          "medium": 7,
+          "large": 0
+        },
+        "أنشطة الأمن والتحقيقات": {
+          "micro": 133,
+          "small": 76,
+          "medium": 35,
+          "large": 13
+        },
+        "أنشطة الاستخدام": {
+          "micro": 548,
+          "small": 118,
+          "medium": 4,
+          "large": 31
+        },
+        "أنشطة البرمجة والإذاعة": {
+          "micro": 17,
+          "small": 5,
+          "medium": 1,
+          "large": 0
+        },
+        "أنشطة البريد ونقل الرسائل والطرود بواسطة مندوبين": {
+          "micro": 42,
+          "small": 19,
+          "medium": 0,
+          "large": 0
+        },
+        "أنشطة الخدمات الشخصية الأخرى": {
+          "micro": 23046,
+          "small": 4793,
+          "medium": 227,
+          "large": 49
+        },
+        "أنشطة الخدمات المالية ، فيما عدا تمويل التأمين وصناديق المعاشات": {
+          "micro": 596,
+          "small": 167,
+          "medium": 20,
+          "large": 14
+        },
+        "أنشطة العمل الاجتماعي، دون إقامة، لكبار السن وذوي الإعاقة": {
+          "micro": 777,
+          "small": 780,
+          "medium": 93,
+          "large": 6
+        },
+        "أنشطة المكتبات ودور المحفوظات، والمتاحف والأنشطة الثقافية الأخرى": {
+          "micro": 774,
+          "small": 283,
+          "medium": 19,
+          "large": 1
+        },
+        "أنشطة المنظمات الدولية": {
+          "micro": 13,
+          "small": 6,
+          "medium": 2,
+          "large": 1
+        },
+        "أنشطة المنظمات ذات العضوية": {
+          "micro": 297,
+          "small": 130,
+          "medium": 11,
+          "large": 0
+        },
+        "أنشطة النشر": {
+          "micro": 308,
+          "small": 132,
+          "medium": 13,
+          "large": 1
+        },
+        "أنشطة تقديم الخدمات للمباني وتجميل المواقع": {
+          "micro": 15889,
+          "small": 8297,
+          "medium": 1085,
+          "large": 230
+        },
+        "أنشطة جمع النفايات ومعالجتها وتصريفها ، واسترجاع المواد": {
+          "micro": 38,
+          "small": 11,
+          "medium": 6,
+          "large": 3
+        },
+        "أنشطة خدمات المعلومات": {
+          "micro": 612,
+          "small": 154,
+          "medium": 10,
+          "large": 3
+        },
+        "أنشطة خدمات دعم التعدين": {
+          "micro": 407,
+          "small": 317,
+          "medium": 92,
+          "large": 61
+        },
+        "أنشطة زراعة المحاصيل والإنتاج الحيواني والصيد والخدمات المتصلة": {
+          "micro": 5101,
+          "small": 1061,
+          "medium": 138,
+          "large": 30
+        },
+        "إصلاح أجهزة الحاسوب والسلع الشخصية والمنزلية": {
+          "micro": 2662,
+          "small": 706,
+          "medium": 57,
+          "large": 9
+        },
+        "إصلاح وتركيب الآلات والمعدات": {
+          "micro": 450,
+          "small": 132,
+          "medium": 19,
+          "large": 5
+        },
+        "الأنشطة الأخرى للتعدين واستغلال المحاجر": {
+          "micro": 207,
+          "small": 101,
+          "medium": 28,
+          "large": 10
+        },
+        "الأنشطة الإبداعية والفنون وأنشطة الترفيه": {
+          "micro": 161,
+          "small": 47,
+          "medium": 6,
+          "large": 0
+        },
+        "الأنشطة الإدارية للمكاتب ، وأنشطة الدعم للمكاتب وغير ذلك من أنشطة الدعم للأعمال": {
+          "micro": 352,
+          "small": 85,
+          "medium": 10,
+          "large": 2
+        },
+        "الأنشطة الإيجارية": {
+          "micro": 55189,
+          "small": 1815,
+          "medium": 91,
+          "large": 12
+        },
+        "الأنشطة الرياضية وأنشطة التسلية والترفيه": {
+          "micro": 1231,
+          "small": 379,
+          "medium": 32,
+          "large": 7
+        },
+        "الأنشطة العقارية": {
+          "micro": 1733,
+          "small": 846,
+          "medium": 123,
+          "large": 12
+        },
+        "الأنشطة المساعدة لأنشطة الخدمات المالية وأنشطة التأمين": {
+          "micro": 91,
+          "small": 103,
+          "medium": 21,
+          "large": 0
+        },
+        "الإدارة العامة والدفاع ؛ والضمان الاجتماعي الإلزامي": {
+          "micro": 1392,
+          "small": 880,
+          "medium": 147,
+          "large": 26
+        },
+        "الاتصالات": {
+          "micro": 963,
+          "small": 353,
+          "medium": 31,
+          "large": 12
+        },
+        "التخزين وأنشطة الدعم للنقل": {
+          "micro": 2269,
+          "small": 708,
+          "medium": 118,
+          "large": 29
+        },
+        "التعليم": {
+          "micro": 1310,
+          "small": 1424,
+          "medium": 583,
+          "large": 96
+        },
+        "الحراجة وقطع الأخشاب": {
+          "micro": 17,
+          "small": 9,
+          "medium": 1,
+          "large": 2
+        },
+        "الرعاية مع الإقامة": {
+          "micro": 183,
+          "small": 63,
+          "medium": 8,
+          "large": 0
+        },
+        "الصحة البشرية": {
+          "micro": 1153,
+          "small": 1848,
+          "medium": 578,
+          "large": 153
+        },
+        "الصرف الصحي": {
+          "micro": 61,
+          "small": 47,
+          "medium": 8,
+          "large": 4
+        },
+        "الصناعة التحويلية الأخرى": {
+          "micro": 466,
+          "small": 277,
+          "medium": 35,
+          "large": 5
+        },
+        "الطباعة واستنساخ وسائط الأعلام المسجّلة": {
+          "micro": 1218,
+          "small": 657,
+          "medium": 69,
+          "large": 8
+        },
+        "النقل البري و النقل عبر الأنابيب": {
+          "micro": 14647,
+          "small": 2216,
+          "medium": 201,
+          "large": 42
+        },
+        "النقل الجوي": {
+          "micro": 423,
+          "small": 318,
+          "medium": 128,
+          "large": 47
+        },
+        "النقل المائي": {
+          "micro": 191,
+          "small": 83,
+          "medium": 20,
+          "large": 4
+        },
+        "تجميع المياه ومعالجتها وتوصيلها": {
+          "micro": 608,
+          "small": 189,
+          "medium": 20,
+          "large": 4
+        },
+        "تعدين الفحم والليغنيت": {
+          "micro": 16,
+          "small": 14,
+          "medium": 1,
+          "large": 0
+        },
+        "تعدين ركازات الفلزات": {
+          "micro": 755,
+          "small": 313,
+          "medium": 21,
+          "large": 8
+        },
+        "تمويل التأمين وإعادة التأمين وصناديق المعاشات التقاعدية باستثناء الضمان الاجتماعي الإلزامي": {
+          "micro": 89,
+          "small": 118,
+          "medium": 30,
+          "large": 17
+        },
+        "توصيل الكهرباء والغاز والبخار وتكييف الهواء": {
+          "micro": 346,
+          "small": 217,
+          "medium": 57,
+          "large": 34
+        },
+        "صناعة الآلات والمعدات غير المصنفة في موضع أخر": {
+          "micro": 448,
+          "small": 131,
+          "medium": 28,
+          "large": 3
+        },
+        "صناعة المركبات ذات المحركات والمركبات المقطورة ونصف المقطورة": {
+          "micro": 708,
+          "small": 132,
+          "medium": 9,
+          "large": 0
+        },
+        "صناعة معدات النقل الأخرى": {
+          "micro": 198,
+          "small": 110,
+          "medium": 22,
+          "large": 7
+        },
+        "صنع الأثاث": {
+          "micro": 2108,
+          "small": 820,
+          "medium": 71,
+          "large": 5
+        },
+        "صنع الحواسيب والمنتجات الإلكترونية والبصرية": {
+          "micro": 1497,
+          "small": 495,
+          "medium": 64,
+          "large": 9
+        },
+        "صنع الفلزات القاعدية": {
+          "micro": 2217,
+          "small": 942,
+          "medium": 167,
+          "large": 41
+        },
+        "صنع المعدات الكهربائية": {
+          "micro": 1595,
+          "small": 495,
+          "medium": 72,
+          "large": 13
+        },
+        "صنع المنتجات الصيدلانية الأساسية والمستحضرات الصيدلانية": {
+          "micro": 43,
+          "small": 29,
+          "medium": 12,
+          "large": 2
+        },
+        "صنع فحم الكوك والمنتجات النفطية المكررة": {
+          "micro": 43,
+          "small": 36,
+          "medium": 7,
+          "large": 3
+        },
+        "صنع منتجات المطاط واللدائن": {
+          "micro": 479,
+          "small": 503,
+          "medium": 198,
+          "large": 46
+        },
+        "صنع منتجات المعادن اللافلزية الأخرى": {
+          "micro": 1330,
+          "small": 712,
+          "medium": 211,
+          "large": 50
+        },
+        "صنع منتجات المعادن المشكلة ( باستثناء الآلات والمعدات )": {
+          "micro": 3733,
+          "small": 1497,
+          "medium": 244,
+          "large": 63
+        },
+        "صيد الأسماك وتربية المائيات": {
+          "micro": 687,
+          "small": 528,
+          "medium": 15,
+          "large": 0
+        },
+        "صُنع الخشب ومنتجات الخشب والفلين ، باستثناء الأثاث ، صُنع أصناف من القش ومواد الضفر": {
+          "micro": 2004,
+          "small": 828,
+          "medium": 78,
+          "large": 18
+        },
+        "صُنع المشروبات": {
+          "micro": 471,
+          "small": 203,
+          "medium": 49,
+          "large": 20
+        },
+        "صُنع الملبوسات": {
+          "micro": 9155,
+          "small": 2021,
+          "medium": 66,
+          "large": 3
+        },
+        "صُنع المنتجات الجلدية والمنتجات ذات الصلة": {
+          "micro": 68,
+          "small": 33,
+          "medium": 2,
+          "large": 0
+        },
+        "صُنع المنتجات الغذائية": {
+          "micro": 5994,
+          "small": 2425,
+          "medium": 307,
+          "large": 78
+        },
+        "صُنع المنسوجات": {
+          "micro": 1238,
+          "small": 523,
+          "medium": 57,
+          "large": 12
+        },
+        "صُنع المواد الكيميائية والمنتجات الكيميائية": {
+          "micro": 919,
+          "small": 445,
+          "medium": 106,
+          "large": 17
+        },
+        "صُنع الورق ومنتجات الورق": {
+          "micro": 102,
+          "small": 104,
+          "medium": 25,
+          "large": 7
+        },
+        "صُنع منتجات التبغ": {
+          "micro": 38,
+          "small": 6,
+          "medium": 1,
+          "large": 0
+        },
+        "وكالات السفر ومشغّلو الجولات السياحية وخدمات الحجز والأنشطة المتصلة بها": {
+          "micro": 462,
+          "small": 294,
+          "medium": 36,
+          "large": 4
+        },
+        "أنشطة الاسر المعيشية التي تستخدم أفراداً للعمل المنزلي": {
+          "micro": 1,
+          "small": 0,
+          "medium": 0,
+          "large": 0
+        },
+        "أنشطة المعالجة وخدمات إدارة النفايات الأخرى": {
+          "micro": 1,
+          "small": 1,
+          "medium": 0,
+          "large": 0
+        },
+        "استخراج النفط الخام والغاز الطبيعي": {
+          "micro": 0,
+          "small": 1,
+          "medium": 0,
+          "large": 0
+        },
+        "الأنشطة غير المتميزة لإنتاج السلع والخدمات التي تقوم بها الأسر المعيشية الخاصة لإستعمالها الخاص": {
+          "micro": 2,
+          "small": 0,
+          "medium": 0,
+          "large": 0
+        }
+      },
+      "pull": {
+        "n_rows": 1677,
+        "pages_pulled": 17,
+        "distinct_region_activity": 1009,
+        "rows_per_key_max": 4,
+        "multiplicity_by_region": {
+          "منطقة الرياض": {
+            "1": 3,
+            "2": 12,
+            "3": 68
+          },
+          "منطقة القصيم": {
+            "1": 81
+          },
+          "منطقة حائل": {
+            "1": 76
+          },
+          "منطقة مكة المكرمة": {
+            "1": 3,
+            "2": 7,
+            "3": 74
+          },
+          "منطقة المدينة المنورة": {
+            "1": 12,
+            "2": 70
+          },
+          "منطقة تبوك": {
+            "1": 75
+          },
+          "المنطقة الشرقية": {
+            "1": 5,
+            "2": 3,
+            "3": 9,
+            "4": 69
+          },
+          "منطقة الجوف": {
+            "1": 73
+          },
+          "منطقة الحدود الشمالية": {
+            "1": 69
+          },
+          "منطقة عسير": {
+            "1": 14,
+            "2": 67
+          },
+          "منطقة جازان": {
+            "1": 78
+          },
+          "منطقة الباحة": {
+            "1": 69
+          },
+          "منطقة نجران": {
+            "1": 72
+          }
+        },
+        "aggregation_rule": "sum every row; (region, activity) repeats are additive sub-region components with different counts (see module docstring)",
+        "national_sme_total_sum_all_rows": 551657
+      }
+    },
+    "2020Q4": {
+      "regions": [
+        "المنطقة الشرقية",
+        "منطقة الباحة",
+        "منطقة الجوف",
+        "منطقة الحدود الشمالية",
+        "منطقة الرياض",
+        "منطقة القصيم",
+        "منطقة المدينة المنورة",
+        "منطقة تبوك",
+        "منطقة جازان",
+        "منطقة حائل",
+        "منطقة عسير",
+        "منطقة مكة المكرمة",
+        "منطقة نجران"
+      ],
+      "n_regions": 13,
+      "n_activities": 87,
+      "counts_by_sector_tier": {
+        "retail_trade": {
+          "micro": 119329,
+          "small": 41213,
+          "medium": 3948,
+          "large": 704
+        },
+        "construction": {
+          "micro": 105235,
+          "small": 37823,
+          "medium": 4106,
+          "large": 862
+        },
+        "food_beverage": {
+          "micro": 30187,
+          "small": 9984,
+          "medium": 884,
+          "large": 84
+        },
+        "professional_services": {
+          "micro": 6498,
+          "small": 2909,
+          "medium": 317,
+          "large": 67
+        }
+      },
+      "sme_total_by_sector": {
+        "retail_trade": 164490,
+        "construction": 147164,
+        "food_beverage": 41055,
+        "professional_services": 9724
+      },
+      "four_sector_sme_total": 362433,
+      "weight": {
+        "retail_trade": 0.4538,
+        "construction": 0.406,
+        "food_beverage": 0.1133,
+        "professional_services": 0.0268
+      },
+      "size_tiers": {
+        "retail_trade": {
+          "micro": 0.7254,
+          "small": 0.2506,
+          "medium": 0.024
+        },
+        "construction": {
+          "micro": 0.7151,
+          "small": 0.257,
+          "medium": 0.0279
+        },
+        "food_beverage": {
+          "micro": 0.7353,
+          "small": 0.2432,
+          "medium": 0.0215
+        },
+        "professional_services": {
+          "micro": 0.6682,
+          "small": 0.2992,
+          "medium": 0.0326
+        }
+      },
+      "large_excluded": {
+        "retail_trade": 704,
+        "construction": 862,
+        "food_beverage": 84,
+        "professional_services": 67
+      },
+      "all_activities_sme_by_tier": {
+        "micro": 474270,
+        "small": 136996,
+        "medium": 15403
+      },
+      "four_sector_share_of_all_smes": 0.5783,
+      "membership": {
+        "retail_trade": {
+          "تجارة التجزئة، باستثناء المركبات ذات المحركات والدراجات النارية": {
+            "note": "G47 retail trade",
+            "micro": 57815,
+            "small": 18639,
+            "medium": 1819,
+            "large": 280
+          },
+          "تجارة الجملة ، باستثناء المركبات ذات المحركات والدراجات النارية": {
+            "note": "G46 wholesale trade — counted as retail trade (choice)",
+            "micro": 36461,
+            "small": 16606,
+            "medium": 1893,
+            "large": 386
+          },
+          "تجارة الجملة والتجزئة ، وإصلاح المركبات ذات المحركات والدراجات النارية": {
+            "note": "G45 wholesale & retail trade and repair of motor vehicles — counted as retail trade (choice)",
+            "micro": 25053,
+            "small": 5968,
+            "medium": 236,
+            "large": 38
+          }
+        },
+        "construction": {
+          "أنشطة التشييد المتخصصة": {
+            "note": "F43 specialised construction activities",
+            "micro": 35648,
+            "small": 11334,
+            "medium": 818,
+            "large": 101
+          },
+          "الهندسة المدنية": {
+            "note": "F42 civil engineering — counted as construction (choice)",
+            "micro": 433,
+            "small": 128,
+            "medium": 30,
+            "large": 3
+          },
+          "تشييد المباني": {
+            "note": "F41 construction of buildings",
+            "micro": 69154,
+            "small": 26361,
+            "medium": 3258,
+            "large": 758
+          }
+        },
+        "food_beverage": {
+          "أنشطة خدمات الأطعمة والمشروبات": {
+            "note": "I56 food and beverage service activities",
+            "micro": 30187,
+            "small": 9984,
+            "medium": 884,
+            "large": 84
+          }
+        },
+        "professional_services": {
+          "أنشطة البرمجة الحاسوبية والخبرة الاستشارية وما يتصل بها من أنشطة": {
+            "note": "J62 computer programming, consultancy — counted as professional services (choice, per SOP §4.2)",
+            "micro": 1229,
+            "small": 547,
+            "medium": 52,
+            "large": 10
+          },
+          "أنشطة المعمارية والهندسية ، والاختبارات الفنية والتحليل": {
+            "note": "M71 architectural and engineering; technical testing and analysis (label as served: أنشطة المعمارية والهندسية ، والاختبارات الفنية والتحليل)",
+            "micro": 2558,
+            "small": 1511,
+            "medium": 201,
+            "large": 49
+          },
+          "أنشطة المكاتب الرئيسية ، وألأنشطة الاستشارية في مجال الإدارة": {
+            "note": "M70 head offices; management consultancy",
+            "micro": 1596,
+            "small": 545,
+            "medium": 40,
+            "large": 6
+          },
+          "الأنشطة القانونية وأنشطة المحاسبة": {
+            "note": "M69 legal and accounting",
+            "micro": 448,
+            "small": 185,
+            "medium": 14,
+            "large": 2
+          },
+          "الأنشطة المهنية والعلمية والتقنية الأخرى": {
+            "note": "M74 other professional, scientific and technical activities",
+            "micro": 667,
+            "small": 121,
+            "medium": 10,
+            "large": 0
+          }
+        }
+      },
+      "borderline_not_mapped": {
+        "أبحاث الإعلان والسوق": {
+          "micro": 518,
+          "small": 88,
+          "medium": 2,
+          "large": 0,
+          "note": "M73 advertising and market research — not in the SOP membership list; excluded (confirmed on the pull)"
+        },
+        "الأنشطة البيطرية": {
+          "micro": 196,
+          "small": 111,
+          "medium": 12,
+          "large": 1,
+          "note": "M75 veterinary activities — not in the SOP membership list; excluded (confirmed on the pull)"
+        },
+        "الإقامة": {
+          "micro": 2156,
+          "small": 1210,
+          "medium": 200,
+          "large": 34,
+          "note": "I55 accommodation — not food service; excluded (label as served: الإقامة)"
+        },
+        "البحث والتطوير في المجال العلمي": {
+          "micro": 31,
+          "small": 18,
+          "medium": 2,
+          "large": 1,
+          "note": "M72 scientific research and development — not in the SOP membership list; excluded (confirmed on the 2021 Q4 pull, DECISIONS.md entry 14)"
+        }
+      },
+      "unmapped_activities": {
+        "أنشطة أنتاج الأفلام والبرامج التلفزيونية والتسجيلات الصوتية و نشرالموسيقى": {
+          "micro": 359,
+          "small": 110,
+          "medium": 4,
+          "large": 2
+        },
+        "أنشطة الأمن والتحقيقات": {
+          "micro": 165,
+          "small": 88,
+          "medium": 40,
+          "large": 19
+        },
+        "أنشطة الاستخدام": {
+          "micro": 742,
+          "small": 142,
+          "medium": 25,
+          "large": 33
+        },
+        "أنشطة الاسر المعيشية التي تستخدم أفراداً للعمل المنزلي": {
+          "micro": 20,
+          "small": 2,
+          "medium": 0,
+          "large": 0
+        },
+        "أنشطة البرمجة والإذاعة": {
+          "micro": 30,
+          "small": 5,
+          "medium": 1,
+          "large": 0
+        },
+        "أنشطة البريد ونقل الرسائل والطرود بواسطة مندوبين": {
+          "micro": 95,
+          "small": 26,
+          "medium": 0,
+          "large": 0
+        },
+        "أنشطة الخدمات الشخصية الأخرى": {
+          "micro": 25491,
+          "small": 4505,
+          "medium": 227,
+          "large": 49
+        },
+        "أنشطة الخدمات المالية ، فيما عدا تمويل التأمين وصناديق المعاشات": {
+          "micro": 638,
+          "small": 193,
+          "medium": 21,
+          "large": 15
+        },
+        "أنشطة العمل الاجتماعي، دون إقامة، لكبار السن وذوي الإعاقة": {
+          "micro": 915,
+          "small": 700,
+          "medium": 83,
+          "large": 5
+        },
+        "أنشطة المعالجة وخدمات إدارة النفايات الأخرى": {
+          "micro": 11,
+          "small": 2,
+          "medium": 1,
+          "large": 1
+        },
+        "أنشطة المكتبات ودور المحفوظات، والمتاحف والأنشطة الثقافية الأخرى": {
+          "micro": 723,
+          "small": 274,
+          "medium": 17,
+          "large": 1
+        },
+        "أنشطة المنظمات الدولية": {
+          "micro": 17,
+          "small": 8,
+          "medium": 2,
+          "large": 0
+        },
+        "أنشطة المنظمات ذات العضوية": {
+          "micro": 372,
+          "small": 135,
+          "medium": 10,
+          "large": 0
+        },
+        "أنشطة النشر": {
+          "micro": 382,
+          "small": 124,
+          "medium": 14,
+          "large": 1
+        },
+        "أنشطة تقديم الخدمات للمباني وتجميل المواقع": {
+          "micro": 17003,
+          "small": 7569,
+          "medium": 1026,
+          "large": 215
+        },
+        "أنشطة جمع النفايات ومعالجتها وتصريفها ، واسترجاع المواد": {
+          "micro": 55,
+          "small": 13,
+          "medium": 7,
+          "large": 4
+        },
+        "أنشطة خدمات المعلومات": {
+          "micro": 589,
+          "small": 182,
+          "medium": 8,
+          "large": 2
+        },
+        "أنشطة خدمات دعم التعدين": {
+          "micro": 408,
+          "small": 314,
+          "medium": 91,
+          "large": 60
+        },
+        "أنشطة زراعة المحاصيل والإنتاج الحيواني والصيد والخدمات المتصلة": {
+          "micro": 12029,
+          "small": 1133,
+          "medium": 140,
+          "large": 27
+        },
+        "إصلاح أجهزة الحاسوب والسلع الشخصية والمنزلية": {
+          "micro": 3222,
+          "small": 689,
+          "medium": 49,
+          "large": 10
+        },
+        "إصلاح وتركيب الآلات والمعدات": {
+          "micro": 1195,
+          "small": 216,
+          "medium": 26,
+          "large": 5
+        },
+        "استخراج النفط الخام والغاز الطبيعي": {
+          "micro": 1,
+          "small": 2,
+          "medium": 0,
+          "large": 0
+        },
+        "الأنشطة الأخرى للتعدين واستغلال المحاجر": {
+          "micro": 244,
+          "small": 98,
+          "medium": 31,
+          "large": 10
+        },
+        "الأنشطة الإبداعية والفنون وأنشطة الترفيه": {
+          "micro": 183,
+          "small": 55,
+          "medium": 4,
+          "large": 0
+        },
+        "الأنشطة الإدارية للمكاتب ، وأنشطة الدعم للمكاتب وغير ذلك من أنشطة الدعم للأعمال": {
+          "micro": 1022,
+          "small": 159,
+          "medium": 19,
+          "large": 3
+        },
+        "الأنشطة الإيجارية": {
+          "micro": 71382,
+          "small": 2513,
+          "medium": 79,
+          "large": 13
+        },
+        "الأنشطة الرياضية وأنشطة التسلية والترفيه": {
+          "micro": 1370,
+          "small": 459,
+          "medium": 37,
+          "large": 8
+        },
+        "الأنشطة العقارية": {
+          "micro": 2308,
+          "small": 888,
+          "medium": 117,
+          "large": 15
+        },
+        "الأنشطة المساعدة لأنشطة الخدمات المالية وأنشطة التأمين": {
+          "micro": 125,
+          "small": 109,
+          "medium": 19,
+          "large": 2
+        },
+        "الأنشطة غير المتميزة لإنتاج السلع والخدمات التي تقوم بها الأسر المعيشية الخاصة لإستعمالها الخاص": {
+          "micro": 5,
+          "small": 1,
+          "medium": 0,
+          "large": 0
+        },
+        "الإدارة العامة والدفاع ؛ والضمان الاجتماعي الإلزامي": {
+          "micro": 1331,
+          "small": 818,
+          "medium": 117,
+          "large": 24
+        },
+        "الاتصالات": {
+          "micro": 1031,
+          "small": 330,
+          "medium": 37,
+          "large": 12
+        },
+        "التخزين وأنشطة الدعم للنقل": {
+          "micro": 2510,
+          "small": 742,
+          "medium": 135,
+          "large": 35
+        },
+        "التعليم": {
+          "micro": 1645,
+          "small": 1279,
+          "medium": 489,
+          "large": 76
+        },
+        "الحراجة وقطع الأخشاب": {
+          "micro": 21,
+          "small": 10,
+          "medium": 1,
+          "large": 1
+        },
+        "الرعاية مع الإقامة": {
+          "micro": 181,
+          "small": 66,
+          "medium": 6,
+          "large": 0
+        },
+        "الصحة البشرية": {
+          "micro": 1296,
+          "small": 1921,
+          "medium": 584,
+          "large": 157
+        },
+        "الصرف الصحي": {
+          "micro": 76,
+          "small": 43,
+          "medium": 10,
+          "large": 4
+        },
+        "الصناعة التحويلية الأخرى": {
+          "micro": 518,
+          "small": 303,
+          "medium": 36,
+          "large": 4
+        },
+        "الطباعة واستنساخ وسائط الأعلام المسجّلة": {
+          "micro": 1225,
+          "small": 606,
+          "medium": 71,
+          "large": 6
+        },
+        "النقل البري و النقل عبر الأنابيب": {
+          "micro": 16436,
+          "small": 2330,
+          "medium": 222,
+          "large": 45
+        },
+        "النقل الجوي": {
+          "micro": 493,
+          "small": 307,
+          "medium": 121,
+          "large": 41
+        },
+        "النقل المائي": {
+          "micro": 215,
+          "small": 82,
+          "medium": 21,
+          "large": 4
+        },
+        "تجميع المياه ومعالجتها وتوصيلها": {
+          "micro": 658,
+          "small": 190,
+          "medium": 19,
+          "large": 5
+        },
+        "تعدين الفحم والليغنيت": {
+          "micro": 20,
+          "small": 13,
+          "medium": 1,
+          "large": 0
+        },
+        "تعدين ركازات الفلزات": {
+          "micro": 727,
+          "small": 290,
+          "medium": 21,
+          "large": 8
+        },
+        "تمويل التأمين وإعادة التأمين وصناديق المعاشات التقاعدية باستثناء الضمان الاجتماعي الإلزامي": {
+          "micro": 88,
+          "small": 109,
+          "medium": 31,
+          "large": 16
+        },
+        "توصيل الكهرباء والغاز والبخار وتكييف الهواء": {
+          "micro": 351,
+          "small": 222,
+          "medium": 58,
+          "large": 33
+        },
+        "صناعة الآلات والمعدات غير المصنفة في موضع أخر": {
+          "micro": 520,
+          "small": 148,
+          "medium": 27,
+          "large": 4
+        },
+        "صناعة المركبات ذات المحركات والمركبات المقطورة ونصف المقطورة": {
+          "micro": 700,
+          "small": 152,
+          "medium": 16,
+          "large": 0
+        },
+        "صناعة معدات النقل الأخرى": {
+          "micro": 271,
+          "small": 108,
+          "medium": 22,
+          "large": 7
+        },
+        "صنع الأثاث": {
+          "micro": 2523,
+          "small": 852,
+          "medium": 68,
+          "large": 6
+        },
+        "صنع الحواسيب والمنتجات الإلكترونية والبصرية": {
+          "micro": 1435,
+          "small": 470,
+          "medium": 61,
+          "large": 11
+        },
+        "صنع الفلزات القاعدية": {
+          "micro": 2290,
+          "small": 867,
+          "medium": 173,
+          "large": 41
+        },
+        "صنع المعدات الكهربائية": {
+          "micro": 1603,
+          "small": 485,
+          "medium": 66,
+          "large": 10
+        },
+        "صنع المنتجات الصيدلانية الأساسية والمستحضرات الصيدلانية": {
+          "micro": 65,
+          "small": 44,
+          "medium": 11,
+          "large": 2
+        },
+        "صنع فحم الكوك والمنتجات النفطية المكررة": {
+          "micro": 49,
+          "small": 44,
+          "medium": 7,
+          "large": 3
+        },
+        "صنع منتجات المطاط واللدائن": {
+          "micro": 571,
+          "small": 498,
+          "medium": 217,
+          "large": 44
+        },
+        "صنع منتجات المعادن اللافلزية الأخرى": {
+          "micro": 1679,
+          "small": 745,
+          "medium": 216,
+          "large": 53
+        },
+        "صنع منتجات المعادن المشكلة ( باستثناء الآلات والمعدات )": {
+          "micro": 4628,
+          "small": 1527,
+          "medium": 249,
+          "large": 58
+        },
+        "صيد الأسماك وتربية المائيات": {
+          "micro": 712,
+          "small": 513,
+          "medium": 17,
+          "large": 0
+        },
+        "صُنع الخشب ومنتجات الخشب والفلين ، باستثناء الأثاث ، صُنع أصناف من القش ومواد الضفر": {
+          "micro": 2542,
+          "small": 826,
+          "medium": 68,
+          "large": 20
+        },
+        "صُنع المشروبات": {
+          "micro": 474,
+          "small": 229,
+          "medium": 52,
+          "large": 21
+        },
+        "صُنع الملبوسات": {
+          "micro": 10317,
+          "small": 1852,
+          "medium": 54,
+          "large": 3
+        },
+        "صُنع المنتجات الجلدية والمنتجات ذات الصلة": {
+          "micro": 85,
+          "small": 33,
+          "medium": 2,
+          "large": 0
+        },
+        "صُنع المنتجات الغذائية": {
+          "micro": 6555,
+          "small": 2411,
+          "medium": 293,
+          "large": 76
+        },
+        "صُنع المنسوجات": {
+          "micro": 1288,
+          "small": 486,
+          "medium": 55,
+          "large": 12
+        },
+        "صُنع المواد الكيميائية والمنتجات الكيميائية": {
+          "micro": 1072,
+          "small": 505,
+          "medium": 109,
+          "large": 15
+        },
+        "صُنع الورق ومنتجات الورق": {
+          "micro": 155,
+          "small": 118,
+          "medium": 33,
+          "large": 6
+        },
+        "صُنع منتجات التبغ": {
+          "micro": 36,
+          "small": 8,
+          "medium": 0,
+          "large": 0
+        },
+        "وكالات السفر ومشغّلو الجولات السياحية وخدمات الحجز والأنشطة المتصلة بها": {
+          "micro": 627,
+          "small": 344,
+          "medium": 38,
+          "large": 5
+        }
+      },
+      "pull": {
+        "n_rows": 1730,
+        "pages_pulled": 18,
+        "distinct_region_activity": 1040,
+        "rows_per_key_max": 4,
+        "multiplicity_by_region": {
+          "منطقة الرياض": {
+            "1": 7,
+            "2": 8,
+            "3": 72
+          },
+          "منطقة القصيم": {
+            "1": 84
+          },
+          "منطقة حائل": {
+            "1": 77
+          },
+          "منطقة مكة المكرمة": {
+            "1": 1,
+            "2": 10,
+            "3": 74
+          },
+          "منطقة المدينة المنورة": {
+            "1": 11,
+            "2": 72
+          },
+          "منطقة تبوك": {
+            "1": 79
+          },
+          "المنطقة الشرقية": {
+            "1": 1,
+            "2": 4,
+            "3": 11,
+            "4": 71
+          },
+          "منطقة الجوف": {
+            "1": 75
+          },
+          "منطقة الحدود الشمالية": {
+            "1": 72
+          },
+          "منطقة عسير": {
+            "1": 12,
+            "2": 69
+          },
+          "منطقة جازان": {
+            "1": 82
+          },
+          "منطقة الباحة": {
+            "1": 71
+          },
+          "منطقة نجران": {
+            "1": 77
+          }
+        },
+        "aggregation_rule": "sum every row; (region, activity) repeats are additive sub-region components with different counts (see module docstring)",
+        "national_sme_total_sum_all_rows": 626669
+      }
+    },
+    "2021Q4": {
+      "regions": [
+        "المنطقة الشرقية",
+        "منطقة الباحة",
+        "منطقة الجوف",
+        "منطقة الحدود الشمالية",
+        "منطقة الرياض",
+        "منطقة القصيم",
+        "منطقة المدينة المنورة",
+        "منطقة تبوك",
+        "منطقة جازان",
+        "منطقة حائل",
+        "منطقة عسير",
+        "منطقة مكة المكرمة",
+        "منطقة نجران"
+      ],
+      "n_regions": 13,
+      "n_activities": 87,
+      "counts_by_sector_tier": {
+        "retail_trade": {
+          "micro": 134558,
+          "small": 38791,
+          "medium": 3674,
+          "large": 684
+        },
+        "construction": {
+          "micro": 105243,
+          "small": 32420,
+          "medium": 4014,
+          "large": 967
+        },
+        "food_beverage": {
+          "micro": 47972,
+          "small": 14194,
+          "medium": 1258,
+          "large": 152
+        },
+        "professional_services": {
+          "micro": 7958,
+          "small": 3176,
+          "medium": 350,
+          "large": 69
+        }
+      },
+      "sme_total_by_sector": {
+        "retail_trade": 177023,
+        "construction": 141677,
+        "food_beverage": 63424,
+        "professional_services": 11484
+      },
+      "four_sector_sme_total": 393608,
+      "weight": {
+        "retail_trade": 0.4497,
+        "construction": 0.3599,
+        "food_beverage": 0.1611,
+        "professional_services": 0.0292
+      },
+      "size_tiers": {
+        "retail_trade": {
+          "micro": 0.7601,
+          "small": 0.2191,
+          "medium": 0.0208
+        },
+        "construction": {
+          "micro": 0.7428,
+          "small": 0.2288,
+          "medium": 0.0283
+        },
+        "food_beverage": {
+          "micro": 0.7564,
+          "small": 0.2238,
+          "medium": 0.0198
+        },
+        "professional_services": {
+          "micro": 0.693,
+          "small": 0.2766,
+          "medium": 0.0305
+        }
+      },
+      "large_excluded": {
+        "retail_trade": 684,
+        "construction": 967,
+        "food_beverage": 152,
+        "professional_services": 69
+      },
+      "all_activities_sme_by_tier": {
+        "micro": 516165,
+        "small": 131950,
+        "medium": 15798
+      },
+      "four_sector_share_of_all_smes": 0.5929,
+      "membership": {
+        "retail_trade": {
+          "تجارة التجزئة، باستثناء المركبات ذات المحركات والدراجات النارية": {
+            "note": "G47 retail trade",
+            "micro": 70603,
+            "small": 18128,
+            "medium": 1672,
+            "large": 283
+          },
+          "تجارة الجملة ، باستثناء المركبات ذات المحركات والدراجات النارية": {
+            "note": "G46 wholesale trade — counted as retail trade (choice)",
+            "micro": 35431,
+            "small": 14820,
+            "medium": 1763,
+            "large": 365
+          },
+          "تجارة الجملة والتجزئة ، وإصلاح المركبات ذات المحركات والدراجات النارية": {
+            "note": "G45 wholesale & retail trade and repair of motor vehicles — counted as retail trade (choice)",
+            "micro": 28524,
+            "small": 5843,
+            "medium": 239,
+            "large": 36
+          }
+        },
+        "construction": {
+          "الهندسة المدنية": {
+            "note": "F42 civil engineering — counted as construction (choice)",
+            "micro": 733,
+            "small": 248,
+            "medium": 56,
+            "large": 14
+          },
+          "تشييد المباني": {
+            "note": "F41 construction of buildings",
+            "micro": 65917,
+            "small": 22272,
+            "medium": 3154,
+            "large": 830
+          },
+          "أنشطة التشييد المتخصصة": {
+            "note": "F43 specialised construction activities",
+            "micro": 38593,
+            "small": 9900,
+            "medium": 804,
+            "large": 123
+          }
+        },
+        "food_beverage": {
+          "أنشطة خدمات الأطعمة والمشروبات": {
+            "note": "I56 food and beverage service activities",
+            "micro": 47972,
+            "small": 14194,
+            "medium": 1258,
+            "large": 152
+          }
+        },
+        "professional_services": {
+          "الأنشطة المهنية والعلمية والتقنية الأخرى": {
+            "note": "M74 other professional, scientific and technical activities",
+            "micro": 958,
+            "small": 146,
+            "medium": 10,
+            "large": 0
+          },
+          "أنشطة البرمجة الحاسوبية والخبرة الاستشارية وما يتصل بها من أنشطة": {
+            "note": "J62 computer programming, consultancy — counted as professional services (choice, per SOP §4.2)",
+            "micro": 1469,
+            "small": 612,
+            "medium": 73,
+            "large": 12
+          },
+          "أنشطة المعمارية والهندسية ، والاختبارات الفنية والتحليل": {
+            "note": "M71 architectural and engineering; technical testing and analysis (label as served: أنشطة المعمارية والهندسية ، والاختبارات الفنية والتحليل)",
+            "micro": 2756,
+            "small": 1479,
+            "medium": 201,
+            "large": 47
+          },
+          "أنشطة المكاتب الرئيسية ، وألأنشطة الاستشارية في مجال الإدارة": {
+            "note": "M70 head offices; management consultancy",
+            "micro": 1785,
+            "small": 600,
+            "medium": 49,
+            "large": 7
+          },
+          "الأنشطة القانونية وأنشطة المحاسبة": {
+            "note": "M69 legal and accounting",
+            "micro": 990,
+            "small": 339,
+            "medium": 17,
+            "large": 3
+          }
+        }
+      },
+      "borderline_not_mapped": {
+        "الإقامة": {
+          "micro": 2799,
+          "small": 1463,
+          "medium": 263,
+          "large": 31,
+          "note": "I55 accommodation — not food service; excluded (label as served: الإقامة)"
+        },
+        "البحث والتطوير في المجال العلمي": {
+          "micro": 51,
+          "small": 18,
+          "medium": 5,
+          "large": 1,
+          "note": "M72 scientific research and development — not in the SOP membership list; excluded (confirmed on the 2021 Q4 pull, DECISIONS.md entry 14)"
+        },
+        "أبحاث الإعلان والسوق": {
+          "micro": 1074,
+          "small": 199,
+          "medium": 3,
+          "large": 0,
+          "note": "M73 advertising and market research — not in the SOP membership list; excluded (confirmed on the pull)"
+        },
+        "الأنشطة البيطرية": {
+          "micro": 215,
+          "small": 113,
+          "medium": 13,
+          "large": 0,
+          "note": "M75 veterinary activities — not in the SOP membership list; excluded (confirmed on the pull)"
+        }
+      },
+      "unmapped_activities": {
+        "الأنشطة العقارية": {
+          "micro": 3066,
+          "small": 956,
+          "medium": 122,
+          "large": 14
+        },
+        "صناعة معدات النقل الأخرى": {
+          "micro": 313,
+          "small": 118,
+          "medium": 21,
+          "large": 6
+        },
+        "صناعة المركبات ذات المحركات والمركبات المقطورة ونصف المقطورة": {
+          "micro": 653,
+          "small": 140,
+          "medium": 12,
+          "large": 1
+        },
+        "صُنع المنسوجات": {
+          "micro": 1147,
+          "small": 415,
+          "medium": 48,
+          "large": 12
+        },
+        "صُنع المنتجات الغذائية": {
+          "micro": 6219,
+          "small": 2197,
+          "medium": 306,
+          "large": 81
+        },
+        "صنع الفلزات القاعدية": {
+          "micro": 2007,
+          "small": 815,
+          "medium": 183,
+          "large": 42
+        },
+        "الأنشطة المساعدة لأنشطة الخدمات المالية وأنشطة التأمين": {
+          "micro": 149,
+          "small": 121,
+          "medium": 23,
+          "large": 2
+        },
+        "أنشطة أنتاج الأفلام والبرامج التلفزيونية والتسجيلات الصوتية و نشرالموسيقى": {
+          "micro": 430,
+          "small": 120,
+          "medium": 4,
+          "large": 3
+        },
+        "صناعة الآلات والمعدات غير المصنفة في موضع أخر": {
+          "micro": 596,
+          "small": 165,
+          "medium": 30,
+          "large": 5
+        },
+        "الأنشطة غير المتميزة لإنتاج السلع والخدمات التي تقوم بها الأسر المعيشية الخاصة لإستعمالها الخاص": {
+          "micro": 8,
+          "small": 1,
+          "medium": 0,
+          "large": 0
+        },
+        "الإدارة العامة والدفاع ؛ والضمان الاجتماعي الإلزامي": {
+          "micro": 1202,
+          "small": 722,
+          "medium": 113,
+          "large": 22
+        },
+        "الاتصالات": {
+          "micro": 1010,
+          "small": 281,
+          "medium": 28,
+          "large": 13
+        },
+        "التخزين وأنشطة الدعم للنقل": {
+          "micro": 2957,
+          "small": 839,
+          "medium": 157,
+          "large": 36
+        },
+        "التعليم": {
+          "micro": 1667,
+          "small": 1281,
+          "medium": 491,
+          "large": 78
+        },
+        "الحراجة وقطع الأخشاب": {
+          "micro": 26,
+          "small": 9,
+          "medium": 1,
+          "large": 1
+        },
+        "الرعاية مع الإقامة": {
+          "micro": 164,
+          "small": 80,
+          "medium": 5,
+          "large": 0
+        },
+        "الصحة البشرية": {
+          "micro": 1284,
+          "small": 2016,
+          "medium": 639,
+          "large": 157
+        },
+        "الصرف الصحي": {
+          "micro": 79,
+          "small": 46,
+          "medium": 7,
+          "large": 5
+        },
+        "الصناعة التحويلية الأخرى": {
+          "micro": 584,
+          "small": 297,
+          "medium": 40,
+          "large": 9
+        },
+        "الطباعة واستنساخ وسائط الأعلام المسجّلة": {
+          "micro": 1102,
+          "small": 556,
+          "medium": 67,
+          "large": 9
+        },
+        "النقل البري و النقل عبر الأنابيب": {
+          "micro": 20167,
+          "small": 2536,
+          "medium": 260,
+          "large": 57
+        },
+        "النقل الجوي": {
+          "micro": 568,
+          "small": 255,
+          "medium": 101,
+          "large": 38
+        },
+        "النقل المائي": {
+          "micro": 290,
+          "small": 83,
+          "medium": 21,
+          "large": 5
+        },
+        "تجميع المياه ومعالجتها وتوصيلها": {
+          "micro": 723,
+          "small": 192,
+          "medium": 16,
+          "large": 7
+        },
+        "تعدين ركازات الفلزات": {
+          "micro": 581,
+          "small": 232,
+          "medium": 20,
+          "large": 8
+        },
+        "تمويل التأمين وإعادة التأمين وصناديق المعاشات التقاعدية باستثناء الضمان الاجتماعي الإلزامي": {
+          "micro": 76,
+          "small": 105,
+          "medium": 30,
+          "large": 16
+        },
+        "صُنع الخشب ومنتجات الخشب والفلين ، باستثناء الأثاث ، صُنع أصناف من القش ومواد الضفر": {
+          "micro": 2878,
+          "small": 786,
+          "medium": 89,
+          "large": 18
+        },
+        "صنع الأثاث": {
+          "micro": 3215,
+          "small": 980,
+          "medium": 78,
+          "large": 7
+        },
+        "صنع الحواسيب والمنتجات الإلكترونية والبصرية": {
+          "micro": 1241,
+          "small": 396,
+          "medium": 66,
+          "large": 13
+        },
+        "صُنع المشروبات": {
+          "micro": 328,
+          "small": 177,
+          "medium": 59,
+          "large": 21
+        },
+        "صنع المعدات الكهربائية": {
+          "micro": 1437,
+          "small": 449,
+          "medium": 66,
+          "large": 12
+        },
+        "صُنع الملبوسات": {
+          "micro": 10479,
+          "small": 1585,
+          "medium": 59,
+          "large": 4
+        },
+        "صُنع المنتجات الجلدية والمنتجات ذات الصلة": {
+          "micro": 201,
+          "small": 41,
+          "medium": 5,
+          "large": 0
+        },
+        "صنع المنتجات الصيدلانية الأساسية والمستحضرات الصيدلانية": {
+          "micro": 94,
+          "small": 62,
+          "medium": 13,
+          "large": 2
+        },
+        "صُنع المواد الكيميائية والمنتجات الكيميائية": {
+          "micro": 1284,
+          "small": 606,
+          "medium": 131,
+          "large": 14
+        },
+        "صُنع الورق ومنتجات الورق": {
+          "micro": 204,
+          "small": 150,
+          "medium": 45,
+          "large": 5
+        },
+        "صُنع منتجات التبغ": {
+          "micro": 26,
+          "small": 10,
+          "medium": 0,
+          "large": 0
+        },
+        "صنع منتجات المطاط واللدائن": {
+          "micro": 618,
+          "small": 518,
+          "medium": 235,
+          "large": 47
+        },
+        "صنع منتجات المعادن اللافلزية الأخرى": {
+          "micro": 2311,
+          "small": 1146,
+          "medium": 276,
+          "large": 59
+        },
+        "صنع منتجات المعادن المشكلة ( باستثناء الآلات والمعدات )": {
+          "micro": 5193,
+          "small": 1453,
+          "medium": 278,
+          "large": 64
+        },
+        "صيد الأسماك وتربية المائيات": {
+          "micro": 793,
+          "small": 450,
+          "medium": 13,
+          "large": 1
+        },
+        "وكالات السفر ومشغّلو الجولات السياحية وخدمات الحجز والأنشطة المتصلة بها": {
+          "micro": 785,
+          "small": 328,
+          "medium": 32,
+          "large": 5
+        },
+        "أنشطة الأمن والتحقيقات": {
+          "micro": 217,
+          "small": 100,
+          "medium": 49,
+          "large": 24
+        },
+        "أنشطة الاستخدام": {
+          "micro": 930,
+          "small": 195,
+          "medium": 27,
+          "large": 37
+        },
+        "أنشطة الاسر المعيشية التي تستخدم أفراداً للعمل المنزلي": {
+          "micro": 56,
+          "small": 4,
+          "medium": 0,
+          "large": 0
+        },
+        "أنشطة البريد ونقل الرسائل والطرود بواسطة مندوبين": {
+          "micro": 194,
+          "small": 49,
+          "medium": 5,
+          "large": 0
+        },
+        "أنشطة الخدمات الشخصية الأخرى": {
+          "micro": 25723,
+          "small": 3884,
+          "medium": 226,
+          "large": 45
+        },
+        "أنشطة الخدمات المالية ، فيما عدا تمويل التأمين وصناديق المعاشات": {
+          "micro": 754,
+          "small": 200,
+          "medium": 25,
+          "large": 17
+        },
+        "أنشطة العمل الاجتماعي، دون إقامة، لكبار السن وذوي الإعاقة": {
+          "micro": 1056,
+          "small": 774,
+          "medium": 78,
+          "large": 3
+        },
+        "أنشطة المعالجة وخدمات إدارة النفايات الأخرى": {
+          "micro": 17,
+          "small": 7,
+          "medium": 2,
+          "large": 0
+        },
+        "أنشطة المكتبات ودور المحفوظات، والمتاحف والأنشطة الثقافية الأخرى": {
+          "micro": 631,
+          "small": 242,
+          "medium": 11,
+          "large": 1
+        },
+        "أنشطة المنظمات ذات العضوية": {
+          "micro": 496,
+          "small": 129,
+          "medium": 10,
+          "large": 0
+        },
+        "أنشطة النشر": {
+          "micro": 522,
+          "small": 138,
+          "medium": 9,
+          "large": 1
+        },
+        "أنشطة تقديم الخدمات للمباني وتجميل المواقع": {
+          "micro": 15807,
+          "small": 6473,
+          "medium": 946,
+          "large": 220
+        },
+        "أنشطة جمع النفايات ومعالجتها وتصريفها ، واسترجاع المواد": {
+          "micro": 96,
+          "small": 31,
+          "medium": 8,
+          "large": 6
+        },
+        "أنشطة خدمات المعلومات": {
+          "micro": 558,
+          "small": 176,
+          "medium": 12,
+          "large": 2
+        },
+        "أنشطة خدمات دعم التعدين": {
+          "micro": 404,
+          "small": 270,
+          "medium": 93,
+          "large": 62
+        },
+        "أنشطة زراعة المحاصيل والإنتاج الحيواني والصيد والخدمات المتصلة": {
+          "micro": 13008,
+          "small": 1082,
+          "medium": 154,
+          "large": 29
+        },
+        "إصلاح أجهزة الحاسوب والسلع الشخصية والمنزلية": {
+          "micro": 3727,
+          "small": 623,
+          "medium": 53,
+          "large": 9
+        },
+        "إصلاح وتركيب الآلات والمعدات": {
+          "micro": 1819,
+          "small": 288,
+          "medium": 33,
+          "large": 8
+        },
+        "الأنشطة الأخرى للتعدين واستغلال المحاجر": {
+          "micro": 373,
+          "small": 125,
+          "medium": 32,
+          "large": 10
+        },
+        "الأنشطة الإبداعية والفنون وأنشطة الترفيه": {
+          "micro": 238,
+          "small": 47,
+          "medium": 6,
+          "large": 1
+        },
+        "الأنشطة الإدارية للمكاتب ، وأنشطة الدعم للمكاتب وغير ذلك من أنشطة الدعم للأعمال": {
+          "micro": 2067,
+          "small": 259,
+          "medium": 29,
+          "large": 5
+        },
+        "الأنشطة الإيجارية": {
+          "micro": 67388,
+          "small": 1899,
+          "medium": 107,
+          "large": 17
+        },
+        "الأنشطة الرياضية وأنشطة التسلية والترفيه": {
+          "micro": 1601,
+          "small": 557,
+          "medium": 37,
+          "large": 8
+        },
+        "أنشطة البرمجة والإذاعة": {
+          "micro": 30,
+          "small": 8,
+          "medium": 1,
+          "large": 0
+        },
+        "أنشطة المنظمات الدولية": {
+          "micro": 13,
+          "small": 9,
+          "medium": 2,
+          "large": 0
+        },
+        "صنع فحم الكوك والمنتجات النفطية المكررة": {
+          "micro": 58,
+          "small": 49,
+          "medium": 9,
+          "large": 3
+        },
+        "استخراج النفط الخام والغاز الطبيعي": {
+          "micro": 7,
+          "small": 2,
+          "medium": 0,
+          "large": 0
+        },
+        "تعدين الفحم والليغنيت": {
+          "micro": 25,
+          "small": 8,
+          "medium": 1,
+          "large": 0
+        },
+        "توصيل الكهرباء والغاز والبخار وتكييف الهواء": {
+          "micro": 325,
+          "small": 233,
+          "medium": 63,
+          "large": 29
+        }
+      },
+      "pull": {
+        "n_rows": 1756,
+        "pages_pulled": 18,
+        "distinct_region_activity": 1051,
+        "rows_per_key_max": 4,
+        "multiplicity_by_region": {
+          "المنطقة الشرقية": {
+            "1": 2,
+            "2": 3,
+            "3": 7,
+            "4": 75
+          },
+          "منطقة الرياض": {
+            "1": 7,
+            "2": 4,
+            "3": 76
+          },
+          "منطقة مكة المكرمة": {
+            "1": 3,
+            "2": 5,
+            "3": 79
+          },
+          "منطقة الحدود الشمالية": {
+            "1": 72
+          },
+          "منطقة القصيم": {
+            "1": 84
+          },
+          "منطقة المدينة المنورة": {
+            "1": 10,
+            "2": 75
+          },
+          "منطقة تبوك": {
+            "1": 80
+          },
+          "منطقة جازان": {
+            "1": 83
+          },
+          "منطقة الباحة": {
+            "1": 73
+          },
+          "منطقة حائل": {
+            "1": 77
+          },
+          "منطقة عسير": {
+            "1": 13,
+            "2": 69
+          },
+          "منطقة الجوف": {
+            "1": 76
+          },
+          "منطقة نجران": {
+            "1": 78
+          }
+        },
+        "aggregation_rule": "sum every row; (region, activity) repeats are additive sub-region components with different counts (see module docstring)",
+        "national_sme_total_sum_all_rows": 663913
+      }
+    }
+  },
+  "stability_across_quarters": {
+    "retail_trade": {
+      "weight_range": [
+        0.4456,
+        0.4538
+      ],
+      "micro_share_range": [
+        0.6835,
+        0.7601
+      ]
+    },
+    "construction": {
+      "weight_range": [
+        0.3599,
+        0.4253
+      ],
+      "micro_share_range": [
+        0.6717,
+        0.7428
+      ]
+    },
+    "food_beverage": {
+      "weight_range": [
+        0.1029,
+        0.1611
+      ],
+      "micro_share_range": [
+        0.7007,
+        0.7564
+      ]
+    },
+    "professional_services": {
+      "weight_range": [
+        0.0261,
+        0.0292
+      ],
+      "micro_share_range": [
+        0.6434,
+        0.693
+      ]
+    }
+  },
+  "proposed_config": {
+    "sector_size_distribution": {
+      "retail_trade": {
+        "weight": 0.4498,
+        "size_tiers": {
+          "micro": 0.7601,
+          "small": 0.2191,
+          "medium": 0.0208
+        }
+      },
+      "construction": {
+        "weight": 0.3599,
+        "size_tiers": {
+          "micro": 0.7429,
+          "small": 0.2288,
+          "medium": 0.0283
+        }
+      },
+      "food_beverage": {
+        "weight": 0.1611,
+        "size_tiers": {
+          "micro": 0.7564,
+          "small": 0.2238,
+          "medium": 0.0198
+        }
+      },
+      "professional_services": {
+        "weight": 0.0292,
+        "size_tiers": {
+          "micro": 0.6929,
+          "small": 0.2766,
+          "medium": 0.0305
+        }
+      }
+    },
+    "rounding": "4 decimals; residual placed on the largest share so each block sums to exactly 1.0"
+  },
+  "edition": "Monsha'at Enterprises Statistics 2021 Q4"
 }

@@ -28,19 +28,24 @@ populations:
 
 # --- §20 stage 1 + stage 2: sector weight, then size | sector -----------------
 # Sector weights must sum to 1.0; each size_tiers block must sum to 1.0.
-# STATUS 2026-09-16 (SOP_Saudi_Calibration Phase 1, DECISIONS.md entry 13): still author judgement
-# (class C). The Monsha'at Enterprises Statistics gateway answered statusCode 1016 (provider timeout)
-# and 1009 (No Data Found) for every quarter on the access date, so the national ISIC × size counts
-# could not be pulled; calibration/monshaat_pull.py + sector_mix.py are ready to write this block the
-# day it answers. Known consistency gap: these values imply an aggregate micro/small/medium split of
-# 75.5 / 19.4 / 5.2 %, against Monsha'at's published national 87.0 / 11.5 / 1.4 % (Q4 2023,
-# 1,138,588 / 150,788 / 18,723) — construction's 45/40/15 is the outlier. Not rescaled by hand: that
-# would be a judgement wearing a source's name.
+# SOURCE 2026-09-17 (SOP_Monshaat_Unblock Workstream A, DECISIONS.md entry 14): Monsha'at Enterprises
+# Statistics 2021 Q4 — the register census, region × ISIC economic activity × size tier, all 13 regions
+# summed, large tier excluded (archive sources/monshaat/enterprises_2021Q4.json, SHA-256 in .sha256).
+# weight = the sector's SME count ÷ the four-sector SME total (393,608 of 663,913 SMEs nationally);
+# size_tiers = micro / small / medium share within the sector. ISIC membership per sector is recorded
+# in DECISIONS.md entry 14 (G45+G46+G47; F41+F42+F43; I56; M69+M70+M71+M74+J62). Class B.
+# Edition: 2021 Q4 is the newest quarter the gateway serves (dataset 2019 Q2 – 2021 Q4) — four years
+# stale, the same vintage as the GASTAT 2022 revenue anchor. Stability across 2019Q4 / 2020Q4 / 2021Q4
+# (calibration/out/phase1_sector_mix.json): retail weight 0.446–0.454, construction 0.360–0.425,
+# F&B 0.103–0.161, professional 0.026–0.029; micro share 0.64–0.76 in every sector. Register counts are
+# a census — no sampling interval; the quarter-to-quarter range is the uncertainty statement.
+# Previous (author judgement, class C, until 2026-09-17): retail 0.35 {0.85/0.13/0.02},
+# construction 0.20 {0.45/0.40/0.15}, food 0.20 {0.90/0.09/0.01}, professional 0.25 {0.75/0.20/0.05}.
 sector_size_distribution:
-  retail_trade:          { weight: 0.35, size_tiers: { micro: 0.85, small: 0.13, medium: 0.02 } }
-  construction:          { weight: 0.20, size_tiers: { micro: 0.45, small: 0.40, medium: 0.15 } }
-  food_beverage:         { weight: 0.20, size_tiers: { micro: 0.90, small: 0.09, medium: 0.01 } }
-  professional_services: { weight: 0.25, size_tiers: { micro: 0.75, small: 0.20, medium: 0.05 } }
+  retail_trade:          { weight: 0.4498, size_tiers: { micro: 0.7601, small: 0.2191, medium: 0.0208 } }
+  construction:          { weight: 0.3599, size_tiers: { micro: 0.7429, small: 0.2288, medium: 0.0283 } }
+  food_beverage:         { weight: 0.1611, size_tiers: { micro: 0.7564, small: 0.2238, medium: 0.0198 } }
+  professional_services: { weight: 0.0292, size_tiers: { micro: 0.6929, small: 0.2766, medium: 0.0305 } }
 
 # --- §20 stage 3: age tier | sector × size -------------------------------------
 # Young businesses skew micro and skew toward F&B/retail; a medium construction
@@ -190,13 +195,19 @@ size_tier_tx_scale: { micro: 1.0, small: 1.5, medium: 2.5 }    # × tx per day
 # Existing obligations (§31, feature 41): share of businesses with a recurring
 # repayment to a financial-institution counterparty, and its size.
 financing:
-  # SOP_Saudi_Calibration Phase 4: SAMA bank credit by activity (Individuals' Loans excluded) gives the
-  # RELATIVE credit intensity per sector once divided by Monsha'at SME counts — retail carries 1.5× the
-  # credit of construction, food service a quarter (calibration/out/phase4_credit_intensity.json). The
-  # per-sector index is withheld because the Monsha'at denominator (Phase 1) was unreachable on
-  # 2026-09-16; the generator already accepts a per-sector map here. Uniform 0.35 remains author
-  # judgement (class C) and the absolute level would stay judgement even with the index (§7.4).
-  share_of_businesses: 0.35
+  # SOP_Saudi_Calibration Phase 4 + SOP_Monshaat_Unblock A3 (DECISIONS.md entry 14): SAMA bank credit
+  # outstanding by economic activity, 2026 Q2 (Individuals' Loans excluded, asserted) ÷ the Monsha'at
+  # 2021 Q4 SME count per sector = credit per SME; index normalised to a count-weighted mean of 1 and
+  # multiplied by the pinned level 0.35 (calibration/out/phase4_credit_intensity.json). Credit per SME:
+  # retail 1.25 M SAR (index 1.10), construction 1.06 M (0.94), food service 0.96 M (0.85),
+  # professional 1.28 M (1.12). The RELATIVE shape is measured (class B); the absolute level 0.35 stays
+  # author judgement (class C) — total bank credit by activity is not SME credit, has no SME/large
+  # split and no NPL field (§7.4), and the numerator (2026) and denominator (2021) are different years.
+  share_of_businesses:
+    retail_trade: 0.384
+    construction: 0.328
+    food_beverage: 0.296
+    professional_services: 0.394
   monthly_outflow_share: 0.08
 
 # --- §24 sector-consistent balance sheets --------------------------------------
