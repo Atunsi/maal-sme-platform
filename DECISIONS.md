@@ -1243,3 +1243,75 @@ width, and the report says so.
 
 **Recorded by:** credit-lens owner, 2026-09-17.
 **Sign-off:** ☐ credit-lens owner ☐ team (protocol as the standing headline; §21 definition wording)
+
+---
+
+## 20. B5–B7 and the report regenerated in place as revision 2 (2026-09-17) — Workstream B, final commit
+
+**SOP:** `SOP_Monshaat_Unblock` §2 (B5–B7) and §4. Generator untouched (parameter hash `a5b2bccab775fa71`).
+
+### 20.1 B5 — ticket sizes across editions (reported; re-pin PROPOSED, not applied)
+
+`calibration/ticket_size.py --all-editions` (`calibration/out/phase3_ticket_size.json → multi_edition`):
+
+| sector | applied (bulletin 12-Sep-2026, four weeks) | editions | mean | min–max | spread ÷ mean |
+|---|---|---|---|---|---|
+| retail_trade | 61.5 | 4 | **63.2** | 58.1–69.9 | 19% |
+| food_beverage | 29.0 | 4 | **31.1** | 27.9–34.9 | 23% |
+| construction (context only) | — | 4 | 176.1 | 127.6–250.3 | 70% |
+
+Card adoption keeps moving the mix of what is paid by card, so the number needs re-pinning each
+term. **The SOP's instruction to re-pin the applied value conflicts with its own non-negotiable 2
+(nothing in Workstream B changes the generator); the non-negotiable wins.** The applied values
+stay at the archived, dated edition; the re-pin to the cross-edition mean (63.2 / 31.1 SAR) — or
+to the 2023 annual mean (69.9 / 34.9) — is recorded here as a proposed config change for the
+next generator commit, where it must travel with a regeneration and a gate/§21/compare_real
+re-run like any other input change. Nothing in `config.yaml` moved.
+
+### 20.2 B6 — the food-service size gradient, explained (report §4.2)
+
+KS 0.390 in v1.0 → 0.264 after the register (band 0.10). The share of food-service revenue in
+medium firms is driven by three inputs: the tier split (register 75.6 / 22.4 / 2.0, v1.0
+judgement 90 / 9 / 1), `size_tier_scale` (medium = 15× micro) and the ISIC scope. With 2% of
+firms medium, matching GASTAT's 44% medium share would need a medium firm at ~55× a micro one;
+part of the gap is scope — GASTAT section I includes I55 accommodation (hotels, capital-heavy,
+mostly medium/large), which the generator deliberately excludes from food service. The register
+pull was expected to move this and did (0.39 → 0.26); it cannot close it. Resolution is a sourced
+`size_tier_scale` and a like-for-like I56-only anchor — inputs, not validation.
+
+### 20.3 B7 — the small v1.0 movement with no input changed (report §4.2)
+
+Between the v1.0 *before* and *after* runs the sector TV distance moved 0.515 → 0.519 and the
+medium-tier relative distance 0.277 → 0.281 while the closed form was identical. The realised
+shares come from the generated tables, and the v1.0 *after* run carried the new seasonality
+(food service falling in Ramadan) and a fresh Poisson draw at the measured ticket, so realised
+sector totals over the window shifted by tenths of a percent. Regeneration under changed
+seasonality, not an undisclosed input change. Stated in one sentence in the report.
+
+### 20.4 Report revision 2 — what changed in `/maal/saudi_calibration_report.md`
+
+`calibration/write_report.py` regenerates the report from the JSONs and `eval/out/`, reading the
+v1.0 outputs (`eval/out/*_before_monshaat.*`) for every superseded figure rather than retyping it:
+
+- revision block at the top, per SOP §4; the SOP's own draft text corrected where it did not
+  match the record (the v1.0 code did not send empty parameters; the dataset ends 2021 Q4, not 2022);
+- §1: the three Monsha'at archives with hashes; the gateway contract as resolved;
+- §2: per-window classes (9 B, 7 B-weak), sector mix and financing rows, ticket spread;
+- §3.1 and §3.6 completed; §3.4 with a class column; §3.5 with the cross-edition columns and the
+  B5 paragraph; §3.7 with the status column and counts (PASS 12 / BOUNDED 8 / FAIL 0 / NOT_APPLIED 16);
+- §4.1 gate with the loud SKIP; §4.2 v1.0-vs-now table plus B6 and B7; §4.4 the protocol × source
+  matrix and the exclusion selectivity;
+- §5 problem 1 rewritten as the misdiagnosis it was; §6 the remaining problems restated (base
+  inflows and tier scale now the whole revenue-mix gap; register vintage; thin professional cell;
+  eligible-population Berka numbers; 21 A1 features; §21 definition wording pending §9);
+- §7 with the A2/A1 split, B-weak count, and the v1.0 counts alongside.
+
+READMEs (root, `calibration/`, `eval/`, `generator/`) updated to the same facts.
+
+### 20.5 Commit discipline
+
+Seven commits as the SOP lists them: A (pull/config), A (re-run), B1, B2, B3, B4, B5–B7 + report —
+each with its own entry (14–20). `ruff check .` clean at every commit.
+
+**Recorded by:** generator owner, 2026-09-17.
+**Sign-off:** ☐ generator owner (20.1 re-pin as a proposed change) ☐ team (report revision 2)

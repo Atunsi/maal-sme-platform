@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-09-16T09:49:08+00:00",
+  "run_at": "2026-09-17T06:23:46+00:00",
   "bulletin_weeks": [
     [
       "16 Aug,26",
@@ -520,5 +520,85 @@
   "not_applied": {
     "construction": "consumer purchases of building materials, not contractor receipts (class C)",
     "professional_services": "consumer-facing professional services line only (class C)"
+  },
+  "multi_edition": {
+    "retail_trade": {
+      "editions": {
+        "bulletin_2026-09-12_latest_week": 58.1,
+        "bulletin_2026-09-12_four_weeks": 61.5,
+        "weekly_series_2025_jan_jul": 63.4,
+        "monthly_table30d_2023": 69.9
+      },
+      "n_editions": 4,
+      "mean": 63.2,
+      "min": 58.1,
+      "max": 69.9,
+      "spread_share_of_mean": 0.187
+    },
+    "food_beverage": {
+      "editions": {
+        "bulletin_2026-09-12_latest_week": 27.9,
+        "bulletin_2026-09-12_four_weeks": 29.0,
+        "weekly_series_2025_jan_jul": 32.5,
+        "monthly_table30d_2023": 34.9
+      },
+      "n_editions": 4,
+      "mean": 31.1,
+      "min": 27.9,
+      "max": 34.9,
+      "spread_share_of_mean": 0.225
+    },
+    "construction": {
+      "editions": {
+        "bulletin_2026-09-12_latest_week": 127.6,
+        "bulletin_2026-09-12_four_weeks": 129.3,
+        "weekly_series_2025_jan_jul": 197.2,
+        "monthly_table30d_2023": 250.3
+      },
+      "n_editions": 4,
+      "mean": 176.1,
+      "min": 127.6,
+      "max": 250.3,
+      "spread_share_of_mean": 0.696
+    },
+    "professional_services": {
+      "editions": {
+        "bulletin_2026-09-12_latest_week": 50.4,
+        "bulletin_2026-09-12_four_weeks": 52.9
+      },
+      "n_editions": 2,
+      "mean": 51.6,
+      "min": 50.4,
+      "max": 52.9,
+      "spread_share_of_mean": 0.047
+    },
+    "total": {
+      "editions": {
+        "bulletin_2026-09-12_latest_week": 54.1,
+        "bulletin_2026-09-12_four_weeks": 58.7,
+        "weekly_series_2025_jan_jul": 62.7,
+        "monthly_table30d_2023": 68.4
+      },
+      "n_editions": 4,
+      "mean": 61.0,
+      "min": 54.1,
+      "max": 68.4,
+      "spread_share_of_mean": 0.235
+    }
+  },
+  "re_pin_candidates": {
+    "cross_edition_mean": {
+      "retail_trade": 63.2,
+      "food_beverage": 31.1
+    },
+    "monthly_2023_annual_mean": {
+      "retail_trade": 69.9,
+      "food_beverage": 34.9
+    },
+    "applied_now": {
+      "retail_trade": 61.5,
+      "food_beverage": 29.0
+    },
+    "status": "PROPOSED config change, not applied — SOP_Monshaat_Unblock §1 non-negotiable 2 freezes the generator through Workstream B (DECISIONS.md entry 20)"
   }
 }

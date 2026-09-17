@@ -15,7 +15,9 @@ deliverables.
 | `seasonal_recovery.py` | shared by the gate (criterion 3) and §21: fits the §22 window decomposition to the generated data per sector (equal-weighted businesses, trend + day-of-week + window dummies) and compares recovered value and count multipliers with `config.yaml` | library |
 | `heldout_anomalies.py` | §12 held-out anomaly types, defined only here | 0, or raises on a §12 leak |
 | `berka_coverage.py` | Phase 2: coverage bands + evidence registry on the Berka engine output → `out/berka_coverage.md` | 0 = accepted |
-| `compare_real.py` | Phase 4: real-vs-synthetic comparison-set AUC, per-feature transfer, §8.4 findings → `out/real_vs_synthetic.md`. Asserts config hash unchanged, no look-ahead (self-tested), class-A scale-free set, §21 target pre-registered. | 0 |
+| `compare_real.py` | Phase 4: real-vs-synthetic comparison under **one CV protocol on all three sources** (repeated stratified group 5-fold × 20; temporal split kept as a labelled leakage check; `--protocol temporal` = v1.0), per-feature transfer, §15 exclusion selectivity, §8.4 findings → `out/real_vs_synthetic.md`. Asserts config hash unchanged, no look-ahead (self-tested), real-computed (A1 ∪ A2) scale-free set, §21 target pre-registered. | 0 |
+| `feature_transfer.py` | B1: univariate Berka AUC with 1,000-resample bootstrap CI for every typed-A feature, both label sets; the A1/A2 subclass by the CI rule → `out/feature_transfer.md/.json` | 0 |
+| `exclusion_selectivity.py` | B4: default rate among accounts excluded by the §15 coverage rule vs retained, both label sets, Fisher exact → `out/exclusion_selectivity.md` | 0 |
 | `dimensions_check.py` | §10.2 / §12: obligations terminate, cancellations ↔ latent distress, balloons exist, facilities ↔ latent distress, MCC coverage, evidence stamps | 0 = PASS |
 | `sensitivity.py` | §13.4: class-C features as a RANGE over low/central/high parameter settings → `out/sensitivity_*.md` | 0 |
 | `evidence_table.py` | §13.5: the three-column evidence table, generated from the registry → `out/evidence_table.md` | 0 |
@@ -29,7 +31,9 @@ deliverables.
 - **No class-C feature with a single performance number** — `sensitivity.py` refuses any parameter outside the `ungrounded.` block, and the evidence table names the class of every feature.
 - **§23 minimum-cell rule** (≥30 businesses and ≥10 defaults) — `gate_week3` reports thin cells as a loud `SKIP`; reuse it.
 - **Thinned POS sales rows** — `transactions.sample_weight` is 1/rate on POS `sales` rows (SOP_Saudi_Calibration §6.1); the gate checks outflows exactly, inflows exactly on un-thinned businesses and Σ amount × sample_weight within ±2% elsewhere. Anything that sums inflow amounts from `transactions.csv` must weight by it.
-- **Seasonality is gated on the population, not one business** — criterion 3 requires the configured value AND count multipliers to be recovered within ±0.08 for the class-B (SAMA-measured) sectors; class-C sectors are printed only.
+- **Seasonality is gated on the population, not one business** — criterion 3 requires the configured value AND count multipliers to be recovered within ±0.08 for the SAMA-measured sectors (B and B-weak windows alike: the test is of the wiring); class-C sectors are printed only.
+- **No feature claims prediction without a CI excluding 0.50** — `evidence.py` resolves A → A1/A2 only from `profile_engine/feature_transfer.json`, written by `calibration.reclass_evidence` from `feature_transfer.py`; nothing hand-typed.
+- **No cross-source AUC comparison mixes CV protocols** — the headline row of `real_vs_synthetic.md` is one protocol on all three sources; every other row is labelled secondary.
 
 ## Still missing (Week 6–7)
 

@@ -40,8 +40,12 @@ here (§12), so the config alone reproduces the dataset.
   sectors are an unbiased 10% thinning carrying `sample_weight = 10.0`; every other row is 1.0
   and `daily_aggregates` stays authoritative (SOP_Saudi_Calibration §6.1, DECISIONS.md 13.6).
 - **Ramadan/Eid multipliers are measured, value and count separately**, for retail and F&B
-  (`seasonality_value_multiplier`, `seasonality_count_multiplier`, class B); construction and
-  professional services keep judgement values labelled class C.
+  (`seasonality_value_multiplier`, `seasonality_count_multiplier`); each window carries its own
+  label — **B** where the CI excludes 1.0, **B-weak** where it does not (7 of 16) — and its `ci95`.
+  Construction and professional services keep judgement values labelled class C.
+- **Sector weights and tier splits are the Monsha'at register (2021 Q4, class B)**; professional
+  services is 2.9% of businesses, so its §23 cell is thin at N = 10,000. `financing.share_of_businesses`
+  is a per-sector map (relative shape from SAMA credit ÷ SME count; level judgement).
 - Thin-file businesses (`coverage_days_90d < 60`) occur naturally from the
   sampled age tier (§15, §20) — ~1,200 of 11,000. They are the `insufficient_data`
   population the Week 8 gate must surface as a distinct state.
