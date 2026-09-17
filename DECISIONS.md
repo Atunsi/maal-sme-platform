@@ -1176,3 +1176,70 @@ note.
 
 **Recorded by:** generator owner, 2026-09-17.
 **Sign-off:** ☐ generator owner
+
+---
+
+## 19. Real vs synthetic under one CV protocol on all three sources; the §15 exclusion is selective (2026-09-17) — Workstream B4
+
+**SOP:** `SOP_Monshaat_Unblock` B4. Config untouched (sha256 `9d60db774d169931` before and after
+the run, asserted inside `eval.compare_real`); generator-parameter hash `a5b2bccab775fa71`.
+
+**The problem.** Entries 10, 13.13 and 15 reported the gap between a cross-validated synthetic AUC
+(5 contiguous-ID entity folds) and a Berka AUC from a **single** temporal split with 25 test
+defaults on the censored label set, the primary set being not evaluable on that split. Three
+numbers, three protocols; an unknown share of the gap was protocol. The v1.0 SOP said "same feature
+subset, same model class"; it should have said "same CV protocol".
+
+**The protocol, implemented in `eval/compare_real.py` (`--protocol unified`, the default):**
+repeated stratified group k-fold — 5 folds grouped by `business_id`, stratified on the label, 20
+repeats with different seeds, out-of-fold predictions pooled per repeat, AUC per repeat, median and
+2.5/97.5 percentiles across repeats. Run identically on the synthetic research population, Berka
+primary (A vs B) and Berka secondary (A+C vs B+D). Feature set unchanged (25 real-computed
+scale-free features after runtime pruning; A1 ∪ A2 per entry 16). The temporal split is kept as a
+labelled **leakage check**, the expanding temporal quintiles and the contiguous-ID entity folds as
+labelled secondaries. `--protocol temporal` reproduces the v1.0 headline.
+
+**Protocol × source matrix (`eval/out/real_vs_synthetic.md`):**
+
+| protocol | synthetic | Berka primary | Berka secondary |
+|---|---|---|---|
+| **unified (headline)** | **0.574 [0.568, 0.585]** (9,495 / 449) | **0.721 [0.681, 0.770]** (209 / 22) | **0.859 [0.841, 0.880]** (615 / 59) |
+| temporal split (v1.0 Berka headline; leakage check) | — | not evaluable (3 test defaults) | 0.901 [0.835, 0.955] (328 / 25) |
+| expanding temporal quintiles | — | 0.740 [0.558, 0.902] | 0.873 [0.789, 0.938] |
+| contiguous-ID entity folds (v1.0 synthetic headline) | 0.578 [0.550, 0.607] | — | — |
+
+**Verdict: FINDING, narrower.** Under one protocol the gap is **0.147** on the primary label set
+(0.574 vs 0.721; repeat bands do not overlap) and 0.285 on the secondary (0.859), against the
+pre-registered ±0.10. The v1.0 figure of 0.323 (entry 15; 0.291 in 13.13, 0.307 in entry 10) mixed a
+cross-validated synthetic estimate with a single-split Berka estimate that the unified protocol
+puts 0.04 lower on the same label set (0.901 → 0.859) and that was not evaluable at all on the
+primary set. **The part of the v1.0 gap that was protocol is 0.04 on the secondary set and the
+whole of the primary-set comparison**, which had never been made under a comparable protocol. The
+primary set — no censoring, the set the pre-registration named as leading — now gives a gap of
+0.15, not 0.30. Nothing was tuned: ρ = 0.6 and σ = 0.2 untouched, and the synthetic AUC is the same
+population as entry 15 under a different fold assignment (0.578 → 0.574).
+
+**The §15 exclusion is selective on the label** (`eval/exclusion_selectivity.py`,
+`eval/out/exclusion_selectivity.md`; one line of code that had never been run):
+
+| label set | excluded n / defaults / rate | retained n / defaults / rate | risk ratio | Fisher p |
+|---|---|---|---|---|
+| primary | 25 / 9 / 0.360 | 209 / 22 / 0.105 | **3.42** | 0.0018 |
+| secondary | 67 / 17 / 0.254 | 615 / 59 / 0.096 | **2.64** | 0.0007 |
+
+Accounts with fewer than 10 active days in the 90 days before the loan default at 2.6–3.4× the
+retained rate and carry 22–29% of all defaults. Every Berka AUC — v1.0 and unified — is therefore
+an estimate on the *eligible* population, from which the thinnest and riskiest accounts were
+removed by the eligibility rule rather than scored. The threshold (entry 9) stands; the numbers
+stand; both now carry the caveat. The synthetic side excludes 1,086 thin-file businesses under its
+own rule, and their default rate is reported by `validate_emergent`.
+
+**Two things left as they are, on purpose.** (1) The §21 target's `definition` text in
+`config.yaml` still names the temporal split; the protocol sentence is superseded here and the
+text is left unedited so the config hash stays frozen through Workstream B — amend at the next §9
+change-control. (2) The unified band is the spread across 20 fold assignments, not a sampling
+interval for the population AUC; with 22 primary defaults that fold-to-fold spread is the honest
+width, and the report says so.
+
+**Recorded by:** credit-lens owner, 2026-09-17.
+**Sign-off:** ☐ credit-lens owner ☐ team (protocol as the standing headline; §21 definition wording)
