@@ -273,6 +273,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--dir", default="data", help="directory holding the generated tables")
     ap.add_argument("--config", default="config.yaml")
     args = ap.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles default to a legacy code page
     d = Path(args.dir)
     cfg = load_config(args.config)
 

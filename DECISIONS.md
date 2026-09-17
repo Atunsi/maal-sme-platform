@@ -302,3 +302,240 @@ amounts) should not be shown until step 3 lands.
 
 **Owner:** generator owner. **Blocked on:** establishment-count table (step 1).
 **Sign-off on the input/test split (step 3):** ☐ team
+
+---
+
+## 7. Berka Phase 0 viability probes — RECORDED (gate PASSED, 2026-09-15)
+
+**Governed by:** `SOP_Data_Grounding_And_Dimensions.md` v2.0 §4. Run with
+`python -m berka_adapter.probe` against the archived copy
+(`sources/berka/the-berka-dataset.zip`, sha256 `dfd5e949…`, see
+`sources/berka/SOURCE.md`). The original PKDD'99 host `sorry.vse.cz` did not
+resolve on the access date; the Kaggle mirror `marceloventura/the-berka-dataset`
+was pulled and archived the same day.
+
+| Probe | Result | Decision |
+|---|---|---|
+| 1 — balances go negative? | 288 / 4,500 accounts (6.4%) ever < 0; median 24 days below zero among them; 1,577 `SANKC. UROK` rows on 264 accounts | **PASS** (≥ 5%). Features 13–15 stay **class A**. |
+| 2 — `bank`+`account` a usable partner key? | populated on 100% of `PREVOD` rows, 0% elsewhere → 25.9% of all transactions; 7,664 distinct keys over 273,508 partnered rows (ratio 0.028, i.e. identities repeat); median repeat-partner share of inflow value 1.00 on a 20-account sample | **PASS**. Counterparty band (5, 20–22, 45, 46) stays **class A**, reported with coverage share. |
+| 3 — structural | all 8 row counts match the published figures exactly; every date inside 1993–1999; `loan.status` A=203, B=31, C=403, D=45; `loan.duration` ∈ {12, 24, 36, 48, 60} at 130–145 each | **PASS**. Primary label set (A vs B) n=234 / **31 defaults** — below the ~25 line only barely, so both label sets are reported and the primary is led with its interval (§7.1). |
+| 4 — multi-account clients? | every one of 5,369 clients holds exactly one account (`disp`: 4,500 OWNER + 869 DISPONENT rows, DISPONENT = second person on the *same* account); zero candidate own-account transfer pairs | **PASS (single-account safe)**. `business_id = account_id`. Phase 5c stays conditional. |
+
+**Assumption recorded (SOP §11.1):** one account per business is assumed on
+both sources. Own-account transfers between an SME's accounts would inflate
+features 1 and 6 as phantom revenue and expense; our data contains no such case
+by construction. Goes verbatim into the README honesty list.
+
+**Known upload quirks (verified, handled in `berka_adapter/column_map.yaml` and
+`build.py`):** `trans.type` carries a third value `VYBER` on 16,666 rows (a
+withdrawal; treated as `VYDAJ`); `k_symbol` is blank on 481,881 rows and a
+single space on 53,433; `order.k_symbol` contains `LEASING` (341 rows), which
+never appears on `trans.k_symbol`. Berka has no time-of-day, so `hour` is a
+constant 12 on every Berka transaction (a constant cannot carry signal).
+
+Recorded by: generator owner  Date: 2026-09-15
+
+---
+
+## 8. Schema changes for real-data grounding (SOP_Data_Grounding §14) — PROPOSED
+
+Each row below is implemented in `generator/schemas.py` and emitted by both
+producers (`generator/generate.py`, `berka_adapter/build.py`). None removes or
+renames an existing column; the Week 3 gate is re-run unchanged (entry 10).
+
+| Change | Where | What |
+|---|---|---|
+| `data_source` enum gains `external_real` | §29 | `DATA_SOURCES` |
+| `evidence_class` ∈ {A, B, C} on every row of every table | §8, SOP §1 | generator stamps `output.evidence_class` (B); adapter stamps A |
+| null reason `not_available_in_source` | §15, §16 | `profile_engine.registry.NULL_REASONS`, plus `not_applicable`, `insufficient_events`, `no_break_detected`, `not_implemented`, `reference_stats_missing` so no null is ever bare |
+| `transactions.counterparty_id` nullable | §7 | null = the source carries no partner identity (cash, bank-originated); the generator always populates it |
+| `transactions.subfamily` (ISO 20022 BTC-style code) | §12.2 | `SUBFAMILIES`; generator maps from category, adapter from `k_symbol`/`operation` (Appendix B) |
+| `transactions.own_transfer_flag` | SOP §5.3 | always False on both sources today (entry 7) — the column exists so netting can never be silent |
+| `category` enum gains 7 bank-feed values | §7 | `cash_deposit`, `cash_withdrawal`, `bank_interest`, `bank_fee`, `household`, `insurance`, `pension` — never emitted by the generator |
+| registry categoricals accept `not_available_in_source`; `declared_mcc_code` nullable | §7 | a real source has no sector/size/age/MCC; a sentinel is visible, a fake value is not |
+| `balances_daily.csv` (5th table) | §7 | emitted by both; on the synthetic side it duplicates `daily_aggregates.eod_balance` on purpose (the engine reads `eod_balance`; the table is the explicit daily-balance contract) |
+| `obligations.csv` (4th table) | §7, SOP §9.1 | Berka: the real `order` table; frequency **measured** from execution intervals ≤ observation date (5,311 monthly / 1,160 unknown), `final_date`/status history null because the source has none |
+| `balances_monthly.csv` optional | §37.1 | `validate_engine_tables` requires transactions/daily/businesses only; a bank feed has no balance sheet |
+| Berka label table | SOP §7.1 | `berka_labels_schema`: `label_primary` (A→0, B→1, C/D→null), `label_secondary` (A+C→0, B+D→1), `censored` |
+| Features 60–65 | new §37 | `profile_engine.registry` — 62 split into `ocr_forward_3m` (62) and `ocr_forward_6m` (62b) |
+| Feature 15 formula | §3 | **PROPOSED**: `100 × mean(min(1, σ_net/daily_outflow), clip(1 − inflow/outflow, 0, 1), days_neg/90, min(1, overdraft_events/5))` — the schema leaves the weighting open |
+| Feature 46 threshold | §33 | fixed at 0.5% of the business's trailing-90-day total transaction value, floored at the §16 epsilon — scale-free so it means the same in CZK and SAR |
+| Feature 33 calendar | §15 | operating days exclude Fri/Sat for `synthetic`/`sandbox`, Sat/Sun for `external_real` |
+| `berka.cv_cut_date`, `profile_engine.*` config blocks | `config.yaml` | see entry 9 |
+| §21 target `real_vs_synthetic_signal_strength` | `config.yaml` | registered 2026-09-16 before the first `eval.compare_real` run |
+
+Berka-specific adapter facts worth knowing: Berka has no time-of-day
+(`hour` = 12 on every row); the running balance chains exactly on 94.3% of
+account-days and to within 0.1–0.2 CZK on the rest, all month-end days (interest
+posting rounding) — the gate tolerance is 0.21 CZK and all 4,500 accounts pass;
+14 zero-amount rows are dropped from `transactions.csv` (schema requires > 0).
+
+**Sign-off:** ☐ profile engine owner (schemas, features 60–65, feature 15 formula) ☐ team
+
+---
+
+## 9. §15 eligibility threshold on real data — FINDING + PROPOSED source-labelled threshold
+
+**Touches:** §15 hard eligibility rule; every Berka result.
+
+**Finding (2026-09-16, before any model was run):** with `coverage_days_90d ≥ 60`
+as written, **0 of 4,500 Berka accounts and 0 of 682 labelled accounts are
+scorable.** The median account has 13 active days per 90 (5th–95th percentile
+8–20, maximum 31). The 60-day rule encodes a daily-activity assumption
+(POS-acquiring Saudi SMEs) that real 1990s Czech retail accounts do not meet.
+This is a genuine result about the rule and is reported as such.
+
+**Decision:** the threshold becomes `profile_engine.coverage_min_days_by_source`
+in `config.yaml` — `synthetic: 60` (unchanged), `external_real: 10`. Ten was set
+from a single criterion, chosen before any AUC existed: keep the great majority
+of labelled accounts (615 / 682 = 90.2%; at 15 it is 58%, at 20 it is 21%) while
+still requiring roughly one transaction day per week so the 90-day statistics
+(interval CV, lag-7 autocorrelation, semideviations) are formed from real events.
+Every Berka number carries the threshold it was computed under. **A deployment on
+Saudi AIS must re-validate the 60-day rule against real activity levels before
+relying on it; the synthetic thin-file population (~1,200 of 11,000) says nothing
+about that.**
+
+**Sign-off:** ☐ profile engine owner ☐ team
+
+---
+
+## 10. Real vs synthetic signal strength — FINDING (reported, not retuned); features 41 and 61 — PROPOSED §31 edits
+
+**Touches:** §21 target `real_vs_synthetic_signal_strength` (registered in
+`config.yaml` on 2026-09-16 before the first run); §31 features 41, 42 and the
+underwriting rule; §14's 0.64-vs-≥0.85 contradiction.
+
+**Run:** `python -m eval.compare_real` → `eval/out/real_vs_synthetic.md`.
+config.yaml hash asserted unchanged across the run; two models, one feature
+set (25 class-A scale-free features after runtime pruning of 5 that are
+constant or >50% null on one side), two numbers; every Berka number with a
+1,000-resample bootstrap interval. Final run on the post-Phase-5 tables
+(base columns byte-identical, entry 11).
+
+| | Synthetic (research, N=10,000, class B) | Berka (real, class A) |
+|---|---|---|
+| Comparison-set AUC, 95% CI | **0.594 [0.567, 0.621]** — 5 contiguous-ID entity folds, out-of-fold | **0.901 [0.835, 0.955]** — secondary (censored) label set, train loan_date < 1997-01-01, validate on 328 loans / 25 defaults |
+| Primary label set (A vs B, no censoring) | — | temporal split not evaluable (3 defaults after the cut); expanding loan-date-quintile folds: **0.740 [0.558, 0.902]** over 167 loans / 17 defaults (secondary on the same folds: 0.873 [0.789, 0.938]) |
+| Default rate | 0.041 | 0.096 (secondary) / 0.105 (primary) |
+
+**Verdict against the pre-registered band: FINDING.** |0.594 − 0.901| = 0.31
+against `tolerance_abs: 0.10`. Real accounts carry **more** outcome signal than
+the generator's ρ = 0.6 / σ = 0.2 coupling produces, not less. Per §8.3 nothing
+was retuned: `latent_to_observable_correlation` and `label_noise_sigma` are
+untouched. What this does settle is the §14 contradiction the SOP names — gate
+criterion 2 reports 0.64 in-sample while the proposal promised ≥ 0.85: the real
+reference point sits at 0.74–0.90 with wide intervals, so the promise should be
+restated as a range with its interval, not chased by tuning.
+
+**Per-feature transfer (the table that matters):** on Berka the signal is
+liquidity — `liquidity_hazard_30d` 0.76 [0.69, 0.82], `days_negative_balance_90d`
+ρ = +0.49, `flow_asymmetry_ratio` 0.65, `volatility_index` 0.65 — and declared
+commitment is *protective* (`recurring_expense_ratio` 0.30, i.e. accounts with
+standing orders default less; `fixed_obligation_coverage_months` 0.22). On the
+synthetic side almost every feature is univariately flat (0.45–0.58); the 0.60
+emerges only multivariately. Counterparty and growth features transfer nothing
+on either side.
+
+**Feature 41 (`financing_outflow_ratio`) — PROPOSED §31 re-specification.**
+Three structural facts: (1) no counterparty MCC exists in either dataset — the
+generator assigns MCC to the business, Berka has none — so "financial-institution
+MCC" is unimplementable as written and `counterparty_type` has been standing in
+for it; (2) on Berka the point-in-time window ends the day before the loan, so
+existing debt service is identically zero on every labelled account (pruned from
+the comparison set for that reason — it cannot be validated against Berka
+outcomes); (3) debt service moves by transfer/standing order, exactly where a
+transaction code exists and an MCC does not. **Proposed wording:** "share of
+recurring outflow value carried on loan-repayment transaction codes
+(`subfamily = LOAN`)". The engine already emits both paths
+(`financing_outflow_ratio`, `financing_outflow_ratio_code`); they agree on 100%
+of synthetic businesses by construction.
+
+**Feature 61 (`obligation_coverage_ratio`) — PROPOSED §31 underwriting-rule
+change.** §31 tests affordability against net flow (`avg_monthly_inflow −
+avg_monthly_outflow`), which includes discretionary spend a business could cut.
+61 = `avg_monthly_inflow / committed_monthly_outflow` is now computed on both
+sources (Berka from the real `order` table: median 2.4 on 3,160 accounts;
+synthetic median 2.3). **Proposed:** `installment_capacity_sar` (42) becomes
+`max(0, avg_monthly_inflow − committed_monthly_outflow) × (1 − k × flow_asymmetry_ratio)`
+and the rule stays `monthly_installment ≤ 0.40 × capacity`. Not yet changed in
+code — §9 process first.
+
+**Sign-off:** ☐ credit lens owner (41, 42, 61) ☐ profile engine owner ☐ team
+
+---
+
+## 11. Phase 5 — obligations, facilities, sub-fields, MCC coverage — PROPOSED
+
+**Touches:** `generator/dimensions.py` (new), `config.yaml` blocks
+`grounded_from_berka` and `ungrounded`, schemas (`facilities.csv`,
+transaction sub-fields), features 66–69 (proposed §38), §12.3.
+
+**Additive by construction.** Every Phase 5 draw uses its own RNG stream
+`[population seed, business_id, 2, purpose]`; the base tables are byte-identical
+before and after (verified: `daily_aggregates.csv`, `balances_monthly.csv`,
+`labels.csv`, `latents_hidden.csv` hashes and the pre-Phase-5 profile vector —
+see the Week 3 gate re-run recorded at the end of this entry). The one
+deliberate value change is §12.3's preferred option: `declared_mcc_code` is
+nulled where a real acquirer would not have assigned one
+(`ungrounded.mcc_coverage_share`: retail/F&B 0.90, construction 0.15,
+professional 0.25). Obligation rows are **not** reconciled with the transaction
+stream — a direct-debit row does not add collections to `transactions.csv` —
+because adding transactions would move gate numbers, which §9.3 forbids. State
+this limitation; do not hide it.
+
+**Class B — measured on the Berka corpus, labels held out (`grounded_from_berka`):**
+
+| Parameter | Measured | Used for |
+|---|---|---|
+| `loan.duration` months | 12/24/36/48/60 at 0.19/0.20/0.19/0.20/0.21 (n = 682) | loan standing-order `final_date` (features 62, 63) |
+| standing orders per account | 1: 0.56, 2: 0.25, 3: 0.11, 4: 0.06, 5: 0.02; 83.5% of accounts have one | direct-debit count per business |
+| order amount / monthly outflow | lognormal μ = −1.85, σ = 1.38 (median 0.20) | direct-debit magnitude |
+| bank fee tiers (`SLUZBY`) | 14.6 / 30 / 100 CZK at 0.925 / 0.054 / 0.021 | `charge_amount` tier mix and multipliers (×1 / ×2.05 / ×6.85); the SAR level is judgement |
+| standing-order execution amount CV | 0.00 | confirms DD *variability* has no ground — it stays class C |
+
+Measurement script (re-run to verify): the block in this entry's commit —
+`python - <<EOF` over `berka_adapter.io.load_table("trans"/"order"/"loan")`,
+months = account history span / 30, share = order amount / monthly outflow.
+
+**Class C — author judgement, each with a `basis:` string in config:** direct
+debits (existence 0.55, variability 0.25, seasonality 0.30, cancellation
+probability [0.02, 0.30] rising with latent risk), scheduled payments, balloon
+share 0.20 × [3, 12]×, credit facilities (0.40 with a line; utilisation
+[0.05, 0.85] by latent risk, σ 0.10; emergency line when > 0.90), value-date lag
+{0: 0.6, 1: 0.3, 2: 0.1} on transfers, 50% charge probability, SAR 5 base fee,
+MCC coverage shares.
+
+**§10.2 assertions (`python -m eval.dimensions_check`):** obligations
+terminate; cancellations correlate with latent distress (quick population:
+ρ = 0.36, p = 2e-6); `final_amount ≠ amount` on every balloon row; utilisation
+correlates with latent distress (ρ = 0.92); emergency lines exist; MCC coverage
+within 0.05 of config per sector; evidence stamps correct. Full-population
+numbers are in the gate re-run record below.
+
+**§13.4 sensitivity (`python -m eval.sensitivity --all`):** class-C features
+are reported as a range over low/central/high parameter settings —
+`eval/out/sensitivity_*.md`. No class-C feature carries a single performance
+number anywhere in this repository.
+
+**Features 66–69 (proposed §38):** `facility_utilisation` (C),
+`headroom_days_of_burn` (C), `max_consecutive_overdraft_days` (**A** — computable
+on Berka from the real balance series), `emergency_line_present` (C). `own_funds`,
+`facility_limit`, `facility_drawn`, `headroom` are separate columns so no
+downstream code interprets a raw balance (§12.1 `Included` semantics).
+
+**Week 3 gate re-run after Phase 5 (§9.3) — 2026-09-16, full scale, PASS,
+unchanged.** Criterion 1: construction `implied_dso_days` 66.0 / 95.5 / 115.7
+(min/median/max, n = 2,099), professional `implied_dio_days` max 3.58 (n = 2,405);
+criterion 2: in-sample AUC **0.641**, sector differential **3.45×**, closest
+cross-label pair **0.148 vs 0.438**; criterion 3: Ramadan **1.29×**, Eid **3.68×**;
+1,213 thin-file exclusions. Identical to the values recorded in entry 1 and the
+README. Stronger than the gate: sha256 of `daily_aggregates.csv`,
+`balances_monthly.csv`, `labels.csv` and `latents_hidden.csv` are **byte-identical**
+before and after the Phase 5 code landed (`384fa221…`, `f08e169d…`, `c07a11b2…`,
+`396a5021…`). Full-population §10.2 assertions: cancellations ρ = 0.271
+(p = 1e-93, n = 5,518), utilisation ρ = 0.925 (n = 4,010), 775 balloon rows,
+1,018 emergency/temporary lines, 25,831 / 10,507 / 5,050 standing-order /
+direct-debit / scheduled rows.
+
+**Sign-off:** ☐ generator owner ☐ profile engine owner (66–69) ☐ team

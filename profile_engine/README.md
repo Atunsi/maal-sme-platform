@@ -1,39 +1,34 @@
-# Profile engine — NOT BUILT
+# Profile engine — BUILT (features 1–69), source-agnostic
 
-**Owner:** profile engine owner (SOP §3) · **Schema:** §1–§6, §15, §16, §30–§35
-**Due:** Week 3–4 (scaffolding starts Week 2 against a hand-made sample, not generator output — SOP §7)
+**Owner:** profile engine owner (SOP §3) · **Schema:** §1–§6, §15, §16, §30–§35; proposed §37 (60–65) and §38 (66–69) per `SOP_Data_Grounding` ·
+**Built during:** the real-data grounding SOP (2026-09-15/16), because Phases 2–4 need one engine that runs unmodified on both sources.
 
-The single shared engine all three lenses read from. This is the "reuse is the
-contribution" claim in concrete form: adding a lens means registering a route
-against this engine, never changing it.
+The single shared engine all three lenses read from. It reads the tables in
+`generator/schemas.py` and a per-business as-of date (`businesses.window_end`);
+it does not know whether a row came from the generator or from Berka.
 
-## What goes here
+| File | Role |
+|---|---|
+| `registry.py` | **Explicit feature-ID membership lists** (`PROFILE_FEATURE_IDS`, `ZAKAT_PROFILE_FEATURE_IDS`), names, `MIN_HISTORY_DAYS`, `NULL_REASONS`. Never a range. |
+| `evidence.py` | Class A / B / C per feature with a basis string (SOP_Data_Grounding §6.3). A mixed metric reports the weakest class. |
+| `features.py` | The computation. Daily-series features per business (numpy), transaction features vectorised, obligations, facilities, balance sheet, §35 z-scores. |
+| `compute.py` | CLI. `python -m profile_engine.compute --dir data` / `--dir data/berka`. |
+| `sector_reference_stats_v1.json` | §35 pinned μ/σ per sector for features 3, 11, 13, 16, 21, built once on the N=10,000 research population (`--build-reference-stats`), never recomputed at serving time. Its sha256 is printed at build. |
 
-Computation of **features 1–59** from `data/daily_aggregates.csv` (§8 — *not*
-from raw transactions, so the <2s API target holds), plus:
+## Outputs (into the data directory)
 
-- **Explicit feature-ID membership list in code** (§8, SOP §8) — never a range
-  like "1–36". `/profile` returns 1–26, 32–33, 36, 40–59. It does **not**
-  return the balance-sheet features 27–31, 34–35; those live in a separate
-  profile read only by the Zakat lens (§7).
-- **`insufficient_data`** as a distinct state when `coverage_days_90d < 60`
-  (§15) — an explicit refusal to score, never a low score or a silent null.
-- **`partial_profile`** when coverage ≥ 60 but history < `min_history_days`
-  (180 for features 4 and 9) — the business is still scored; that feature
-  returns null with `reason: "insufficient_history"`, distinguishable from
-  `reason: "near_zero_denominator"` (§15, §16).
-- **Null conventions** (§16): `current_runway_days` null when not net-burning;
-  epsilon floor of SAR 500 on growth-rate denominators, growth capped at ±300%.
-- **Sector-relative z-scores** (features 55–59, §35) computed against a
-  **pinned** `sector_reference_stats_v1.json`, built once on the N=10,000
-  research population and **never recomputed at serving time**.
-- **Pandera validation of all three input tables before they reach the feature
-  engine** (§37.1) — reuse `generator/schemas.py`, do not write a second copy.
+| File | Contents |
+|---|---|
+| `profiles.csv` | one row per business, features by name (+ `financing_outflow_ratio_code`, the §8.4 diagnostic) |
+| `profile_nulls.csv` | every null with its reason — `insufficient_data`, `insufficient_history`, `near_zero_denominator`, `not_applicable`, `insufficient_events`, `no_break_detected`, `not_available_in_source`, `not_implemented`, `reference_stats_missing`. A bare null is a bug (asserted). |
+| `profile_status.csv` | §15 state: `scored` / `partial_profile` / `insufficient_data` |
+| `profile_coverage.csv` | value share with a counterparty identity, for features 5, 20–22, 45, 46 |
 
-## Contract
+## Contract points
 
-Input: `data/daily_aggregates.csv`, `data/balances_monthly.csv` (Zakat path only).
-Output: the feature vector behind `GET /profile/{business_id}` (§8).
-
-The generator already guarantees no latent variable or label reaches these
-tables, so the engine cannot accidentally consume one.
+- **`insufficient_data`** is a distinct state (§15): every feature except 32 is null with that reason; nothing is scored. The threshold is `profile_engine.coverage_min_days_by_source` in `config.yaml` — 60 for synthetic, **10 for `external_real`** ([DECISIONS.md entry 9](../DECISIONS.md)).
+- **`partial_profile`** when history < 180 days: 4, 9, 43, 45 return `insufficient_history`.
+- **§16 conventions:** runway null when not burning (and zero, never negative, when already overdrawn); SAR 500 epsilon floor on monthly denominators; growth capped at ±300%.
+- **Not implemented (module owners):** 24, 25, 26, 34, 35 → `not_implemented` on synthetic, `not_available_in_source` on a bank feed where the input itself does not exist.
+- **Proposed formulas** the schema leaves open — 15, 46's threshold, 33's calendar — are in [DECISIONS.md entry 8](../DECISIONS.md).
+- Pandera validation of every input table before computation (§37.1), reusing `generator/schemas.py`.

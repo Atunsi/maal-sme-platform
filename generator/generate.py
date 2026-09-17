@@ -43,7 +43,7 @@ import yaml
 from scipy.special import expit
 from scipy.stats import norm
 
-from generator import schemas
+from generator import dimensions, schemas
 
 # --------------------------------------------------------------------------- #
 # Config + calendar helpers (also imported by eval/gate_week3.py)
@@ -460,6 +460,7 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
     stats = latent_index_stats(cfg)
     demo_by_id = {d["id"]: d for d in cfg.get("demo_businesses", [])}
     src = cfg["output"]["data_source"]
+    evc = cfg["output"]["evidence_class"]
     agg_days = cfg["output"].get("daily_aggregates_trailing_days")
 
     registry, labels, latents, anomalies, monthly = [], [], [], [], []
@@ -492,9 +493,12 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
                     "declared_mcc_code": biz["declared_mcc_code"],
                     "has_zakat_seed": biz["zakat_seed"] is not None,
                     "data_source": src,
+                    "evidence_class": evc,
                 }
             )
-            labels.append({"business_id": b_id, "population": pop_name, "default_label": out["label"], "data_source": src})
+            labels.append(
+                {"business_id": b_id, "population": pop_name, "default_label": out["label"], "data_source": src, "evidence_class": evc}
+            )
             latents.append({"business_id": b_id, "population": pop_name, **out["latents"]})
             monthly.extend(out["monthly"])
             for local_idx, a_type in out["anomalies"]:
@@ -547,22 +551,32 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
             "data_source": src,
         }
     )
+    transactions["subfamily"] = transactions["category"].map(schemas.CATEGORY_SUBFAMILY)
+    transactions["own_transfer_flag"] = False  # one account per business by construction (DECISIONS.md entry 7)
+    transactions["evidence_class"] = evc
     daily = pd.DataFrame({k: stack(daily_parts, k) for k in daily_parts[0]})
     for c in ("inflow_total", "outflow_total", "recurring_outflow_total", "net_flow", "eod_balance"):
         daily[c] = np.round(daily[c], 2)
     daily["inflow_count"] = daily["inflow_count"].astype(int)
     daily["outflow_count"] = daily["outflow_count"].astype(int)
     daily["data_source"] = src
+    daily["evidence_class"] = evc
+
+    balances_daily = daily[["business_id", "date", "eod_balance"]].rename(columns={"eod_balance": "closing_balance"}).copy()
+    balances_daily["data_source"] = src
+    balances_daily["evidence_class"] = evc
 
     balances = pd.DataFrame(monthly)
     for c in balances.columns:
         if c.endswith("_eom"):
             balances[c] = np.round(balances[c], 2)
     balances["data_source"] = src
+    balances["evidence_class"] = evc
 
     tables = {
         "transactions": transactions,
         "daily_aggregates": daily,
+        "balances_daily": balances_daily,
         "balances_monthly": balances,
         "businesses": pd.DataFrame(registry),
         "labels": pd.DataFrame(labels),
@@ -570,6 +584,9 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
         "injected_anomalies": pd.DataFrame(anomalies, columns=["business_id", "transaction_id", "anomaly_type"]),
     }
     print(f"generated {len(registry)} businesses, {len(transactions):,} transactions in {time.time() - t0:.0f}s", flush=True)
+    # SOP_Data_Grounding Phase 5: additive dimensions on separate RNG streams — base tables stay byte-identical.
+    tables = dimensions.extend(cfg, tables)
+    print(f"extended: {len(tables['obligations']):,} obligations, {int((tables['facilities']['facility_type'] != 'none').sum()):,} facilities, transaction sub-fields, MCC coverage ({time.time() - t0:.0f}s)", flush=True)
     return tables
 
 
@@ -591,6 +608,7 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--out-dir", default=None, help="defaults to output.dir in config (output.quick_dir with --quick)")
     ap.add_argument("--quick", action="store_true", help="generate only quick_mode_n_per_population per population")
     args = ap.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows consoles default to a legacy code page
 
     cfg = load_config(args.config)
     out_dir = Path(args.out_dir or (cfg["output"]["quick_dir"] if args.quick else cfg["output"]["dir"]))

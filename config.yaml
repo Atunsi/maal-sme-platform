@@ -298,11 +298,104 @@ emergent_validation_targets:
       published_value: null
       tolerance_rel: null
       status_on_fail: report_as_finding
+    # SOP_Data_Grounding §8.3 — registered 2026-09-16, BEFORE the first eval.compare_real run.
+    - metric: real_vs_synthetic_signal_strength
+      definition: >
+        Comparison-set AUC on the Berka real-data holdout versus the same
+        comparison-set AUC on the synthetic research population. Same feature
+        subset (eval.compare_real.COMPARISON_FEATURES), same model class
+        (standardised logistic regression, median imputation), class A
+        scale-free features only. Berka: temporal split on loan.date at
+        berka.cv_cut_date, primary label set (A vs B) leads, secondary
+        (censored) reported alongside. Synthetic: contiguous-ID entity folds,
+        research population, no shuffling.
+      source: "PKDD'99 Czech Financial Dataset (Berka), Kaggle marceloventura/the-berka-dataset"
+      source_status: archived
+      archive_path: "sources/berka/"
+      basis: scale_free_class_a_features_only
+      tolerance_abs: 0.10        # |AUC_synth − AUC_berka|
+      status_on_fail: report_as_finding   # never: retune
   # Calibration inputs, listed so they are never mistaken for emergent targets:
   #   sector count weights, size | sector, age | sector×size, latents, ρ,
   #   base_monthly_inflow_sar, size_tier_scale. Revenue shares must EMERGE from
   #   these; if base inflows are ever set from the GASTAT revenue table above,
   #   the revenue-share targets stop being emergent and must be removed here.
+
+# --- SOP_Data_Grounding §13: parameters for the dimensions no public dataset contains ---
+# Two blocks, deliberately separate. `grounded_from_berka` = measured on the Berka transaction
+# corpus (labels held out) — class B. `ungrounded` = author judgement with a `basis:` string —
+# class C, never an emergent target, reported as a sensitivity RANGE (eval.sensitivity).
+grounded_from_berka:
+  source: "sources/berka/ (PKDD'99), measured 2026-09-16 by the script recorded in DECISIONS.md entry 11"
+  loan_duration_months: { 12: 0.192, 24: 0.202, 36: 0.191, 48: 0.202, 60: 0.213 }   # loan.duration, n=682
+  standing_orders_per_account: { 1: 0.560, 2: 0.253, 3: 0.111, 4: 0.061, 5: 0.017 } # order table, 3,758 accounts with orders
+  share_of_accounts_with_orders: 0.835
+  order_amount_share_of_monthly_outflow_lognormal: { mu: -1.848, sigma: 1.381 }     # median 0.20 of monthly outflow
+  bank_fee_tier_mix: { base: 0.925, double: 0.054, high: 0.021 }                    # SLUZBY: 14.6 / 30 / 100 CZK → ×1 / ×2.05 / ×6.85
+  bank_fee_tier_multipliers: { base: 1.0, double: 2.05, high: 6.85 }
+  declared_order_execution_amount_cv: 0.0     # standing orders execute at a fixed amount; DD variability is NOT grounded
+
+ungrounded:
+  direct_debits:
+    share_of_businesses: 0.55
+    count_weights_from: standing_orders_per_account     # count 1–5 drawn with the Berka weights (B); existence share is C
+    amount_cv: 0.25              # collection-to-collection variation (never observable in the additive obligations table)
+    seasonal_amplitude: 0.30     # utility load; no Saudi source located
+    cancellation_prob_90d_by_latent_risk: [0.02, 0.30]   # safe → risky; must correlate with latent distress or 64 is noise
+    basis: >
+      Magnitude (share of monthly outflow) and count grounded in Berka order distributions.
+      Existence share, variability, seasonality and the cancellation coupling are author
+      judgement. No public mandate dataset exists.
+  scheduled_payments:
+    share_of_businesses: 0.30
+    count: [1, 2]
+    amount_multiple_of_median_supplier_payment: [1.0, 4.0]
+    days_ahead: [1, 90]
+    basis: "One-off dated commitments placed in the forward window; no public source."
+  obligations:
+    balloon_share_of_loans: 0.20
+    balloon_final_amount_multiple: [3.0, 12.0]
+    basis: "Balloon share and size: no public source. Without it feature 65 is identically zero."
+  credit_facilities:
+    share_with_facility: 0.40
+    limit_months_of_outflow: [0.5, 3.0]
+    type_mix: { pre_agreed: 0.80, emergency: 0.15, temporary: 0.05 }
+    included_in_balance: true                   # AIS `Included` flag semantics
+    utilisation_by_latent_risk: [0.05, 0.85]    # safe → risky
+    utilisation_noise_sd: 0.10
+    emergency_line_appears_if_utilisation_above: 0.90
+    basis: >
+      Facility existence and tier structure informed by published Saudi overdraft product
+      terms. The behavioural coupling between latent distress and utilisation is author
+      judgement; no public source pairs facility state with outcomes.
+  transaction_subfields:
+    transfer_value_date_lag_days: { 0: 0.60, 1: 0.30, 2: 0.10 }   # transfers only; cash, card, standing orders lag 0
+    charge_probability_on_transfers: 0.50
+    base_fee_sar: 5.0            # level is judgement; the tier MIX and multipliers are Berka-measured (B)
+    basis: "Berka has no value date. Lag distribution and the SAR fee level are author judgement."
+  mcc_coverage_share:            # §12.3 preferred option: MCC exists only on card-accepting merchants
+    retail_trade: 0.90
+    food_beverage: 0.90
+    construction: 0.15
+    professional_services: 0.25
+    basis: "No published acquirer-coverage figure by sector was located; shares are judgement."
+
+# --- profile engine -------------------------------------------------------------
+profile_engine:
+  hazard_seed: 0                       # §34 features 52–54 Monte Carlo seed (per-business RNG keyed on this + business_id)
+  # §15 hard eligibility rule (coverage_days_90d ≥ 60). The 60 is a daily-activity Saudi-SME
+  # assumption; on real 1990s Czech retail accounts the MEDIAN account has 13 active days per 90
+  # and 60 excludes 100% of accounts (DECISIONS.md entry 9 — a FINDING about the rule, recorded
+  # before any model was run). Every Berka number is labelled with the threshold it was scored under.
+  coverage_min_days_by_source:
+    synthetic: 60
+    sandbox: 60
+    external_real: 10
+
+# --- Berka real-data evaluation (SOP_Data_Grounding §7.3) -------------------------
+berka:
+  cv_cut_date: "1997-01-01"            # temporal split on loan.date: train before, validate on/after
+  n_bootstrap: 1000                    # §8.2: never a Berka point estimate without its interval
 
 # --- output ---------------------------------------------------------------------
 output:
@@ -313,5 +406,8 @@ output:
   # set 90 for the literal §7 reading. Needs a change-control decision (§9 SOP).
   daily_aggregates_trailing_days: null
   data_source: synthetic
+  # SOP_Data_Grounding §1: base synthetic tables are class B (grounded synthetic).
+  # Tables generated from the `ungrounded:` block are stamped C by the generator itself.
+  evidence_class: B
 
 quick_mode_n_per_population: 300
