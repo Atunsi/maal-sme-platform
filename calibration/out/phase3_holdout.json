@@ -1,10 +1,22 @@
 {
-  "run_at": "2026-09-16T09:49:13+00:00",
+  "run_at": "2026-09-17T06:19:35+00:00",
   "held_out_years": [
     2024,
     2025
   ],
   "tolerance_abs": 0.1,
+  "status_vocabulary": {
+    "PASS": "within tolerance on an applied parameter",
+    "BOUNDED": "one-sided constraint only (weekly-resolution Eid floor); cannot confirm",
+    "FAIL": "outside tolerance on an applied parameter",
+    "NOT_APPLIED": "measured, not written to the generator"
+  },
+  "status_counts": {
+    "PASS": 12,
+    "BOUNDED": 8,
+    "FAIL": 0,
+    "NOT_APPLIED": 16
+  },
   "aggregate": {
     "sales": {
       "beta_ramadan_calibrated": 1.111,
@@ -25,6 +37,7 @@
           "abs_error_ramadan": 0.062,
           "mae_all_months": 0.031,
           "within_tolerance": true,
+          "status": "PASS",
           "monthly": {
             "2024-01-01": [
               0.991,
@@ -83,6 +96,7 @@
           "abs_error_ramadan": 0.018,
           "mae_all_months": 0.032,
           "within_tolerance": true,
+          "status": "PASS",
           "monthly": {
             "2025-01-01": [
               1.004,
@@ -155,6 +169,7 @@
           "abs_error_ramadan": 0.06,
           "mae_all_months": 0.033,
           "within_tolerance": true,
+          "status": "PASS",
           "monthly": {
             "2024-01-01": [
               1.034,
@@ -213,6 +228,7 @@
           "abs_error_ramadan": 0.046,
           "mae_all_months": 0.033,
           "within_tolerance": true,
+          "status": "PASS",
           "monthly": {
             "2025-01-01": [
               1.049,
@@ -276,26 +292,34 @@
           "ramadan_pred_monthly_beta": 0.8163,
           "ramadan_pred_weekly_window": 0.759,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "PASS",
           "eid_week_actual": 1.206,
           "eid_pred_weekly_window": 1.663,
           "eid_pred_ci95": [
             1.4358,
             1.8902
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "BOUNDED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         },
         "2025": {
           "ramadan_actual": 0.852,
           "ramadan_pred_monthly_beta": 0.8163,
           "ramadan_pred_weekly_window": 0.759,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "PASS",
           "eid_week_actual": 1.221,
           "eid_pred_weekly_window": 1.663,
           "eid_pred_ci95": [
             1.4358,
             1.8902
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "BOUNDED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         }
       },
       "count": {
@@ -304,26 +328,34 @@
           "ramadan_pred_monthly_beta": 0.6951,
           "ramadan_pred_weekly_window": 0.6676,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "PASS",
           "eid_week_actual": 0.904,
           "eid_pred_weekly_window": 0.9726,
           "eid_pred_ci95": [
             0.9199,
             1.0253
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "BOUNDED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         },
         "2025": {
           "ramadan_actual": 0.721,
           "ramadan_pred_monthly_beta": 0.6951,
           "ramadan_pred_weekly_window": 0.6676,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "PASS",
           "eid_week_actual": 0.979,
           "eid_pred_weekly_window": 0.9726,
           "eid_pred_ci95": [
             0.9199,
             1.0253
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "BOUNDED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         }
       }
     },
@@ -335,26 +367,34 @@
           "ramadan_pred_monthly_beta": 1.3384,
           "ramadan_pred_weekly_window": 1.4188,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "PASS",
           "eid_week_actual": 0.945,
           "eid_pred_weekly_window": 0.9395,
           "eid_pred_ci95": [
             0.1895,
             1.6894
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "BOUNDED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         },
         "2025": {
           "ramadan_actual": 1.433,
           "ramadan_pred_monthly_beta": 1.3384,
           "ramadan_pred_weekly_window": 1.4188,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "PASS",
           "eid_week_actual": 0.713,
           "eid_pred_weekly_window": 0.9395,
           "eid_pred_ci95": [
             0.1895,
             1.6894
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "BOUNDED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         }
       },
       "count": {
@@ -363,26 +403,34 @@
           "ramadan_pred_monthly_beta": 1.1248,
           "ramadan_pred_weekly_window": 1.0986,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "PASS",
           "eid_week_actual": 0.937,
           "eid_pred_weekly_window": 0.9508,
           "eid_pred_ci95": [
             0.7473,
             1.1542
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "BOUNDED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         },
         "2025": {
           "ramadan_actual": 1.082,
           "ramadan_pred_monthly_beta": 1.1248,
           "ramadan_pred_weekly_window": 1.0986,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "PASS",
           "eid_week_actual": 0.853,
           "eid_pred_weekly_window": 0.9508,
           "eid_pred_ci95": [
             0.7473,
             1.1542
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "BOUNDED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         }
       }
     },
@@ -394,26 +442,34 @@
           "ramadan_pred_monthly_beta": 0.7072,
           "ramadan_pred_weekly_window": 0.7871,
           "ramadan_within_tol_vs_monthly": false,
+          "ramadan_status": "NOT_APPLIED",
           "eid_week_actual": 0.355,
           "eid_pred_weekly_window": 0.0,
           "eid_pred_ci95": [
             0.0,
             0.0
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "NOT_APPLIED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": true,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         },
         "2025": {
           "ramadan_actual": 0.906,
           "ramadan_pred_monthly_beta": 0.7072,
           "ramadan_pred_weekly_window": 0.7871,
           "ramadan_within_tol_vs_monthly": false,
+          "ramadan_status": "NOT_APPLIED",
           "eid_week_actual": 0.433,
           "eid_pred_weekly_window": 0.0,
           "eid_pred_ci95": [
             0.0,
             0.0
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "NOT_APPLIED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": true,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         }
       },
       "count": {
@@ -422,26 +478,34 @@
           "ramadan_pred_monthly_beta": 0.9049,
           "ramadan_pred_weekly_window": 0.9679,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "NOT_APPLIED",
           "eid_week_actual": 0.722,
           "eid_pred_weekly_window": 0.4021,
           "eid_pred_ci95": [
             0.2814,
             0.5229
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "NOT_APPLIED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": true,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         },
         "2025": {
           "ramadan_actual": 1.037,
           "ramadan_pred_monthly_beta": 0.9049,
           "ramadan_pred_weekly_window": 0.9679,
           "ramadan_within_tol_vs_monthly": false,
+          "ramadan_status": "NOT_APPLIED",
           "eid_week_actual": 0.656,
           "eid_pred_weekly_window": 0.4021,
           "eid_pred_ci95": [
             0.2814,
             0.5229
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "NOT_APPLIED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": true,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         }
       }
     },
@@ -453,26 +517,34 @@
           "ramadan_pred_monthly_beta": 1.1108,
           "ramadan_pred_weekly_window": 1.1347,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "NOT_APPLIED",
           "eid_week_actual": 0.884,
           "eid_pred_weekly_window": 0.816,
           "eid_pred_ci95": [
             0.4088,
             1.2232
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "NOT_APPLIED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         },
         "2025": {
           "ramadan_actual": 1.157,
           "ramadan_pred_monthly_beta": 1.1108,
           "ramadan_pred_weekly_window": 1.1347,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "NOT_APPLIED",
           "eid_week_actual": 0.78,
           "eid_pred_weekly_window": 0.816,
           "eid_pred_ci95": [
             0.4088,
             1.2232
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "NOT_APPLIED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         }
       },
       "count": {
@@ -481,26 +553,34 @@
           "ramadan_pred_monthly_beta": 0.9778,
           "ramadan_pred_weekly_window": 0.9296,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "NOT_APPLIED",
           "eid_week_actual": 0.931,
           "eid_pred_weekly_window": 0.948,
           "eid_pred_ci95": [
             0.7975,
             1.0985
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "NOT_APPLIED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         },
         "2025": {
           "ramadan_actual": 0.948,
           "ramadan_pred_monthly_beta": 0.9778,
           "ramadan_pred_weekly_window": 0.9296,
           "ramadan_within_tol_vs_monthly": true,
+          "ramadan_status": "NOT_APPLIED",
           "eid_week_actual": 0.893,
           "eid_pred_weekly_window": 0.948,
           "eid_pred_ci95": [
             0.7975,
             1.0985
           ],
-          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier"
+          "eid_status": "NOT_APPLIED",
+          "eid_direction_consistent": true,
+          "eid_floor_contradicts_prediction": false,
+          "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS"
         }
       }
     }

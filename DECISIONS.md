@@ -1139,3 +1139,40 @@ these sixteen; they say C → B for nine and C → B-weak for seven, with the in
 
 **Recorded by:** generator owner, 2026-09-17.
 **Sign-off:** ☐ generator owner ☐ team (B-weak as a registry class)
+
+---
+
+## 18. Held-out table: PASS / BOUNDED / FAIL / NOT_APPLIED — a bounded test is not a pass (2026-09-17) — Workstream B3
+
+**SOP:** `SOP_Monshaat_Unblock` B3. Wording of a result that was already analysed correctly; no number changed.
+
+**The problem.** §3.7 of the v1.0 report showed a tick on every restaurant row while the prose
+beneath explained that the restaurant Eid actuals (1.21 / 1.22 at weekly resolution) sit below the
+applied 1.66 because a 3-day window diluted over 7-day weeks is a floor, not a point estimate. The
+reasoning was right and the tick was wrong: the test bounds the parameter from below, it does not
+confirm it.
+
+**Status vocabulary, implemented in `calibration/holdout_validate.py` (one status per test row):**
+
+| status | meaning |
+|---|---|
+| `PASS` | held-out actual within ±0.10 of the fitted value, on a parameter the generator applies |
+| `BOUNDED` | the test constrains the parameter in one direction only; it can contradict but cannot confirm. Every weekly-resolution Eid row. Reported with a direction check (actual > 1 iff predicted > 1) and a flag when the floor itself exceeds the prediction |
+| `FAIL` | held-out actual outside ±0.10 on an applied parameter |
+| `NOT_APPLIED` | measured but never written to the generator (construction, Total); the within-tolerance flag is still recorded |
+
+**Counts over the 36 test rows (2024 and 2025, `calibration/out/phase3_holdout.json`): PASS 12,
+BOUNDED 8, FAIL 0, NOT_APPLIED 16.** The twelve passes are the four aggregate Ramadan-month rows
+and the eight per-sector Ramadan rows for retail and F&B (value and count, both years). The eight
+BOUNDED rows are the retail and F&B Eid rows: direction consistent in all eight; in none does the
+weekly floor exceed the prediction. The construction rows, which the v1.0 table marked ✗, are
+NOT_APPLIED — the same information, no longer presented as a failed validation of something the
+generator does. In the construction rows the Eid floor (0.36–0.72) sits *above* the NNLS point
+estimate (0.00 / 0.40), which is one more reason those multipliers are not applied.
+
+**Report consequence (entry 20):** §3.7 carries the status column and a summary line that counts
+each status separately; the sentence "restaurant Eid is BOUNDED, not PASS" appears in the revision
+note.
+
+**Recorded by:** generator owner, 2026-09-17.
+**Sign-off:** ☐ generator owner

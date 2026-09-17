@@ -18,6 +18,16 @@ Two tests, both out of sample:
      the weekly-window μ_ramadan — the same numbers `seasonality.py` wrote out.
 
 Nothing here is refitted on 2024 or 2025; the calibration JSON is read, not recomputed.
+
+Status vocabulary (SOP_Monshaat_Unblock B3) — one status per test row, never a tick where the test only
+bounds the value:
+  PASS         held-out actual within ±TOL_ABS of the fitted value, on a parameter the generator applies
+  BOUNDED      the test constrains the parameter in one direction only: a 3-day Eid window read at weekly
+               resolution is a floor on the daily multiplier, so it can contradict a fitted value but
+               cannot confirm it. Reported with the direction check (actual > 1 iff predicted > 1).
+  FAIL         held-out actual outside ±TOL_ABS on an applied parameter
+  NOT_APPLIED  measured but not written to the generator (construction, Total); the within-tolerance
+               flag is still recorded, but it is not a validation of anything the generator does
 """
 
 from __future__ import annotations
@@ -33,6 +43,18 @@ from calibration.seasonality import CAL_END, fit_monthly, weekly_series
 
 HELD_OUT = [2024, 2025]
 TOL_ABS = 0.10  # |actual − predicted| on a multiplier, reported against; not a gate
+APPLIED_SECTORS = ("food_beverage", "retail_trade")  # the only sectors whose measured multipliers reach config.yaml
+STATUSES = ("PASS", "BOUNDED", "FAIL", "NOT_APPLIED")
+
+
+def status_of(within: bool | None, applied: bool, bounded: bool = False) -> str:
+    if not applied:
+        return "NOT_APPLIED"
+    if bounded:
+        return "BOUNDED"
+    if within is None:
+        return "NOT_APPLIED"
+    return "PASS" if within else "FAIL"
 
 
 def yearly_index_actual(series: pd.Series, year: int) -> pd.Series:
@@ -78,6 +100,7 @@ def aggregate_holdout(agg: pd.DataFrame) -> dict:
                 "abs_error_ramadan": round(float(abs(act[rm] - pred[rm])), 3),
                 "mae_all_months": round(float((act - pred).abs().mean()), 3),
                 "within_tolerance": bool(abs(act[rm] - pred[rm]) <= TOL_ABS),
+                "status": status_of(bool(abs(act[rm] - pred[rm]) <= TOL_ABS), applied=True),
                 "monthly": {str(d.date()): [round(float(a), 3), round(float(p), 3)] for d, a, p in zip(act.index, act, pred, strict=True)},
             }
         out[name] = {"beta_ramadan_calibrated": round(float(fit["beta"][hijri.RAMADAN - 1]), 3), "calibration_years": fit["years"], "held_out": years}
@@ -115,15 +138,22 @@ def sector_holdout(weekly: pd.DataFrame, cal: dict) -> dict:
                     continue
                 r_ram = window_ratio(s, w["ramadan_start"], w["ramadan_end"])
                 r_eid = window_ratio(s, w["eid_start"], w["eid_end"])
+                applied = gsec in APPLIED_SECTORS
+                ram_within = bool(r_ram is not None and abs(r_ram - mon) <= TOL_ABS)
+                eid_pred = wk["eid"]["multiplier"]
                 years[str(yr)] = {
                     "ramadan_actual": round(r_ram, 3) if r_ram is not None else None,
                     "ramadan_pred_monthly_beta": mon,
                     "ramadan_pred_weekly_window": wk["ramadan"]["multiplier"],
-                    "ramadan_within_tol_vs_monthly": bool(r_ram is not None and abs(r_ram - mon) <= TOL_ABS),
+                    "ramadan_within_tol_vs_monthly": ram_within,
+                    "ramadan_status": status_of(ram_within, applied),
                     "eid_week_actual": round(r_eid, 3) if r_eid is not None else None,
-                    "eid_pred_weekly_window": wk["eid"]["multiplier"],
+                    "eid_pred_weekly_window": eid_pred,
                     "eid_pred_ci95": wk["eid"]["ci95"],
-                    "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a floor on the daily Eid multiplier",
+                    "eid_status": status_of(None, applied, bounded=True),
+                    "eid_direction_consistent": bool(r_eid is not None and ((r_eid > 1.0) == (eid_pred > 1.0))),
+                    "eid_floor_contradicts_prediction": bool(r_eid is not None and r_eid > eid_pred + TOL_ABS),
+                    "note": "eid_week_actual is the Eid-day-weighted weekly mean over baseline; a 3-day window inside 7-day weeks dilutes the peak, so it is a FLOOR on the daily Eid multiplier — BOUNDED, never PASS",
                 }
             out[gsec][ind] = years
     return out
@@ -143,15 +173,23 @@ def main(argv: list[str] | None = None) -> int:
 
     print("\n== 2. Per sector — weekly SAMA series, 2024 and 2025 held out ==")
     sct = sector_holdout(weekly, cal)
+    counts = dict.fromkeys(STATUSES, 0)
+    for r in a.values():
+        for h in r["held_out"].values():
+            counts[h["status"]] += 1
     for gsec, r in sct.items():
         for ind in ("sales", "count"):
             for yr, h in r[ind].items():
                 if "status" in h:
                     print(f"  {gsec:14s} {ind:6s} {yr}: {h['status']} (series ends {h['series_ends']})")
                     continue
-                print(f"  {gsec:14s} {ind:6s} {yr}: Ramadan actual {h['ramadan_actual']} vs β(monthly) {h['ramadan_pred_monthly_beta']} / μ(weekly) {h['ramadan_pred_weekly_window']}  {'within' if h['ramadan_within_tol_vs_monthly'] else 'OUTSIDE'} ±{TOL_ABS};  Eid-week actual {h['eid_week_actual']} vs pred {h['eid_pred_weekly_window']}")
+                counts[h["ramadan_status"]] += 1
+                counts[h["eid_status"]] += 1
+                flag = ", floor above prediction" if h["eid_floor_contradicts_prediction"] else ""
+                print(f"  {gsec:14s} {ind:6s} {yr}: Ramadan actual {h['ramadan_actual']} vs β(monthly) {h['ramadan_pred_monthly_beta']} / μ(weekly) {h['ramadan_pred_weekly_window']} → {h['ramadan_status']};  Eid-week actual {h['eid_week_actual']} vs pred {h['eid_pred_weekly_window']} → {h['eid_status']} (direction {'consistent' if h['eid_direction_consistent'] else 'INCONSISTENT'}{flag})")
+    print(f"\nstatus counts over all test rows: {counts}  (a BOUNDED row is not a pass)")
 
-    payload = {"run_at": S.now_iso(), "held_out_years": HELD_OUT, "tolerance_abs": TOL_ABS, "aggregate": a, "per_sector": sct, "note": "Fits read from calibration/out/phase2_seasonality.json (≤2023). 2025 weekly data end 2025-07-06, which covers Ramadan/Eid 1446 (Mar 2025) fully."}
+    payload = {"run_at": S.now_iso(), "held_out_years": HELD_OUT, "tolerance_abs": TOL_ABS, "status_vocabulary": {"PASS": "within tolerance on an applied parameter", "BOUNDED": "one-sided constraint only (weekly-resolution Eid floor); cannot confirm", "FAIL": "outside tolerance on an applied parameter", "NOT_APPLIED": "measured, not written to the generator"}, "status_counts": counts, "aggregate": a, "per_sector": sct, "note": "Fits read from calibration/out/phase2_seasonality.json (≤2023). 2025 weekly data end 2025-07-06, which covers Ramadan/Eid 1446 (Mar 2025) fully."}
     p = S.write_out("phase3_holdout", payload)
     print(f"→ {p}")
     return 0
