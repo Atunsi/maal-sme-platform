@@ -981,3 +981,56 @@ target was consulted while writing 14.5–14.6; the re-run results are in entry 
 
 **Recorded by:** generator owner, 2026-09-17.
 **Sign-off:** ☐ generator owner (14.2 aggregation rule, 14.4 map, 14.5) ☐ team (14.1 correction of 13.2, 14.6 level)
+
+---
+
+## 15. Workstream A re-run at full scale with the register-derived inputs (2026-09-17) — RESULTS, nothing retuned
+
+**SOP:** `SOP_Monshaat_Unblock` §A4. Inputs: entry 14 (commit "Workstream A: Monsha'at pull, sector mix,
+financing share"). N = 10,000 research + 1,000 serving; `transactions.csv` 12,537,615 rows (was
+10,395,208 — 45% of the population is now retail at POS receipt frequency). Pre-Monsha'at outputs kept
+as `eval/out/*_before_monshaat.*`.
+
+**Week 3 gate: PASS with one loud SKIP** (`eval/out/gate_week3_after_monshaat.txt`). Structural and
+thinning checks unchanged (Σ amount × sample_weight / Σ inflow_total = 1.0005 on 6,662 thinned
+businesses). Criterion 1: construction `implied_dso_days` 65.9 / 94.2 / 118.2 (n = 3,679), professional
+`implied_dio_days` max 3.39 (n = 261). Criterion 2: **the sector differential is `insufficient_sample`
+for professional_services** — 237 research businesses, 3 defaults (rate 1.27%), below the §23 minimum
+cell of ≥ 30 businesses and ≥ 10 defaults. That is the register's 2.9% weight showing through, not a
+modelling choice (14.5); the check is skipped loudly, not passed. Sector default rates: construction
+5.70% (n 3,334), food 4.71% (1,466), retail 4.07% (3,979); in-sample AUC on observables 0.610 (was
+0.639). Criterion 3: every class-B window recovered within 0.04 (retail n = 3,296, F&B n = 1,160);
+direction checks pass. 1,086 businesses `insufficient_data` (was 1,208).
+
+**§21 (`eval/out/emergent_validation.md`): 0 emergent findings; 6 input-consistency misses (was 4).**
+The calibration-derived checks moved because their inputs did — which is the point (SOP §A4):
+
+| check | before (entry 13.13) | after | GASTAT 2022 |
+|---|---|---|---|
+| medium-tier revenue share (closed form / realised) | 0.415 / 0.440 — *high* | **0.189 / 0.197 — now low** | 0.343 |
+| sector revenue share TV distance | 0.519 | **0.384** | band 0.10 |
+| · retail / construction / F&B / professional | 0.140 / 0.609 / 0.048 / 0.204 | **0.264 / 0.639 / 0.068 / 0.028** | 0.600 / 0.256 / 0.106 / 0.038 |
+| within-sector size KS: retail / construction / F&B / professional | 0.038 / 0.065 / 0.390 / 0.211 | **0.130 / 0.297 / 0.264 / 0.352** | band 0.10 |
+
+Reading: with the count mix and tier splits now sourced, what remains is `base_monthly_inflow_sar` ×
+`size_tier_scale`. Construction is 36% of businesses at a 180 k SAR base, so the closed form gives it
+64% of revenue against GASTAT's 26%; retail at a 60 k base gets 26% against 60%. The medium-tier
+share flipped from too high to too low because the register's medium shares (2–3%) replaced the
+judgement 15% for construction. Both are statements about the two unsourced inputs (SOP_Saudi §10.6),
+recorded here, not tuned. Emergent targets: days-negative 16.4% of 9,016 scorable (construction
+31.6%, F&B 9.5%, retail 7.1%, professional 2.1%); realised DSO medians 13.3 / 94.2 / 4.7 / 32.0 all
+inside their bands; `ramadan_amplitude_recovered` PASS in all 8 rows; aggregate default rate 4.78%
+(478 / 10,000; was 4.06% — more construction).
+
+**`eval.compare_real`, v1.0 protocol (before → after):** synthetic 0.610 [0.584, 0.636] → **0.578
+[0.550, 0.607]** (9,495 scored / 449 defaults, 25 features); Berka unchanged 0.901 [0.835, 0.955]
+(secondary, single temporal split); gap 0.291 → **0.323**, FINDING. The synthetic side fell because
+the population is now dominated by retail and construction micro businesses, whose within-sector
+observables carry less label signal than the previous professional-heavy mix. Not tuned; the same
+comparison under one CV protocol on all three sources is entry 19 (Workstream B4).
+
+`dimensions_check` PASS; `heldout_anomalies` OK; evidence table unchanged at this commit (A 43 / B 3 /
+C 25 — the A1/A2 split is entry 16).
+
+**Recorded by:** generator owner, 2026-09-17.
+**Sign-off:** ☐ generator owner ☐ credit-lens owner (professional_services cell is below the §23 minimum at N = 10,000)
