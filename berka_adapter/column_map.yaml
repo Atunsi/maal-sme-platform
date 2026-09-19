@@ -1,0 +1,91 @@
+# Berka upload column map — SOP_Data_Grounding §5.4.
+#
+# Berka re-uploads differ (original semicolon .asc files vs. re-encoded CSVs
+# with renamed columns). The adapter reads THIS map, compares it to the actual
+# header of every file, and fails loudly with the real column list on any
+# mismatch. It never silently coerces. `canonical: upload_column`.
+#
+# Verified against: Kaggle marceloventura/the-berka-dataset, archived
+# sources/berka/the-berka-dataset.zip (sha256 dfd5e949…), 2026-09-15.
+
+delimiter: ";"
+date_format: "%y%m%d"          # YYMMDD integers, all inside 1993–1999
+
+tables:
+  account:
+    file: account.csv
+    columns: { account_id: account_id, district_id: district_id, frequency: frequency, date: date }
+    dates: [date]
+    domains:
+      frequency: ["POPLATEK MESICNE", "POPLATEK TYDNE", "POPLATEK PO OBRATU"]
+  client:
+    file: client.csv
+    columns: { client_id: client_id, birth_number: birth_number, district_id: district_id }
+  disp:
+    file: disp.csv
+    columns: { disp_id: disp_id, client_id: client_id, account_id: account_id, type: type }
+    domains:
+      type: ["OWNER", "DISPONENT"]
+  trans:
+    file: trans.csv
+    columns:
+      trans_id: trans_id
+      account_id: account_id
+      date: date
+      type: type
+      operation: operation
+      amount: amount
+      balance: balance
+      k_symbol: k_symbol
+      bank: bank
+      account: account
+    dates: [date]
+    domains:
+      type: ["PRIJEM", "VYDAJ", "VYBER"]   # VYBER appears as a type on some rows (a withdrawal); treated as VYDAJ — see build.py
+      operation: ["VYBER KARTOU", "VKLAD", "PREVOD Z UCTU", "VYBER", "PREVOD NA UCET", ""]
+      k_symbol: ["POJISTNE", "SLUZBY", "UROK", "SANKC. UROK", "SIPO", "DUCHOD", "UVER", "", " "]
+  order:
+    file: order.csv
+    columns:
+      order_id: order_id
+      account_id: account_id
+      bank_to: bank_to
+      account_to: account_to
+      amount: amount
+      k_symbol: k_symbol
+    domains:
+      k_symbol: ["POJISTNE", "SIPO", "LEASING", "UVER", "", " "]
+  loan:
+    file: loan.csv
+    columns:
+      loan_id: loan_id
+      account_id: account_id
+      date: date
+      amount: amount
+      duration: duration
+      payments: payments
+      status: status
+    dates: [date]
+    domains:
+      status: ["A", "B", "C", "D"]
+  card:
+    file: card.csv
+    columns: { card_id: card_id, disp_id: disp_id, type: type, issued: issued }
+    dates: [issued]                      # "931107 00:00:00" — first six characters are the YYMMDD
+    domains:
+      type: ["classic", "junior", "gold"]
+  district:
+    file: district.csv
+    columns: { district_id: A1, name: A2, region: A3 }   # remaining A4–A16 demographic columns are unused
+
+# Published row counts (Berka 1999 guide). Probe 3 checks these; a large
+# mismatch means a different upload, not a rounding difference.
+published_rows:
+  account: 4500
+  client: 5369
+  disp: 5369
+  trans: 1056320
+  order: 6471
+  loan: 682
+  card: 892
+  district: 77

@@ -1,0 +1,1341 @@
+{
+ "run_at": "2026-09-17T06:36:16+00:00",
+ "rule": "A2 iff the percentile-bootstrap 95% CI of the univariate Berka AUC excludes 0.50 on \u2265 1 label set (either direction); else A1",
+ "n_boot": 1000,
+ "population": "Berka labelled accounts scored under coverage_days_90d \u2265 10: 615 (primary label set non-null: 209)",
+ "counts": {
+  "A": 43,
+  "A2": 22,
+  "A1": 21
+ },
+ "features": {
+  "1": {
+   "feature": "avg_monthly_inflow",
+   "id": "1",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date (absolute CZK; never in the comparison set)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4632960622265435,
+     "lo": 0.32229812533121355,
+     "hi": 0.6082473544973545,
+     "auc_folded": 0.5367039377734565,
+     "ci_excludes_0.5": false,
+     "rho": -0.039020615162182484,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.45049384221436406,
+     "lo": 0.36214934010015976,
+     "hi": 0.537054235825248,
+     "auc_folded": 0.5495061577856359,
+     "ci_excludes_0.5": false,
+     "rho": -0.05050550345645692,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "2": {
+   "feature": "inflow_count_per_month",
+   "id": "2",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.671609139523578,
+     "lo": 0.5564106198589894,
+     "hi": 0.781991710296684,
+     "auc_folded": 0.671609139523578,
+     "ci_excludes_0.5": true,
+     "rho": 0.18785043362258572,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.6135074990854774,
+     "lo": 0.5372429371212892,
+     "hi": 0.6851492494674479,
+     "auc_folded": 0.6135074990854774,
+     "ci_excludes_0.5": true,
+     "rho": 0.11977694042888437,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "3": {
+   "feature": "inflow_regularity_score",
+   "id": "3",
+   "basis": "Berka: inflow interval CV on real accounts",
+   "label_sets": {
+    "primary": {
+     "auc": 0.34589207583859993,
+     "lo": 0.2270175012153622,
+     "hi": 0.47519515836480114,
+     "auc_folded": 0.6541079241614001,
+     "ci_excludes_0.5": true,
+     "rho": -0.16385170116773135,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.3939003969238402,
+     "lo": 0.32286528612404786,
+     "hi": 0.46493470536445475,
+     "auc_folded": 0.6060996030761598,
+     "ci_excludes_0.5": true,
+     "rho": -0.10749990358130702,
+     "n": 614,
+     "defaults": 58,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "4": {
+   "feature": "revenue_growth_rate_90d",
+   "id": "4",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4735380116959064,
+     "lo": 0.3079640333975594,
+     "hi": 0.6464080948305174,
+     "auc_folded": 0.5264619883040935,
+     "ci_excludes_0.5": false,
+     "rho": -0.028067189144849743,
+     "n": 191,
+     "defaults": 20,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.45237615110573365,
+     "lo": 0.3568643362693414,
+     "hi": 0.5463528157736539,
+     "auc_folded": 0.5476238488942664,
+     "ci_excludes_0.5": false,
+     "rho": -0.049148622996515505,
+     "n": 579,
+     "defaults": 57,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "5": {
+   "feature": "largest_single_source_ratio",
+   "id": "5",
+   "basis": "Berka: bank+account partner key (Probe 2 PASS); coverage share reported",
+   "label_sets": {
+    "primary": {
+     "status": "not_evaluable",
+     "n": 66,
+     "reason": "constant"
+    },
+    "secondary": {
+     "status": "not_evaluable",
+     "n": 192,
+     "reason": "constant"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "6": {
+   "feature": "avg_monthly_outflow",
+   "id": "6",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date (absolute CZK; never in the comparison set)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.46742829363150223,
+     "lo": 0.333673890781184,
+     "hi": 0.6131682400600421,
+     "auc_folded": 0.5325717063684978,
+     "ci_excludes_0.5": false,
+     "rho": -0.0346275657730626,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.4999390318253872,
+     "lo": 0.41897595252045605,
+     "hi": 0.5778975476956671,
+     "auc_folded": 0.5000609681746129,
+     "ci_excludes_0.5": false,
+     "rho": -6.219889748672536e-05,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "7": {
+   "feature": "outflow_count_per_month",
+   "id": "7",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.33373845405930963,
+     "lo": 0.2094480917366947,
+     "hi": 0.4629438444260683,
+     "auc_folded": 0.6662615459406904,
+     "ci_excludes_0.5": true,
+     "rho": -0.17723064630378935,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.4379801243750762,
+     "lo": 0.3590645821473277,
+     "hi": 0.5193254203233364,
+     "auc_folded": 0.5620198756249237,
+     "ci_excludes_0.5": false,
+     "rho": -0.06343742422203842,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary"
+   ]
+  },
+  "8": {
+   "feature": "recurring_expense_ratio",
+   "id": "8",
+   "basis": "Berka: declared `order` table vs inferred classification (\u00a78.4)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.29873602333495386,
+     "lo": 0.18919300952820092,
+     "hi": 0.43089391547243133,
+     "auc_folded": 0.7012639766650461,
+     "ci_excludes_0.5": true,
+     "rho": -0.21908856282913483,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.2947049140348738,
+     "lo": 0.2281118006340037,
+     "hi": 0.3707604765269536,
+     "auc_folded": 0.7052950859651261,
+     "ci_excludes_0.5": true,
+     "rho": -0.21386512528459178,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "9": {
+   "feature": "expense_growth_rate_90d",
+   "id": "9",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4523391812865497,
+     "lo": 0.29745210030062114,
+     "hi": 0.5979265342500638,
+     "auc_folded": 0.5476608187134503,
+     "ci_excludes_0.5": false,
+     "rho": -0.05055236748157221,
+     "n": 191,
+     "defaults": 20,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.4962959221470182,
+     "lo": 0.4106255615761317,
+     "hi": 0.5800036377708133,
+     "auc_folded": 0.5037040778529818,
+     "ci_excludes_0.5": false,
+     "rho": -0.0038256428075539926,
+     "n": 578,
+     "defaults": 57,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "10": {
+   "feature": "top_expense_category_share",
+   "id": "10",
+   "basis": "Berka: category from k_symbol/operation codes",
+   "label_sets": {
+    "primary": {
+     "auc": 0.6288283908604764,
+     "lo": 0.5267598974602743,
+     "hi": 0.7220745036100441,
+     "auc_folded": 0.6288283908604764,
+     "ci_excludes_0.5": true,
+     "rho": 0.13695977507256102,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.6085538348981832,
+     "lo": 0.5359890778945825,
+     "hi": 0.6761653704090388,
+     "auc_folded": 0.6085538348981832,
+     "ci_excludes_0.5": true,
+     "rho": 0.11074513983172979,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "11": {
+   "feature": "cash_flow_volatility",
+   "id": "11",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.49052017501215367,
+     "lo": 0.35950266239034184,
+     "hi": 0.6272045236982122,
+     "auc_folded": 0.5094798249878463,
+     "ci_excludes_0.5": false,
+     "rho": -0.010078172127980905,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.4842397268625777,
+     "lo": 0.4035559839408357,
+     "hi": 0.5630197479843566,
+     "auc_folded": 0.5157602731374222,
+     "ci_excludes_0.5": false,
+     "rho": -0.016078414585583886,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "12": {
+   "feature": "inflow_outflow_ratio",
+   "id": "12",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.49732620320855614,
+     "lo": 0.35599992335267205,
+     "hi": 0.6265236561239099,
+     "auc_folded": 0.5026737967914439,
+     "ci_excludes_0.5": false,
+     "rho": -0.002842561369430512,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.41299841482746,
+     "lo": 0.33665940129252525,
+     "hi": 0.4962236033793506,
+     "auc_folded": 0.58700158517254,
+     "ci_excludes_0.5": true,
+     "rho": -0.08875782442409365,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ]
+  },
+  "13": {
+   "feature": "days_negative_balance_90d",
+   "id": "13",
+   "basis": "Berka: 6.4% of accounts ever negative (Probe 1 PASS)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.5681818181818181,
+     "lo": 0.5,
+     "hi": 0.6562911184210526,
+     "auc_folded": 0.5681818181818181,
+     "ci_excludes_0.5": false,
+     "rho": 0.35182203056911554,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.6271186440677966,
+     "lo": 0.574468085106383,
+     "hi": 0.6846296296296296,
+     "auc_folded": 0.6271186440677966,
+     "ci_excludes_0.5": true,
+     "rho": 0.48533079798740186,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ]
+  },
+  "14": {
+   "feature": "overdraft_events_90d",
+   "id": "14",
+   "basis": "Berka: Probe 1 PASS",
+   "label_sets": {
+    "primary": {
+     "auc": 0.5681818181818181,
+     "lo": 0.5,
+     "hi": 0.6522157190635451,
+     "auc_folded": 0.5681818181818181,
+     "ci_excludes_0.5": false,
+     "rho": 0.3518247543139185,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.6271186440677966,
+     "lo": 0.5713972431077694,
+     "hi": 0.6827024647887324,
+     "auc_folded": 0.6271186440677966,
+     "ci_excludes_0.5": true,
+     "rho": 0.48534394848090223,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ]
+  },
+  "15": {
+   "feature": "volatility_index",
+   "id": "15",
+   "basis": "Berka: composite of 11\u201314; formula PROPOSED (DECISIONS.md entry 8)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.6020904229460379,
+     "lo": 0.4635636976616358,
+     "hi": 0.7351749135408353,
+     "auc_folded": 0.6020904229460379,
+     "ci_excludes_0.5": false,
+     "rho": 0.1085341613782559,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.6502865504206804,
+     "lo": 0.5608689056684024,
+     "hi": 0.7328098593084093,
+     "auc_folded": 0.6502865504206804,
+     "ci_excludes_0.5": true,
+     "rho": 0.1533202783499585,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ]
+  },
+  "16": {
+   "feature": "avg_daily_balance",
+   "id": "16",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date (absolute CZK)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.2912007778317939,
+     "lo": 0.16756585612968594,
+     "hi": 0.42610743548452434,
+     "auc_folded": 0.7087992221682061,
+     "ci_excludes_0.5": true,
+     "rho": -0.22197820148552816,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.2590232898427021,
+     "lo": 0.18383419666597117,
+     "hi": 0.33218490213735674,
+     "auc_folded": 0.7409767101572979,
+     "ci_excludes_0.5": true,
+     "rho": -0.24584113597493348,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "17": {
+   "feature": "min_daily_balance_90d",
+   "id": "17",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date (absolute CZK)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.157997083130773,
+     "lo": 0.06410207700101316,
+     "hi": 0.2645255051202826,
+     "auc_folded": 0.842002916869227,
+     "ci_excludes_0.5": true,
+     "rho": -0.3635895600995236,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.15440190220704791,
+     "lo": 0.09720490053333192,
+     "hi": 0.2250574912422721,
+     "auc_folded": 0.845598097792952,
+     "ci_excludes_0.5": true,
+     "rho": -0.3525744504035027,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "18": {
+   "feature": "current_runway_days",
+   "id": "18",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4674329501915709,
+     "lo": 0.31300010446652426,
+     "hi": 0.6168767991456959,
+     "auc_folded": 0.5325670498084292,
+     "ci_excludes_0.5": false,
+     "rho": -0.036821904973832455,
+     "n": 99,
+     "defaults": 12,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.38659003831417627,
+     "lo": 0.2783702151715529,
+     "hi": 0.5014665036849623,
+     "auc_folded": 0.6134099616858237,
+     "ci_excludes_0.5": false,
+     "rho": -0.11946268817260224,
+     "n": 291,
+     "defaults": 30,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "18b": {
+   "feature": "runway_days_avg_balance",
+   "id": "18b",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.44731800766283525,
+     "lo": 0.29884831460674155,
+     "hi": 0.6043402620107167,
+     "auc_folded": 0.5526819923371648,
+     "ci_excludes_0.5": false,
+     "rho": -0.05956484628119955,
+     "n": 99,
+     "defaults": 12,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.3951468710089399,
+     "lo": 0.29507040423548664,
+     "hi": 0.51114226869455,
+     "auc_folded": 0.6048531289910601,
+     "ci_excludes_0.5": false,
+     "rho": -0.11044917453795768,
+     "n": 291,
+     "defaults": 30,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "19": {
+   "feature": "liquidity_trend_slope",
+   "id": "19",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date (currency/day; never in the comparison set)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4973262032085562,
+     "lo": 0.36091828254847647,
+     "hi": 0.6327961852528466,
+     "auc_folded": 0.5026737967914439,
+     "ci_excludes_0.5": false,
+     "rho": -0.002842561369430512,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.4876844287282039,
+     "lo": 0.4133595574993547,
+     "hi": 0.569114210428164,
+     "auc_folded": 0.5123155712717962,
+     "ci_excludes_0.5": false,
+     "rho": -0.012564176968231896,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "20": {
+   "feature": "unique_counterparties_count",
+   "id": "20",
+   "basis": "Berka: Probe 2 PASS; coverage share reported",
+   "label_sets": {
+    "primary": {
+     "auc": 0.466,
+     "lo": 0.30290894229313353,
+     "hi": 0.6351901449146514,
+     "auc_folded": 0.534,
+     "ci_excludes_0.5": false,
+     "rho": -0.030047148112005956,
+     "n": 160,
+     "defaults": 10,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.5242410714285715,
+     "lo": 0.4194508527412342,
+     "hi": 0.6413041077397837,
+     "auc_folded": 0.5242410714285715,
+     "ci_excludes_0.5": false,
+     "rho": 0.019857807960312578,
+     "n": 473,
+     "defaults": 25,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "21": {
+   "feature": "counterparty_concentration_index",
+   "id": "21",
+   "basis": "Berka: Probe 2 PASS; coverage share reported",
+   "label_sets": {
+    "primary": {
+     "auc": 0.54,
+     "lo": 0.38965999044991506,
+     "hi": 0.6998435628046765,
+     "auc_folded": 0.54,
+     "ci_excludes_0.5": false,
+     "rho": 0.03490813080444856,
+     "n": 160,
+     "defaults": 10,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.4694642857142858,
+     "lo": 0.35268240625509284,
+     "hi": 0.5934435332556935,
+     "auc_folded": 0.5305357142857142,
+     "ci_excludes_0.5": false,
+     "rho": -0.024631140208751415,
+     "n": 473,
+     "defaults": 25,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "22": {
+   "feature": "new_counterparty_ratio_30d",
+   "id": "22",
+   "basis": "Berka: Probe 2 PASS; coverage share reported",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4697986577181208,
+     "lo": 0.4506578947368421,
+     "hi": 0.4867549668874172,
+     "auc_folded": 0.5302013422818792,
+     "ci_excludes_0.5": true,
+     "rho": -0.060368788314272344,
+     "n": 158,
+     "defaults": 9,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.47197309417040356,
+     "lo": 0.4607579131822405,
+     "hi": 0.4829166882377304,
+     "auc_folded": 0.5280269058295964,
+     "ci_excludes_0.5": true,
+     "rho": -0.054957381979118335,
+     "n": 470,
+     "defaults": 24,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "26": {
+   "feature": "governance_transparency_score",
+   "id": "26",
+   "basis": "reuses features 3 and 11 (both A); weighting formula not yet signed off \u2014 not_implemented",
+   "label_sets": {
+    "primary": {
+     "status": "not_evaluable",
+     "n": 0,
+     "reason": "< 20 rows"
+    },
+    "secondary": {
+     "status": "not_evaluable",
+     "n": 0,
+     "reason": "< 20 rows"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "32": {
+   "feature": "coverage_days_90d",
+   "id": "32",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.3579241614000972,
+     "lo": 0.24626853400222967,
+     "hi": 0.4703968253968254,
+     "auc_folded": 0.6420758385999028,
+     "ci_excludes_0.5": true,
+     "rho": -0.1516677202034145,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.42029935373734906,
+     "lo": 0.34539469952207597,
+     "hi": 0.5016010802469136,
+     "auc_folded": 0.5797006462626509,
+     "ci_excludes_0.5": false,
+     "rho": -0.08156583595286392,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary"
+   ]
+  },
+  "33": {
+   "feature": "data_gap_ratio",
+   "id": "33",
+   "basis": "Berka: operating-day calendar is Sat/Sun for external_real (Czech), Fri/Sat for synthetic",
+   "label_sets": {
+    "primary": {
+     "auc": 0.6308945065629558,
+     "lo": 0.5098128581801853,
+     "hi": 0.7395625353756898,
+     "auc_folded": 0.6308945065629558,
+     "ci_excludes_0.5": true,
+     "rho": 0.1394586387826014,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.5599774417753932,
+     "lo": 0.48298932447192183,
+     "hi": 0.637044225396914,
+     "auc_folded": 0.5599774417753932,
+     "ci_excludes_0.5": false,
+     "rho": 0.061307352988027815,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary"
+   ]
+  },
+  "41": {
+   "feature": "financing_outflow_ratio",
+   "id": "41",
+   "basis": "Berka: k_symbol=UVER loan payments (code path); MCC path does not exist on real data (\u00a78.4)",
+   "label_sets": {
+    "primary": {
+     "status": "not_evaluable",
+     "n": 133,
+     "reason": "constant"
+    },
+    "secondary": {
+     "status": "not_evaluable",
+     "n": 401,
+     "reason": "constant"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "42": {
+   "feature": "installment_capacity_sar",
+   "id": "42",
+   "basis": "derived from 1, 6, 49 \u2014 all A",
+   "label_sets": {
+    "primary": {
+     "auc": 0.5219980554205154,
+     "lo": 0.3982056946489936,
+     "hi": 0.6505064658123169,
+     "auc_folded": 0.5219980554205154,
+     "ci_excludes_0.5": false,
+     "rho": 0.025188725305517058,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.44076941836361416,
+     "lo": 0.37116477070584425,
+     "hi": 0.5184902034153442,
+     "auc_folded": 0.5592305816363858,
+     "ci_excludes_0.5": false,
+     "rho": -0.0648518461320919,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "43": {
+   "feature": "inflow_break_recency_days",
+   "id": "43",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4203373945641987,
+     "lo": 0.2051315789473684,
+     "hi": 0.6428853032506583,
+     "auc_folded": 0.5796626054358013,
+     "ci_excludes_0.5": false,
+     "rho": -0.08349129267028473,
+     "n": 108,
+     "defaults": 11,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.45762626262626266,
+     "lo": 0.3554716422798175,
+     "hi": 0.5651633451688302,
+     "auc_folded": 0.5423737373737374,
+     "ci_excludes_0.5": false,
+     "rho": -0.04386524086072329,
+     "n": 333,
+     "defaults": 33,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "44": {
+   "feature": "net_flow_autocorr_lag7",
+   "id": "44",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.45333009236752553,
+     "lo": 0.34013053700881546,
+     "hi": 0.577139948475027,
+     "auc_folded": 0.5466699076324745,
+     "ci_excludes_0.5": false,
+     "rho": -0.049615616630059846,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.44622606999146447,
+     "lo": 0.3688457602981335,
+     "hi": 0.5229537452850179,
+     "auc_folded": 0.5537739300085356,
+     "ci_excludes_0.5": false,
+     "rho": -0.054859426168220454,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "45": {
+   "feature": "counterparty_persistence_ratio",
+   "id": "45",
+   "basis": "Berka: Probe 2 PASS; coverage share reported",
+   "label_sets": {
+    "primary": {
+     "status": "not_evaluable",
+     "n": 61,
+     "reason": "constant"
+    },
+    "secondary": {
+     "status": "not_evaluable",
+     "n": 180,
+     "reason": "constant"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "46": {
+   "feature": "circular_counterparty_count",
+   "id": "46",
+   "basis": "Berka: Probe 2 PASS; coverage share reported",
+   "label_sets": {
+    "primary": {
+     "status": "not_evaluable",
+     "n": 160,
+     "reason": "constant"
+    },
+    "secondary": {
+     "status": "not_evaluable",
+     "n": 473,
+     "reason": "constant"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "47": {
+   "feature": "downside_semideviation_90d",
+   "id": "47",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.5153135634419057,
+     "lo": 0.3887847537180555,
+     "hi": 0.6441759715823887,
+     "auc_folded": 0.5153135634419057,
+     "ci_excludes_0.5": false,
+     "rho": 0.016280124206738387,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.5257895378612364,
+     "lo": 0.44915570425005436,
+     "hi": 0.6035925227826063,
+     "auc_folded": 0.5257895378612364,
+     "ci_excludes_0.5": false,
+     "rho": 0.026310132958228177,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "48": {
+   "feature": "upside_semideviation_90d",
+   "id": "48",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4664560038891589,
+     "lo": 0.33904911842161606,
+     "hi": 0.6026066553399924,
+     "auc_folded": 0.533543996110841,
+     "ci_excludes_0.5": false,
+     "rho": -0.03566122445285551,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.4588769662236313,
+     "lo": 0.37797858911657284,
+     "hi": 0.5411604170410578,
+     "auc_folded": 0.5411230337763687,
+     "ci_excludes_0.5": false,
+     "rho": -0.04195315527263571,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "49": {
+   "feature": "flow_asymmetry_ratio",
+   "id": "49",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.624453087019932,
+     "lo": 0.47340712854364353,
+     "hi": 0.7584722089555407,
+     "auc_folded": 0.624453087019932,
+     "ci_excludes_0.5": false,
+     "rho": 0.1323083110134929,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.6462626508962321,
+     "lo": 0.5670263355612624,
+     "hi": 0.7267318180832525,
+     "auc_folded": 0.6462626508962321,
+     "ci_excludes_0.5": true,
+     "rho": 0.14921515122172432,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ]
+  },
+  "50": {
+   "feature": "revenue_shock_absorption_pct",
+   "id": "50",
+   "basis": "Berka: fixed costs = declared standing-order outflow, variable = the rest",
+   "label_sets": {
+    "primary": {
+     "auc": 0.4443364122508508,
+     "lo": 0.3541270124812304,
+     "hi": 0.5287960183207894,
+     "auc_folded": 0.5556635877491491,
+     "ci_excludes_0.5": false,
+     "rho": -0.115947054017869,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.3837794171442507,
+     "lo": 0.3191045915669235,
+     "hi": 0.4473654310184288,
+     "auc_folded": 0.6162205828557493,
+     "ci_excludes_0.5": true,
+     "rho": -0.21109182488936074,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ]
+  },
+  "51": {
+   "feature": "fixed_obligation_coverage_months",
+   "id": "51",
+   "basis": "Berka: computed on real accounts, point-in-time before loan.date",
+   "label_sets": {
+    "primary": {
+     "auc": 0.23622047244094488,
+     "lo": 0.007564341085271342,
+     "hi": 0.5496308429003627,
+     "auc_folded": 0.7637795275590551,
+     "ci_excludes_0.5": false,
+     "rho": -0.18965741634914987,
+     "n": 133,
+     "defaults": 6,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.21852813852813854,
+     "lo": 0.08348104133580972,
+     "hi": 0.3609311110982694,
+     "auc_folded": 0.7814718614718614,
+     "ci_excludes_0.5": true,
+     "rho": -0.18524398219110141,
+     "n": 400,
+     "defaults": 15,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ]
+  },
+  "52": {
+   "feature": "liquidity_hazard_30d",
+   "id": "52",
+   "basis": "Berka: block-bootstrap hazard over real net flows (naive trailing-mean model)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.6696645600388916,
+     "lo": 0.5388783045340423,
+     "hi": 0.7907927475284807,
+     "auc_folded": 0.6696645600388916,
+     "ci_excludes_0.5": true,
+     "rho": 0.180605708479963,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.7592976466284599,
+     "lo": 0.6908806398276679,
+     "hi": 0.8219820637166368,
+     "auc_folded": 0.7592976466284599,
+     "ci_excludes_0.5": true,
+     "rho": 0.26525385818935704,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "53": {
+   "feature": "liquidity_hazard_60d",
+   "id": "53",
+   "basis": "same as 52",
+   "label_sets": {
+    "primary": {
+     "auc": 0.6542294603791929,
+     "lo": 0.5188067553819488,
+     "hi": 0.7862959066900174,
+     "auc_folded": 0.6542294603791929,
+     "ci_excludes_0.5": true,
+     "rho": 0.16397062815434152,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.7442994756736984,
+     "lo": 0.6766637852454225,
+     "hi": 0.8108614940387481,
+     "auc_folded": 0.7442994756736984,
+     "ci_excludes_0.5": true,
+     "rho": 0.2492722717351357,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "54": {
+   "feature": "liquidity_hazard_90d",
+   "id": "54",
+   "basis": "same as 52",
+   "label_sets": {
+    "primary": {
+     "auc": 0.6448711716091395,
+     "lo": 0.5059472625855898,
+     "hi": 0.7707772951522951,
+     "auc_folded": 0.6448711716091395,
+     "ci_excludes_0.5": true,
+     "rho": 0.1540181294995569,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.7354133642238752,
+     "lo": 0.6620772774327123,
+     "hi": 0.8075855105951792,
+     "auc_folded": 0.7354133642238752,
+     "ci_excludes_0.5": true,
+     "rho": 0.2401728032932996,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "60": {
+   "feature": "committed_monthly_outflow",
+   "id": "60",
+   "basis": "Berka: `order` table, declared standing orders (frequency measured from executions)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.33276616431696643,
+     "lo": 0.22741980684716642,
+     "hi": 0.4597970291720292,
+     "auc_folded": 0.6672338356830336,
+     "ci_excludes_0.5": true,
+     "rho": -0.18320113474406693,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.33226130959639066,
+     "lo": 0.2637321885381372,
+     "hi": 0.4099700509064193,
+     "auc_folded": 0.6677386904036093,
+     "ci_excludes_0.5": true,
+     "rho": -0.1757837476118433,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "primary",
+    "secondary"
+   ]
+  },
+  "61": {
+   "feature": "obligation_coverage_ratio",
+   "id": "61",
+   "basis": "Berka: `order` table + real inflow",
+   "label_sets": {
+    "primary": {
+     "auc": 0.37878787878787873,
+     "lo": 0.07598172043010754,
+     "hi": 0.728085123966942,
+     "auc_folded": 0.6212121212121213,
+     "ci_excludes_0.5": false,
+     "rho": -0.0890870806374748,
+     "n": 127,
+     "defaults": 6,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.3755095108695652,
+     "lo": 0.20033325608744237,
+     "hi": 0.5549841579332196,
+     "auc_folded": 0.6244904891304348,
+     "ci_excludes_0.5": false,
+     "rho": -0.08617493118250699,
+     "n": 384,
+     "defaults": 16,
+     "status": "ok"
+    }
+   },
+   "subclass": "A1",
+   "qualifying_label_sets": []
+  },
+  "68": {
+   "feature": "max_consecutive_overdraft_days",
+   "id": "68",
+   "basis": "Berka: longest run of consecutive negative-balance days on real accounts (Probe 1 PASS)",
+   "label_sets": {
+    "primary": {
+     "auc": 0.5681818181818181,
+     "lo": 0.5,
+     "hi": 0.6470860566448802,
+     "auc_folded": 0.5681818181818181,
+     "ci_excludes_0.5": false,
+     "rho": 0.35182203056911554,
+     "n": 209,
+     "defaults": 22,
+     "status": "ok"
+    },
+    "secondary": {
+     "auc": 0.6271186440677966,
+     "lo": 0.5749768518518518,
+     "hi": 0.6833333333333333,
+     "auc_folded": 0.6271186440677966,
+     "ci_excludes_0.5": true,
+     "rho": 0.48533079798740186,
+     "n": 615,
+     "defaults": 59,
+     "status": "ok"
+    }
+   },
+   "subclass": "A2",
+   "qualifying_label_sets": [
+    "secondary"
+   ]
+  }
+ }
+}

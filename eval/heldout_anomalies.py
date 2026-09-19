@@ -109,7 +109,26 @@ def inject_held_out(
         dup["hour"] = int(min(23, orig["hour"] + 1))
         add(dup, "duplicate_payment")
 
-    out = pd.concat([tx, pd.DataFrame(new_rows)[tx.columns]], ignore_index=True)
+    # Fill the columns the Phase 5 schema added (subfamily, sub-fields, evidence class, sample weight):
+    # an injected row is a normal booked transaction with no fee and weight 1.0.
+    new = pd.DataFrame(new_rows)
+    from generator import (
+        schemas,
+    )
+
+    defaults = {
+        "subfamily": new["category"].map(schemas.CATEGORY_SUBFAMILY),
+        "own_transfer_flag": False,
+        "value_date": new["date"],
+        "status": "booked",
+        "charge_amount": np.nan,
+        "sample_weight": 1.0,
+        "evidence_class": tx["evidence_class"].iloc[0],
+    }
+    for col, val in defaults.items():
+        if col in tx.columns and col not in new.columns:
+            new[col] = val
+    out = pd.concat([tx, new[tx.columns]], ignore_index=True)
     out = out.sort_values(["business_id", "date", "hour"]).reset_index(drop=True)
     return out, pd.DataFrame(truth, columns=["business_id", "transaction_id", "anomaly_type"])
 

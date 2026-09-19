@@ -1,0 +1,17 @@
+{
+  "file": "pos_by_sector_monthly_2016_2023.csv",
+  "sha256": "4aea3d0ed44ccd50b26f311c640e8ae609f96155e549e7341d8028adda49360c",
+  "bytes": 540125,
+  "access_date": "2026-09-16",
+  "origin_body": "Saudi Central Bank (SAMA)",
+  "publication": "SAMA Monetary and Financial Statistics, Table 30d — Points of Sale Transactions by Sectors",
+  "retrieval": "KAPSARC Data Portal mirror (OpenDataSoft export API)",
+  "retrieval_url": "https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/points-of-sale-transactions-and-sales-by-sector/exports/csv?delimiter=%3B&use_labels=true",
+  "dataset_page": "https://datasource.kapsarc.org/explore/dataset/points-of-sale-transactions-and-sales-by-sector/",
+  "edition": "KAPSARC export as served on the access date; span recorded below after loading",
+  "span": [
+    "2016-01-01",
+    "2023-12-01"
+  ],
+  "rows_tidy": 3264
+}

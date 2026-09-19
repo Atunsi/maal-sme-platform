@@ -1,0 +1,65 @@
+loading tables from D:\Maal\maal-sme-platform-main\data …
+
+== Structural (§14, §23, §29, §37.1) ==
+  PASS  Pandera: all tables validate
+  PASS  research: all IDs inside configured range [1, 10000]
+  PASS  serving: all IDs inside configured range [10001, 11000]
+  PASS  research ∩ serving = ∅  (research n=10000, serving n=1000)
+  PASS  populations use different seeds
+  PASS  transactions: every row tagged data_source=synthetic
+  PASS  transactions: no latent/label columns (found [])
+  PASS  daily_aggregates: every row tagged data_source=synthetic
+  PASS  daily_aggregates: no latent/label columns (found [])
+  PASS  balances_monthly: every row tagged data_source=synthetic
+  PASS  balances_monthly: no latent/label columns (found [])
+  PASS  businesses: every row tagged data_source=synthetic
+  PASS  businesses: no latent/label columns (found [])
+  PASS  daily_aggregates.outflow_total == Σ transactions[out] (outflows are never thinned)
+  PASS  daily_aggregates.inflow_total == Σ transactions[in] exactly on the 4997 businesses with no thinned rows
+  PASS  Σ amount×sample_weight [in] / Σ inflow_total = 1.0003 on the 6003 thinned (POS-sector) businesses — within ±2% (unbiased thinning)
+  PASS  per-business weighted inflow within ±20% of inflow_total for 99.9% of thinned businesses (> 95%)
+
+== Criterion 1: sector-consistent balance sheets (§24, §30) ==
+  9792 scorable businesses; 1208 excluded as insufficient_data (§15, coverage < 60)
+  construction  implied_dso_days: min 66.0  median 95.5  max 115.7  (n=2099)
+  professional  implied_dio_days: min 0.00  median 1.11  max 3.58  (n=2405)
+  PASS  ALL construction implied_dso_days ∈ [60, 120]
+  PASS  ALL professional_services implied_dio_days < 5
+  PASS  construction DSO > retail DSO (medians)
+  PASS  retail DIO > construction DIO (medians)
+
+== Criterion 2: labels are not a function of observables (§14) ==
+  ground-truth default rate by sector (research):
+    construction           6.158%  (n=1900, defaults=117)
+    food_beverage          4.272%  (n=1779, defaults=76)
+    professional_services  1.782%  (n=2188, defaults=39)
+    retail_trade           4.241%  (n=3042, defaults=129)
+  PASS  construction default rate ≥ 1.5 × professional_services (ratio = 3.45)
+  PASS  in-sample logistic AUC on observables strictly in (0.55, 0.95): 0.639
+  cell ('retail_trade', 'micro'): n=2562, defaults=108, typical NN distance=0.443
+  closest cross-label pair: ID 4141 (label 0) vs ID 8664 (label 1), distance=0.180
+    avg_monthly_inflow             59390.94  vs      60292.16
+    cash_flow_volatility            2761.08  vs       2782.76
+    days_negative_balance_90d          0.00  vs          0.00
+    balance_months_of_outflow          1.98  vs          2.01
+    implied_dso_days                  21.05  vs         21.76
+    implied_dio_days                  46.94  vs         48.25
+  PASS  closest cross-label pair is at least as close as a typical nearest neighbour
+
+== Criterion 3: POS/inflow tracks Ramadan/Eid (§22) ==
+  PASS  ID 10001: window overlaps Ramadan
+  ID 10001 (retail_trade): Ramadan/base = 1.52, Eid/base = 1.57  (one business — plotted, not gated)
+  PASS  ID 10002: window contains no Ramadan days
+  INFO  construction value: recovered/configured  pre_ramadan_10d 0.99/1.00  ramadan 0.82/0.80  eid 0.26/0.25  post_eid_7d 0.90/0.90  (class C, reported only)
+  INFO  construction count: recovered/configured  pre_ramadan_10d 0.99/1.00  ramadan 1.01/1.00  eid 1.01/1.00  post_eid_7d 1.01/1.00  (class C, reported only)
+  PASS  food_beverage value: recovered/configured  pre_ramadan_10d 1.00/1.00  ramadan 0.82/0.82  eid 1.70/1.66  post_eid_7d 0.99/0.96  — ramadan & eid within ±0.08 (class B, n=1348)
+  PASS  food_beverage count: recovered/configured  pre_ramadan_10d 1.00/1.00  ramadan 0.70/0.70  eid 1.00/0.97  post_eid_7d 0.95/0.92  — ramadan & eid within ±0.08 (class B, n=1348)
+  INFO  professional_services value: recovered/configured  pre_ramadan_10d 1.02/1.00  ramadan 0.90/0.90  eid 0.39/0.40  post_eid_7d 0.96/0.95  (class C, reported only)
+  INFO  professional_services count: recovered/configured  pre_ramadan_10d 1.02/1.00  ramadan 1.01/1.00  eid 0.99/1.00  post_eid_7d 1.02/1.00  (class C, reported only)
+  PASS  retail_trade value: recovered/configured  pre_ramadan_10d 1.28/1.28  ramadan 1.32/1.34  eid 0.91/0.94  post_eid_7d 0.83/0.84  — ramadan & eid within ±0.08 (class B, n=2502)
+  PASS  retail_trade count: recovered/configured  pre_ramadan_10d 1.09/1.09  ramadan 1.11/1.12  eid 0.92/0.95  post_eid_7d 0.85/0.86  — ramadan & eid within ±0.08 (class B, n=2502)
+  PASS  food_beverage: Ramadan VALUE direction down matches the measured direction (down)
+  PASS  retail_trade: Ramadan VALUE direction up matches the measured direction (up)
+  plot → data\ramadan_pos_check.png
+
+GATE PASSED
