@@ -76,6 +76,10 @@ python -m eval.gate_week3           # Week 3 gate: exit 0 = PASS, 1 = FAIL
 python -m eval.validate_emergent    # §21 macro validation (always exit 0 — findings are results)
 python -m eval.heldout_anomalies    # self-test the §12 held-out anomaly injector
 
+python -m eval.sweep_rho            # §14 AUC vs rho  (~8 min: 4 full regenerations)
+python -m eval.signal_decomposition # §14 where signal is lost; p_default spread
+python -m eval.model_baseline       # what the feature set supports at this N
+
 python -m ruff check .              # §37.3
 ```
 
@@ -117,6 +121,24 @@ N=1,000 serving).
 | 2. Labels not a function of observables (§14) | ground-truth default rate construction 6.1% vs professional 1.8% (3.4×); in-sample AUC on observables 0.64; closest cross-label pair (0.15) closer than a typical neighbour (0.44) |
 | 3. POS/inflow tracks Ramadan/Eid (§22) | demo business 10001: Ramadan 1.29× baseline, Eid 3.68× |
 
+**§14 sensitivity reporting: done (2026-09-19).** AUC as a function of
+`latent_to_observable_correlation`, entity-level 5-fold OOF on the research
+population (N=8,904 scorable, 360 defaults):
+
+| ρ | 0.6 | 0.7 | 0.8 | 0.9 |
+|---|---|---|---|---|
+| logistic OOF AUC | 0.6323 | 0.6340 | 0.6477 | 0.6564 |
+
+Labels are identical at every ρ, so the sweep isolates observable cleanliness
+against fixed ground truth. **AUC ≥ 0.85 (§14's circularity threshold) is not
+reached at any ρ and cannot be** — the oracle ceiling, the AUC of the hidden
+latent itself, is 0.6902. That ceiling is analytic: AUC ≈ Φ(sd(logit)/√2) =
+0.6892 predicted vs 0.6902 measured, an expression in which ρ does not appear.
+An out-of-sample AUC at or above 0.85 on this data would be evidence of
+leakage, not skill — treat it as a tripwire. Detail in
+[`DECISIONS.md`](DECISIONS.md) entry 7; the open calibration decision it raises
+is entry 8, which must be settled **before the credit lens starts training**.
+
 **§21 emergent macro validation: 4 findings, 0 retuned.** The generator's
 sector revenue mix does not match GASTAT 2022 — medium-tier revenue share is
 43.9% generated vs 34.3% published on the same four sectors, and the sector mix
@@ -145,9 +167,17 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
    table makes three committed features uncomputable.
 4. **GASTAT calibration** (entry 6) — blocked on pulling the establishment-count
    table.
+5. **Latent spread vs published discrimination** (entry 8) — the achievable
+   ceiling is AUC 0.690 while published SME models report 0.70–0.80, so the
+   credit lens will look weak while operating at ~92% of what is achievable.
+   Keep the spread and report the ratio, or widen it against a cited external
+   benchmark. **Must be decided before the credit lens starts training** —
+   deciding after makes it retuning rather than calibration.
 
 ## Known gaps
 
+- **The §14 label-noise axis has not been run.** `eval/sweep_rho.py --param
+  noise` implements it; §14 asks for AUC vs label noise alongside AUC vs ρ.
 - **No unit tests.** The gate and validation harnesses are integration-level
   only. Week 11's full-system integration test (SOP §19) has nothing beneath it.
 - **Seasonality multipliers are placeholders** until β_Ramadan / β_Eid are

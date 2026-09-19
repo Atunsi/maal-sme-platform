@@ -446,6 +446,19 @@ def generate_business(cfg: dict, biz: dict, stats: dict) -> dict:
             "latent_market_shock_sensitivity": shock,
             "latent_risk_index": r,
             "p_default": p_default,
+            # The nine ρ-noised observable ranks, recorded for the §14 signal
+            # decomposition (eval/signal_decomposition.py) so the loss between
+            # the latent and the measured features can be attributed. Recording
+            # only — no extra RNG draw, so the generated data is unchanged.
+            # The `latent_` prefix keeps them inside schemas.assert_no_latent_leak.
+            **dict(
+                zip(
+                    ("latent_u_vol", "latent_u_buf", "latent_u_cost", "latent_u_dso", "latent_u_dio",
+                     "latent_u_dpo", "latent_u_trend", "latent_u_conc", "latent_u_stl"),
+                    (u_vol, u_buf, u_cost, u_dso, u_dio, u_dpo, u_trend, u_conc, u_stl),
+                    strict=True,
+                )
+            ),
         },
         "anomalies": anomalies,
     }

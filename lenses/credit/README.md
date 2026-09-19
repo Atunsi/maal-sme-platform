@@ -34,6 +34,37 @@ profile engine's feature vector.
 - `adjusted_markup_pct` stays null unless the ESG module is built; `recourse`
   and `stress` likewise (§11 fail-soft pattern).
 
+## Two numbers measured for you already (2026-09-19)
+
+Run `python -m eval.model_baseline` and `python -m eval.sweep_rho` to reproduce.
+Both are recorded in [`../../DECISIONS.md`](../../DECISIONS.md) entries 7 and 8.
+
+**1. The achievable ceiling is AUC 0.690, and you will be at ~92% of it.**
+Default labels come from hidden latents plus idiosyncratic noise (§14), so no
+feature set can exceed the AUC of the latent itself. Measured: oracle 0.6902,
+best measured model 0.6336 = 91.8% of ceiling. Published SME credit models
+report 0.70-0.80, so a bare 0.63 will read as underperformance against
+benchmarks when it is near-optimal here. **Report the ceiling alongside every
+AUC** so the claim is a ratio, not a raw number. Whether to widen the latent
+spread instead is an open decision with a **hard deadline of before you start
+training** (entry 8) — deciding after you see your AUC makes it retuning.
+
+**2. XGBoost is not a given at this sample size.** Measured, entity-level
+5-fold OOF, 8,904 businesses / 360 defaults / 27 features:
+
+| model | OOF AUC | % of ceiling |
+|---|---|---|
+| logistic regression, L2 C=0.1 | **0.6336** | 91.8% |
+| XGBoost, early-stopped (best of grid) | 0.6221 | 90.1% |
+| XGBoost, untuned 400 trees | 0.5758 | 83.4% (in-sample 0.9645) |
+
+Regularised logistic **beats** tuned gradient boosting here, and untuned
+XGBoost loses badly — it memorises at a 4% event rate. Report the logistic
+baseline as the number XGBoost has to beat. If XGBoost does not beat it, that
+is a result about what the feature set supports, not a tuning failure. This was
+measured on the 27-feature proxy; the full 59-feature engine may reorder them —
+re-measure rather than assuming either way.
+
 ## Required, not optional
 
 - **Expanding-window CV *and* an entity-level split** (§13) — no business may
