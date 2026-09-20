@@ -34,36 +34,42 @@ profile engine's feature vector.
 - `adjusted_markup_pct` stays null unless the ESG module is built; `recourse`
   and `stress` likewise (§11 fail-soft pattern).
 
-## Two numbers measured for you already (2026-09-19)
+## Two numbers measured for you already (2026-09-20, post-calibration)
 
-Run `python -m eval.model_baseline` and `python -m eval.sweep_rho` to reproduce.
-Both are recorded in [`../../DECISIONS.md`](../../DECISIONS.md) entries 7 and 8.
+Reproduce with `python -m eval.latent_ceiling` (seconds) and
+`python -m eval.run_section14` (~10 min). Recorded in
+[`../../DECISIONS.md`](../../DECISIONS.md) entries 21 and 22.
 
-**1. The achievable ceiling is AUC 0.690, and you will be at ~92% of it.**
+**1. The achievable ceiling is AUC 0.665, and you will be at ~90% of it.**
 Default labels come from hidden latents plus idiosyncratic noise (§14), so no
-feature set can exceed the AUC of the latent itself. Measured: oracle 0.6902,
-best measured model 0.6336 = 91.8% of ceiling. Published SME credit models
-report 0.70-0.80, so a bare 0.63 will read as underperformance against
+feature set can exceed the AUC of the latent itself. Measured: oracle 0.6660,
+best measured model 0.5959 = 89.5% of ceiling. Published SME credit models
+report 0.70–0.80, so a bare 0.60 will read as underperformance against
 benchmarks when it is near-optimal here. **Report the ceiling alongside every
 AUC** so the claim is a ratio, not a raw number. Whether to widen the latent
 spread instead is an open decision with a **hard deadline of before you start
-training** (entry 8) — deciding after you see your AUC makes it retuning.
+training** (entry 22) — deciding after you see your AUC makes it retuning.
 
-**2. XGBoost is not a given at this sample size.** Measured, entity-level
-5-fold OOF, 8,904 businesses / 360 defaults / 27 features:
+**2. XGBoost is not a given at this sample size.** Entity-level 5-fold OOF,
+9,495 businesses / 449 defaults / 82 features (71 engine + 11 dummies):
 
 | model | OOF AUC | % of ceiling |
 |---|---|---|
-| logistic regression, L2 C=0.1 | **0.6336** | 91.8% |
-| XGBoost, early-stopped (best of grid) | 0.6221 | 90.1% |
-| XGBoost, untuned 400 trees | 0.5758 | 83.4% (in-sample 0.9645) |
+| logistic regression, L2 C=1.0 | **0.5959** | 89.5% |
+| XGBoost, early-stopped (best of grid) | 0.5865 | 88.1% |
+| XGBoost, untuned 400 trees | 0.5568 | 83.6% (in-sample 0.9918) |
 
-Regularised logistic **beats** tuned gradient boosting here, and untuned
-XGBoost loses badly — it memorises at a 4% event rate. Report the logistic
-baseline as the number XGBoost has to beat. If XGBoost does not beat it, that
-is a result about what the feature set supports, not a tuning failure. This was
-measured on the 27-feature proxy; the full 59-feature engine may reorder them —
-re-measure rather than assuming either way.
+Regularised logistic **beats** tuned gradient boosting, and untuned XGBoost
+memorises almost completely (in-sample 0.99 vs 0.56 out-of-fold). Report the
+logistic baseline as the number XGBoost has to beat; if it does not, that is a
+result about what the feature set supports at this event rate, not a tuning
+failure. Re-measure if you add features beyond the engine's current 71.
+
+**3. Raising ρ will not help you.** AUC is flat across ρ ∈ {0.6, 0.7, 0.8, 0.9}
+(spread 0.0100 = 0.69 SE, non-monotone). Up to 93% of the oracle-to-measured
+gap is the economics pipeline, not the latent-to-observable correlation. At
+ρ = 0.9 a single clean latent rank (0.6467) outperforms the whole 82-column
+model (0.6050) — the feature pipeline is the binding constraint.
 
 ## Required, not optional
 

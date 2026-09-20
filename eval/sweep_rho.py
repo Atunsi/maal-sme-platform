@@ -14,8 +14,11 @@ Protocol
   alters arithmetic only, never the number of draws. The label vector is
   therefore identical at every rho; the sweep isolates observable cleanliness
   against fixed ground truth. Asserted at runtime, not assumed.
-* Features are the shared `profile_features()` definition (so the sweep and
-  the Week 3 gate cannot drift) plus a few cheap extras and sector/size/age.
+* Features come from the **real profile engine** (`profile_engine.features.
+  compute_profiles`, 71 features per §8), run in-memory on the generated
+  tables — the same code path `python -m profile_engine.compute` uses. §35
+  z-features score against the pinned reference stats, never recomputed per ρ.
+  Businesses the engine puts in `insufficient_data` (§15) are dropped.
 * **Entity-level CV** (§13): each business contributes exactly one row, so
   5-fold folds are entity-disjoint by construction. Out-of-fold predictions
   are pooled into a single AUC.
@@ -54,8 +57,9 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 
-from eval.gate_week3 import EPS_SAR, MIN_COVERAGE, profile_features
 from generator.generate import generate, load_config
+from profile_engine import features as fe
+from profile_engine.registry import FEATURE_NAMES
 
 CIRCULARITY_FLAG = 0.85  # §14: "The resulting AUC >= 0.85 would be circular"
 
@@ -68,13 +72,38 @@ HONEST_COLUMNS = ["XGB OOF", "logit OOF", "XGB->serving"]  # out-of-sample only
 
 CATEGORICALS = ["sector", "size_tier", "age_tier"]
 
-NUMERIC = [
-    "avg_monthly_inflow", "avg_monthly_outflow", "inflow_outflow_ratio",
-    "cash_flow_volatility", "daily_inflow_cv", "avg_daily_balance",
-    "min_daily_balance_90d", "balance_months_of_outflow", "days_negative_balance_90d",
-    "net_flow_mean", "recurring_share_90d", "coverage_days_90d",
-    "implied_dso_days", "implied_dio_days", "implied_dpo_days", "cash_conversion_cycle_days",
-]
+def numeric_features(df: pd.DataFrame) -> list[str]:
+    """Every registry feature present and numeric. Non-numeric ones (e.g. the
+    sharia enum, dates) are excluded rather than silently encoded.
+
+    NOTE `FEATURE_NAMES` is {feature_id: name}, so iterate .values() — iterating
+    the dict yields the integer ids, which match no column and silently leave
+    the model with nothing but the categorical dummies.
+    """
+    cols = [c for c in FEATURE_NAMES.values() if c in df.columns and pd.api.types.is_numeric_dtype(df[c])]
+    cols += [c for c in FEATURE_NAMES.values() if c in df.columns and c not in cols and _is_bool_like(df[c])]
+    if len(cols) < 20:  # fail loudly rather than quietly measuring almost nothing
+        raise RuntimeError(
+            f"only {len(cols)} numeric engine features found in the profile frame "
+            f"({len(FEATURE_NAMES)} in the registry). Refusing to report an AUC on that."
+        )
+    return cols
+
+
+def _is_bool_like(s: pd.Series) -> bool:
+    """Nullable booleans (e.g. feature 36 `ramadan_adjusted`) arrive as object dtype
+    because of the None. They are real features — coerce them, don't drop them."""
+    u = set(pd.unique(s.dropna()))
+    return bool(u) and u <= {True, False}
+
+
+def feature_block(df: pd.DataFrame) -> pd.DataFrame:
+    """Registry features as floats, bool-likes coerced, nulls preserved as NaN."""
+    block = df[numeric_features(df)].copy()
+    for c in block.columns:
+        if not pd.api.types.is_numeric_dtype(block[c]):
+            block[c] = block[c].map({True: 1.0, False: 0.0}).astype(float)
+    return block.astype(float)
 
 
 def set_param(cfg: dict, param: str, value: float) -> None:
@@ -82,39 +111,40 @@ def set_param(cfg: dict, param: str, value: float) -> None:
     (cfg[parent] if parent else cfg)[key] = float(value)
 
 
-def extra_features(daily: pd.DataFrame, balances: pd.DataFrame) -> pd.DataFrame:
-    """Cheap vectorised trailing-90d features beyond the gate's core set."""
-    last = balances.groupby("business_id")["month_end"].max().rename("me")
-    d = daily.merge(last, on="business_id")
-    w = d[(d["date"] <= d["me"]) & (d["date"] > d["me"] - pd.Timedelta(days=90))]
-    g = w.groupby("business_id")
-    mean_in = g["inflow_total"].mean()
-    return pd.DataFrame(
-        {
-            "daily_inflow_cv": g["inflow_total"].std() / mean_in.clip(lower=1.0),
-            "recurring_share_90d": g["recurring_outflow_total"].sum() / g["outflow_total"].sum().clip(lower=1.0),
-            "min_daily_balance_90d": g["eod_balance"].min(),
-            "net_flow_mean": g["net_flow"].mean(),
-        }
-    ).reset_index()
+def build_frame(tables: dict[str, pd.DataFrame], cfg: dict) -> pd.DataFrame:
+    """Run the real profile engine (§8, 71 features) in-memory over generated tables.
 
+    Uses `profile_engine.features.compute_profiles` — the same code path
+    `python -m profile_engine.compute` runs — so the sweep measures what the
+    lenses will actually read, not a stand-in. §35 z-features are scored
+    against the **pinned** `sector_reference_stats_v1.json`, never recomputed
+    per ρ, which is the §35 rule.
 
-def build_frame(tables: dict[str, pd.DataFrame]) -> pd.DataFrame:
-    f = profile_features(tables["daily_aggregates"], tables["balances_monthly"], tables["businesses"])
-    f = f.merge(extra_features(tables["daily_aggregates"], tables["balances_monthly"]), on="business_id")
-    f = f.merge(tables["labels"][["business_id", "default_label"]], on="business_id")
-    out = np.maximum(f["avg_monthly_outflow"], EPS_SAR)
-    f["implied_dpo_days"] = f["accounts_payable_eom"] / out * 30.0
-    f["cash_conversion_cycle_days"] = f["implied_dso_days"] + f["implied_dio_days"] - f["implied_dpo_days"]
-    f["inflow_outflow_ratio"] = f["avg_monthly_inflow"] / out
-    return f[f["coverage_days_90d"] >= MIN_COVERAGE].reset_index(drop=True)  # §15
+    Businesses in the §15 `insufficient_data` state are dropped: the engine
+    refuses to score them, so they cannot appear in a model's training set.
+    """
+    wins, years = [], set()
+    for e in cfg["ramadan_calendar"]:
+        wins.append((pd.Timestamp(e["ramadan_start"]), pd.Timestamp(e["eid_end"])))
+        years.update({pd.Timestamp(e["ramadan_start"]).year, pd.Timestamp(e["eid_end"]).year})
+    stats, _ = fe.load_reference_stats()
+    pe = cfg.get("profile_engine", {})
+    out = fe.compute_profiles(
+        tables, wins, years, reference_stats=stats,
+        hazard_seed=int(pe.get("hazard_seed", 0)),
+        coverage_min_by_source=pe.get("coverage_min_days_by_source"),
+    )
+    f = out["features"].merge(out["status"][["business_id", "status"]], on="business_id")
+    f = f[f["status"] != "insufficient_data"]  # §15
+    f = f.merge(tables["businesses"][["business_id", "population", "sector", "size_tier", "age_tier"]], on="business_id")
+    return f.merge(tables["labels"][["business_id", "default_label"]], on="business_id").reset_index(drop=True)
 
 
 def design_matrix(df: pd.DataFrame, columns: list[str] | None = None) -> tuple[pd.DataFrame, list[str]]:
     dummies = pd.get_dummies(df[CATEGORICALS], dtype=float)
     # XGBoost rejects feature names containing [, ] or < — age tiers are "<1yr", "7yr+".
     dummies.columns = [re.sub(r"[\[\]<>+]", "_", c) for c in dummies.columns]
-    X = pd.concat([df[NUMERIC], dummies], axis=1)
+    X = pd.concat([feature_block(df), dummies], axis=1)
     if columns is not None:
         X = X.reindex(columns=columns, fill_value=0.0)
     return X, list(X.columns)
@@ -134,17 +164,26 @@ def oof_auc(X: pd.DataFrame, y: np.ndarray, kind: str, folds: int = 5) -> float:
     oof = np.zeros(len(y))
     for tr, te in StratifiedKFold(folds, shuffle=True, random_state=0).split(X, y):
         if kind == "xgb":
-            m = new_xgb().fit(X.iloc[tr], y[tr])
+            m = new_xgb().fit(X.iloc[tr], y[tr])  # XGBoost handles NaN natively
             oof[te] = m.predict_proba(X.iloc[te])[:, 1]
         else:
-            sc = StandardScaler().fit(X.iloc[tr])
-            m = LogisticRegression(max_iter=2000).fit(sc.transform(X.iloc[tr]), y[tr])
-            oof[te] = m.decision_function(sc.transform(X.iloc[te]))
+            # The engine returns null for genuinely unavailable features (§15/§16);
+            # impute from the TRAINING fold only, so no test-fold information leaks.
+            # Median from the TRAINING fold only. Features the engine never populates
+            # (24-26, 34-35 are not_implemented) are all-null, so their median is NaN
+            # too — the 0.0 backstop turns those into a constant column, which carries
+            # no information and no leakage.
+            med = X.iloc[tr].median()
+            tr_X = X.iloc[tr].fillna(med).fillna(0.0)
+            te_X = X.iloc[te].fillna(med).fillna(0.0)
+            sc = StandardScaler().fit(tr_X)
+            m = LogisticRegression(max_iter=5000).fit(sc.transform(tr_X), y[tr])
+            oof[te] = m.decision_function(sc.transform(te_X))
     return roc_auc_score(y, oof)
 
 
-def evaluate(tables: dict[str, pd.DataFrame]) -> dict:
-    f = build_frame(tables)
+def evaluate(f: pd.DataFrame, tables: dict[str, pd.DataFrame]) -> dict:
+    """`f` is a prebuilt profile frame — the engine is expensive, run it once per rho."""
     res = f[f["population"] == "research"].reset_index(drop=True)
     srv = f[f["population"] == "serving"].reset_index(drop=True)
     Xr, cols = design_matrix(res)
@@ -195,7 +234,7 @@ def main(argv: list[str] | None = None) -> int:
         set_param(cfg, args.param, v)
         t0 = time.time()
         tables = generate(cfg, quick=args.quick)
-        r = evaluate(tables)
+        r = evaluate(build_frame(tables, cfg), tables)
         fingerprints[v] = r.pop("label_fingerprint")
         r[label] = v
         r["secs"] = time.time() - t0

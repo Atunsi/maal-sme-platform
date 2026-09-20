@@ -78,6 +78,8 @@ python -m eval.gate_week3           # Week 3 gate: exit 0 = PASS, 1 = FAIL
 python -m eval.validate_emergent    # §21 macro validation (always exit 0 — findings are results)
 python -m eval.heldout_anomalies    # self-test the §12 held-out anomaly injector
 python -m eval.dimensions_check     # Phase 5 structural assertions (obligations terminate, cancellations ↔ distress, …)
+python -m eval.latent_ceiling       # §14 oracle ceiling + p_default spread (seconds, no economics)
+python -m eval.run_section14        # §14 AUC vs rho + signal ladder + model baseline (~10 min)
 
 python -m profile_engine.compute --dir data          # features 1–69 → data/profiles.csv (+ nulls, status, coverage)
 
@@ -335,3 +337,28 @@ Added by the Saudi source calibration (2026-09-16):
   contains no such case by construction.
 - The schema's 60-active-day eligibility rule excludes **every** real Berka
   account; real results use a source-labelled threshold of 10 (entry 9).
+
+### §14 sensitivity reporting (2026-09-20, post-calibration)
+
+AUC as a function of `latent_to_observable_correlation`, entity-level 5-fold
+OOF, research population (N=9,495 scorable, 449 defaults), all 71 engine
+features:
+
+| ρ | 0.6 | 0.7 | 0.8 | 0.9 |
+|---|---|---|---|---|
+| logistic OOF AUC | 0.5959 | 0.6059 | 0.5983 | 0.6050 |
+
+**The curve is flat** — spread 0.0100 against a standard error of 0.0144, and
+non-monotone. ρ is not the binding constraint; up to 93% of the
+oracle-to-measured gap is the economics pipeline.
+
+**AUC ≥ 0.85 (§14's circularity threshold) is not reached and cannot be.** The
+oracle ceiling — the AUC of the hidden latent itself, which no feature set can
+exceed — is **0.6648**, and it is analytic: AUC ≈ Φ(sd(logit)/√2), an
+expression in which ρ does not appear. An out-of-sample AUC at or above 0.85
+on this data would be evidence of leakage, not skill; treat it as a tripwire.
+Labels are identical at every ρ (asserted), so the sweep isolates observable
+cleanliness against fixed ground truth. Detail in
+[`DECISIONS.md`](DECISIONS.md) entry 21; the calibration decision it raises is
+entry 22, which must be settled **before the credit lens starts training**.
+

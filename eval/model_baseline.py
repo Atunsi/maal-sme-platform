@@ -2,8 +2,7 @@
 
 The rho sweep (eval/sweep_rho.py) uses one deliberately untuned XGBoost config
 so the sweep measures the *data*, not a tuning effort. That config overfits
-badly at this event rate (in-sample ~0.96 vs OOF ~0.58) and loses to plain
-logistic regression. This script measures what a properly-regularised model
+badly at this event rate and loses to plain logistic regression. This script measures what a properly-regularised model
 reaches, so the credit lens (Week 5) starts from a number rather than an
 assumption.
 
@@ -19,7 +18,8 @@ Honest-measurement rules followed here:
   grid scored on the same folds is mildly optimistic; showing the spread makes
   that visible instead of hiding it behind one number.
 * **Parity is a result.** If a tuned model only matches logistic regression,
-  that is a finding about what 27 features and ~360 events support — not a
+  that is a finding about what the engine's feature set and this event count
+  support — not a
   failure to be tuned away.
 
 Usage (from the repo root):
@@ -58,9 +58,13 @@ XGB_GRID = [
 def oof_logit(X: pd.DataFrame, y: np.ndarray, C: float = 1.0) -> float:
     oof = np.zeros(len(y))
     for tr, te in StratifiedKFold(FOLDS, shuffle=True, random_state=0).split(X, y):
-        sc = StandardScaler().fit(X.iloc[tr])
-        m = LogisticRegression(max_iter=5000, C=C).fit(sc.transform(X.iloc[tr]), y[tr])
-        oof[te] = m.decision_function(sc.transform(X.iloc[te]))
+        # Engine nulls (§15/§16) imputed from the TRAINING fold only — no leakage.
+        med = X.iloc[tr].median()
+        tr_X = X.iloc[tr].fillna(med).fillna(0.0)   # 0.0 backstop: all-null features
+        te_X = X.iloc[te].fillna(med).fillna(0.0)
+        sc = StandardScaler().fit(tr_X)
+        m = LogisticRegression(max_iter=5000, C=C).fit(sc.transform(tr_X), y[tr])
+        oof[te] = m.decision_function(sc.transform(te_X))
     return roc_auc_score(y, oof)
 
 
@@ -82,19 +86,7 @@ def oof_xgb_tuned(X: pd.DataFrame, y: np.ndarray, params: dict) -> tuple[float, 
     return roc_auc_score(y, oof), float(np.mean(iters))
 
 
-def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--config", default="config.yaml")
-    ap.add_argument("--rho", type=float, default=None)
-    ap.add_argument("--quick", action="store_true")
-    args = ap.parse_args(argv)
-
-    cfg = load_config(args.config)
-    rho = args.rho if args.rho is not None else cfg["latent_to_observable_correlation"]
-    set_param(cfg, "rho", rho)
-    tables = generate(cfg, quick=args.quick)
-
-    f = build_frame(tables)
+def report_baseline(f: pd.DataFrame, tables: dict, rho: float) -> int:
     res = f[f["population"] == "research"].reset_index(drop=True)
     X, _ = design_matrix(res)
     y = res["default_label"].to_numpy()
@@ -145,6 +137,19 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  Grid spread across early-stopped configs: {min(tuned):.4f} - {max(tuned):.4f}")
     print("  (max over a grid scored on the same folds is mildly optimistic — spread shown so that is visible)")
     return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--config", default="config.yaml")
+    ap.add_argument("--rho", type=float, default=None)
+    ap.add_argument("--quick", action="store_true")
+    args = ap.parse_args(argv)
+    cfg = load_config(args.config)
+    rho = args.rho if args.rho is not None else cfg["latent_to_observable_correlation"]
+    set_param(cfg, "rho", rho)
+    tables = generate(cfg, quick=args.quick)
+    return report_baseline(build_frame(tables, cfg), tables, rho)
 
 
 if __name__ == "__main__":

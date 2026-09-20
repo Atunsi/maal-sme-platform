@@ -61,9 +61,8 @@ def rho_effective(rho: float, k: int) -> float:
     return rho / np.sqrt(rho**2 + (1.0 - rho**2) / k)
 
 
-def ladder(tables: dict[str, pd.DataFrame], rho: float) -> pd.DataFrame:
-    """Part A — AUC at each rung, on the scorable research population."""
-    f = build_frame(tables)
+def ladder(f: pd.DataFrame, tables: dict[str, pd.DataFrame], rho: float) -> pd.DataFrame:
+    """Part A — AUC at each rung. `f` is a prebuilt profile frame (the engine is expensive)."""
     res = f[f["population"] == "research"].reset_index(drop=True)
     lat = tables["latents_hidden"].merge(res[["business_id"]], on="business_id")
     y = tables["labels"].set_index("business_id")["default_label"].loc[lat["business_id"]].to_numpy()
@@ -143,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
         print("\n" + "=" * 90)
         print(f"PART A — signal ladder at rho = {rho}")
         print("=" * 90)
-        lad = ladder(tables, rho)
+        lad = ladder(build_frame(tables, cfg), tables, rho)
         prev = None
         for _, r in lad.iterrows():
             drop = "" if prev is None else f"   lost {prev - r['AUC']:+.4f} vs rung above"

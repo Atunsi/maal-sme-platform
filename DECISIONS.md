@@ -96,10 +96,13 @@ If either owner considers this an unacceptable property of the training data
 construction), that is a reason to reopen 1a — it is not a reason to tune the
 generator until 11 looks better.
 
-**The audit does have real signal to find (added 2026-09-19, entry 7).** The
+**The audit does have real signal to find (measured 2026-09-20, entry 21).** The
 variance decomposition confirms the §25 audit is not set up to pass trivially:
-of the market-shock term's contribution to logit variance, **56.8% is
-within-sector** and 43.2% between-sector. So a model that shortcut to the
+of the market-shock term's contribution to logit variance, **73.4% is
+within-sector** and 26.6% between-sector. (A pre-calibration figure of 56.8%
+appeared here briefly; the Monsha'at reweighting cut professional services —
+the most distinct sector — to 2.9% of businesses, which collapsed the
+between-sector share and raised the within-sector one.) So a model that shortcut to the
 sector code would leave the majority of the available risk signal unused, and
 the audit's pass criterion ("top attributions are liquidity / working-capital
 features, not the sector code") is a claim that could genuinely fail. Read
@@ -1325,3 +1328,199 @@ each with its own entry (14–20). `ruff check .` clean at every commit.
 
 **Recorded by:** generator owner, 2026-09-17.
 **Sign-off:** ☐ generator owner (20.1 re-pin as a proposed change) ☐ team (report revision 2)
+
+---
+
+## 21. §14 sensitivity reporting: AUC vs ρ, signal attribution, model baseline — RECORDED (measurements)
+
+**Touches:** nothing in the generator's output. These are the measurements §14
+requires ("AUC should additionally be reported as a function of this
+parameter"). Run 2026-09-20 **after** the Saudi calibration (entries 13–15), so
+they supersede an earlier pre-calibration set that is not recorded here.
+
+**Harnesses:** [`eval/latent_ceiling.py`](eval/latent_ceiling.py) (label-side,
+seconds), [`eval/run_section14.py`](eval/run_section14.py) (measured, one
+generation per ρ), built on `sweep_rho` / `signal_decomposition` /
+`model_baseline`.
+
+**Protocol.** Full research + serving populations regenerated in-process at
+each ρ. Features from the **real profile engine** (`fe.compute_profiles`, all
+71 registry features, §35 z-scores against the pinned reference table) — not a
+proxy. Entity-level 5-fold CV, pooled out-of-fold AUC; one row per business so
+folds are entity-disjoint. §15 `insufficient_data` businesses dropped. §13's
+expanding-window temporal split does **not** apply: this measurement is
+cross-sectional, one snapshot per business. **Labels are identical at every ρ**
+(asserted, not assumed) — the label is drawn before any ρ-dependent draw.
+
+N = 9,495 research scorable, **449 defaults (4.73%)**, 82 design columns
+(71 engine features + 11 sector/size/age dummies).
+
+### 21.1 AUC as a function of ρ — flat
+
+| ρ | logistic OOF | XGB OOF (untuned) | XGB→serving | oracle ceiling |
+|---|---|---|---|---|
+| 0.6 | 0.5959 | 0.5568 | 0.5687 | 0.6660 |
+| 0.7 | 0.6059 | 0.5893 | 0.5479 | 0.6660 |
+| 0.8 | 0.5983 | 0.5750 | 0.5391 | 0.6659 |
+| 0.9 | 0.6050 | 0.5832 | 0.5776 | 0.6659 |
+
+**The curve is flat.** Spread across the whole ρ range is 0.0100, against a
+Hanley–McNeil standard error of **0.0144** at this AUC and event count — 0.69
+SE — and the ordering is **not monotone** (0.7 outranks 0.8). There is no
+detectable ρ effect on measured performance.
+
+This is a *change of conclusion* from the pre-calibration measurement, where
+the same curve rose monotonically 0.6323 → 0.6564 (spread 0.0241, ~1.7 SE). The
+Monsha'at sector reweighting and SAMA ticket calibration moved the binding
+constraint: ρ no longer governs what a model can extract.
+
+### 21.2 Where the loss goes — the pipeline now dominates, and grows with ρ
+
+| ρ | 1. oracle | 2. best of 9 u_obs | 3. single u_obs | 4. measured (logit) | ρ attenuation | economics pipeline |
+|---|---|---|---|---|---|---|
+| 0.6 | 0.6660 | 0.6459 | 0.5923 | 0.5959 | 0.0200 (29%) | 0.0500 (71%) |
+| 0.7 | 0.6660 | 0.6525 | 0.6107 | 0.6059 | 0.0134 (22%) | 0.0466 (78%) |
+| 0.8 | 0.6659 | 0.6575 | 0.6289 | 0.5983 | 0.0084 (13%) | 0.0592 (88%) |
+| 0.9 | 0.6659 | 0.6614 | 0.6467 | 0.6050 | 0.0045 (7%) | 0.0564 (93%) |
+
+Raising ρ removes ρ attenuation almost entirely (0.0200 → 0.0045) but the
+measured AUC does not move, so the pipeline share rises to **93%**. The
+economics pipeline — Poisson arrivals at the SAMA-measured ticket, lognormal
+amounts, balance-sheet noise, 90-day aggregation, feature extraction — is what
+bounds the model, not the configured correlation.
+
+**Correction to a claim made before calibration.** The earlier measurement had
+rung 4 above rung 3 (0.6336 vs 0.6069) and that was reported as direct evidence
+the multi-channel noisy-reflection design works. **Post-calibration it does not
+hold**: rung 4 beats rung 3 only at ρ = 0.6, by +0.0036 (0.25 SE, i.e. not
+distinguishable from zero), and is *below* it at every higher ρ — by 0.0417 at
+ρ = 0.9, where a single clean latent rank outperforms the entire 82-column
+engine model. The claim is withdrawn. What the data now says is the opposite
+and more useful: the feature pipeline destroys more signal than combining nine
+channels recovers.
+
+### 21.3 The ceiling, and why 0.85 cannot appear
+
+Label-side quantities need no economics, so they come from `latent_ceiling.py`,
+whose replication of the generator's latent draws was **verified exact to
+1e-16** against a real run (`--verify`), not assumed.
+
+- **Oracle ceiling = 0.6648** over all 10,000 research businesses; **0.6660**
+  over the 9,495 scorable, which is the number the table above uses. Constant
+  in ρ, as it must be — labels and latents do not move.
+- Analytic form: AUC ≈ Φ(sd(logit)/√2) predicts **0.6766** against 0.6648
+  measured, **0.0118 apart**. ρ does not appear in that expression: it governs
+  how much of the ceiling a model reaches, never the ceiling itself.
+  **Accuracy caveat** — pre-calibration the same approximation agreed to
+  0.0010. It degraded because the new sector mixture (retail 0.45 /
+  construction 0.36 / F&B 0.16 / professional 0.029) is far more lopsided, so
+  the mixture-of-Betas linear predictor is less Gaussian. Report it as a good
+  approximation, **not** an identity.
+- **Peak out-of-sample AUC anywhere in the sweep = 0.6059.** §14's circularity
+  threshold of 0.85 is not reached and cannot be: it sits above the ceiling.
+  An out-of-sample AUC at or above 0.85 on this data would be evidence of
+  leakage, not skill — **use it as a tripwire.**
+
+### 21.4 Does p_default vary enough to support the ceiling? Yes
+
+Research population, N = 10,000, base rate 4.78%:
+
+```
+p01=0.0095  p10=0.0175  p50=0.0412  p90=0.0887  p99=0.1447
+mean=0.0479  sd=0.0295  min=0.0048  max=0.2066
+p90/p10 risk ratio = 5.07x    decile odds ratio = 5.46x
+```
+
+Variance decomposition of the logit: **market shock 63.3%, management quality
+27.1%, label noise 9.6%** — 90.4% from the latents. The intercept contributes
+**exactly zero** to AUC; it sets the base rate and nothing else. The hypothesis
+that the ceiling is an artifact of the intercept is rejected.
+
+Within the shock term: **73.4% within-sector**, 26.6% between-sector (up from
+56.8% before calibration, because the most distinct sector — professional
+services — fell to 2.9% of businesses). Recorded in entry 1b as well: it is
+what keeps the §25 fairness audit from passing trivially.
+
+### 21.5 Model baseline — logistic still beats XGBoost
+
+ρ = 0.6, same protocol, 9,495 businesses / 449 defaults / 82 features:
+
+| model | OOF AUC | % of ceiling | note |
+|---|---|---|---|
+| oracle (latent risk index) | 0.6660 | — | ceiling |
+| **logistic regression, L2 C=1.0** | **0.5959** | **89.5%** | best measured |
+| logistic regression, L2 C=0.1 | 0.5940 | 89.2% | |
+| XGBoost, early-stopped (best of 4-config grid) | 0.5865 | 88.1% | mean best_iter = 31 |
+| XGBoost, untuned (400 trees, as used by the sweep) | 0.5568 | 83.6% | in-sample 0.9918 |
+
+Grid spread across early-stopped configs: 0.5613–0.5865.
+
+Tuning recovers most of the untuned model's deficit, but **regularised logistic
+still wins by 0.0094**. Gradient boosting buys nothing at 449 events across 82
+features. Untuned XGBoost reaches in-sample 0.9918 against 0.5568 out-of-fold —
+near-total memorisation, which is why the sweep's in-sample column is reported
+as an overfitting diagnostic and excluded from the circularity test.
+
+**Consequence for the credit lens (SOP §3 names "XGBoost, SHAP"):** XGBoost is
+not a given. Report the regularised logistic baseline as the number it has to
+beat. Re-measure once the lens adds features beyond the current 71 rather than
+assuming the ordering holds.
+
+**Status:** measurements, recorded. No sign-off — nothing here changes the
+generator or the contract. Entry 22 is the decision they raise.
+
+---
+
+## 22. Latent spread vs. published SME model discrimination — OPEN, decide before Week 5
+
+**Touches:** `default_label_model.shock_coef`, `.management_coef`, `.intercept`
+(§14 calibration inputs). Nothing else.
+
+**The situation.** The oracle ceiling is **AUC 0.665** (entry 21). Published
+SME credit models typically report **0.70–0.80**. So the credit lens will
+report roughly 0.60 and look weak against published benchmarks while operating
+at **~90% of everything achievable in this synthetic world**. The synthetic
+problem is harder than reality, by construction.
+
+**Why this is a decision, not a bug.** The ceiling is a function of the
+configured latent spread, which was set in `config.yaml` as a calibration input
+and never fitted to anything. Both paths below are defensible. What is not
+defensible is choosing after seeing the credit lens's AUC.
+
+**Path A — keep the spread, report the ratio.** Report the oracle ceiling
+beside every AUC, so the claim is "0.60 of an available 0.665" rather than a
+bare 0.60. Cost: zero; the ceiling is computable today in seconds
+(`python -m eval.latent_ceiling`). Risk: needs explaining to a panel, and a
+skimming reader sees 0.60.
+
+**Path B — widen the spread to match published discrimination.** Legitimate,
+but the justification must be **an external, cited, archived benchmark chosen
+on its own terms** (§21 source discipline), never the AUC the team would prefer
+to report. Price, scaling both latent coefficients by k:
+
+| target AUC | required sd(logit) | k | `shock_coef` | `management_coef` |
+|---|---|---|---|---|
+| 0.75 | 0.954 | 1.52 | 2.5 → 3.8 | 2.0 → 3.0 |
+| 0.80 | 1.190 | 1.91 | 2.5 → 4.8 | 2.0 → 3.8 |
+| 0.85 | 1.466 | 2.36 | 2.5 → 5.9 | 2.0 → 4.7 |
+
+Widening while holding `intercept` fixed also raises the mean default rate
+(expit is convex at low p), so the intercept must be re-solved to hold ~4.8%.
+That is free: the intercept does not affect AUC.
+
+**Note from entry 21.2:** even under Path B, measured AUC would not rise
+proportionally. The economics pipeline currently accounts for up to 93% of the
+oracle-to-measured gap, and widening the latent spread does not touch it. Path B
+raises the ceiling; it does not by itself raise what a model extracts.
+
+**The ordering is the control.** Deciding before the credit lens trains makes
+this calibration. Deciding after makes it retuning, whatever reasoning is
+attached. **Deadline: before Week 5 training begins.** If undecided by then,
+Path A applies by default — it is the one needing no new justification.
+
+**No recommendation recorded.** Path B needs a cited benchmark that does not
+exist in `sources/` today; Path A is available now. That asymmetry is a fact
+about the evidence, not an argument.
+
+**Decision:** ☐ Path A ☐ Path B (benchmark cited: ______________)
+Recorded by: ____________  Date: __________
