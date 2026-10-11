@@ -1699,3 +1699,47 @@ data hash and the §35 reference-stats hash, plus a way to verify a decision. Ne
   also be what entry 22 Path B requires.
 
 **Sign-off:** ☐ team (adopt `docs/NUMBERS.md` as the only place numbers are quoted from)
+
+---
+
+## 25. API v1 over a serving store; Week 7 latency test PASSED — PROPOSED, API owner to take over (2026-10-11)
+
+**Touches:** new `api/store.py`, `api/app.py`, `eval/latency_test.py`, `tests/`; `pipeline/week8.py`
+refactored into shared per-lens sections (no behaviour change — decisions saved before the
+refactor still reproduce byte-identical, confirmed with `pipeline.verify`).
+
+**Why.** SOP §5: the Week 7 latency test must pass before the Week 8 gate, and the CLI took ~30 s
+a call because it streams the full `transactions.csv`.
+
+**What was built.**
+- **Serving store** (`api/store.py`): DuckDB holding the input rows of the 1,000 serving
+  businesses (§23 demo population), sorted by business. Inputs, not answers — every request
+  still runs the profile engine and the lens. Rows keep file order and dtypes are restored on
+  read, so the receipt's data hash matches; queries are single-threaded with ORDER BY (§37.2).
+  **Store-path decisions equal CLI decisions byte for byte**, data hashes included.
+- **API** (`api/app.py`): `/profile/{id}`, `/lenses/{credit,forecast,anomaly,zakat}?business_id=`,
+  `/health`. Same code as the CLI (`pipeline.week8` sections). Refuses to start without
+  `MAAL_API_KEY`; constant-time key check; per-business rate limit; research businesses → 404;
+  `insufficient_data` explicit; no anomaly scores; `/profile` = §8 list only.
+
+**Week 7 result (§19) — PASS on the maximum, not just a percentile.** `/lenses/credit` through
+every one of the 1,000 serving businesses: p50 109 ms / p95 138 ms / max 312 ms. Real HTTP via
+uvicorn: max 133 ms. Slowest route `/lenses/anomaly`: max 982 ms. SHAP alone: 0.2 ms (exact
+closed form). API answers equal CLI answers for the demo businesses. Figures and source:
+`docs/NUMBERS.md` §6b, `eval/out/latency_week7.md`. Note: §19 names "XGBoost inference"; the
+model is regularised logistic (entry 21), so that step is logistic inference.
+
+**First unit tests** (`tests/`, 21 passing): the API's guarantees (auth, refusal to start
+unauthenticated, 404 for research businesses, §11 contract, §15 explicit state, no scores, no
+Zakat-only features, determinism, per-business rate limit) and pure-function tests of the
+Zakat rules and credit policy that need no generated data.
+
+**Decisions for the API owner:** query parameter `business_id` on the lens routes (as §8 lists
+them without a path id); the store holds the serving population only; Zakat is gated on §15 like
+the other lenses (entry 23's open question still applies).
+
+**Left:** per-business-owner authorisation (§29 — stated, not built; a shared key is demo scope);
+the anomaly route is closest to budget because the per-business forest is refitted per call;
+store rebuild when data is regenerated; UI wiring (Week 10).
+
+**Sign-off:** ☐ API owner ☐ team (Week 7 gate recorded as passed)

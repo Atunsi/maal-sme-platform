@@ -1,4 +1,34 @@
-# API read-paths — NOT BUILT
+# API read-paths — v1 BUILT (Week 7 latency test PASSED)
+
+**v1 (2026-10-11, DECISIONS entry 25).** `store.py` builds the serving store (DuckDB, the 1,000
+serving businesses' input rows); `app.py` serves the five routes below plus `/health`. Every
+request computes the profile and the lens from inputs — nothing is cached — through the same
+code as the Week 8 CLI, so an API answer equals the CLI answer (asserted by the latency test).
+
+```bash
+python -m api.store --dir data --out data/serving.duckdb   # build once (git-ignored)
+set MAAL_API_KEY=<secret>                                 # env var only — never commit or log it
+uvicorn api.app:app --port 8000
+curl -H "X-API-Key: <secret>" "http://127.0.0.1:8000/lenses/credit?business_id=10001"
+python -m eval.latency_test                               # §19 Week 7 test → eval/out/latency_week7.md
+python -m pytest tests                                    # API guarantees + lens unit tests
+```
+
+**Week 7 result (§19): PASS on the maximum.** `/lenses/credit` over all 1,000 serving businesses:
+p50 109 ms, max 312 ms; over real HTTP max 133 ms; slowest route `/lenses/anomaly` max 982 ms;
+SHAP 0.2 ms. Target < 2 s / < 1 s. Exact figures: [`../docs/NUMBERS.md`](../docs/NUMBERS.md) §6b.
+
+**What v1 enforces:** refuses to start without `MAAL_API_KEY`; constant-time key check (401
+otherwise); per-business rate limit (`MAAL_RATE_LIMIT_PER_MIN`, default 60 → 429); research
+businesses return 404 (the store holds only the §23 serving population); `insufficient_data` is
+an explicit status with `lens_not_run_reason`; anomaly flags carry `flag_reason` and no score;
+`/profile` returns the §8 membership list only (no Zakat-only features); every response carries
+a receipt. All asserted in `tests/test_api.py`.
+
+**Left for the API owner:** per-business-owner authorisation (a business reads only its own
+profile — §29 says state it, a shared key is the demo scope); the anomaly route is the closest to
+budget (982 ms max) — the per-business forest is refitted on every call; rebuilding the store
+when data is regenerated; wiring the UI (Week 10).
 
 **Schema:** §8, §29 · **Due:** Week 5–7 (latency smoke test Week 7, not Week 10)
 

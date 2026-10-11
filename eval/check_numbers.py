@@ -136,10 +136,23 @@ def selectivity() -> list[tuple[str, str]]:
     return [(f"selectivity risk ratio {i}", v) for i, v in enumerate(re.findall(r"\*\*([0-9.]+)\*\*", t)[:2])]
 
 
+def latency() -> list[tuple[str, str]]:
+    t = _read("eval/out/latency_week7.md")
+    def row(prefix: str, decimals: int = 0) -> str:
+        ln = next(x for x in t.splitlines() if x.startswith(prefix))
+        cells = [c.strip() for c in ln.strip("|").split("|")]
+        p50, p95, _, mx = (float(c) for c in cells[2:6])
+        return f"{p50:.{decimals}f} / {p95:.{decimals}f} / {mx:.{decimals}f} ms"
+    return [("latency credit (all 1,000)", row("| `/lenses/credit` |")),
+            ("latency credit over HTTP", row("| `/lenses/credit` over")),
+            ("latency anomaly", row("| `/lenses/anomaly` |")),
+            ("latency SHAP", row("| SHAP generation", 3))]
+
+
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, gate, selectivity):
+    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, gate, selectivity, latency):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

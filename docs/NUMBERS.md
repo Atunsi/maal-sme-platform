@@ -105,6 +105,23 @@ Source: `eval/out/section14_rho_sweep.md` (`python -m eval.run_section14`). Prot
 
 ---
 
+## 6b. Serving path — Week 7 latency (§19)
+
+Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`). Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
+
+| Path | Value | n |
+|---|---|---|
+| `/lenses/credit` — full §19 path (store → profile engine → model → SHAP → §13 text) | **109 / 138 / 312 ms** | 1,000 (every serving business) |
+| `/lenses/credit` over real HTTP (uvicorn) | 108 / 130 / 133 ms | 50 |
+| `/lenses/anomaly` — slowest route (per-business Isolation Forest) | 292 / 429 / 982 ms | 100 |
+| SHAP explanation alone (exact log-odds, `coef × z`) | 0.162 / 0.176 / 0.209 ms | 194 |
+| Targets (§19) | API < 2 s, SHAP < 1 s — **PASS on the maximum**, not just a percentile | — |
+| API vs Week 8 CLI decisions (demo businesses, all four lenses) | identical | 3 |
+
+For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `transactions.csv`. The serving store is what changes that, not caching.
+
+---
+
 ## 7. Retired numbers — stale if seen anywhere
 
 | Retired | Why | Replaced by |

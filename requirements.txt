@@ -12,11 +12,17 @@ openpyxl==3.1.5        # reads sources/gastat/SME_2022.xlsx for the §21 archive
 tabulate==0.9.0        # DataFrame.to_markdown for eval/out reports (eval/anomaly_eval.py)
 hijridate==2.6.0        # Umm al-Qura Hijri↔Gregorian conversion for the §22 seasonality decomposition (calibration/hijri.py)
 
-# Schema §37.2 — required tooling, not yet wired into any script. Install now
-# so it's available the day a receipted DuckDB query (§21 distributional
-# comparison) is added. Remember: `SET threads TO 1` immediately after
-# connecting, for any query feeding a receipted value.
-duckdb==1.5.5
+# Schema §37.2 — DuckDB backs the API's serving store (api/store.py). Every query feeding a
+# receipted value runs with `SET threads TO 1` and an explicit ORDER BY.
+duckdb==1.5.5          # serving store (api/store.py), single-threaded per §37.2
 
 # Schema §37.3 — dev-only, not a runtime dependency.
 ruff==0.16.7
+
+# API read-paths (api/, schema §8) and the Week 7 latency test
+fastapi==0.143.0
+uvicorn==0.46.0
+httpx==0.28.1          # FastAPI TestClient + the real-HTTP latency sample
+
+# Tests (tests/) — dev-only
+pytest==9.0.3

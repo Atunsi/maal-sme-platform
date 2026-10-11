@@ -61,7 +61,7 @@ write code that breaks one, stop and raise it.
 | Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; **nisab price is a placeholder** (entry 23) |
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | Not built — Week 7 |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
-| API read-paths | [`api/`](api/) | — | Not built — Week 5–7, latency test Week 7 |
+| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 312 ms on all 1,000; entry 25) |
 | Next.js UI | — | — | Post-Week-8, own Week 10 gate. Not in this repo yet. |
 
 Each component directory has a README stating its contract, the schema sections
@@ -90,6 +90,12 @@ python -m pipeline.week8 --demo               # one JSON per demo business (§9)
 python -m eval.week8_check                    # contract + non-negotiables on real output
 python -m pipeline.verify decisions.json      # re-run saved decisions; byte-identical or names the changed input
 python -m eval.check_numbers                  # docs/NUMBERS.md matches every source artifact
+
+# API (entry 25)
+python -m api.store --dir data --out data/serving.duckdb   # serving store, once
+uvicorn api.app:app --port 8000                           # needs MAAL_API_KEY in the environment
+python -m eval.latency_test                               # §19 Week 7 test → eval/out/latency_week7.md
+python -m pytest tests                                    # unit tests
 python -m eval.anomaly_eval                   # §12 injected vs held-out → eval/out/anomaly_eval.md
 python -m eval.forecast_backtest              # §10 model vs naive → eval/out/forecast_backtest.md
 

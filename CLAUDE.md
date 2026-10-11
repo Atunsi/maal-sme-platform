@@ -64,6 +64,9 @@ python -m pipeline.week8 --demo            # Week 8: one JSON per business (need
 python -m eval.week8_check                 # Week 8 contract on real output, exit 0 = PASS
 python -m pipeline.verify <decisions.json> # reproducibility receipt: re-run and compare byte for byte
 python -m eval.check_numbers               # docs/NUMBERS.md matches its source artifacts
+python -m api.store --dir data --out data/serving.duckdb  # API serving store (rebuild after regenerating data)
+python -m eval.latency_test                # §19 Week 7 latency, exit 0 = PASS
+python -m pytest tests                     # unit tests (API tests skip if the store is missing)
 python -m ruff check .                      # must pass before committing
 ```
 
@@ -86,12 +89,14 @@ Full command list (Berka grounding, Saudi calibration, workstream B) is in READM
 - On a rejected push: fetch, inspect what landed (`git diff --stat HEAD...origin/main`), and check whether it invalidates numbers you're about to record before merging.
 - Commit messages explain *why* and state what was verified. End with the `Co-Authored-By:` line the harness specifies.
 
-## State as of 2026-10-11, end of day (verify — this rots)
+## State as of 2026-10-11, late (verify — this rots)
 
-- **Built:** generator (Week 3 gate PASSED), profile engine (71 features), Berka adapter, Saudi calibration, eval harnesses incl. §14 sweep — and **the Week 8 path**: `python -m pipeline.week8 --demo` emits one JSON per business with all five outputs. `eval.week8_check` PASSED (43 objects, byte-identical re-run).
+- **Week 3 and Week 7 gates PASSED; Week 8 deliverable exists.** Built: generator (Week 3 gate PASSED), profile engine (71 features), Berka adapter, Saudi calibration, eval harnesses incl. §14 sweep — and **the Week 8 path**: `python -m pipeline.week8 --demo` emits one JSON per business with all five outputs. `eval.week8_check` PASSED (43 objects, byte-identical re-run).
 - **Lenses are v1s, built by the generator owner to unblock the gate — each still belongs to its SOP §3 owner** (DECISIONS entry 23, all parameters PROPOSED, in `lenses/lens_config.yaml`, deliberately not `config.yaml`).
 - **Honest findings to beat, not tune:** credit CV AUC 0.591 (88.8% of the 0.666 ceiling); **forecast model loses to the naive baseline**; anomaly misses held-out duplicate payments (recall 0.06); Zakat nisab price is a **placeholder**.
-- **Not built:** API routes (+ Week 7 latency test — the CLI streams `transactions.csv`, ~30 s/call), Sharia screening / Compliance View, recourse, unit tests.
+- **API v1 built** (`api/`): five routes over a DuckDB serving store, same code path as the CLI; **Week 7 latency PASSED** (credit max 312 ms on all 1,000; anomaly route max 982 ms is the closest to budget). Needs `MAAL_API_KEY` in the environment — never commit it. Rebuild `data/serving.duckdb` whenever data is regenerated.
+- **First unit tests exist** (`tests/`, 21): API guarantees + Zakat rules + credit policy.
+- **Not built:** Sharia screening (feature 24) / Compliance View, per-owner API authorisation, recourse, UI.
 - **Decisions:** entry 22 → Path A applied **by default** (credit lens trained before anyone decided — Path B is now retuning for v1). Entry 23 needs four owner sign-offs. Entries 2 and 6 still open.
 - **If you add a duplicate-payment detector**, define a new held-out type in `eval/heldout_anomalies.py` first (§12); `assert_held_out()` now also scans `lenses/anomaly/`.
 - Owed: §14 label-noise axis (implemented, never run).

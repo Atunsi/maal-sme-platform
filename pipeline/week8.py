@@ -25,6 +25,7 @@ import hashlib
 import json
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
@@ -76,19 +77,30 @@ def code_commit() -> str | None:
         return None
 
 
-def build_objects(d: str | Path, business_ids: list[int]) -> list[dict]:
+RECEIPT_SCOPE = (
+    "Covers the deterministic core only: re-running with these inputs reproduces this object "
+    "byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is "
+    "outside its scope and cannot affect the decision (§36)."
+)
+
+
+@dataclass
+class Context:
+    """Everything loaded once per process: config, lens config, model, §35 reference-stats hash."""
+
+    cfg: dict
+    lc: dict
+    art: dict
+    ref_hash: str | None
+    demo: dict
+    receipt_base: dict
+
+
+def make_context(generated_by: str = "pipeline.week8") -> Context:
     cfg = load_config()
     lc = load_lens_config()
     art = load_artifact(str(lc["credit"]["model_artifact"]))
-    tables = load_tables(d, business_ids)
-    data_hash = {int(b): data_sha256(tables, int(b)) for b in tables["businesses"]["business_id"]}  # before the engine touches anything
-    prof = run_profiles(tables, cfg)
     _, ref_hash = fe.load_reference_stats()
-
-    feats = prof["features"].set_index("business_id")
-    status = prof["status"].set_index("business_id")
-    nulls = prof["nulls"]
-    demo = {x["id"]: x for x in cfg.get("demo_businesses", [])}
     receipt_base = {
         "schema_version": cfg.get("schema_version"),
         "config_sha256": _sha("config.yaml"),
@@ -99,73 +111,111 @@ def build_objects(d: str | Path, business_ids: list[int]) -> list[dict]:
         "credit_model_oracle_ceiling_auc": round(art["oracle_ceiling_auc"], 4),
         "reference_stats_sha256": ref_hash,  # §35 pinned sector table — never recomputed at serving
         "code_commit": code_commit(),
-        "generated_by": "pipeline.week8",
+        "generated_by": generated_by,
     }
+    return Context(cfg, lc, art, ref_hash, {x["id"]: x for x in cfg.get("demo_businesses", [])}, receipt_base)
 
-    objects = []
-    for b in tables["businesses"].sort_values("business_id").itertuples(index=False):
-        b_id = int(b.business_id)
-        as_of = pd.Timestamp(b.window_end)
-        st = status.loc[b_id]
-        row = feats.loc[b_id]
-        obj = {
-            "business_id": b_id,
-            "population": b.population,
-            "data_source": b.data_source,
-            "sector": b.sector,
-            "as_of": as_of.date().isoformat(),
-            "status": st["status"],
-            "coverage_days_90d": int(st["coverage_days_90d"]),
-        }
 
-        if st["status"] == "insufficient_data":
-            # §15: an explicit refusal to score, before any lens runs.
-            obj.update({
-                "lenses_not_run_reason": "insufficient_data",
-                "credit": None, "credit_explanation": None, "credit_decision_detail": None,
-                "forecast": None, "anomaly": None, "zakat": None,
-            })
-        else:
-            if st["status"] == "partial_profile":
-                miss = nulls[(nulls["business_id"] == b_id) & (nulls["reason"] == "insufficient_history")]["feature"].tolist()
-                obj["partial_profile_unavailable_features"] = miss
+@dataclass
+class Prepared:
+    """One load + one profile-engine run, covering any number of businesses."""
 
-            c = decide(row, lc["credit"], art)
-            obj["credit"] = c["credit"]
-            obj["credit_explanation"] = c["explanation"]
-            obj["credit_decision_detail"] = c["internals"]
+    tables: dict
+    feats: pd.DataFrame
+    status: pd.DataFrame
+    nulls: pd.DataFrame
+    data_hash: dict[int, str]
 
-            daily_b = tables["daily_aggregates"][tables["daily_aggregates"]["business_id"] == b_id]
-            obj["forecast"] = forecast(daily_b, as_of, row, lc["forecast"])
+    def biz(self, b_id: int):
+        b = self.tables["businesses"]
+        return next(b[b["business_id"] == b_id].itertuples(index=False))
 
-            tx_b = tables["transactions"][tables["transactions"]["business_id"] == b_id]
-            obj["anomaly"] = detect(tx_b, as_of, lc["anomaly"])
+    def rows(self, name: str, b_id: int) -> pd.DataFrame:
+        t = self.tables[name]
+        return t[t["business_id"] == b_id]
 
-            seed = demo.get(b_id, {}).get("zakat_seed")
-            bal_b = tables["balances_monthly"][tables["balances_monthly"]["business_id"] == b_id]
-            obj["zakat"] = compute_zakat(
-                bal_b, as_of, lc["zakat"],
-                pd.Timestamp(seed["hawl_start_date"]) if seed else None,
-                float(seed["opening_net_assets_sar"]) if seed else None,
-                pd.Timestamp(b.operating_start_date),
-            )
 
-        obj["governance"] = {
-            "sharia_screen_status": None,
-            "sharia_screen_reason": "not_implemented",  # compliance module not built yet (feature 24)
-        }
-        obj["receipt"] = {
-            **receipt_base,
-            "data_sha256": data_hash[b_id],
-            "output_sha256": output_sha256(obj),
-            "scope": (
-                "Covers the deterministic core only: re-running with these inputs reproduces this object "
-                "byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is "
-                "outside its scope and cannot affect the decision (§36)."
-            ),
-        }
-        objects.append(obj)
-    return objects
+def prepare(ctx: Context, tables: dict) -> Prepared:
+    data_hash = {int(b): data_sha256(tables, int(b)) for b in tables["businesses"]["business_id"]}  # before the engine touches anything
+    prof = run_profiles(tables, ctx.cfg)
+    return Prepared(tables, prof["features"].set_index("business_id"), prof["status"].set_index("business_id"), prof["nulls"], data_hash)
+
+
+def header(p: Prepared, b_id: int) -> dict:
+    b, st = p.biz(b_id), p.status.loc[b_id]
+    out = {
+        "business_id": b_id,
+        "population": b.population,
+        "data_source": b.data_source,
+        "sector": b.sector,
+        "as_of": pd.Timestamp(b.window_end).date().isoformat(),
+        "status": st["status"],
+        "coverage_days_90d": int(st["coverage_days_90d"]),
+    }
+    if st["status"] == "partial_profile":
+        n = p.nulls
+        out["partial_profile_unavailable_features"] = n[(n["business_id"] == b_id) & (n["reason"] == "insufficient_history")]["feature"].tolist()
+    return out
+
+
+def scorable(p: Prepared, b_id: int) -> bool:
+    return p.status.loc[b_id, "status"] != "insufficient_data"  # §15: no lens runs otherwise
+
+
+def credit_section(ctx: Context, p: Prepared, b_id: int) -> dict:
+    c = decide(p.feats.loc[b_id], ctx.lc["credit"], ctx.art)
+    return {"credit": c["credit"], "credit_explanation": c["explanation"], "credit_decision_detail": c["internals"]}
+
+
+def forecast_section(ctx: Context, p: Prepared, b_id: int) -> dict:
+    return forecast(p.rows("daily_aggregates", b_id), pd.Timestamp(p.biz(b_id).window_end), p.feats.loc[b_id], ctx.lc["forecast"])
+
+
+def anomaly_section(ctx: Context, p: Prepared, b_id: int) -> dict:
+    return detect(p.rows("transactions", b_id), pd.Timestamp(p.biz(b_id).window_end), ctx.lc["anomaly"])
+
+
+def zakat_section(ctx: Context, p: Prepared, b_id: int) -> dict:
+    b = p.biz(b_id)
+    seed = ctx.demo.get(b_id, {}).get("zakat_seed")
+    return compute_zakat(
+        p.rows("balances_monthly", b_id), pd.Timestamp(b.window_end), ctx.lc["zakat"],
+        pd.Timestamp(seed["hawl_start_date"]) if seed else None,
+        float(seed["opening_net_assets_sar"]) if seed else None,
+        pd.Timestamp(b.operating_start_date),
+    )
+
+
+def receipt(ctx: Context, p: Prepared, b_id: int, obj: dict) -> dict:
+    return {**ctx.receipt_base, "data_sha256": p.data_hash[b_id], "output_sha256": output_sha256(obj), "scope": RECEIPT_SCOPE}
+
+
+def decision_object(ctx: Context, p: Prepared, b_id: int) -> dict:
+    """The full Week 8 object for one business (§9)."""
+    obj = header(p, b_id)
+    if not scorable(p, b_id):
+        obj.update({
+            "lenses_not_run_reason": "insufficient_data",
+            "credit": None, "credit_explanation": None, "credit_decision_detail": None,
+            "forecast": None, "anomaly": None, "zakat": None,
+        })
+    else:
+        obj.update(credit_section(ctx, p, b_id))
+        obj["forecast"] = forecast_section(ctx, p, b_id)
+        obj["anomaly"] = anomaly_section(ctx, p, b_id)
+        obj["zakat"] = zakat_section(ctx, p, b_id)
+    obj["governance"] = {
+        "sharia_screen_status": None,
+        "sharia_screen_reason": "not_implemented",  # compliance module not built yet (feature 24)
+    }
+    obj["receipt"] = receipt(ctx, p, b_id, obj)
+    return obj
+
+
+def build_objects(d: str | Path, business_ids: list[int]) -> list[dict]:
+    ctx = make_context()
+    p = prepare(ctx, load_tables(d, business_ids))
+    return [decision_object(ctx, p, int(b)) for b in sorted(p.tables["businesses"]["business_id"])]
 
 
 def main(argv: list[str] | None = None) -> int:
