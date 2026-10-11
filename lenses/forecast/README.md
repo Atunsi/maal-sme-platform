@@ -1,4 +1,6 @@
-# Forecast lens — NOT BUILT
+# Forecast lens — v1 BUILT, owner to take over
+
+**v1 (2026-10-11, DECISIONS entry 23):** `forecast.py` — OLS trend + day-of-week (damped) vs trailing-30d naive, balance at 30/60/90 days, crunch alert from projection + engine hazard (features 52–54). **Backtest finding: the model loses to the naive baseline on accuracy** (median error 0.455 vs 0.376) while catching more crunches (87.1% vs 81.8%). Beating naive is your first job — `python -m eval.forecast_backtest` is the bar.
 
 **Owner:** forecast + anomaly owner · **Schema:** §8, §10, §16, §34 · **Due:** Week 5
 

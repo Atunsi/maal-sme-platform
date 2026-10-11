@@ -54,11 +54,12 @@ write code that breaks one, stop and raise it.
 | Berka real-data adapter | [`berka_adapter/`](berka_adapter/) | generator owner | **BUILT** — Phases 0–4 of the grounding SOP accepted/run |
 | Eval harnesses (gate, §21 validation, held-out anomalies, real-vs-synthetic, sensitivity, evidence) | [`eval/`](eval/) | generator owner | **BUILT** (credit-lens CV curves, fairness audit pending Week 6–7) |
 | Profile engine — features 1–69 | [`profile_engine/`](profile_engine/) | profile engine owner | **BUILT** — source-agnostic; 24–26, 34–35 `not_implemented` (module owners) |
-| Credit lens (Base Murabaha + SHAP) | [`lenses/credit/`](lenses/credit/) | credit lens owner | Not built — Week 5, SHAP Week 7 |
-| Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | Not built — Week 5 |
-| Anomaly lens | [`lenses/anomaly/`](lenses/anomaly/) | forecast + anomaly owner | Not built — Week 6 |
-| Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | Not built — Week 7 |
+| Credit lens (Base Murabaha + SHAP) | [`lenses/credit/`](lenses/credit/) | credit lens owner | **v1 built** — CV AUC 0.591 (88.8% of ceiling), exact log-odds SHAP; params PROPOSED (entry 23) |
+| Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v1 built** — but **loses to the naive baseline** on accuracy (entry 23); owner to replace |
+| Anomaly lens | [`lenses/anomaly/`](lenses/anomaly/) | forecast + anomaly owner | **v1 built** — held-out round-trip recall 0.92, duplicate payment 0.06 (entry 23) |
+| Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; **nisab price is a placeholder** (entry 23) |
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | Not built — Week 7 |
+| **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
 | API read-paths | [`api/`](api/) | — | Not built — Week 5–7, latency test Week 7 |
 | Next.js UI | — | — | Post-Week-8, own Week 10 gate. Not in this repo yet. |
 
@@ -80,6 +81,14 @@ python -m eval.heldout_anomalies    # self-test the §12 held-out anomaly inject
 python -m eval.dimensions_check     # Phase 5 structural assertions (obligations terminate, cancellations ↔ distress, …)
 python -m eval.latent_ceiling       # §14 oracle ceiling + p_default spread (seconds, no economics)
 python -m eval.run_section14        # §14 AUC vs rho + signal ladder + model baseline (~10 min)
+
+# Week 8 path (DECISIONS entry 23)
+python -m profile_engine.compute --dir data   # once: profiles for lens training
+python -m lenses.credit.train                 # → lenses/credit/model_v1.json
+python -m pipeline.week8 --demo               # one JSON per demo business (§9)
+python -m eval.week8_check                    # contract + non-negotiables on real output
+python -m eval.anomaly_eval                   # §12 injected vs held-out → eval/out/anomaly_eval.md
+python -m eval.forecast_backtest              # §10 model vs naive → eval/out/forecast_backtest.md
 
 python -m profile_engine.compute --dir data          # features 1–69 → data/profiles.csv (+ nulls, status, coverage)
 

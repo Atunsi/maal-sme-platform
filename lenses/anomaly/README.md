@@ -1,4 +1,6 @@
-# Anomaly lens — NOT BUILT
+# Anomaly lens — v1 BUILT, owner to take over
+
+**v1 (2026-10-11, DECISIONS entry 23):** `anomaly.py` — per-business Isolation Forest + hard univariate rules, `flag_reason` only, scores withheld. `python -m eval.anomaly_eval`: injected types both caught; held-out round-trip recall 0.92; **held-out duplicate payment recall 0.06 (missed)**. If you add a duplicate detector, define a NEW held-out type in `eval/heldout_anomalies.py` first — otherwise the held-out test becomes circular (§12).
 
 **Owner:** forecast + anomaly owner · **Schema:** §8, §12, §29, §33 · **Due:** Week 6
 

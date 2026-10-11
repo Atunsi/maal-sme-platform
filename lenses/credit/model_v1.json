@@ -1,0 +1,559 @@
+{
+  "config_sha256": "9d60db774d169931054cb48fd3f492557488ae413716b908913b367bd5479137",
+  "cv": {
+    "defaults": 449,
+    "hi": 0.5984715770964242,
+    "lo": 0.5841056685281416,
+    "mean": 0.5914208718911064,
+    "median": 0.5911635998536556,
+    "n": 9495,
+    "n_repeats": 20,
+    "protocol": "repeated stratified group 5-fold \u00d7 20, grouped by business_id, out-of-fold pooled per repeat"
+  },
+  "data_source": "synthetic",
+  "defaults_train": 449,
+  "features": [
+    {
+      "coef": -0.03388670726615451,
+      "id": 1,
+      "log_transform": true,
+      "mean": 11.719317545030556,
+      "median": 11.568766175835632,
+      "name": "avg_monthly_inflow",
+      "scale": 0.977020182263446
+    },
+    {
+      "coef": 0.28612167950671363,
+      "id": 2,
+      "log_transform": false,
+      "mean": 1414.624089118369,
+      "median": 814.2857142857142,
+      "name": "inflow_count_per_month",
+      "scale": 2671.573952505833
+    },
+    {
+      "coef": 1.467768898612212,
+      "id": 3,
+      "log_transform": false,
+      "mean": 0.6635251914106212,
+      "median": 1.0,
+      "name": "inflow_regularity_score",
+      "scale": 0.4238538603735608
+    },
+    {
+      "coef": 0.07071762962093209,
+      "id": 4,
+      "log_transform": false,
+      "mean": 5.385757744144741,
+      "median": -3.3919440714830413,
+      "name": "revenue_growth_rate_90d",
+      "scale": 42.56342579817807
+    },
+    {
+      "coef": 0.041938978504652884,
+      "id": 5,
+      "log_transform": false,
+      "mean": 0.2390561650395207,
+      "median": 0.0699619109156367,
+      "name": "largest_single_source_ratio",
+      "scale": 0.2647041297626512
+    },
+    {
+      "coef": 0.4754198944418644,
+      "id": 6,
+      "log_transform": true,
+      "mean": 11.57581200718177,
+      "median": 11.554662049125849,
+      "name": "avg_monthly_outflow",
+      "scale": 0.9629001226728193
+    },
+    {
+      "coef": 0.04063066767417999,
+      "id": 7,
+      "log_transform": false,
+      "mean": 66.04938878561329,
+      "median": 64.33333333333333,
+      "name": "outflow_count_per_month",
+      "scale": 24.301267932739247
+    },
+    {
+      "coef": 0.047903111649892346,
+      "id": 8,
+      "log_transform": false,
+      "mean": 0.36731778035350876,
+      "median": 0.3435357347842839,
+      "name": "recurring_expense_ratio",
+      "scale": 0.09354867267568412
+    },
+    {
+      "coef": 0.149142062157805,
+      "id": 9,
+      "log_transform": false,
+      "mean": -7.979015076845455,
+      "median": -7.255798814042967,
+      "name": "expense_growth_rate_90d",
+      "scale": 8.585592299807631
+    },
+    {
+      "coef": -0.32664273987374637,
+      "id": 10,
+      "log_transform": false,
+      "mean": 0.6376867305423587,
+      "median": 0.656464265215716,
+      "name": "top_expense_category_share",
+      "scale": 0.08325795707064802
+    },
+    {
+      "coef": 0.1628112538183701,
+      "id": 11,
+      "log_transform": false,
+      "mean": 16516.845926489284,
+      "median": 7113.669758163773,
+      "name": "cash_flow_volatility",
+      "scale": 29480.138551052314
+    },
+    {
+      "coef": -0.13645153036004382,
+      "id": 12,
+      "log_transform": false,
+      "mean": 1.2017424568095545,
+      "median": 1.1841348566474907,
+      "name": "inflow_outflow_ratio",
+      "scale": 0.33539577516499675
+    },
+    {
+      "coef": -0.21333435097057787,
+      "id": 13,
+      "log_transform": false,
+      "mean": 6.98957345971564,
+      "median": 0.0,
+      "name": "days_negative_balance_90d",
+      "scale": 20.442276629680265
+    },
+    {
+      "coef": -0.19486520114666228,
+      "id": 14,
+      "log_transform": false,
+      "mean": 0.31174302264349657,
+      "median": 0.0,
+      "name": "overdraft_events_90d",
+      "scale": 0.8508113807297588
+    },
+    {
+      "coef": 0.6894844597620925,
+      "id": 15,
+      "log_transform": false,
+      "mean": 16.736137969659644,
+      "median": 12.208070710438392,
+      "name": "volatility_index",
+      "scale": 11.559507452857593
+    },
+    {
+      "coef": 0.04174193040262089,
+      "id": 16,
+      "log_transform": true,
+      "mean": 10.403322075278753,
+      "median": 11.827353277488355,
+      "name": "avg_daily_balance",
+      "scale": 5.998550138553097
+    },
+    {
+      "coef": -0.08097009686965623,
+      "id": 17,
+      "log_transform": true,
+      "mean": 7.912130657215985,
+      "median": 11.351033397776748,
+      "name": "min_daily_balance_90d",
+      "scale": 8.53821976708242
+    },
+    {
+      "coef": -0.047342814774527134,
+      "id": 18,
+      "log_transform": false,
+      "mean": 335.0238621113908,
+      "median": 152.31155351312523,
+      "name": "current_runway_days",
+      "scale": 1227.8289093690923
+    },
+    {
+      "coef": 0.06798068794879142,
+      "id": "18b",
+      "log_transform": true,
+      "mean": 5.009701281263663,
+      "median": 5.140902471704746,
+      "name": "runway_days_avg_balance",
+      "scale": 1.355285813976611
+    },
+    {
+      "coef": -0.009354842836377908,
+      "id": 19,
+      "log_transform": true,
+      "mean": 3.7673463363449455,
+      "median": 6.532332796138724,
+      "name": "liquidity_trend_slope",
+      "scale": 6.095157888827958
+    },
+    {
+      "coef": -0.09012753018788078,
+      "id": 20,
+      "log_transform": false,
+      "mean": 75.09320695102686,
+      "median": 71.0,
+      "name": "unique_counterparties_count",
+      "scale": 56.39228480337309
+    },
+    {
+      "coef": 0.08257315006578547,
+      "id": 21,
+      "log_transform": false,
+      "mean": 0.13399449891997514,
+      "median": 0.1214766401288041,
+      "name": "counterparty_concentration_index",
+      "scale": 0.049828306370535626
+    },
+    {
+      "coef": -0.02669768470364471,
+      "id": 22,
+      "log_transform": false,
+      "mean": 0.006523721993896253,
+      "median": 0.0002871324664438,
+      "name": "new_counterparty_ratio_30d",
+      "scale": 0.02180326695098682
+    },
+    {
+      "coef": 0.04861917123083347,
+      "id": 32,
+      "log_transform": false,
+      "mean": 85.50194839389152,
+      "median": 90.0,
+      "name": "coverage_days_90d",
+      "scale": 6.1787121496981126
+    },
+    {
+      "coef": -0.016243792448630678,
+      "id": 33,
+      "log_transform": false,
+      "mean": 0.011238030559979816,
+      "median": 0.0,
+      "name": "data_gap_ratio",
+      "scale": 0.02107662577202594
+    },
+    {
+      "coef": 0.04753695435784085,
+      "id": 37,
+      "log_transform": false,
+      "mean": 42.05783207528462,
+      "median": 17.78670339598826,
+      "name": "implied_dso_days",
+      "scale": 44.544688679179245
+    },
+    {
+      "coef": 0.1462468991040546,
+      "id": 38,
+      "log_transform": false,
+      "mean": 24.902309258078006,
+      "median": 11.776365325992249,
+      "name": "implied_dio_days",
+      "scale": 20.908479862594877
+    },
+    {
+      "coef": 0.23950054838022158,
+      "id": 39,
+      "log_transform": false,
+      "mean": 43.539823602878386,
+      "median": 36.10839927480921,
+      "name": "implied_dpo_days",
+      "scale": 22.865155044455033
+    },
+    {
+      "coef": -0.01107280954222806,
+      "id": 40,
+      "log_transform": false,
+      "mean": 23.420317730484236,
+      "median": 23.6604272314247,
+      "name": "cash_conversion_cycle_days",
+      "scale": 27.174493816432577
+    },
+    {
+      "coef": -0.19260523999853468,
+      "id": 41,
+      "log_transform": false,
+      "mean": 0.07018820852422453,
+      "median": 0.0,
+      "name": "financing_outflow_ratio",
+      "scale": 0.09880894655839599
+    },
+    {
+      "coef": 0.011651581020115518,
+      "id": 42,
+      "log_transform": true,
+      "mean": 7.321821219144209,
+      "median": 9.227521894442326,
+      "name": "installment_capacity_sar",
+      "scale": 4.48327618005924
+    },
+    {
+      "coef": 0.02889234539984714,
+      "id": 43,
+      "log_transform": false,
+      "mean": 23.028541337546077,
+      "median": 19.0,
+      "name": "inflow_break_recency_days",
+      "scale": 18.33071434775387
+    },
+    {
+      "coef": 0.011959445780767195,
+      "id": 44,
+      "log_transform": false,
+      "mean": -0.013536763762563448,
+      "median": -0.0181395385649113,
+      "name": "net_flow_autocorr_lag7",
+      "scale": 0.09377929597833976
+    },
+    {
+      "coef": 0.06726851127310748,
+      "id": 45,
+      "log_transform": false,
+      "mean": 0.9529797114536148,
+      "median": 0.9812400129287484,
+      "name": "counterparty_persistence_ratio",
+      "scale": 0.0681021977106723
+    },
+    {
+      "coef": 0.06587365840653624,
+      "id": 47,
+      "log_transform": true,
+      "mean": 8.564378979015109,
+      "median": 8.633394714594921,
+      "name": "downside_semideviation_90d",
+      "scale": 1.1583729431974985
+    },
+    {
+      "coef": -0.03827563799151252,
+      "id": 48,
+      "log_transform": true,
+      "mean": 8.464270319967687,
+      "median": 8.333956911835697,
+      "name": "upside_semideviation_90d",
+      "scale": 1.3407568451154221
+    },
+    {
+      "coef": -0.272391002118532,
+      "id": 49,
+      "log_transform": false,
+      "mean": 1.2018663811671606,
+      "median": 1.1338738824987102,
+      "name": "flow_asymmetry_ratio",
+      "scale": 0.5051610663480323
+    },
+    {
+      "coef": 0.06383846491110286,
+      "id": 50,
+      "log_transform": false,
+      "mean": 0.7741379590709941,
+      "median": 1.0,
+      "name": "revenue_shock_absorption_pct",
+      "scale": 0.37683810114951766
+    },
+    {
+      "coef": -0.0883284462435313,
+      "id": 51,
+      "log_transform": false,
+      "mean": 5.464277903537457,
+      "median": 5.092923321218241,
+      "name": "fixed_obligation_coverage_months",
+      "scale": 4.091620050916556
+    },
+    {
+      "coef": -0.23586783503369707,
+      "id": 52,
+      "log_transform": false,
+      "mean": 0.12934597156398103,
+      "median": 0.0,
+      "name": "liquidity_hazard_30d",
+      "scale": 0.3069922590690545
+    },
+    {
+      "coef": 0.20408393201908315,
+      "id": 53,
+      "log_transform": false,
+      "mean": 0.15162190626645605,
+      "median": 0.0,
+      "name": "liquidity_hazard_60d",
+      "scale": 0.32033559526015676
+    },
+    {
+      "coef": 0.01197352684007779,
+      "id": 54,
+      "log_transform": false,
+      "mean": 0.1686658241179568,
+      "median": 0.0,
+      "name": "liquidity_hazard_90d",
+      "scale": 0.3298379136080075
+    },
+    {
+      "coef": -0.3997181532718389,
+      "id": 55,
+      "log_transform": false,
+      "mean": 0.75307798483808,
+      "median": 1.1653139462173312,
+      "name": "sector_relative_regularity_z",
+      "scale": 0.8907081756194787
+    },
+    {
+      "coef": -0.34461728466929975,
+      "id": 56,
+      "log_transform": false,
+      "mean": -0.09961385937101355,
+      "median": -0.3563065374121724,
+      "name": "sector_relative_volatility_z",
+      "scale": 0.9559981209177004
+    },
+    {
+      "coef": 0.0693714599930232,
+      "id": 57,
+      "log_transform": false,
+      "mean": -0.06765679282107012,
+      "median": -0.2700587859361349,
+      "name": "sector_relative_days_negative_z",
+      "scale": 0.8969744030407113
+    },
+    {
+      "coef": -0.17468379850864735,
+      "id": 58,
+      "log_transform": false,
+      "mean": 0.00044796895136367857,
+      "median": -0.2600280880925599,
+      "name": "sector_relative_balance_z",
+      "scale": 0.9611048271509448
+    },
+    {
+      "coef": 0.0703759289137521,
+      "id": 59,
+      "log_transform": false,
+      "mean": 4.131147479376794,
+      "median": 4.392168823026198,
+      "name": "sector_relative_concentration_z",
+      "scale": 4.00298761118286
+    },
+    {
+      "coef": -0.29201163870948094,
+      "id": 60,
+      "log_transform": true,
+      "mean": 10.962895940149837,
+      "median": 10.987918763348812,
+      "name": "committed_monthly_outflow",
+      "scale": 1.1327807596235724
+    },
+    {
+      "coef": -0.00899035348242982,
+      "id": 61,
+      "log_transform": false,
+      "mean": 2.444957983803743,
+      "median": 2.378957302298603,
+      "name": "obligation_coverage_ratio",
+      "scale": 1.1737889684869007
+    },
+    {
+      "coef": 0.03218867306196635,
+      "id": 62,
+      "log_transform": false,
+      "mean": 2.4626202020922965,
+      "median": 2.393475360839188,
+      "name": "ocr_forward_3m",
+      "scale": 1.1846392965861907
+    },
+    {
+      "coef": -0.12093260590462485,
+      "id": "62b",
+      "log_transform": false,
+      "mean": 2.479038071080538,
+      "median": 2.4091942492738454,
+      "name": "ocr_forward_6m",
+      "scale": 1.1935337721854216
+    },
+    {
+      "coef": 0.0006689860241093529,
+      "id": 63,
+      "log_transform": false,
+      "mean": 9.567403896787782,
+      "median": 6.0,
+      "name": "obligation_horizon_months",
+      "scale": 10.841198524029407
+    },
+    {
+      "coef": 0.013402816973778764,
+      "id": 64,
+      "log_transform": false,
+      "mean": 0.15250131648235912,
+      "median": 0.0,
+      "name": "mandate_cancellation_count_90d",
+      "scale": 0.40652628734127155
+    },
+    {
+      "coef": 0.03750518656617289,
+      "id": 65,
+      "log_transform": true,
+      "mean": 0.7431633873373422,
+      "median": 0.0,
+      "name": "balloon_exposure_sar",
+      "scale": 2.74973351090961
+    },
+    {
+      "coef": 0.2307522643356654,
+      "id": 66,
+      "log_transform": false,
+      "mean": 0.45540977674355065,
+      "median": 0.4572832716302131,
+      "name": "facility_utilisation",
+      "scale": 0.1592260526951013
+    },
+    {
+      "coef": 0.026927248794797964,
+      "id": 67,
+      "log_transform": false,
+      "mean": 129.6697330099054,
+      "median": 95.5819364934811,
+      "name": "headroom_days_of_burn",
+      "scale": 448.5416150430458
+    },
+    {
+      "coef": -0.2744214260984274,
+      "id": 68,
+      "log_transform": false,
+      "mean": 6.053817798841496,
+      "median": 0.0,
+      "name": "max_consecutive_overdraft_days",
+      "scale": 18.682163222029
+    },
+    {
+      "coef": -0.15432118713018897,
+      "id": 69,
+      "log_transform": false,
+      "mean": 0.09457609268035809,
+      "median": 0.0,
+      "name": "emergency_line_present",
+      "scale": 0.292628527955964
+    }
+  ],
+  "intercept": -3.150948604836691,
+  "label": "default_label (synthetic, latent-driven, \u00a714)",
+  "lens_config_sha256": "a5f495b4ab39a89e5c459bec0208dc9535a58af6367a214686f528afc2203fe2",
+  "model": "logistic regression (L2, C=1.0) on median-imputed, standardised /profile features",
+  "n_train": 9495,
+  "oracle_ceiling_auc": 0.665953,
+  "pct_of_ceiling": 0.887696,
+  "population": "research (business_id 1-10,000, \u00a723), insufficient_data excluded (\u00a715)",
+  "serving_check": {
+    "auc": 0.643158,
+    "ci95": [
+      0.554116,
+      0.722537
+    ],
+    "defaults": 45,
+    "n": 943
+  },
+  "sha256": "4d0f675a86d5c6f8c1700436d134062a39da3d1b919895150e6fb7c0d1366985",
+  "trained": "2026-10-11",
+  "version": "v1"
+}

@@ -1,0 +1,95 @@
+# =============================================================================
+# Lens & governance-module parameters (Week 8 path).
+#
+# Kept OUT of config.yaml on purpose: config.yaml governs data generation and
+# its hash is cited by the calibration / compare_real receipts. These are
+# product-policy and lens parameters, not generative ones.
+#
+# Every value here is PROPOSED by the person who built the Week 8 skeleton and
+# needs the named owner's sign-off (DECISIONS.md entry 23). None was chosen by
+# looking at a lens's result: they were set before the lenses were first run.
+# =============================================================================
+version: "1.0"
+
+# --- Credit lens (§11, §13, §31) — owner: credit lens owner -------------------
+credit:
+  model_artifact: "lenses/credit/model_v1.json"
+  # Risk tiers on predicted PD. Fixed rates per tier, set once at signing —
+  # markup_fixed_at_inception is always true, there is no stressed rate (§11, §34).
+  # Cut points are PROPOSED product parameters, not fitted to anything.
+  tiers:
+    - { name: A, pd_below: 0.03, base_markup_pct: 5.0 }
+    - { name: B, pd_below: 0.06, base_markup_pct: 6.5 }
+    - { name: C, pd_below: 0.10, base_markup_pct: 8.0 }
+  decline_pd_at_or_above: 0.10
+  # §31 affordability: monthly_installment <= alpha × installment_capacity_sar (feature 42).
+  affordability_alpha: 0.40
+  repayment_months: 12
+  amount_round_down_to_sar: 1000
+  min_amount_sar: 5000
+  max_amount_sar: 500000
+  # §13 SHAP-to-plain-language thresholds, log-odds units, direction-aware.
+  explanation_thresholds: { strong: 0.3, moderate: 0.1 }
+  explanation_top_n: 3
+  # Inputs excluded from the model even though the engine computes them:
+  #   23 declared_mcc_code   categorical code, not a risk measure
+  #   24–26                  not_implemented (compliance / ESG owners), all-null
+  # Sector itself is NOT an input: sector enters only through the §35
+  # sector-relative z-scores, so the model cannot shortcut to the sector code
+  # (§25). The §8 /profile membership list already excludes the Zakat-only
+  # balance-sheet features 27–31, 34, 35.
+  excluded_feature_ids: [23, 24, 25, 26]
+
+# --- Zakat lens (§7, §17) — owner: compliance owner + Sharia advisor ---------
+zakat:
+  # Net Working Capital method (§7): (cash + inventory + receivables) - (payables + short-term liabilities).
+  rate_lunar_year: 0.025
+  lunar_year_days: 354
+  nisab:
+    basis: gold
+    grams: 85
+    # PLACEHOLDER — not a sourced price. The output carries source_status so
+    # this can never be mistaken for a validated figure. Compliance owner must
+    # replace it with a dated, archived gold price (§21 source discipline).
+    price_sar_per_gram: 400.0
+    source_status: placeholder_unverified
+  # Hawl rule applied: nisab must be met at the START and the END of the lunar
+  # year (the Hanafi position). Intermediate dips are not tracked — the data has
+  # no balance history before the generated window. PROPOSED for the Sharia
+  # advisor to confirm or replace.
+  hawl_rule: nisab_at_start_and_end
+
+# --- Forecast lens (§8, §10, §16) — owner: forecast + anomaly owner ----------
+forecast:
+  horizons_days: [30, 60, 90]
+  fit_window_days: 90
+  naive_window_days: 30          # §10 baseline: trailing-30-day mean daily net flow
+  trend_damping: 0.5             # slope multiplier when projecting; 1.0 = undamped linear trend
+  # Crunch alert: projected balance below zero inside a horizon, or the profile
+  # engine's liquidity hazard (features 52–54) at or above this probability.
+  hazard_alert_threshold: 0.5
+  hazard_watch_threshold: 0.2
+
+# --- Anomaly lens (§8, §12, §29) — owner: forecast + anomaly owner ------------
+anomaly:
+  # Scan the business's full available window (generator window_days = 180), not
+  # the profile's trailing 90: the baseline needs history, and a 90-day scan would
+  # miss anything older. Set before the lens was first run.
+  scan_days: 180
+  contamination: 0.01
+  max_flags: 10
+  n_estimators: 200
+  random_state: 0
+  min_transactions: 30           # below this a per-business baseline is not meaningful
+  # flag_reason rules, checked in this order; the first that matches is reported.
+  amount_z: 3.0
+  rare_hour_share: 0.01
+  new_counterparty_amount_z: 2.0
+  rare_category_share: 0.01
+  # Added after inspecting the demo output, BEFORE any held-out evaluation was run
+  # (DECISIONS entry 23). Generic logic fixes, not designed around any anomaly type:
+  new_counterparty_burn_in_days: 30   # every counterparty is 'new' at first sighting; ignore the window start
+  recurring_min_occurrences: 3        # same counterparty + category this often, amounts within band → expected
+  recurring_amount_band: 0.10
+  rule_violations_also_flag: true     # amount_z / rare-hour rules flag in their own right, listed first
+  # amount_z is applied ONE-SIDED (large amounts only): an unusually small payment is not a risk anomaly.

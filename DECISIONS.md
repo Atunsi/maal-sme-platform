@@ -1471,7 +1471,7 @@ generator or the contract. Entry 22 is the decision they raise.
 
 ---
 
-## 22. Latent spread vs. published SME model discrimination — OPEN, decide before Week 5
+## 22. Latent spread vs. published SME model discrimination — PATH A APPLIED BY DEFAULT (2026-10-11; no team decision was recorded before the credit lens trained)
 
 **Touches:** `default_label_model.shock_coef`, `.management_coef`, `.intercept`
 (§14 calibration inputs). Nothing else.
@@ -1522,5 +1522,138 @@ Path A applies by default — it is the one needing no new justification.
 exist in `sources/` today; Path A is available now. That asymmetry is a fact
 about the evidence, not an argument.
 
+**Applied by default, 2026-10-11 — not a team decision.** The credit lens (entry 23) was trained
+on 2026-10-11 with no decision recorded here, so per this entry's own rule **Path A applies**:
+the latent spread is unchanged and every credit AUC is reported beside the oracle ceiling
+(`lenses/credit/model_v1.json` carries `oracle_ceiling_auc` and `pct_of_ceiling`). Choosing Path B
+now would be retuning, because the credit lens's AUC is already known (0.591, 88.8% of ceiling).
+Path B remains available only for a *future* model version, justified by a cited external
+benchmark chosen on its own terms, and recorded before that version is trained.
+
 **Decision:** ☐ Path A ☐ Path B (benchmark cited: ______________)
 Recorded by: ____________  Date: __________
+
+---
+
+## 23. Week 8 path built end to end — skeleton + v1 of every lens; parameters PROPOSED, owners to take over (2026-10-11)
+
+**Touches:** new `pipeline/`, `lenses/{credit,forecast,anomaly,zakat}/`,
+`lenses/lens_config.yaml`, and four new harnesses. Nothing in the generator,
+`config.yaml`, or the profile engine changed. `eval/heldout_anomalies.assert_held_out`
+now also scans `lenses/anomaly/`.
+
+**Why now.** At the start of (inferred) Week 5 none of the five Week 8 outputs
+existed and no lens owner had started. The generator owner built a working v1 of
+the whole path in one day so the gate is no longer at risk of having nothing, and
+so every owner inherits a running, contract-checked slot instead of a blank one.
+**Every lens remains its SOP §3 owner's.** These are v1s to be owned, improved
+and signed off — not finished modules.
+
+### 23.1 What exists
+
+`python -m pipeline.week8 --demo` produces one JSON object per business (§9) with
+the credit decision (§11), cash-flow forecast + crunch alert, anomaly flags, Zakat
+liability, and `status` (`scored` / `partial_profile` / `insufficient_data` —
+explicit, never a silent null; on `insufficient_data` no lens runs, §15). The
+profile engine runs per business through the same code path as
+`profile_engine.compute`; that is exact because the hazard RNG is keyed on
+`business_id` and the §35 z-scores use the pinned reference table. Each object
+carries a receipt (config, lens-config and model hashes, output hash). Everything
+is deterministic: `eval/week8_check.py` re-runs the demo and confirms byte-identical
+output.
+
+**Contract check — `python -m eval.week8_check`: PASSED** on 43 objects (3 demo + 40
+random serving): 27 scored, 12 partial_profile, 4 insufficient_data; 25 approved,
+14 declined. It asserts the §11 key set exactly, fixed markup, charity-directed
+penalty, null `adjusted_markup_pct`/`recourse`/`stress`, no `stressed_markup_pct` /
+`eligible` / `fraud_reason` / score / threshold key anywhere, Zakat determinism and
+arithmetic, and that every forecast is shown beside its naive baseline.
+
+### 23.2 Measured results — reported, not retuned
+
+| lens | result | owner's next step |
+|---|---|---|
+| **Credit** | **CV AUC 0.5912** [0.5841, 0.5985] = **88.8% of the 0.666 ceiling** (team `unified_cv` protocol, research, 9,495 / 449 defaults, 58 features). Serving check, never trained on: 0.643 [0.554, 0.723], n=943. JSON scorer reproduces sklearn to 5e-15. Tier default rates monotone: A 1.9% → B 4.4% → C 7.3% → risk-model decline 11.7%. | SHAP is already exact (see 23.3); confirm tiers; human-readable feature names in the explanation text |
+| **Forecast** | **The model LOSES to the naive baseline on accuracy**: median scale-free error 0.455 vs 0.376, naive better for 63% of businesses, MAPE 18.1% vs 15.0%. It catches more crunches (87.1% vs 81.8%) at more false alarms (3.7% vs 1.3%). | Replace/improve the model (SOP names Prophet/ARIMA); the backtest is the bar. Holdout-shock lead-time test and Ramadan-window run (§10, §16) not done |
+| **Anomaly** | Injected types: both caught (ranks 1 and 7). **Held-out round-trip: recall 0.92**, precision 0.214 vs ceiling 0.230. **Held-out duplicate payment: recall 0.06 — effectively missed.** | Duplicates need a pairwise feature. If one is added, `duplicate_payment` stops being held-out and a **new** held-out type must be defined in `eval/heldout_anomalies.py` first (§12) |
+| **Zakat** | Demo 10001: SAR 5,963.26 (base 238,530 × 2.5%, seeded hawl complete). 10002: `hawl_incomplete`. Both §17 branches demonstrated. | Replace the placeholder nisab price; Sharia advisor to confirm the hawl rule |
+
+The forecast and duplicate-payment results are the important ones: they were
+measured, they are unflattering, and they are recorded as the bar to beat rather
+than tuned until they looked better.
+
+### 23.3 Decisions made — each PROPOSED for the owner named
+
+**Credit (credit lens owner):**
+- **Features = the §8 /profile list** (`registry.PROFILE_FEATURE_IDS`) minus 23
+  (categorical MCC code) and 24–26 (not_implemented). The Zakat-only balance-sheet
+  features 27–31, 34, 35 are excluded per §7/§8. *Note:* entry 21's model baseline
+  used all 71 engine features including 27–31; the contract-compliant model here
+  scores 0.591 vs that 0.596 — a small, honest cost of respecting §8.
+- **Sector is not an input** — it enters only via the §35 z-scores, so the model
+  cannot shortcut to the sector code (§25).
+- **Signed log1p on absolute-currency features**, decided before training.
+- **Model = regularised logistic**, per entry 21 (it beat XGBoost). Its contribution
+  `coef × z` *is* the exact SHAP value in log-odds, so the §13 explanation table
+  works now from a JSON artifact — no pickle, no SHAP library, fully auditable.
+- **Tiers:** PD < 0.03 → 5.0%, < 0.06 → 6.5%, < 0.10 → 8.0%, ≥ 0.10 decline. Product
+  parameters, not fitted. Fixed at inception, no stressed variant.
+- **§31 affordability**: amount = largest principal whose installment ≤ 0.40 ×
+  `installment_capacity_sar`, 12 months, rounded down to SAR 1,000, within
+  5,000–500,000. **Consequence to review: 23% of research businesses are declined
+  on affordability** because feature 42 is zero (outflow ≥ inflow) — the §31 gate
+  working as written, but a large share.
+- **On a decline, `base_markup_pct` is `null`** — the key is always present (§9, §11)
+  but no rate is offered on a decline. Interpretation for the owner to confirm.
+- §13 phrasing says "supported **approval**" rather than "supported **this
+  decision**", so the same sentence reads correctly on a decline.
+
+**Anomaly (forecast + anomaly owner):** per-business Isolation Forest on six generic
+features; flags only, `flag_reason` only, scores and threshold withheld (§29) — a
+`candidates_flagged` count was removed for the same reason. **Four logic fixes made
+after inspecting the demo output and BEFORE the held-out evaluation existed**, so
+none could be tuned to it: (1) recurring payment series are expected, not "rare";
+(2) a 30-day burn-in before a counterparty counts as new — first sightings had
+piled up at the window start; (3) hard univariate violations (large amount, rare
+hour) flag in their own right — the injected odd-hours transaction ranked 436th
+of 2,650 before this; (4) the amount rule is one-sided — unusually *small*
+payments are not a risk anomaly. The `both_directions` feature is the round-tripping
+signal §33 itself names; the held-out round-trip recall should be read with that
+in mind. There is deliberately no duplicate-payment feature.
+
+**Forecast (forecast + anomaly owner):** numpy OLS (trend + day-of-week, slope
+damped 0.5) vs trailing-30-day naive; crunch alert = projected negative balance or
+the engine's liquidity hazard (features 52–54, read from the profile, not recomputed
+— preserves §8/§34). No Prophet/statsmodels dependency added.
+
+**Zakat (compliance owner + Sharia advisor):** NWC method; rate 2.5% per lunar year
+(354 days); **nisab = 85 g gold at a PLACEHOLDER SAR 400/g**, carried in every output
+as `nisab_source_status: placeholder_unverified` so it cannot pass for a validated
+figure; **hawl rule = nisab at start and end of the year** (the Hanafi position) —
+intermediate dips untracked because no pre-window balance history exists. On
+`insufficient_data` Zakat does not run, following §15 literally ("before any lens
+runs"); arguably Zakat, not being a score, could run — the compliance owner decides.
+
+**Week 8 CLI:** lens parameters live in `lenses/lens_config.yaml`, not `config.yaml`,
+so the generator config's hash — cited by the calibration and compare_real receipts
+— is untouched. `governance.sharia_screen_status` is emitted as `null` /
+`not_implemented` rather than omitted, so its absence can never be read as compliant.
+
+### 23.4 Left for the owners
+
+- **Credit:** sign off 23.3; human-readable feature names in the explanation; §25
+  within-sector fairness audit (entries 1b, 21); recourse (§27) post-gate.
+- **Forecast:** beat the naive baseline (it currently doesn't); holdout-shock lead
+  time; Ramadan-window run.
+- **Anomaly:** duplicate detection (with a new held-out type defined first).
+- **Zakat / compliance:** sourced nisab price; hawl rule sign-off; Sharia screening
+  (feature 24) and the Compliance View; PDPL note.
+- **API (§8):** five routes over these modules; auth + rate limiting (§29); **Week 7
+  latency smoke test** — the CLI streams `transactions.csv` (~30 s per call), which
+  is fine for the Week 8 gate but not for a < 2 s API; serving will need a
+  pre-aggregated store.
+- **Everyone:** unit tests — there are still none beneath the integration checks.
+
+**Sign-off:** ☐ credit lens owner (23.3 credit) ☐ forecast + anomaly owner (23.3
+anomaly, forecast) ☐ compliance owner + Sharia advisor (23.3 Zakat) ☐ team (gating
+Zakat on insufficient_data)

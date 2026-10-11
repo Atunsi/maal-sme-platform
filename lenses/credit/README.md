@@ -1,4 +1,6 @@
-# Credit lens (Base Murabaha) — NOT BUILT
+# Credit lens (Base Murabaha) — v1 BUILT, owner to take over
+
+**v1 (2026-10-11, DECISIONS entry 23):** `model.py` (scoring, §11 decision, §13 explanation), `train.py` (trains + exports `model_v1.json`). CV AUC 0.591 = 88.8% of the 0.666 ceiling; JSON scorer reproduces sklearn to 5e-15; tier default rates monotone. Parameters in [`../lens_config.yaml`](../lens_config.yaml) are PROPOSED — sign off or change them in entry 23. Retrain: `python -m profile_engine.compute --dir data && python -m lenses.credit.train`.
 
 **Owner:** credit lens owner · **Schema:** §11, §13, §14, §17, §25, §26, §31 · **Due:** Week 5, SHAP Week 7
 

@@ -58,6 +58,8 @@ python -m eval.validate_emergent            # §21, always exit 0 (findings are 
 python -m eval.latent_ceiling               # §14 ceiling/label spread, seconds, no economics
 python -m eval.run_section14                # §14 AUC vs rho + ladder + baseline, ~10 min
 python -m profile_engine.compute --dir data # features → data/profiles.csv
+python -m pipeline.week8 --demo            # Week 8: one JSON per business (needs lenses/credit/model_v1.json)
+python -m eval.week8_check                 # Week 8 contract on real output, exit 0 = PASS
 python -m ruff check .                      # must pass before committing
 ```
 
@@ -80,10 +82,12 @@ Full command list (Berka grounding, Saudi calibration, workstream B) is in READM
 - On a rejected push: fetch, inspect what landed (`git diff --stat HEAD...origin/main`), and check whether it invalidates numbers you're about to record before merging.
 - Commit messages explain *why* and state what was verified. End with the `Co-Authored-By:` line the harness specifies.
 
-## State as of 2026-10-11 (verify — this rots)
+## State as of 2026-10-11, end of day (verify — this rots)
 
-- **Built:** generator (Week 3 gate PASSED, full scale), profile engine (71 features), Berka real-data adapter, Saudi source calibration (SAMA, Monsha'at), eval harnesses incl. §14 ρ-sweep.
-- **Not built (0 code):** credit, forecast, anomaly, Zakat lenses; compliance; API. These are the entire **Week 8 hard gate** (one CLI → one JSON: credit decision, forecast + crunch alert, anomaly flags, Zakat liability, `insufficient_data`). Missing it cancels all stretch goals (SOP §5).
-- **Open decisions:** entry 2 (sector scope — overdue), 6 (GASTAT revenue mix), **22 (latent spread — before credit lens trains)**. Most other entries await cross-owner sign-off; none has one yet.
-- **Owed:** §14 label-noise axis (`sweep_rho.py --param noise` — implemented, never run). No unit tests anywhere.
-- Key measured numbers (entry 21): oracle ceiling AUC 0.665; best model logistic 0.596 (~90% of ceiling); AUC flat across ρ; logistic beats tuned XGBoost.
+- **Built:** generator (Week 3 gate PASSED), profile engine (71 features), Berka adapter, Saudi calibration, eval harnesses incl. §14 sweep — and **the Week 8 path**: `python -m pipeline.week8 --demo` emits one JSON per business with all five outputs. `eval.week8_check` PASSED (43 objects, byte-identical re-run).
+- **Lenses are v1s, built by the generator owner to unblock the gate — each still belongs to its SOP §3 owner** (DECISIONS entry 23, all parameters PROPOSED, in `lenses/lens_config.yaml`, deliberately not `config.yaml`).
+- **Honest findings to beat, not tune:** credit CV AUC 0.591 (88.8% of the 0.666 ceiling); **forecast model loses to the naive baseline**; anomaly misses held-out duplicate payments (recall 0.06); Zakat nisab price is a **placeholder**.
+- **Not built:** API routes (+ Week 7 latency test — the CLI streams `transactions.csv`, ~30 s/call), Sharia screening / Compliance View, recourse, unit tests.
+- **Decisions:** entry 22 → Path A applied **by default** (credit lens trained before anyone decided — Path B is now retuning for v1). Entry 23 needs four owner sign-offs. Entries 2 and 6 still open.
+- **If you add a duplicate-payment detector**, define a new held-out type in `eval/heldout_anomalies.py` first (§12); `assert_held_out()` now also scans `lenses/anomaly/`.
+- Owed: §14 label-noise axis (implemented, never run).

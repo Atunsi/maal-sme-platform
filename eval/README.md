@@ -19,6 +19,9 @@ deliverables.
 | `sweep_rho.py` | §14 AUC as a function of `latent_to_observable_correlation` (and, via `--param noise`, of label-noise level) | 0, or 1 if labels moved |
 | `signal_decomposition.py` | §14 attribution: where signal is lost between the hidden latent and the measured features | 0 |
 | `model_baseline.py` | What the feature set supports at this sample size — logistic vs tuned/untuned XGBoost on one protocol, as % of the oracle ceiling | 0 |
+| `week8_check.py` | Week 8 contract: §11 keys, fixed markup, charity penalty, no forbidden keys / scores, Zakat arithmetic, forecast-with-baseline, byte-identical re-run — asserted on real CLI output | 0 = PASS, 1 = FAIL |
+| `anomaly_eval.py` | §12 anomaly lens recall@K / precision@K (with its ceiling), injected and held-out types reported separately | 0 |
+| `forecast_backtest.py` | §10 model vs naive on a 30-day holdout: scale-free error, MAPE away from zero, crunch recall / false alarms | 0 |
 | `berka_coverage.py` | Phase 2: coverage bands + evidence registry on the Berka engine output → `out/berka_coverage.md` | 0 = accepted |
 | `compare_real.py` | Phase 4: real-vs-synthetic comparison under **one CV protocol on all three sources** (repeated stratified group 5-fold × 20; temporal split kept as a labelled leakage check; `--protocol temporal` = v1.0), per-feature transfer, §15 exclusion selectivity, §8.4 findings → `out/real_vs_synthetic.md`. Asserts config hash unchanged, no look-ahead (self-tested), real-computed (A1 ∪ A2) scale-free set, §21 target pre-registered. | 0 |
 | `feature_transfer.py` | B1: univariate Berka AUC with 1,000-resample bootstrap CI for every typed-A feature, both label sets; the A1/A2 subclass by the CI rule → `out/feature_transfer.md/.json` | 0 |
