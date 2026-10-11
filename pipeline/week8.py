@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -35,12 +36,44 @@ from lenses.credit.model import decide, load_artifact
 from lenses.forecast.forecast import forecast
 from lenses.zakat.zakat import compute_zakat
 from pipeline.data import load_tables, run_profiles
+from profile_engine import features as fe
 
 DEMO_IDS = [10001, 10002, 10003]
 
 
+INPUT_TABLES = ("businesses", "daily_aggregates", "balances_monthly", "transactions", "obligations", "facilities")
+
+
 def _sha(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def output_sha256(obj: dict) -> str:
+    """Hash of a decision object excluding its receipt — what 'byte-identical' is checked on."""
+    body = {k: v for k, v in obj.items() if k != "receipt"}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def data_sha256(tables: dict, b_id: int) -> str:
+    """Hash of exactly the input rows this business's decision was computed from, in file order."""
+    h = hashlib.sha256()
+    for name in INPUT_TABLES:
+        t = tables.get(name)
+        if t is None:
+            continue
+        h.update(name.encode())
+        h.update(t[t["business_id"] == b_id].to_csv(index=False, date_format="%Y-%m-%d").encode())
+    return h.hexdigest()
+
+
+def code_commit() -> str | None:
+    """Git commit of the code that produced the decision; '+dirty' if uncommitted changes were present."""
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
+        dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], capture_output=True, text=True, check=True).stdout.strip()
+        return head + ("+dirty" if dirty else "")
+    except (OSError, subprocess.CalledProcessError):
+        return None
 
 
 def build_objects(d: str | Path, business_ids: list[int]) -> list[dict]:
@@ -48,7 +81,9 @@ def build_objects(d: str | Path, business_ids: list[int]) -> list[dict]:
     lc = load_lens_config()
     art = load_artifact(str(lc["credit"]["model_artifact"]))
     tables = load_tables(d, business_ids)
+    data_hash = {int(b): data_sha256(tables, int(b)) for b in tables["businesses"]["business_id"]}  # before the engine touches anything
     prof = run_profiles(tables, cfg)
+    _, ref_hash = fe.load_reference_stats()
 
     feats = prof["features"].set_index("business_id")
     status = prof["status"].set_index("business_id")
@@ -62,6 +97,8 @@ def build_objects(d: str | Path, business_ids: list[int]) -> list[dict]:
         "credit_model_sha256": art.get("sha256"),
         "credit_model_cv_auc": round(art["cv"]["median"], 4),
         "credit_model_oracle_ceiling_auc": round(art["oracle_ceiling_auc"], 4),
+        "reference_stats_sha256": ref_hash,  # §35 pinned sector table — never recomputed at serving
+        "code_commit": code_commit(),
         "generated_by": "pipeline.week8",
     }
 
@@ -117,9 +154,16 @@ def build_objects(d: str | Path, business_ids: list[int]) -> list[dict]:
             "sharia_screen_status": None,
             "sharia_screen_reason": "not_implemented",  # compliance module not built yet (feature 24)
         }
-        body = json.dumps(obj, sort_keys=True, default=str)
-        obj["receipt"] = {**receipt_base, "output_sha256": hashlib.sha256(body.encode()).hexdigest(),
-                          "scope": "guarantees byte-identical reproduction of this decision object"}
+        obj["receipt"] = {
+            **receipt_base,
+            "data_sha256": data_hash[b_id],
+            "output_sha256": output_sha256(obj),
+            "scope": (
+                "Covers the deterministic core only: re-running with these inputs reproduces this object "
+                "byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is "
+                "outside its scope and cannot affect the decision (§36)."
+            ),
+        }
         objects.append(obj)
     return objects
 

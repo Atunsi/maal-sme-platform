@@ -33,6 +33,8 @@ their Claude sessions) push to `main`.
 - **Decide calibration before the result exists.** e.g. DECISIONS entry 22 (latent spread) must be settled *before* the credit lens trains — after, it's retuning regardless of the reasoning.
 - **Gates must be able to fail.** Assert on generated *output tables*, never on the generator's own parameters (an early gate was tautological for exactly this reason).
 - **Measure, don't assume.** Tuned XGBoost was predicted to beat logistic; measured, it doesn't (entry 21). Record the measurement either way.
+- **Quote numbers from [`docs/NUMBERS.md`](docs/NUMBERS.md), never from memory or an old doc.** Synthetic AUC exists as 0.574 / 0.578 / 0.591 / 0.596 — each correct for its own feature set and protocol (rows A1–A9 say which claim each supports). If you change a number, update its row in the same commit and run `python -m eval.check_numbers`. §7 lists retired numbers.
+- **Never cite an external benchmark that isn't archived in `sources/`** — e.g. the "0.70–0.80 published SME range" is not yet sourced.
 - **Every number carries its population and N.** Research = `business_id` 1–10,000 (training/CV); serving = 10,001–11,000 (demo slice). Disjoint seeds and ID ranges — never mix them.
 - **Withdraw wrong claims explicitly** in DECISIONS, don't quietly drop them.
 - Held-out anomaly types (`round_trip_transfer`, `duplicate_payment`) live **only** in `eval/heldout_anomalies.py` — never in `config.yaml` or `generator/`. `assert_held_out()` enforces it.
@@ -60,6 +62,8 @@ python -m eval.run_section14                # §14 AUC vs rho + ladder + baselin
 python -m profile_engine.compute --dir data # features → data/profiles.csv
 python -m pipeline.week8 --demo            # Week 8: one JSON per business (needs lenses/credit/model_v1.json)
 python -m eval.week8_check                 # Week 8 contract on real output, exit 0 = PASS
+python -m pipeline.verify <decisions.json> # reproducibility receipt: re-run and compare byte for byte
+python -m eval.check_numbers               # docs/NUMBERS.md matches its source artifacts
 python -m ruff check .                      # must pass before committing
 ```
 

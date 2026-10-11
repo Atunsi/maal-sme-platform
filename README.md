@@ -24,6 +24,7 @@ and `insufficient_data` as a distinct state. No UI required to pass.
 | [`docs/SME_Platform_SOP.md`](docs/SME_Platform_SOP.md) | Working rules, roles, gates, build/cut order. **Defers to the schema wherever the two disagree.** |
 | `SOP_Data_Grounding_And_Dimensions.md` (v2.0, team copy) | Real-data grounding (Berka) and honest completion of the ungrounded dimensions. Executed 2026-09-15/16; every phase's evidence is in `DECISIONS.md` entries 7–11 and `eval/out/`. |
 | [`DECISIONS.md`](DECISIONS.md) | Change-control log (SOP §9). Every decision the schema doesn't pin down, plus every open question, with rationale and sign-off lines. |
+| [`docs/NUMBERS.md`](docs/NUMBERS.md) | **Numbers register.** Every headline number with its population, protocol, source and what it may be quoted for — and the retired ones. Quote numbers from here; `python -m eval.check_numbers` fails if it drifts from the artifacts. |
 
 ## Non-negotiables (SOP §2)
 
@@ -87,6 +88,8 @@ python -m profile_engine.compute --dir data   # once: profiles for lens training
 python -m lenses.credit.train                 # → lenses/credit/model_v1.json
 python -m pipeline.week8 --demo               # one JSON per demo business (§9)
 python -m eval.week8_check                    # contract + non-negotiables on real output
+python -m pipeline.verify decisions.json      # re-run saved decisions; byte-identical or names the changed input
+python -m eval.check_numbers                  # docs/NUMBERS.md matches every source artifact
 python -m eval.anomaly_eval                   # §12 injected vs held-out → eval/out/anomaly_eval.md
 python -m eval.forecast_backtest              # §10 model vs naive → eval/out/forecast_backtest.md
 

@@ -1476,8 +1476,9 @@ generator or the contract. Entry 22 is the decision they raise.
 **Touches:** `default_label_model.shock_coef`, `.management_coef`, `.intercept`
 (§14 calibration inputs). Nothing else.
 
-**The situation.** The oracle ceiling is **AUC 0.665** (entry 21). Published
-SME credit models typically report **0.70–0.80**. So the credit lens will
+**The situation.** The oracle ceiling is **AUC 0.665** (entry 21). SME credit
+models are commonly said to reach **0.70–0.80** — *a figure not yet backed by an
+archived source (corrected 2026-10-11; see `docs/NUMBERS.md`)*. So the credit lens will
 report roughly 0.60 and look weak against published benchmarks while operating
 at **~90% of everything achievable in this synthetic world**. The synthetic
 problem is harder than reality, by construction.
@@ -1657,3 +1658,44 @@ so the generator config's hash — cited by the calibration and compare_real rec
 **Sign-off:** ☐ credit lens owner (23.3 credit) ☐ forecast + anomaly owner (23.3
 anomaly, forecast) ☐ compliance owner + Sharia advisor (23.3 Zakat) ☐ team (gating
 Zakat on insufficient_data)
+
+---
+
+## 24. Credibility path, first two steps: a numbers register and a complete reproducibility receipt — PROPOSED (2026-10-11)
+
+**Touches:** new `docs/NUMBERS.md`, `eval/check_numbers.py`, `pipeline/verify.py`; the
+`receipt` block of the Week 8 output; `eval/run_section14.py` now persists its results.
+No model, lens decision or generated data changed.
+
+**Why.** Synthetic AUC is quoted as 0.574, 0.578, 0.591 and 0.596 across the repo. Each is
+correct for its own feature set and protocol, but a panel that sees four "AUCs" doubts all
+of them. Separately, the Demo & Credibility plan (item 2) requires the receipt to carry a
+data hash and the §35 reference-stats hash, plus a way to verify a decision. Neither existed.
+
+**What changed.**
+- **`docs/NUMBERS.md` is the single source for any number on a slide, in the report or at
+  the defense.** Each row gives population, N, features, protocol, source, what it may be
+  quoted for and what it must not. §7 retires the pre-calibration and withdrawn numbers.
+  `python -m eval.check_numbers` recomputes 29+ of them from their artifacts and fails on
+  drift; a deliberately corrupted value was caught in testing.
+- **Receipt completed.** Every decision object now carries `data_sha256` (exactly the input
+  rows its decision was computed from), `reference_stats_sha256` (§35) and `code_commit`
+  (with `+dirty` if uncommitted code produced it), alongside the existing config, lens
+  config, model and output hashes. `python -m pipeline.verify <file>` re-runs saved
+  decisions: it reports *reproduced byte-identical*, or names which input changed, or flags
+  the object as edited after it was produced. Tested both ways — the demo decisions
+  reproduce, and a decision with its amount changed by hand is caught as "EDITED".
+  `eval/week8_check` now asserts every receipt field and the output hash's consistency.
+- **§14 numbers now have an artifact** (`eval/out/section14_rho_sweep.md`), including the
+  model-baseline grid; before this they existed only in prose.
+
+**Corrections made while building the register:**
+- The credit-lens README quoted **0.5959 / 89.5% of ceiling** as the lens's number. That is
+  the §14 sweep (row A6, includes the Zakat-only features); the shipped lens is **0.5912 /
+  88.8%** (row A1). Corrected.
+- **"SME credit models report 0.70–0.80"** (entry 22, credit-lens README) was stated without
+  an archived source. It is now marked unsourced everywhere and is barred from the approved
+  headline sentences until a benchmark is archived in `sources/` — the same source would
+  also be what entry 22 Path B requires.
+
+**Sign-off:** ☐ team (adopt `docs/NUMBERS.md` as the only place numbers are quoted from)

@@ -44,16 +44,19 @@ Reproduce with `python -m eval.latent_ceiling` (seconds) and
 
 **1. The achievable ceiling is AUC 0.665, and you will be at ~90% of it.**
 Default labels come from hidden latents plus idiosyncratic noise (§14), so no
-feature set can exceed the AUC of the latent itself. Measured: oracle 0.6660,
-best measured model 0.5959 = 89.5% of ceiling. Published SME credit models
-report 0.70–0.80, so a bare 0.60 will read as underperformance against
-benchmarks when it is near-optimal here. **Report the ceiling alongside every
+feature set can exceed the AUC of the latent itself. Measured: oracle 0.6660;
+**this lens (v1) 0.5912 = 88.8% of ceiling** ([`docs/NUMBERS.md`](../../docs/NUMBERS.md) row A1).
+SME credit models are commonly said to reach 0.70–0.80 (**not yet sourced** — cite an
+archived benchmark before saying it on a slide), so a bare 0.59 will read as
+underperformance when it is near-optimal here. On real Berka outcomes the same engine
+reaches 0.721 (row A3). **Report the ceiling alongside every
 AUC** so the claim is a ratio, not a raw number. Whether to widen the latent
 spread instead is an open decision with a **hard deadline of before you start
 training** (entry 22) — deciding after you see your AUC makes it retuning.
 
 **2. XGBoost is not a given at this sample size.** Entity-level 5-fold OOF,
-9,495 businesses / 449 defaults / 82 features (71 engine + 11 dummies):
+9,495 businesses / 449 defaults / 82 features (71 engine + 11 dummies) — the §14
+sweep's feature set (NUMBERS.md row A6), *not* this lens's 58 contract features:
 
 | model | OOF AUC | % of ceiling |
 |---|---|---|

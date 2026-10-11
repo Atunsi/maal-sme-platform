@@ -16,7 +16,8 @@ population and asserts, on the JSON actually produced (not on the code):
   §17  Zakat is deterministic; a zero liability always carries below_nisab or
        hawl_incomplete; a computed liability equals base × rate
   §10  the forecast is always shown beside its naive baseline
-  receipt  a second run reproduces every object byte for byte
+  receipt  every hash present (config, lens config, model, §35 reference stats, data,
+           output, code), output_sha256 consistent, and a second run byte-identical
 
 Exit code 0 = all assertions hold, 1 = at least one failed.
 """
@@ -33,9 +34,11 @@ import pandas as pd
 
 from lenses import load_lens_config
 from lenses.credit.model import CONTRACT_KEYS
-from pipeline.week8 import DEMO_IDS, build_objects
+from pipeline.week8 import DEMO_IDS, build_objects, output_sha256
 
 FORBIDDEN_KEYS = {"stressed_markup_pct", "eligible", "fraud_reason", "score", "anomaly_score", "threshold", "decision_threshold"}
+RECEIPT_KEYS = ("config_sha256", "lens_config_sha256", "credit_model_sha256", "reference_stats_sha256",
+                "data_sha256", "output_sha256", "code_commit", "scope")  # Demo & Credibility plan item 2
 FAILURES: list[str] = []
 
 
@@ -59,6 +62,10 @@ def check_object(o: dict, lc: dict) -> None:
     check(o.get("status") in {"scored", "partial_profile", "insufficient_data"}, f"{b}: status missing/invalid")
     for p, k in walk_keys(o):
         check(k not in FORBIDDEN_KEYS, f"{b}: forbidden key {p}")
+    rec = o.get("receipt", {})
+    for k in RECEIPT_KEYS:
+        check(rec.get(k), f"{b}: receipt missing {k}")
+    check(rec.get("output_sha256") == output_sha256(o), f"{b}: receipt output_sha256 does not match the object")
 
     if o["status"] == "insufficient_data":
         check(o.get("lenses_not_run_reason") == "insufficient_data", f"{b}: insufficient_data without explicit reason")

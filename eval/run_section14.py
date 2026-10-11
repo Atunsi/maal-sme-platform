@@ -21,6 +21,8 @@ Usage (from the repo root):
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import sys
 import time
 
@@ -37,6 +39,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--config", default="config.yaml")
     ap.add_argument("--values", type=float, nargs="+", default=[0.6, 0.7, 0.8, 0.9])
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--out", default="eval/out/section14_rho_sweep.md")
     ap.add_argument(
         "--n-research", type=int, default=None,
         help="cap the research population to keep peak memory in bounds. Businesses are keyed by "
@@ -45,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     base_rho = load_config(args.config)["latent_to_observable_correlation"]
 
-    rows, fingerprints = [], {}
+    rows, fingerprints, ladders, baseline_text = [], {}, {}, ""
     for rho in args.values:
         cfg = load_config(args.config)
         set_param(cfg, "rho", rho)
@@ -71,6 +74,7 @@ def main(argv: list[str] | None = None) -> int:
 
         print(f"\n--- signal ladder at rho = {rho} ---", flush=True)
         lad = ladder(f, tables, rho)
+        ladders[rho] = lad
         prev = None
         for _, row in lad.iterrows():
             d = "" if prev is None else f"   lost {prev - row['AUC']:+.4f}"
@@ -84,7 +88,11 @@ def main(argv: list[str] | None = None) -> int:
 
         if abs(rho - base_rho) < 1e-9:
             print(f"\n--- model baseline at rho = {rho} (config value) ---", flush=True)
-            report_baseline(f, tables, rho)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                report_baseline(f, tables, rho)
+            baseline_text = buf.getvalue()
+            print(baseline_text, end="")
 
         print(f"\n  [rho={rho} done in {time.time() - t0:.0f}s]", flush=True)
         del tables, f
@@ -102,7 +110,39 @@ def main(argv: list[str] | None = None) -> int:
     peak = float(show[HONEST_COLUMNS].max().max())
     print(f"\npeak out-of-sample AUC = {peak:.4f} — §14 circularity threshold 0.85 "
           f"{'NOT reached' if peak < 0.85 else 'REACHED'}")
+    write_report(args.out, show, df, ladders, ident, peak, baseline_text)
     return 0 if ident else 1
+
+
+def write_report(path: str, show: pd.DataFrame, df: pd.DataFrame, ladders: dict, ident: bool, peak: float, baseline_text: str = "") -> None:
+    """Persist the run so the numbers in DECISIONS entry 21 / docs/NUMBERS.md have an artifact behind them."""
+    from pathlib import Path
+
+    lines = [
+        "# §14 sensitivity — AUC as a function of rho (eval/run_section14.py)",
+        "",
+        (
+            f"Population: **research**, scorable (§15), N = {df['n_research'].iloc[0]:,}, "
+            f"{df['n_defaults'].iloc[0]} defaults. Data source: synthetic. Protocol: single stratified 5-fold, "
+            "pooled out-of-fold, one row per business (entity-disjoint). Features: all 71 engine features "
+            "(including the Zakat-only 27–31, so this is a sensitivity measurement, NOT the credit lens's number) "
+            "+ sector/size/age dummies. Labels identical at every rho: " + str(ident) + "."
+        ),
+        "",
+        show.round(4).to_markdown(),
+        "",
+        f"Peak out-of-sample AUC = {peak:.4f}; §14 circularity threshold 0.85 {'not reached' if peak < 0.85 else 'REACHED'}.",
+        "",
+        "## Signal ladder per rho",
+        "",
+    ]
+    for rho, lad in ladders.items():
+        lines += [f"### rho = {rho}", "", lad.assign(AUC=lad["AUC"].round(4)).to_markdown(index=False), ""]
+    if baseline_text:
+        lines += ["## Model baseline at the config rho (same protocol and features as the sweep)", "", "```", baseline_text.strip(), "```", ""]
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {path}")
 
 
 if __name__ == "__main__":
