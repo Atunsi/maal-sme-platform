@@ -34,6 +34,7 @@ their Claude sessions) push to `main`.
 - **Gates must be able to fail.** Assert on generated *output tables*, never on the generator's own parameters (an early gate was tautological for exactly this reason).
 - **Measure, don't assume.** Tuned XGBoost was predicted to beat logistic; measured, it doesn't (entry 21). Record the measurement either way.
 - **Quote numbers from [`docs/NUMBERS.md`](docs/NUMBERS.md), never from memory or an old doc.** Synthetic AUC exists as 0.574 / 0.578 / 0.591 / 0.596 — each correct for its own feature set and protocol (rows A1–A9 say which claim each supports). If you change a number, update its row in the same commit and run `python -m eval.check_numbers`. §7 lists retired numbers.
+- **Model selection uses a validation window; the test window is reported once.** Forecast: choose on days 121–150, report days 151–180 (`eval/forecast_selection.py`). Never change `lens_config.forecast.method` by reading the test table.
 - **Never cite an external benchmark that isn't archived in `sources/`** — e.g. the "0.70–0.80 published SME range" is not yet sourced.
 - **Every number carries its population and N.** Research = `business_id` 1–10,000 (training/CV); serving = 10,001–11,000 (demo slice). Disjoint seeds and ID ranges — never mix them.
 - **Withdraw wrong claims explicitly** in DECISIONS, don't quietly drop them.
@@ -93,10 +94,11 @@ Full command list (Berka grounding, Saudi calibration, workstream B) is in READM
 
 - **Week 3 and Week 7 gates PASSED; Week 8 deliverable exists.** Built: generator (Week 3 gate PASSED), profile engine (71 features), Berka adapter, Saudi calibration, eval harnesses incl. §14 sweep — and **the Week 8 path**: `python -m pipeline.week8 --demo` emits one JSON per business with all five outputs. `eval.week8_check` PASSED (43 objects, byte-identical re-run).
 - **Lenses are v1s, built by the generator owner to unblock the gate — each still belongs to its SOP §3 owner** (DECISIONS entry 23, all parameters PROPOSED, in `lenses/lens_config.yaml`, deliberately not `config.yaml`).
-- **Honest findings to beat, not tune:** credit CV AUC 0.591 (88.8% of the 0.666 ceiling); **forecast model loses to the naive baseline**; anomaly misses held-out duplicate payments (recall 0.06); Zakat nisab price is a **placeholder**.
-- **API v1 built** (`api/`): five routes over a DuckDB serving store, same code path as the CLI; **Week 7 latency PASSED** (credit max 312 ms on all 1,000; anomaly route max 982 ms is the closest to budget). Needs `MAAL_API_KEY` in the environment — never commit it. Rebuild `data/serving.duckdb` whenever data is regenerated.
-- **First unit tests exist** (`tests/`, 21): API guarantees + Zakat rules + credit policy.
-- **Not built:** Sharia screening (feature 24) / Compliance View, per-owner API authorisation, recourse, UI.
+- **Honest findings to beat, not tune:** credit CV AUC 0.591 (88.8% of the 0.666 ceiling); forecast now `naive90`, which beats the naive-30 baseline on an untouched test (0.323 vs 0.376) — a longer moving average, not a clever model; anomaly misses held-out duplicate payments (recall 0.06); Zakat nisab price is a **placeholder**.
+- **API v1 built** (`api/`): five routes over a DuckDB serving store, same code path as the CLI; **Week 7 latency PASSED** (credit max 252 ms on all 1,000; anomaly route max 964 ms is the closest to budget). Needs `MAAL_API_KEY` in the environment — never commit it. Rebuild `data/serving.duckdb` whenever data is regenerated.
+- **Unit tests** (`tests/`, 60): API guarantees, Sharia rules + §27 gate, forecast methods, Zakat rules, credit policy.
+- **Sharia screening built** (feature 24, `compliance/`): rule table is PROPOSED, not certified — never present it as a Sharia determination. Compliance View data exists in every decision; the toggle is UI work.
+- **Not built:** per-owner API authorisation, recourse (now unblocked by feature 24), UI.
 - **Decisions:** entry 22 → Path A applied **by default** (credit lens trained before anyone decided — Path B is now retuning for v1). Entry 23 needs four owner sign-offs. Entries 2 and 6 still open.
 - **If you add a duplicate-payment detector**, define a new held-out type in `eval/heldout_anomalies.py` first (§12); `assert_held_out()` now also scans `lenses/anomaly/`.
 - Owed: §14 label-noise axis (implemented, never run).

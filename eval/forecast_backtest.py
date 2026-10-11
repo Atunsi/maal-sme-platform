@@ -30,7 +30,8 @@ import numpy as np
 import pandas as pd
 
 from lenses import load_lens_config
-from lenses.forecast.forecast import _model, _naive
+from lenses.forecast.forecast import METHOD_LABELS
+from lenses.forecast.methods import BASELINE, METHODS
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -41,13 +42,13 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     d, H = Path(args.dir), args.holdout_days
     fcfg = load_lens_config()["forecast"]
-    fit_n, naive_n, damp = int(fcfg["fit_window_days"]), int(fcfg["naive_window_days"]), float(fcfg["trend_damping"])
+    fit_n, naive_n, damp, method = int(fcfg["fit_window_days"]), int(fcfg["naive_window_days"]), float(fcfg["trend_damping"]), fcfg["method"]
 
     status = pd.read_csv(d / "profile_status.csv")
     biz = pd.read_csv(d / "businesses.csv", parse_dates=["window_end"])
     keep = biz.merge(status, on="business_id")
     keep = keep[(keep["population"] == "research") & (keep["status"] != "insufficient_data")]
-    daily = pd.read_csv(d / "daily_aggregates.csv", parse_dates=["date"], usecols=["business_id", "date", "net_flow", "outflow_total", "eod_balance"])
+    daily = pd.read_csv(d / "daily_aggregates.csv", parse_dates=["date"], usecols=["business_id", "date", "net_flow", "outflow_total", "recurring_outflow_total", "eod_balance"])
     daily = daily[daily["business_id"].isin(set(keep["business_id"]))].sort_values(["business_id", "date"])
 
     rows = []
@@ -56,12 +57,11 @@ def main(argv: list[str] | None = None) -> int:
             continue
         hist, fut = g.iloc[:-H], g.iloc[-H:]
         fit = hist.tail(fit_n)
-        net = fit["net_flow"].to_numpy(float)
         b0 = float(hist["eod_balance"].iloc[-1])
         scale = max(float(fit["outflow_total"].sum()) / (len(fit) / 30.0), 500.0)  # avg monthly outflow, §16 floor
         actual_path = fut["eod_balance"].to_numpy(float)
-        p_model = b0 + np.cumsum(_model(pd.DatetimeIndex(fit["date"]), net, H, damp))
-        p_naive = b0 + np.cumsum(_naive(net, naive_n, H))
+        p_model = b0 + np.cumsum(METHODS[method](hist, H, damping=damp))   # the shipped method (lens_config)
+        p_naive = b0 + np.cumsum(METHODS[BASELINE](hist, H))
         rows.append({
             "business_id": b_id, "actual": actual_path[-1], "model": p_model[-1], "naive": p_naive[-1], "scale": scale,
             "went_negative": bool((actual_path < 0).any()),
@@ -88,7 +88,7 @@ def main(argv: list[str] | None = None) -> int:
         "",
         "| projection | median error | mean error | businesses where it is the better of the two |",
         "|---|---|---|---|",
-        f"| model (OLS trend + day-of-week, damped) | {r['err_model'].median():.3f} | {r['err_model'].mean():.3f} | {(r['err_model'] < r['err_naive']).mean():.1%} |",
+        f"| model — `{method}` ({METHOD_LABELS[method]}) | {r['err_model'].median():.3f} | {r['err_model'].mean():.3f} | {(r['err_model'] < r['err_naive']).mean():.1%} |",
         f"| naive (trailing-{naive_n}d mean) | {r['err_naive'].median():.3f} | {r['err_naive'].mean():.3f} | {(r['err_naive'] < r['err_model']).mean():.1%} |",
         "",
         (

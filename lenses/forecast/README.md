@@ -1,6 +1,6 @@
-# Forecast lens — v1 BUILT, owner to take over
+# Forecast lens — v2 BUILT (beats the naive baseline), owner to take over
 
-**v1 (2026-10-11, DECISIONS entry 23):** `forecast.py` — OLS trend + day-of-week (damped) vs trailing-30d naive, balance at 30/60/90 days, crunch alert from projection + engine hazard (features 52–54). **Backtest finding: the model loses to the naive baseline on accuracy** (median error 0.455 vs 0.376) while catching more crunches (87.1% vs 81.8%). Beating naive is your first job — `python -m eval.forecast_backtest` is the bar.
+**Method (2026-10-11, DECISIONS entry 27):** `naive90` (trailing-90-day mean), chosen on a validation window from six candidates fixed in advance (`methods.py`), then reported once on an untouched test window. **It beats the naive-30 baseline**: median error 0.323 vs 0.376 (research), 0.344 vs 0.401 (serving), with fewer than half the false alarms. It is a longer moving average, not a sophisticated model. Any new model must beat it under the same protocol (`python -m eval.forecast_selection`); never pick by reading the test table. Still open: §10 holdout-shock lead time and the §16 Ramadan-window run.
 
 **Owner:** forecast + anomaly owner · **Schema:** §8, §10, §16, §34 · **Due:** Week 5
 

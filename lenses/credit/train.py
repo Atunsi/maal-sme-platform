@@ -37,7 +37,7 @@ import pandas as pd
 from sklearn.metrics import roc_auc_score
 
 from eval.compare_real import ABSOLUTE_CURRENCY, bootstrap_auc, model, unified_cv
-from lenses import LENS_CONFIG_PATH, load_lens_config
+from lenses import load_lens_config
 from lenses.credit.model import decide, load_artifact, score
 from profile_engine.registry import FEATURE_NAMES, PROFILE_FEATURE_IDS
 
@@ -112,7 +112,9 @@ def main(argv: list[str] | None = None) -> int:
         "label": "default_label (synthetic, latent-driven, §14)",
         "data_source": "synthetic",
         "config_sha256": sha256_file("config.yaml"),
-        "lens_config_sha256": sha256_file(LENS_CONFIG_PATH),
+        # Hash only the credit section: a change to the forecast or anomaly settings must not make
+        # the credit model look stale. (The decision receipt still hashes the whole lens config.)
+        "lens_config_credit_sha256": hashlib.sha256(json.dumps(ccfg, sort_keys=True).encode()).hexdigest(),
         "cv": cv,
         "oracle_ceiling_auc": round(ceiling, 6),
         "pct_of_ceiling": round(cv["median"] / ceiling, 6),

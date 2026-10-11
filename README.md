@@ -56,12 +56,12 @@ write code that breaks one, stop and raise it.
 | Eval harnesses (gate, §21 validation, held-out anomalies, real-vs-synthetic, sensitivity, evidence) | [`eval/`](eval/) | generator owner | **BUILT** (credit-lens CV curves, fairness audit pending Week 6–7) |
 | Profile engine — features 1–69 | [`profile_engine/`](profile_engine/) | profile engine owner | **BUILT** — source-agnostic; 24–26, 34–35 `not_implemented` (module owners) |
 | Credit lens (Base Murabaha + SHAP) | [`lenses/credit/`](lenses/credit/) | credit lens owner | **v1 built** — CV AUC 0.591 (88.8% of ceiling), exact log-odds SHAP; params PROPOSED (entry 23) |
-| Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v1 built** — but **loses to the naive baseline** on accuracy (entry 23); owner to replace |
+| Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v2 built** — `naive90` chosen on validation, **beats the naive baseline** on an untouched test (0.323 vs 0.376; entry 27) |
 | Anomaly lens | [`lenses/anomaly/`](lenses/anomaly/) | forecast + anomaly owner | **v1 built** — held-out round-trip recall 0.92, duplicate payment 0.06 (entry 23) |
 | Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; **nisab price is a placeholder** (entry 23) |
-| Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | Not built — Week 7 |
+| Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | **Screening v1 built** — feature 24, deterministic rule table (PROPOSED, not certified); 85.1% compliant / 14.9% soft (entry 26) |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
-| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 312 ms on all 1,000; entry 25) |
+| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 252 ms on all 1,000; entries 25–27) |
 | Next.js UI | — | — | Post-Week-8, own Week 10 gate. Not in this repo yet. |
 
 Each component directory has a README stating its contract, the schema sections

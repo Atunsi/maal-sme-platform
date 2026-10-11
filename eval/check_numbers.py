@@ -80,7 +80,7 @@ def anomaly() -> list[tuple[str, str]]:
 
 def forecast() -> list[tuple[str, str]]:
     t = _read("eval/out/forecast_backtest.md")
-    m = re.search(r"\| model \(OLS[^|]*\| ([0-9.]+) \|", t).group(1)
+    m = re.search(r"\| model — [^|]*\| ([0-9.]+) \|", t).group(1)
     n = re.search(r"\| naive \(trailing[^|]*\| ([0-9.]+) \|", t).group(1)
     mape = re.search(r"model ([0-9.]+%), naive ([0-9.]+%)", t)
     return [("forecast model median error", m), ("forecast naive median error", n),
@@ -158,10 +158,19 @@ def sharia() -> list[tuple[str, str]]:
             ("sharia evidence basis", f"declared MCC {basis.group(1)} · registered sector {basis.group(2)} · disclosure asked of {basis.group(3)}")]
 
 
+def forecast_selection() -> list[tuple[str, str]]:
+    t = _read("eval/out/forecast_selection.md")
+    chosen = re.search(r"\*\*Selected: `([a-z0-9_]+)`\*\*", t).group(1)
+    serving = t.split("### serving")[1]
+    rows = {r.split("|")[1].strip(): r.split("|")[2].strip() for r in serving.splitlines() if r.startswith("| naive")}
+    return [("forecast selected method", f"`{chosen}`"),
+            ("forecast serving test errors", f"{rows[chosen]} vs {rows['naive30']} serving")]
+
+
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, gate, selectivity, latency, sharia):
+    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, gate, selectivity, latency, sharia, forecast_selection):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

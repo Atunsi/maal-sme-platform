@@ -61,10 +61,14 @@ zakat:
 
 # --- Forecast lens (§8, §10, §16) — owner: forecast + anomaly owner ----------
 forecast:
+  # Chosen on a validation window (days 121-150) from a candidate list fixed in advance, then reported once
+  # on the untouched test window (days 151-180): eval/forecast_selection.py, DECISIONS entry 27.
+  # Do not change this by looking at the test table — that would make the test a second validation.
+  method: naive90
   horizons_days: [30, 60, 90]
   fit_window_days: 90
   naive_window_days: 30          # §10 baseline: trailing-30-day mean daily net flow
-  trend_damping: 0.5             # slope multiplier when projecting; 1.0 = undamped linear trend
+  trend_damping: 0.5             # used only by method ols_damped (the v1 model, which lost to the baseline)
   # Crunch alert: projected balance below zero inside a horizon, or the profile
   # engine's liquidity hazard (features 52–54) at or above this probability.
   hazard_alert_threshold: 0.5

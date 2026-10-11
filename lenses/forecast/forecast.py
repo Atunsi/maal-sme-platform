@@ -3,10 +3,14 @@
 Two projections of daily net flow over the horizon, so the model is always shown
 against the baseline it has to beat (§10):
 
-  naive  trailing-30-day mean daily net flow, held flat.
-  model  OLS on the last 90 days: net_t = a + b*t + day-of-week effects, projected
-         forward with the slope damped (lens_config.forecast.trend_damping) so a
-         short-window trend is not extrapolated as if it were permanent.
+  naive_baseline  trailing-30-day mean daily net flow, held flat (the §10 baseline).
+  model           the method named in lens_config.forecast.method — chosen on a
+                  validation window and reported once on an untouched test window
+                  (eval/forecast_selection.py, DECISIONS entry 27). Currently `naive90`,
+                  the trailing-90-day mean: a longer moving average, not a sophisticated
+                  model — it wins because daily flows are noisy and trends are small.
+                  All candidates live in lenses/forecast/methods.py, shared with the
+                  selection harness, so the method evaluated is the method that runs.
 
 Projected balance = today's end-of-day balance + cumulative projected net flow.
 
@@ -28,22 +32,16 @@ import math
 import numpy as np
 import pandas as pd
 
+from lenses.forecast.methods import BASELINE, METHODS
 
-def _naive(net: np.ndarray, window: int, horizon: int) -> np.ndarray:
-    return np.full(horizon, float(net[-window:].mean()))
-
-
-def _model(dates: pd.DatetimeIndex, net: np.ndarray, horizon: int, damping: float) -> np.ndarray:
-    n = len(net)
-    t = np.arange(n, dtype=float)
-    dow = dates.dayofweek.to_numpy()
-    X = np.column_stack([np.ones(n), t] + [(dow == k).astype(float) for k in range(1, 7)])
-    beta, *_ = np.linalg.lstsq(X, net, rcond=None)
-    fut_dates = pd.date_range(dates[-1] + pd.Timedelta(days=1), periods=horizon, freq="D")
-    fd = fut_dates.dayofweek.to_numpy()
-    tf = n - 1 + damping * (np.arange(1, horizon + 1, dtype=float))
-    Xf = np.column_stack([np.ones(horizon), tf] + [(fd == k).astype(float) for k in range(1, 7)])
-    return Xf @ beta
+METHOD_LABELS = {
+    "naive30": "trailing-30-day mean (the §10 baseline)",
+    "naive90": "trailing-90-day mean",
+    "blend": "average of the 30- and 90-day means",
+    "ewma": "exponentially weighted mean, half-life 21 days",
+    "ols_damped": "OLS trend + day-of-week, damped slope",
+    "structural": "recurring payments on their days + non-recurring level with day-of-week profile",
+}
 
 
 def _num(v) -> float | None:
@@ -62,13 +60,11 @@ def forecast(daily: pd.DataFrame, as_of: pd.Timestamp, profile_row: pd.Series, f
     if len(fit) < int(fcfg["naive_window_days"]):
         return {"status": "not_computed", "reason": "insufficient_history", "history_days": len(fit)}
 
-    net = fit["net_flow"].to_numpy(dtype=float)
     balance_today = float(g["eod_balance"].iloc[-1])
-    dates = pd.DatetimeIndex(fit["date"])
-
+    method = fcfg["method"]
     proj = {
-        "naive": _naive(net, int(fcfg["naive_window_days"]), H),
-        "model": _model(dates, net, H, float(fcfg["trend_damping"])),
+        "naive": METHODS[BASELINE](g, H),
+        "model": METHODS[method](g, H, damping=float(fcfg["trend_damping"])),
     }
     bal = {k: balance_today + np.cumsum(v) for k, v in proj.items()}
 
@@ -116,5 +112,5 @@ def forecast(daily: pd.DataFrame, as_of: pd.Timestamp, profile_row: pd.Series, f
             "drivers": drivers,
         },
         "ramadan_adjusted": bool(ram) if ram in (True, False) else (ram == "True" if isinstance(ram, str) else None),
-        "method": "OLS trend + day-of-week on trailing 90d, damped slope; naive = trailing-30d mean",
+        "method": f"{method}: {METHOD_LABELS[method]}; naive_baseline = {METHOD_LABELS[BASELINE]}",
     }

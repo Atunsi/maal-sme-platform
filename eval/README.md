@@ -24,6 +24,8 @@ deliverables.
 | `forecast_backtest.py` | §10 model vs naive on a 30-day holdout: scale-free error, MAPE away from zero, crunch recall / false alarms | 0 |
 | `check_numbers.py` | Recomputes every checkable headline number from its source artifact and asserts `docs/NUMBERS.md` carries it — the register cannot silently go stale | 0 = current, 1 = drift |
 | `latency_test.py` | §19 Week 7 serving-path latency at N=1,000 (all serving businesses through `/lenses/credit`, other routes sampled, real-HTTP sample, SHAP alone) + API-vs-CLI equivalence; PASS requires the maximum under target | 0 = PASS, 1 = FAIL |
+| `forecast_selection.py` | §10 forecast method chosen on a validation window from candidates fixed in advance, reported once on an untouched test window (research + serving) | 0 |
+| `sharia_report.py` | Feature 24 across the populations: status shares by sector, evidence basis, rules triggered, disclosures | 0 |
 | `berka_coverage.py` | Phase 2: coverage bands + evidence registry on the Berka engine output → `out/berka_coverage.md` | 0 = accepted |
 | `compare_real.py` | Phase 4: real-vs-synthetic comparison under **one CV protocol on all three sources** (repeated stratified group 5-fold × 20; temporal split kept as a labelled leakage check; `--protocol temporal` = v1.0), per-feature transfer, §15 exclusion selectivity, §8.4 findings → `out/real_vs_synthetic.md`. Asserts config hash unchanged, no look-ahead (self-tested), real-computed (A1 ∪ A2) scale-free set, §21 target pre-registered. | 0 |
 | `feature_transfer.py` | B1: univariate Berka AUC with 1,000-resample bootstrap CI for every typed-A feature, both label sets; the A1/A2 subclass by the CI rule → `out/feature_transfer.md/.json` | 0 |

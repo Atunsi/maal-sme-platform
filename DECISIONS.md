@@ -1791,3 +1791,54 @@ confirmation" — never as a Sharia determination.
 financing as a disclosure rather than a flag); the Compliance View toggle (UI, Week 10).
 
 **Sign-off:** ☐ compliance owner ☐ Sharia advisor ☐ credit lens owner (the §27 gate and conditional offers)
+
+---
+
+## 27. Forecast method chosen on a validation window; beats the naive baseline on an untouched test — PROPOSED, forecast owner to take over (2026-10-11)
+
+**Touches:** new `lenses/forecast/methods.py`, `eval/forecast_selection.py`, `tests/test_forecast.py`;
+`lenses/forecast/forecast.py` uses `lens_config.forecast.method`; `eval/forecast_backtest.py` evaluates
+the shipped method; `lenses/credit/train.py` now hashes only its own config section (see below).
+
+**Why.** The v1 forecast model (OLS trend + day-of-week, damped) lost to the trailing-30-day baseline
+(entry 23: median error 0.455 vs 0.376). That number is now retired in `docs/NUMBERS.md` §7.
+
+**Protocol — fixed before anything ran.** Six candidates in one shared module (so the method evaluated
+is the method shipped): naive30 (the §10 baseline), naive90, a 50/50 blend, an EWMA (half-life 21 days),
+the v1 OLS model, and a "structural" model that replays recurring payments on their days. Criterion:
+lowest median scale-free end-of-horizon error. **Selection on a validation window** (days 121–150,
+research only); **one report on an untouched test window** (days 151–180, research and serving). Choosing
+and reporting on the same days would have flattered the winner.
+
+**Result.** Validation chose **`naive90`** (median 0.345; EWMA 0.349; naive30 0.411; v1 OLS 0.488 — last).
+On the test window, never used to choose:
+
+| population | `naive90` | naive30 baseline | `naive90` better for | MAPE | crunch recall | false alarms |
+|---|---|---|---|---|---|---|
+| research (9,495) | **0.323** | 0.376 | 58.5% | 13.0% vs 15.0% | 79.4% vs 81.8% | **0.5% vs 1.3%** |
+| serving (943) | **0.344** | 0.401 | 58.4% | 14.7% vs 15.5% | 74.6% vs 75.4% | **1.0% vs 1.7%** |
+
+14% lower error and fewer than half the false alarms, at a cost of ~2 points of crunch recall
+(research). The shipped lens's backtest reproduces these figures exactly.
+
+**Stated plainly, so nobody oversells it:** the winner is **a longer moving average, not a sophisticated
+model**. It wins because synthetic daily flows are noisy and their trends are small, which also means the
+§10 30-day baseline is a weak bar on this data. EWMA had higher crunch recall (83.8% on validation) but
+the criterion was fixed as median error before the run, so it was not chosen after the fact. The crunch
+*alert* also reads the engine's hazard features (52–54), so its recall is not the projection's alone.
+
+**Also fixed:** the credit artifact recorded the hash of the whole `lens_config.yaml`, so changing the
+forecast method made the credit model look stale. It now records `lens_config_credit_sha256` (its own
+section only); retraining reproduced identical metrics. Decision receipts still hash the whole file.
+
+**Left for the forecast owner:** §10 holdout-shock lead-time test (inject a revenue drop, measure warning
+time vs naive) and the §16 Ramadan-window run — neither target window contains Ramadan (days 18–47). A
+richer model (Prophet/ARIMA, per the SOP) must beat `naive90` under this same validation/test protocol,
+with any new candidate declared before it is run. **Do not change `forecast.method` by reading the test
+table** — that turns the test into a second validation.
+
+**Serving path re-checked after entries 26–27:** Week 7 latency test re-run — still **PASS** (credit max
+252 ms over all 1,000; real HTTP max 158 ms; anomaly max 964 ms; API answers identical to the CLI).
+Entry 25's figures were the first run; current ones are in `docs/NUMBERS.md` §6b.
+
+**Sign-off:** ☐ forecast + anomaly owner

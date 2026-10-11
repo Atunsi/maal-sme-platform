@@ -538,7 +538,7 @@
   ],
   "intercept": -3.150948604836691,
   "label": "default_label (synthetic, latent-driven, \u00a714)",
-  "lens_config_sha256": "a5f495b4ab39a89e5c459bec0208dc9535a58af6367a214686f528afc2203fe2",
+  "lens_config_credit_sha256": "2df81daf64f42b851de80c0e9d83adaf6ae1f52e4ec9deef329faba4bd5b58f7",
   "model": "logistic regression (L2, C=1.0) on median-imputed, standardised /profile features",
   "n_train": 9495,
   "oracle_ceiling_auc": 0.665953,
@@ -553,7 +553,7 @@
     "defaults": 45,
     "n": 943
   },
-  "sha256": "4d0f675a86d5c6f8c1700436d134062a39da3d1b919895150e6fb7c0d1366985",
+  "sha256": "c7b6f7332476823dd2912c74e29c9c79f3c7566c278809bc7dbf6fc64a2cf982",
   "trained": "2026-10-11",
   "version": "v1"
 }

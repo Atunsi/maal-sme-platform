@@ -78,9 +78,10 @@ Source: `eval/out/section14_rho_sweep.md` (`python -m eval.run_section14`). Prot
 
 | Lens | Number | Population / N | Source |
 |---|---|---|---|
-| Forecast — median scale-free error, model vs naive | **0.455 vs 0.376** (naive better for 63.1%) | research, scorable, 9,495; 30-day holdout | `eval/out/forecast_backtest.md` |
-| Forecast — MAPE, model vs naive | 18.1% vs 15.0% | 7,525 with balance ≥ 1 month of outflow from zero | same |
-| Forecast — crunch recall / false alarms | model 87.1% / 3.7%; naive 81.8% / 1.3% | 1,164 that went negative | same |
+| Forecast — method shipped | **`naive90`** (trailing-90-day mean), chosen on the validation window (days 121–150) from 6 candidates fixed in advance | research, 9,495 | `eval/out/forecast_selection.md` |
+| Forecast — test (days 151–180, never used to choose): median scale-free error, `naive90` vs naive30 | **0.323 vs 0.376** research (better for 58.5%); 0.344 vs 0.401 serving (better for 58.4%) | research 9,495; serving 943 | `eval/out/forecast_selection.md`, `eval/out/forecast_backtest.md` |
+| Forecast — test MAPE, `naive90` vs naive30 | 13.0% vs 15.0% | 7,525 research with balance ≥ 1 month of outflow from zero | same |
+| Forecast — test crunch recall / false alarms | `naive90` 79.4% / 0.5%; naive30 81.8% / 1.3% | 1,164 research that went negative | same |
 | Anomaly — held-out round-trip recall@10 | **0.92** (precision 0.2135 of a 0.2297 ceiling) | serving, 50 businesses | `eval/out/anomaly_eval.md` |
 | Anomaly — held-out duplicate payment recall@10 | **0.06** (effectively missed) | serving, 50 businesses | same |
 | Anomaly — injected types | both caught (ranks 1 and 7) | demo business 10001 | same |
@@ -109,14 +110,14 @@ Source: `eval/out/section14_rho_sweep.md` (`python -m eval.run_section14`). Prot
 
 ## 6b. Serving path — Week 7 latency (§19)
 
-Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`). Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
+Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`), re-run after Sharia screening and the forecast change (entries 26–27). Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
 
 | Path | Value | n |
 |---|---|---|
-| `/lenses/credit` — full §19 path (store → profile engine → model → SHAP → §13 text) | **109 / 138 / 312 ms** | 1,000 (every serving business) |
-| `/lenses/credit` over real HTTP (uvicorn) | 108 / 130 / 133 ms | 50 |
-| `/lenses/anomaly` — slowest route (per-business Isolation Forest) | 292 / 429 / 982 ms | 100 |
-| SHAP explanation alone (exact log-odds, `coef × z`) | 0.162 / 0.176 / 0.209 ms | 194 |
+| `/lenses/credit` — full §19 path (store → profile engine → model → SHAP → §13 text) | **110 / 138 / 252 ms** | 1,000 (every serving business) |
+| `/lenses/credit` over real HTTP (uvicorn) | 110 / 136 / 158 ms | 50 |
+| `/lenses/anomaly` — slowest route (per-business Isolation Forest) | 287 / 427 / 964 ms | 100 |
+| SHAP explanation alone (exact log-odds, `coef × z`) | 0.156 / 0.168 / 0.177 ms | 194 |
 | Targets (§19) | API < 2 s, SHAP < 1 s — **PASS on the maximum**, not just a percentile | — |
 | API vs Week 8 CLI decisions (demo businesses, all four lenses) | identical | 3 |
 
@@ -134,4 +135,5 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | Medium-tier revenue share 43.9% / 44.0% vs 34.3% | before the Monsha'at register | 19.7% vs 34.3% (§6) |
 | "Synthetic 0.578 vs Berka 0.901, gap 0.32" | compared a CV estimate with a single temporal split | A2 vs A3 under one protocol |
 | "The model beats any single observable channel" | true pre-calibration; false after (withdrawn, entry 21) | — |
+| "The forecast model loses to the naive baseline" (median error 0.455 vs 0.376; MAPE 18.1% vs 15.0%) | true of the v1 OLS-trend model, which was replaced (entry 27) | §5 forecast rows |
 | "Φ(sd/√2) is an identity / a proof" | agreement degraded to 0.0118 | "a good approximation" (§3) |
