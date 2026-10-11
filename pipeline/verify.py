@@ -29,7 +29,7 @@ from pipeline.week8 import build_objects, output_sha256
 
 INPUT_KEYS = (
     "config_sha256", "lens_config_sha256", "credit_model_sha256",
-    "reference_stats_sha256", "data_sha256", "code_commit",
+    "reference_stats_sha256", "sharia_rules_sha256", "data_sha256", "code_commit",
 )
 
 
@@ -59,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
         if changed:
             print(f"    inputs     : changed since the decision was made: {', '.join(changed)}")
         else:
-            print("    inputs     : config, lens config, model, reference stats, data and code all unchanged")
+            print("    inputs     : config, lens config, model, reference stats, Sharia rules, data and code all unchanged")
         if intact and not reproduced and not changed:
             print("    note       : inputs unchanged but output differs — a source of nondeterminism; investigate")
     print("\nALL DECISIONS VERIFIED" if all_ok else "\nVERIFICATION FAILED")

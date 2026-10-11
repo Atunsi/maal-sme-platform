@@ -49,6 +49,7 @@ from pipeline.week8 import (
     prepare,
     receipt,
     scorable,
+    sharia_section,
     zakat_section,
 )
 from profile_engine.registry import FEATURE_NAMES, PROFILE_FEATURE_IDS
@@ -132,6 +133,8 @@ def _lens_response(s: Service, b_id: int, section, name: str) -> dict:
     else:
         out = section(s.ctx, p, b_id)
         body.update(out if name == "credit" else {name: out})
+    if name == "credit":
+        body["sharia_screen"] = sharia_section(p, b_id)  # feature 24 — the credit decision depends on it (§27)
     body["receipt"] = receipt(s.ctx, p, b_id, body)
     return _clean(body)
 

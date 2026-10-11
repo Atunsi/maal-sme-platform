@@ -84,6 +84,8 @@ Source: `eval/out/section14_rho_sweep.md` (`python -m eval.run_section14`). Prot
 | Anomaly — held-out round-trip recall@10 | **0.92** (precision 0.2135 of a 0.2297 ceiling) | serving, 50 businesses | `eval/out/anomaly_eval.md` |
 | Anomaly — held-out duplicate payment recall@10 | **0.06** (effectively missed) | serving, 50 businesses | same |
 | Anomaly — injected types | both caught (ranks 1 and 7) | demo business 10001 | same |
+| Sharia screen (feature 24) — research | **85.1% compliant / 14.9% soft_flag_review / 0.0% hard_flag** (soft flags all retail: MCC 5999 or no MCC) | research, 10,000 | `eval/out/sharia_screen.md` |
+| Sharia screen — evidence basis / financing disclosure | declared MCC 60.3% · registered sector 39.7% · disclosure asked of 34.8% | research, 10,000 | same |
 | Zakat — demo 10001 liability | SAR 5,963.26 (base 238,530.46 × 2.5%) | demo | `python -m pipeline.week8 --demo` |
 | Zakat — nisab | 85 g gold × **placeholder** SAR 400/g | — | `lenses/lens_config.yaml` — **not a sourced figure** |
 

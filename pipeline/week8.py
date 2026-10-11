@@ -30,10 +30,11 @@ from pathlib import Path
 
 import pandas as pd
 
+from compliance.sharia import compliance_explanation, load_rules, screen
 from generator.generate import load_config
 from lenses import LENS_CONFIG_PATH, load_lens_config
 from lenses.anomaly.anomaly import detect
-from lenses.credit.model import decide, load_artifact
+from lenses.credit.model import apply_sharia_gate, decide, load_artifact
 from lenses.forecast.forecast import forecast
 from lenses.zakat.zakat import compute_zakat
 from pipeline.data import load_tables, run_profiles
@@ -110,6 +111,7 @@ def make_context(generated_by: str = "pipeline.week8") -> Context:
         "credit_model_cv_auc": round(art["cv"]["median"], 4),
         "credit_model_oracle_ceiling_auc": round(art["oracle_ceiling_auc"], 4),
         "reference_stats_sha256": ref_hash,  # §35 pinned sector table — never recomputed at serving
+        "sharia_rules_sha256": load_rules()[1],  # feature 24 rule table (compliance/sharia_rules.yaml)
         "code_commit": code_commit(),
         "generated_by": generated_by,
     }
@@ -125,6 +127,7 @@ class Prepared:
     status: pd.DataFrame
     nulls: pd.DataFrame
     data_hash: dict[int, str]
+    screens: dict[int, dict]
 
     def biz(self, b_id: int):
         b = self.tables["businesses"]
@@ -138,7 +141,22 @@ class Prepared:
 def prepare(ctx: Context, tables: dict) -> Prepared:
     data_hash = {int(b): data_sha256(tables, int(b)) for b in tables["businesses"]["business_id"]}  # before the engine touches anything
     prof = run_profiles(tables, ctx.cfg)
-    return Prepared(tables, prof["features"].set_index("business_id"), prof["status"].set_index("business_id"), prof["nulls"], data_hash)
+    feats, nulls = prof["features"].set_index("business_id"), prof["nulls"]
+
+    # Feature 24 — Sharia screening (compliance/sharia.py). Computed for every business,
+    # including insufficient_data ones: it screens activity and income, not coverage.
+    # Written into the shared profile so the credit lens reads it like any other feature (§8).
+    rules, rules_sha = load_rules()
+    tx = tables["transactions"]
+    screens = {}
+    for b in tables["businesses"].itertuples(index=False):
+        b_id = int(b.business_id)
+        screens[b_id] = screen(b.sector, b.declared_mcc_code, tx[tx["business_id"] == b_id], rules, rules_sha)
+    feats = feats.astype({"sharia_screen_status": object})
+    for b_id, scr in screens.items():
+        feats.loc[b_id, "sharia_screen_status"] = scr["sharia_screen_status"]
+    nulls = nulls[~((nulls["feature"] == "sharia_screen_status") & (nulls["reason"] == "not_implemented"))].reset_index(drop=True)
+    return Prepared(tables, feats, prof["status"].set_index("business_id"), nulls, data_hash, screens)
 
 
 def header(p: Prepared, b_id: int) -> dict:
@@ -162,8 +180,14 @@ def scorable(p: Prepared, b_id: int) -> bool:
     return p.status.loc[b_id, "status"] != "insufficient_data"  # §15: no lens runs otherwise
 
 
+def sharia_section(p: Prepared, b_id: int) -> dict:
+    scr = p.screens[b_id]
+    return {**scr, "compliance_explanation": compliance_explanation(scr)}
+
+
 def credit_section(ctx: Context, p: Prepared, b_id: int) -> dict:
-    c = decide(p.feats.loc[b_id], ctx.lc["credit"], ctx.art)
+    scr = p.screens[b_id]
+    c = apply_sharia_gate(decide(p.feats.loc[b_id], ctx.lc["credit"], ctx.art), scr, compliance_explanation(scr))
     return {"credit": c["credit"], "credit_explanation": c["explanation"], "credit_decision_detail": c["internals"]}
 
 
@@ -204,10 +228,7 @@ def decision_object(ctx: Context, p: Prepared, b_id: int) -> dict:
         obj["forecast"] = forecast_section(ctx, p, b_id)
         obj["anomaly"] = anomaly_section(ctx, p, b_id)
         obj["zakat"] = zakat_section(ctx, p, b_id)
-    obj["governance"] = {
-        "sharia_screen_status": None,
-        "sharia_screen_reason": "not_implemented",  # compliance module not built yet (feature 24)
-    }
+    obj["governance"] = {"sharia_screen": sharia_section(p, b_id)}  # feature 24, deterministic (compliance/sharia.py)
     obj["receipt"] = receipt(ctx, p, b_id, obj)
     return obj
 

@@ -16,7 +16,9 @@ population and asserts, on the JSON actually produced (not on the code):
   §17  Zakat is deterministic; a zero liability always carries below_nisab or
        hawl_incomplete; a computed liability equals base × rate
   §10  the forecast is always shown beside its naive baseline
-  receipt  every hash present (config, lens config, model, §35 reference stats, data,
+  §27  feature 24 present and deterministic; hard_flag → compliance decline; soft flag → conditional
+       offer with an owner prompt (§10)
+  receipt  every hash present (config, lens config, model, §35 reference stats, Sharia rules, data,
            output, code), output_sha256 consistent, and a second run byte-identical
 
 Exit code 0 = all assertions hold, 1 = at least one failed.
@@ -37,7 +39,7 @@ from lenses.credit.model import CONTRACT_KEYS
 from pipeline.week8 import DEMO_IDS, build_objects, output_sha256
 
 FORBIDDEN_KEYS = {"stressed_markup_pct", "eligible", "fraud_reason", "score", "anomaly_score", "threshold", "decision_threshold"}
-RECEIPT_KEYS = ("config_sha256", "lens_config_sha256", "credit_model_sha256", "reference_stats_sha256",
+RECEIPT_KEYS = ("config_sha256", "lens_config_sha256", "credit_model_sha256", "reference_stats_sha256", "sharia_rules_sha256",
                 "data_sha256", "output_sha256", "code_commit", "scope")  # Demo & Credibility plan item 2
 FAILURES: list[str] = []
 
@@ -67,6 +69,12 @@ def check_object(o: dict, lc: dict) -> None:
         check(rec.get(k), f"{b}: receipt missing {k}")
     check(rec.get("output_sha256") == output_sha256(o), f"{b}: receipt output_sha256 does not match the object")
 
+    g = o.get("governance", {}).get("sharia_screen") or {}
+    check(g.get("sharia_screen_status") in {"compliant", "soft_flag_review", "hard_flag"}, f"{b}: feature 24 missing/invalid")
+    check(g.get("deterministic") is True and g.get("rule_table_sha256"), f"{b}: Sharia screen not deterministic / unhashed")
+    if g.get("sharia_screen_status") == "soft_flag_review":
+        check(bool(g.get("owner_prompts")), f"{b}: soft flag without an owner prompt (§10)")
+
     if o["status"] == "insufficient_data":
         check(o.get("lenses_not_run_reason") == "insufficient_data", f"{b}: insufficient_data without explicit reason")
         for lens in ("credit", "forecast", "anomaly", "zakat"):
@@ -74,7 +82,12 @@ def check_object(o: dict, lc: dict) -> None:
         return
 
     c = o["credit"]
+    det = o["credit_decision_detail"]
     check(tuple(c) == CONTRACT_KEYS, f"{b}: credit keys {tuple(c)} != §11 contract")
+    if g.get("sharia_screen_status") == "hard_flag":
+        check(c["decision"] == "declined" and det.get("decline_origin") == "compliance", f"{b}: hard flag not a compliance decline (§27)")
+    if g.get("sharia_screen_status") == "soft_flag_review" and c["decision"] == "approved":
+        check(det.get("offer_status") == "conditional_on_sharia_review", f"{b}: soft flag but offer not conditional")
     check(c["markup_fixed_at_inception"] is True, f"{b}: markup not fixed at inception")
     check(c["late_penalty_policy"] == "charity_directed", f"{b}: late penalty not charity-directed")
     for k in ("adjusted_markup_pct", "recourse", "stress"):

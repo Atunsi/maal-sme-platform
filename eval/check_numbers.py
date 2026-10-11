@@ -149,10 +149,19 @@ def latency() -> list[tuple[str, str]]:
             ("latency SHAP", row("| SHAP generation", 3))]
 
 
+def sharia() -> list[tuple[str, str]]:
+    t = _read("eval/out/sharia_screen.md")
+    sec = t.split("## research")[1].split("## serving")[0]
+    share = dict(re.findall(r"\| (compliant|soft_flag_review|hard_flag) \| ([0-9.]+%) \|", sec))
+    basis = re.search(r"declared MCC ([0-9.]+%), registered sector ([0-9.]+%)\. Existing-financing disclosure asked of ([0-9.]+%)", sec)
+    return [("sharia research distribution", f"{share['compliant']} compliant / {share['soft_flag_review']} soft_flag_review / {share['hard_flag']} hard_flag"),
+            ("sharia evidence basis", f"declared MCC {basis.group(1)} · registered sector {basis.group(2)} · disclosure asked of {basis.group(3)}")]
+
+
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, gate, selectivity, latency):
+    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, gate, selectivity, latency, sharia):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

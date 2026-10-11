@@ -1743,3 +1743,51 @@ the anomaly route is closest to budget because the per-business forest is refitt
 store rebuild when data is regenerated; UI wiring (Week 10).
 
 **Sign-off:** ☐ API owner ☐ team (Week 7 gate recorded as passed)
+
+---
+
+## 26. Sharia screening (feature 24) v1 — rule table PROPOSED, NOT certified; owners + Sharia advisor to confirm (2026-10-11)
+
+**Touches:** new `compliance/sharia.py`, `compliance/sharia_rules.yaml`, `eval/sharia_report.py`,
+`tests/test_sharia.py`; `lenses/credit/model.py` (`apply_sharia_gate`); `pipeline/week8.py` (feature 24
+written into the shared profile; `governance.sharia_screen`); `api/app.py` (`sharia_screen` in the
+credit response); the receipt gains `sharia_rules_sha256`. Feature 24 was `not_implemented`.
+
+**Why now.** A core governance module, not a stretch goal: SOP §2 makes it 100% deterministic, §27's
+recourse cannot be built without it, and until now every decision shipped `sharia_screen_status: null`.
+
+**Design.**
+- **Rules are data** (`sharia_rules.yaml`, versioned, sha256 in every output and in the receipt), so the
+  Sharia advisor can change a list or threshold without touching code, and `pipeline.verify` names the
+  rule table if it changed.
+- **Activity screen** on the declared MCC; **no MCC → registered sector**, with `evidence_basis` stating
+  the weaker basis (MCC coverage is limited by design, §12.3). **Income screen:** financial-institution
+  inflows ≥ 5% of inflow value → soft flag. **Existing financing → disclosure + owner prompt, status
+  unchanged:** the bank feed cannot tell Islamic from interest-based financing, and refinancing
+  interest-based debt into a Murabaha is a legitimate use of the product.
+- **Feature 24 lives in the shared profile**, so the credit lens reads it like any other feature — §8's
+  no-lens-reads-another-lens guarantee holds.
+- **Effect on credit (§27):** hard flag → `declined`, `decline_origin: compliance`, the compliance
+  template is the only public explanation, and recourse is structurally unreachable (it keys on
+  `decline_origin == "risk_model"`). Soft flag → the risk decision stands, an approval becomes
+  `offer_status: conditional_on_sharia_review` with the owner prompts as conditions — §10's "prompt the
+  owner, not a silent queue". The §11 contract keys are unchanged.
+
+**Measured (`eval/out/sharia_screen.md`).** Research: **85.1% compliant, 14.9% soft flag, 0% hard flag.**
+Every soft flag is retail — 1,133 businesses on MCC 5999 ("general trading") and 519 retail businesses with
+no MCC; about one retail applicant in three gets a conditional offer. Evidence basis: declared MCC 60.3%,
+registered sector 39.7%. The financing disclosure is asked of 34.8%. **No hard flag occurs** because the
+generator assigns only permissible MCCs; the hard-flag path is proven on crafted inputs in
+`tests/test_sharia.py` (50 tests pass overall), not by the population.
+
+**What is NOT claimed.** The rule table is `proposed_unverified`. It follows the two standard screens
+(activity and non-permissible income; AAOIFI Shari'ah Standard No. 21 is the usual reference) and ISO
+18245 MCC meanings, but **neither document is archived in `sources/`**, and no Sharia board has reviewed
+it. Until both happen, outputs must be presented as "rule-based screening, pending Sharia-advisor
+confirmation" — never as a Sharia determination.
+
+**Left:** archive and cite the standard and ISO 18245; Sharia-advisor review of every list and threshold
+(notably 5993 tobacco and 7929 entertainment, where scholars differ, and the decision to treat existing
+financing as a disclosure rather than a flag); the Compliance View toggle (UI, Week 10).
+
+**Sign-off:** ☐ compliance owner ☐ Sharia advisor ☐ credit lens owner (the §27 gate and conditional offers)

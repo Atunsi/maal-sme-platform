@@ -123,3 +123,15 @@ def test_rate_limit_per_business(client):
         assert client.get("/lenses/zakat", params={"business_id": 10051}, headers=H).status_code == 200  # per business
     finally:
         svc.limiter = saved
+
+
+def test_credit_response_carries_the_sharia_screen(client):
+    r = client.get("/lenses/credit", params={"business_id": 10001}, headers=H).json()
+    assert r["sharia_screen"]["sharia_screen_status"] in {"compliant", "soft_flag_review", "hard_flag"}
+    assert r["credit_decision_detail"]["sharia_screen_status"] == r["sharia_screen"]["sharia_screen_status"]
+
+
+def test_profile_exposes_feature_24(client):
+    pr = client.get("/profile/10001", headers=H).json()
+    assert pr["features"]["sharia_screen_status"] in {"compliant", "soft_flag_review", "hard_flag"}
+    assert "sharia_screen_status" not in pr["null_reasons"]

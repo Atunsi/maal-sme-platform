@@ -1,0 +1,69 @@
+# =============================================================================
+# Sharia screening rule table — feature 24 `sharia_screen_status` (schema §6, §10, §27).
+#
+# 100% deterministic, permanently (SOP §2, §36.1). No model, no LLM, no scoring.
+# Kept as data, separate from compliance/sharia.py, so a Sharia advisor can audit and
+# change the rules without touching code. Every output carries this file's sha256.
+#
+# STATUS: PROPOSED by the developer who built the module (DECISIONS entry 26). It is NOT
+# certified by a Sharia board. The principles follow the two standard screens — an
+# activity screen and a non-permissible-income screen (AAOIFI Shari'ah Standard No. 21
+# is the usual reference) — and MCC meanings follow ISO 18245. Neither document is
+# archived in sources/ yet: the compliance owner must archive and cite both, and the
+# Sharia advisor must confirm every list and threshold below, before any of this is
+# presented as a Sharia determination.
+# =============================================================================
+version: "1.0"
+source_status: proposed_unverified
+
+# Activity screen on the declared Merchant Category Code (feature 23).
+activity:
+  hard_flag_mcc:            # activity itself impermissible -> cannot be financed
+    5813: "drinking places (alcoholic beverages)"
+    5921: "package stores — beer, wine, liquor"
+    7995: "betting, including lottery tickets and casino gaming"
+    7800: "government-owned lotteries"
+    7801: "government-licensed online casinos"
+    7802: "government-licensed horse / dog racing"
+    7273: "dating and escort services"
+  soft_flag_mcc:            # ambiguous — the goods or terms are unknown -> ask the owner (§10)
+    5999: "miscellaneous and specialty retail (general trading — goods mix unknown)"
+    5399: "miscellaneous general merchandise (goods mix unknown)"
+    5993: "cigar stores and stands (tobacco — permissibility differs between scholars)"
+    6012: "financial institutions (conventional or Islamic terms unknown)"
+    6051: "currency exchange / money orders (exchange terms unknown)"
+    7929: "bands, orchestras and entertainers (content unknown)"
+    8999: "professional services not elsewhere classified (activity unknown)"
+  # No MCC (coverage is limited by design, §12.3): fall back to the registered sector.
+  # The evidence basis is then weaker and the output says so.
+  no_mcc_by_sector:
+    construction: compliant
+    professional_services: compliant
+    food_beverage: compliant
+    retail_trade: soft_flag_review   # same reason as MCC 5999: what is sold is unknown
+
+# Non-permissible-income screen on transactions (counterparty rule screening).
+income:
+  # Inflows from financial-institution counterparties are a proxy for interest income.
+  # Share of total inflow value at or above this -> soft flag (the conventional 5% tolerance).
+  financial_institution_inflow_share_soft: 0.05
+
+# Disclosures: facts the owner is asked to confirm that do NOT change the status.
+disclosures:
+  # Existing financing (LOAN repayments to a financial institution) may be Islamic or
+  # interest-based — the bank feed cannot tell. The owner is asked; status is unaffected,
+  # because the screen is about the applicant's activity and income, and refinancing
+  # interest-based debt into a Murabaha is a legitimate use of the product.
+  existing_financing_prompt: true
+
+# Fixed owner-prompt templates (§10). Template text only — never generated.
+prompts:
+  soft_mcc: "Your registered merchant code {mcc} ({label}) does not tell us exactly what you sell or provide. Does any of your revenue come from products or services outside Sharia guidelines? If so, roughly what share?"
+  no_mcc_retail: "We could not find a merchant code for your business. Please confirm the main goods you sell, and whether any of your revenue comes from products outside Sharia guidelines."
+  fi_income: "About {share} of your incoming payments come from financial institutions. Is any of this interest or other income outside Sharia guidelines?"
+  existing_financing: "You make regular repayments to a financial institution. Is this financing Sharia-compliant (for example Murabaha or Ijara), or interest-based?"
+
+# Fixed explanation templates for the Compliance View and for a compliance-driven decline.
+explanations:
+  hard_flag: "This application cannot be financed: the business's registered activity ({detail}) falls outside Sharia guidelines (rule {rule_id})."
+  soft_flag: "Before any offer is final, the owner must answer the question(s) above (rule {rule_id})."

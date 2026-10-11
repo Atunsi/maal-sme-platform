@@ -175,3 +175,35 @@ def decide(row: pd.Series, ccfg: dict, art: dict) -> dict:
         "model_sha256": art.get("sha256"),
     }
     return {"credit": credit, "explanation": explain(contribs, ccfg), "internals": internals}
+
+
+def apply_sharia_gate(result: dict, scr: dict, compliance_text: str | None) -> dict:
+    """Apply feature 24 to a risk decision (§27, SOP §2). Deterministic; template text only.
+
+    hard_flag         -> a COMPLIANCE decline: no amount, no rate, explanation is the compliance
+                         template only. decline_origin = "compliance", so recourse (§27) can
+                         never be generated from it.
+    soft_flag_review  -> the risk decision stands, but the offer is conditional on the owner
+                         answering the fixed prompts (§10).
+    compliant         -> unchanged.
+    """
+    status = scr["sharia_screen_status"]
+    credit, internals, expl = dict(result["credit"]), dict(result["internals"]), dict(result["explanation"])
+    internals["sharia_screen_status"] = status
+    if status == "hard_flag":
+        credit.update({"decision": "declined", "amount_sar": None, "base_markup_pct": None, "repayment_months": None, "recourse": None})
+        internals.update({"decline_reason": "sharia_hard_flag", "decline_origin": "compliance", "risk_tier": None,
+                          "offer_status": None, "risk_assessment_used_for_decision": False})
+        expl["public_tier"] = [{"feature_id": None, "text": compliance_text, "magnitude": None, "direction": None, "source": "compliance"}]
+    else:
+        reason = internals.get("decline_reason")
+        internals["decline_origin"] = None if reason is None else ("risk_model" if reason == "risk_model" else "affordability")
+        if credit["decision"] == "approved":
+            internals["offer_status"] = "conditional_on_sharia_review" if status == "soft_flag_review" else "unconditional"
+        else:
+            internals["offer_status"] = None
+        internals["risk_assessment_used_for_decision"] = True
+    if status == "soft_flag_review":
+        internals["conditions"] = list(scr["owner_prompts"])
+    assert tuple(credit) == CONTRACT_KEYS
+    return {"credit": credit, "explanation": expl, "internals": internals}
