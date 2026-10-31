@@ -1924,5 +1924,5 @@ lenses produced. None were tuned, and N = 1 per scenario, so these are demonstra
 5. The thin-file newcomer is refused (`insufficient_data`, no lens runs). Zakat falls with revenue, and
    the Sharia status is compliant throughout (the retail MCC is unchanged).
 
-**Sign-off:** ☐ generator owner (menu and levers) ☐ credit lens owner (findings 1–2) ☐ forecast +
+**Sign-off:** ☑ generator owner (menu and levers; Ahmed Altunusi, 2026-10-31) ☐ credit lens owner (findings 1–2) ☐ forecast +
 anomaly owner (findings 3–4) ☐ team (state the findings in the demo)
