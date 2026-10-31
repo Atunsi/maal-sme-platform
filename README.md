@@ -96,6 +96,7 @@ python -m api.store --dir data --out data/serving.duckdb   # serving store, once
 uvicorn api.app:app --port 8000                           # needs MAAL_API_KEY in the environment
 python -m eval.latency_test                               # §19 Week 7 test → eval/out/latency_week7.md
 python -m pytest tests                                    # unit tests
+python -m scenarios.run --list                            # hostile-demo menu (DECISIONS 29); --scenario NAME, --check
 python -m eval.anomaly_eval                   # §12 injected vs held-out → eval/out/anomaly_eval.md
 python -m eval.forecast_backtest              # §10 model vs naive → eval/out/forecast_backtest.md
 

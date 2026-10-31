@@ -135,6 +135,23 @@ def noise_sweep() -> list[tuple[str, str]]:
     return out
 
 
+def scenario_rows() -> list[str]:
+    """Register rows for §5b, one per scenario; timings are excluded (they vary run to run)."""
+    t = _read("eval/out/scenario_library_check.txt")
+    rows = []
+    for name, body in re.findall(r"^\[(\w+)\] .*\n  (.*)$", t, re.MULTILINE):
+        f = dict(kv.split("=", 1) for kv in body.split(", "))
+        pd_ = f"{float(f['pd']):.4f}" if f.get("pd", "None") != "None" else "—"
+        rows.append(f"| `{name}` | {f['decision']} | {pd_} | {f.get('cash_alert', '—')} | {f.get('injected_caught', '—')} | {f.get('zakat_sar', '—')} |")
+    if not rows:
+        raise ValueError("no scenario rows found")
+    return rows
+
+
+def scenarios() -> list[tuple[str, str]]:
+    return [(f"scenario {r.split('`')[1]}", r) for r in scenario_rows()]
+
+
 def gate() -> list[tuple[str, str]]:
     t = _read("eval/out/gate_week3_after_monshaat.txt")
     d = re.search(r"construction\s+implied_dso_days: min ([0-9.]+)\s+median ([0-9.]+)\s+max ([0-9.]+)\s+\(n=(\d+)\)", t)
@@ -182,7 +199,7 @@ def forecast_selection() -> list[tuple[str, str]]:
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, noise_sweep, gate, selectivity, latency, sharia, forecast_selection):
+    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, noise_sweep, scenarios, gate, selectivity, latency, sharia, forecast_selection):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

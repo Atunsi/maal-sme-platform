@@ -1,0 +1,75 @@
+# Hostile-demo scenario library (Demo & Credibility plan item 1) — DECISIONS entry 29, PROPOSED.
+#
+# A judge picks a scenario from this menu; nothing is typed in. Each scenario is an
+# overlay on ONE demo business's spec in config.yaml. The business keeps its ID and
+# seed, so every random draw is the same as the baseline and the disaster is the only
+# difference. config.yaml itself is never edited — its hash is cited by the
+# calibration and model receipts.
+#
+# Overrides may only use the generator's existing demo levers (ALLOWED_OVERRIDES in
+# scenarios/run.py). Anomaly types are the KNOWN injected set only; held-out types
+# never appear here (eval/heldout_anomalies.assert_held_out scans this directory).
+#
+# Severities were fixed before any scenario was run. The outcomes recorded in
+# DECISIONS 29 are whatever the lenses produced, not targets.
+version: "1.0"
+status: proposed
+base_business: 10001          # Ramadan-overlap retail, small, Zakat-seeded
+
+scenarios:
+  baseline:
+    label: "Baseline — business 10001 exactly as configured"
+    story: "The control: a 30% inflow drop from week 18, one large transfer and one odd-hours sale."
+    overrides: {}
+
+  calm_counterfactual:
+    label: "Calm half-year — no shock, no anomalies"
+    story: "The same business if nothing had gone wrong."
+    overrides:
+      inject_cash_crunch: null
+      inject_anomalies: []
+
+  mild_slowdown:
+    label: "Mild slowdown — inflows down 15% from week 18"
+    story: "A soft market: customers spend a little less for the last two months."
+    overrides:
+      inject_cash_crunch: { week: 18, severity_pct: 15 }
+
+  severe_collapse:
+    label: "Severe revenue collapse — inflows down 60% from week 14"
+    story: "A major customer segment disappears three months before the decision date."
+    overrides:
+      inject_cash_crunch: { week: 14, severity_pct: 60 }
+
+  late_sudden_shock:
+    label: "Late sudden shock — inflows down 70% in the final three weeks"
+    story: "The shock lands just before the decision date: can anything see it yet?"
+    overrides:
+      inject_cash_crunch: { week: 24, severity_pct: 70 }
+
+  fraud_pattern:
+    label: "Suspicious activity — repeated large transfers and night-time sales"
+    story: "Revenue is normal, but money moves in ways the business never did before."
+    overrides:
+      inject_cash_crunch: null
+      inject_anomalies:
+        - { type: large_transfer, week: 6 }
+        - { type: odd_hours_transaction, week: 9 }
+        - { type: large_transfer, week: 13 }
+        - { type: odd_hours_transaction, week: 17 }
+        - { type: large_transfer, week: 22 }
+
+  combined_crisis:
+    label: "Combined crisis — 60% revenue collapse from week 12 plus large transfers out"
+    story: "Revenue collapses and cash is moved out of the business at the same time."
+    overrides:
+      inject_cash_crunch: { week: 12, severity_pct: 60 }
+      inject_anomalies:
+        - { type: large_transfer, week: 16 }
+        - { type: large_transfer, week: 23 }
+
+  thin_file_newcomer:
+    label: "Newcomer — trading for about 40 days only"
+    story: "A business too new to judge: the system must refuse, not guess."
+    overrides:
+      operating_start_date: "2026-06-20"

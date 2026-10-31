@@ -1879,3 +1879,50 @@ trend. The new grid runs from no label noise, through the shipped 0.2 (9.6% of l
 
 **Status:** measurements, recorded. Nothing in the generator or the lenses changes. No sign-off is
 needed, because no owner's consequence moves.
+
+---
+
+## 29. Hostile-demo scenario library — 8 scenarios on business 10001; outcomes reported as they came — PROPOSED (2026-10-31)
+
+**Touches:** new `scenarios/` (`library.yaml`, `run.py`), `tests/test_scenarios.py`,
+`eval/out/scenario_library_check.txt`, `docs/NUMBERS.md` §5b, and `eval/heldout_anomalies.assert_held_out`,
+which now also scans `scenarios/`. `config.yaml`, the generator, the lenses and the model are unchanged.
+
+**What it is.** Demo & Credibility plan item 1. A judge picks a disaster from a fixed menu
+(`python -m scenarios.run --list`); nothing is typed in. Each scenario overlays demo business 10001's
+spec in memory and regenerates that one business. ID and seed are unchanged, so the disaster is the only
+difference from the baseline. All lenses and both governance modules then run through the Week 8 code
+path. Overrides are restricted to the generator's existing demo levers (`ALLOWED_OVERRIDES`: cash
+crunch, known anomaly injections, window and operating start, Zakat seed). Any other key is refused, so
+a scenario cannot reach the latents, ρ or the label model. `config.yaml` is never edited, so its hash, as
+cited in the calibration and model receipts, is unaffected. Each object carries a `scenario` block plus
+`scenario_library_sha256` in its receipt.
+
+**Pre-validation** (`python -m scenarios.run --check`, exit 0). For every scenario: the Week 8 contract
+(`eval.week8_check.check_object`), a byte-identical re-run, and the 30 s budget (max 0.40 s; about 0.8 s
+cold, including start-up). No held-out anomaly types anywhere. The baseline equals business 10001 in
+the full `data/` generation in every value; only the surrogate `transaction_id` / `obligation_id`
+differ, because a single-business run numbers from 1.
+
+**Severities were fixed before the first run.** The outcomes below (NUMBERS §5b) are whatever the
+lenses produced. None were tuned, and N = 1 per scenario, so these are demonstrations, not estimates.
+
+**Findings — state these in the demo before a judge finds them:**
+1. **Collapses are declined by the §31 affordability gate, not by the risk model.** `severe_collapse`
+   and `combined_crisis` are declined (affordability), with a crunch alert one day out. Their PDs
+   (0.0483, 0.0561) are no higher than the baseline's (0.0557).
+2. **PD does not rise with the disaster.** The calm counterfactual (0.0690) scores riskier than the
+   baseline. The v1 risk model (CV AUC 0.591) ranks populations, not month-to-month stress, so it is not
+   a stress detector. Credit lens owner to review; not retuned.
+3. **A shock in the final three weeks is invisible.** `late_sudden_shock` (−70% from week 24) is
+   approved for more than the baseline (104,000 vs 47,000 SAR), with no cash alert. `naive90` averages
+   90 days, which dilutes a three-week shock. This is the §10 holdout-shock lead-time gap already owed by
+   the forecast owner (entry 27); the scenario makes it demonstrable.
+4. **The anomaly lens always returns its cap.** 10 flags in every scenario (`max_flags: 10`), including
+   the calm one, where all 10 are ordinary activity. Every injected anomaly is among the flags (5 of 5 in
+   `fraud_pattern`). Flags are a review queue, not alarms; anomaly owner to review the cap.
+5. The thin-file newcomer is refused (`insufficient_data`, no lens runs). Zakat falls with revenue, and
+   the Sharia status is compliant throughout (the retail MCC is unchanged).
+
+**Sign-off:** ☐ generator owner (menu and levers) ☐ credit lens owner (findings 1–2) ☐ forecast +
+anomaly owner (findings 3–4) ☐ team (state the findings in the demo)

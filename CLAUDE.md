@@ -68,6 +68,7 @@ python -m eval.check_numbers               # docs/NUMBERS.md matches its source 
 python -m api.store --dir data --out data/serving.duckdb  # API serving store (rebuild after regenerating data)
 python -m eval.latency_test                # §19 Week 7 latency, exit 0 = PASS
 python -m pytest tests                     # unit tests (API tests skip if the store is missing)
+python -m scenarios.run --check            # demo scenario library: contract + determinism + <30 s, exit 0 = PASS
 python -m ruff check .                      # must pass before committing
 ```
 
@@ -96,7 +97,8 @@ Full command list (Berka grounding, Saudi calibration, workstream B) is in READM
 - **Lenses are v1s, built by the generator owner to unblock the gate — each still belongs to its SOP §3 owner** (DECISIONS entry 23, all parameters PROPOSED, in `lenses/lens_config.yaml`, deliberately not `config.yaml`).
 - **Honest findings to beat, not tune:** credit CV AUC 0.591 (88.8% of the 0.666 ceiling); forecast now `naive90`, which beats the naive-30 baseline on an untouched test (0.323 vs 0.376) — a longer moving average, not a clever model; anomaly misses held-out duplicate payments (recall 0.06); Zakat nisab price is a **placeholder**.
 - **API v1 built** (`api/`): five routes over a DuckDB serving store, same code path as the CLI; **Week 7 latency PASSED** (credit max 252 ms on all 1,000; anomaly route max 964 ms is the closest to budget). Needs `MAAL_API_KEY` in the environment — never commit it. Rebuild `data/serving.duckdb` whenever data is regenerated.
-- **Unit tests** (`tests/`, 65): API guarantees, Sharia rules + §27 gate, forecast methods, Zakat rules, credit policy, generator determinism.
+- **Demo scenario library** (`scenarios/`, entry 29): 8 disasters on business 10001, picked from a menu, under 0.5 s each. Its findings (affordability not PD drives declines; late shock invisible; anomaly cap) must be stated, not tuned away.
+- **Unit tests** (`tests/`, 70): API guarantees, Sharia rules + §27 gate, forecast methods, Zakat rules, credit policy, generator determinism.
 - **Sharia screening built** (feature 24, `compliance/`): rule table is PROPOSED, not certified — never present it as a Sharia determination. Compliance View data exists in every decision; the toggle is UI work.
 - **Not built:** per-owner API authorisation, recourse (now unblocked by feature 24), UI.
 - **Decisions:** entry 22 → Path A, confirmed by the generator owner 2026-10-31 (Path B is retuning for v1). Entry 2 → option A (four sectors), 2026-10-31. Generator-owner lines on 11/13/14/15/17/18 signed; 20.1 → keep pinned ticket edition this term. Entry 23 needs four owner sign-offs. Entry 6 still open.

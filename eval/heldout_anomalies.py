@@ -33,8 +33,8 @@ HELD_OUT_TYPES = ("round_trip_transfer", "duplicate_payment")
 def assert_held_out(repo_root: str | Path = ".", data_dir: str | Path | None = None) -> None:
     """Fail if any held-out type name leaks into the generator's inputs or outputs.
 
-    Scans config.yaml, every .py in generator/, and every .py in lenses/anomaly/ —
-    the detector must not be built around the held-out types any more than the
+    Scans config.yaml, every .py in generator/ and lenses/anomaly/, and the demo scenario
+    library (scenarios/) — the detector must not be built around the held-out types any more than the
     generator may inject them. Globbed, so a new module is covered automatically.
     """
     root = Path(repo_root)
@@ -43,6 +43,8 @@ def assert_held_out(repo_root: str | Path = ".", data_dir: str | Path | None = N
         root / "config.yaml",
         *sorted((root / "generator").glob("*.py")),
         *sorted((root / "lenses" / "anomaly").glob("*.py")),
+        *sorted((root / "scenarios").glob("*.yaml")),
+        *sorted((root / "scenarios").glob("*.py")),
     ]
     for path in targets:
         if not path.exists():
