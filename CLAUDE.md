@@ -90,15 +90,15 @@ Full command list (Berka grounding, Saudi calibration, workstream B) is in READM
 - On a rejected push: fetch, inspect what landed (`git diff --stat HEAD...origin/main`), and check whether it invalidates numbers you're about to record before merging.
 - Commit messages explain *why* and state what was verified. End with the `Co-Authored-By:` line the harness specifies.
 
-## State as of 2026-10-11, late (verify — this rots)
+## State as of 2026-10-31 (verify — this rots)
 
 - **Week 3 and Week 7 gates PASSED; Week 8 deliverable exists.** Built: generator (Week 3 gate PASSED), profile engine (71 features), Berka adapter, Saudi calibration, eval harnesses incl. §14 sweep — and **the Week 8 path**: `python -m pipeline.week8 --demo` emits one JSON per business with all five outputs. `eval.week8_check` PASSED (43 objects, byte-identical re-run).
 - **Lenses are v1s, built by the generator owner to unblock the gate — each still belongs to its SOP §3 owner** (DECISIONS entry 23, all parameters PROPOSED, in `lenses/lens_config.yaml`, deliberately not `config.yaml`).
 - **Honest findings to beat, not tune:** credit CV AUC 0.591 (88.8% of the 0.666 ceiling); forecast now `naive90`, which beats the naive-30 baseline on an untouched test (0.323 vs 0.376) — a longer moving average, not a clever model; anomaly misses held-out duplicate payments (recall 0.06); Zakat nisab price is a **placeholder**.
 - **API v1 built** (`api/`): five routes over a DuckDB serving store, same code path as the CLI; **Week 7 latency PASSED** (credit max 252 ms on all 1,000; anomaly route max 964 ms is the closest to budget). Needs `MAAL_API_KEY` in the environment — never commit it. Rebuild `data/serving.duckdb` whenever data is regenerated.
-- **Unit tests** (`tests/`, 60): API guarantees, Sharia rules + §27 gate, forecast methods, Zakat rules, credit policy.
+- **Unit tests** (`tests/`, 65): API guarantees, Sharia rules + §27 gate, forecast methods, Zakat rules, credit policy, generator determinism.
 - **Sharia screening built** (feature 24, `compliance/`): rule table is PROPOSED, not certified — never present it as a Sharia determination. Compliance View data exists in every decision; the toggle is UI work.
 - **Not built:** per-owner API authorisation, recourse (now unblocked by feature 24), UI.
-- **Decisions:** entry 22 → Path A applied **by default** (credit lens trained before anyone decided — Path B is now retuning for v1). Entry 23 needs four owner sign-offs. Entries 2 and 6 still open.
+- **Decisions:** entry 22 → Path A, confirmed by the generator owner 2026-10-31 (Path B is retuning for v1). Entry 2 → option A (four sectors), 2026-10-31. Generator-owner lines on 11/13/14/15/17/18 signed; 20.1 → keep pinned ticket edition this term. Entry 23 needs four owner sign-offs. Entry 6 still open.
 - **If you add a duplicate-payment detector**, define a new held-out type in `eval/heldout_anomalies.py` first (§12); `assert_held_out()` now also scans `lenses/anomaly/`.
-- Owed: §14 label-noise axis (implemented, never run).
+- §14 label-noise axis run (entry 28): shallow — AUC 0.612 → 0.588 from σ = 0 to 1.0, nothing changed. Report-ready limitations draft: `docs/LIMITATIONS_generator.md`.

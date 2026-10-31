@@ -123,6 +123,18 @@ def section14() -> list[tuple[str, str]]:
     return out
 
 
+def noise_sweep() -> list[tuple[str, str]]:
+    t = _read("eval/out/section14_noise_sweep.txt")
+    out = []
+    for ln in t.splitlines():
+        m = re.match(r"([01]\.\d)\s+[0-9.]+\s+([0-9.]+)\s+[0-9.]+\s+[0-9.]+\s+([0-9.]+)\s*$", ln)
+        if m:
+            out += [(f"§14 logit OOF sigma={m.group(1)}", m.group(2)), (f"§14 oracle sigma={m.group(1)}", m.group(3))]
+    if len(out) != 8:
+        raise ValueError(f"expected 4 sigma rows, found {len(out) // 2}")
+    return out
+
+
 def gate() -> list[tuple[str, str]]:
     t = _read("eval/out/gate_week3_after_monshaat.txt")
     d = re.search(r"construction\s+implied_dso_days: min ([0-9.]+)\s+median ([0-9.]+)\s+max ([0-9.]+)\s+\(n=(\d+)\)", t)
@@ -170,7 +182,7 @@ def forecast_selection() -> list[tuple[str, str]]:
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, gate, selectivity, latency, sharia, forecast_selection):
+    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, noise_sweep, gate, selectivity, latency, sharia, forecast_selection):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

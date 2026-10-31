@@ -113,7 +113,7 @@ within-construction discrimination, just not through features 11 / 56.
 
 ---
 
-## 2. Sector scope: four sectors; logistics not modelled — OPEN, decide in Week 1
+## 2. Sector scope: four sectors; logistics not modelled — DECIDED (A), 2026-10-31
 
 **Touches:** `sector_size_distribution`, `balance_sheet_archetypes`,
 `seasonality_multipliers`, `latents.market_shock_sensitivity`, `age_tier_distribution`,
@@ -147,7 +147,7 @@ would be invented rather than sourced, and most logistics cells would be
 unreportable under §23. Record it as a named cut. If the team chooses (B), it
 must land before the Week 3 gate re-run, not after.
 
-**Decision:** ☐ (A) ☐ (B)   Recorded by: ________  Date: ________
+**Decision:** ☑ (A) ☐ (B)   Recorded by: Ahmed Altunusi (generator owner)  Date: 2026-10-31
 
 ---
 
@@ -551,7 +551,7 @@ before and after the Phase 5 code landed (`384fa221…`, `f08e169d…`, `c07a11b
 1,018 emergency/temporary lines, 25,831 / 10,507 / 5,050 standing-order /
 direct-debit / scheduled rows.
 
-**Sign-off:** ☐ generator owner ☐ profile engine owner (66–69) ☐ team
+**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☐ profile engine owner (66–69) ☐ team
 
 ---
 
@@ -860,7 +860,7 @@ runs (13.11).
 class-C dimension.
 
 **Recorded by:** generator owner, 2026-09-16.
-**Sign-off:** ☐ generator owner (13.3–13.8) ☐ profile engine owner (`sample_weight` column, feature 2 now at POS frequency) ☐ team (13.2 blocked status, 13.6 schema change)
+**Sign-off:** ☑ generator owner (13.3–13.8; Ahmed Altunusi, 2026-10-31) ☐ profile engine owner (`sample_weight` column, feature 2 now at POS frequency) ☐ team (13.2 blocked status, 13.6 schema change)
 
 ---
 
@@ -993,7 +993,7 @@ numerator (2026) and denominator (2021) are five years apart. The absolute level
 target was consulted while writing 14.5–14.6; the re-run results are in entry 15.
 
 **Recorded by:** generator owner, 2026-09-17.
-**Sign-off:** ☐ generator owner (14.2 aggregation rule, 14.4 map, 14.5) ☐ team (14.1 correction of 13.2, 14.6 level)
+**Sign-off:** ☑ generator owner (14.2 aggregation rule, 14.4 map, 14.5; Ahmed Altunusi, 2026-10-31) ☐ team (14.1 correction of 13.2, 14.6 level)
 
 ---
 
@@ -1046,7 +1046,7 @@ comparison under one CV protocol on all three sources is entry 19 (Workstream B4
 C 25 — the A1/A2 split is entry 16).
 
 **Recorded by:** generator owner, 2026-09-17.
-**Sign-off:** ☐ generator owner ☐ credit-lens owner (professional_services cell is below the §23 minimum at N = 10,000)
+**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☐ credit-lens owner (professional_services cell is below the §23 minimum at N = 10,000)
 
 ---
 
@@ -1151,7 +1151,7 @@ identical to `gate_week3_after_monshaat.txt` except timings.
 these sixteen; they say C → B for nine and C → B-weak for seven, with the interval on every row.
 
 **Recorded by:** generator owner, 2026-09-17.
-**Sign-off:** ☐ generator owner ☐ team (B-weak as a registry class)
+**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☐ team (B-weak as a registry class)
 
 ---
 
@@ -1188,7 +1188,7 @@ each status separately; the sentence "restaurant Eid is BOUNDED, not PASS" appea
 note.
 
 **Recorded by:** generator owner, 2026-09-17.
-**Sign-off:** ☐ generator owner
+**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31)
 
 ---
 
@@ -1327,7 +1327,7 @@ Seven commits as the SOP lists them: A (pull/config), A (re-run), B1, B2, B3, B4
 each with its own entry (14–20). `ruff check .` clean at every commit.
 
 **Recorded by:** generator owner, 2026-09-17.
-**Sign-off:** ☐ generator owner (20.1 re-pin as a proposed change) ☐ team (report revision 2)
+**Sign-off:** ☑ generator owner (20.1: **keep the archived 12-Sep-2026 edition this term**; re-pin to the cross-edition mean deferred to next term, because applying it now would force regeneration, retraining and every register number to move for a ~3–7% change in POS receipt counts; Ahmed Altunusi, 2026-10-31) ☐ team (report revision 2)
 
 ---
 
@@ -1471,7 +1471,7 @@ generator or the contract. Entry 22 is the decision they raise.
 
 ---
 
-## 22. Latent spread vs. published SME model discrimination — PATH A APPLIED BY DEFAULT (2026-10-11; no team decision was recorded before the credit lens trained)
+## 22. Latent spread vs. published SME model discrimination — PATH A (applied by default 2026-10-11, confirmed by the generator owner 2026-10-31)
 
 **Touches:** `default_label_model.shock_coef`, `.management_coef`, `.intercept`
 (§14 calibration inputs). Nothing else.
@@ -1531,8 +1531,8 @@ now would be retuning, because the credit lens's AUC is already known (0.591, 88
 Path B remains available only for a *future* model version, justified by a cited external
 benchmark chosen on its own terms, and recorded before that version is trained.
 
-**Decision:** ☐ Path A ☐ Path B (benchmark cited: ______________)
-Recorded by: ____________  Date: __________
+**Decision:** ☑ Path A ☐ Path B (benchmark cited: ______________)
+Recorded by: Ahmed Altunusi (generator owner)  Date: 2026-10-31 — confirms the default already applied; Path B for v1 would be retuning.
 
 ---
 
@@ -1842,3 +1842,40 @@ table** — that turns the test into a second validation.
 Entry 25's figures were the first run; current ones are in `docs/NUMBERS.md` §6b.
 
 **Sign-off:** ☐ forecast + anomaly owner
+
+---
+
+## 28. §14 label-noise axis run — AUC is shallow in σ; nothing changed — RECORDED (measurements, 2026-10-31)
+
+**Touches:** nothing in `config.yaml` (σ stays 0.2). Adds `eval/out/section14_noise_sweep.txt`,
+`docs/NUMBERS.md` §4b and a `noise_sweep` check in `eval/check_numbers.py`. Closes the §14 item
+owed since entry 21 ("implemented, never run").
+
+**Grid fixed before the run** (19:57 UTC, run started at once): σ ∈ {0.0, 0.2, 0.5, 1.0}. The
+script's default {0.1, 0.2, 0.3} was replaced because it barely moves the ceiling and could not show a
+trend. The new grid runs from no label noise, through the shipped 0.2 (9.6% of logit variance, entry
+21), to roughly 70% of it. Protocol and features are the same as entry 21 / A6: ρ = 0.6, full scale
+(10,000 research + 1,000 serving), entity-level stratified 5-fold out-of-fold AUC.
+
+| σ | 0.0 | 0.2 | 0.5 | 1.0 |
+|---|---|---|---|---|
+| logistic OOF AUC (research scorable, N = 9,495) | 0.6123 | 0.5959 | 0.5974 | 0.5882 |
+| XGBoost OOF AUC | 0.5784 | 0.5568 | 0.5845 | 0.5687 |
+| oracle ceiling (latent index, scorable research) | 0.6691 | 0.6660 | 0.6646 | 0.6502 |
+| research defaults of 10,000 (seeded replication) | 459 | 478 | 501 | 673 |
+
+**Findings, reported:**
+1. **Shallow.** From σ = 0 to 1.0, the logistic AUC falls by 0.024 (under two standard errors of
+   0.0144) and the ceiling by 0.019. Measured AUC stays at 89–92% of the ceiling. At a ~5% event rate,
+   most of a label's unpredictability is the Bernoulli draw itself, not σ. σ is a weak lever on the
+   ceiling, and the ceiling is set mainly by the latent spread (entry 22).
+2. **The σ = 0.2 column reproduces the register exactly** (0.5959 = A6; ceiling 0.6660; 478 defaults),
+   so the sweep and the shipped data agree.
+3. **σ confounds the base rate.** expit is convex, so more noise means more defaults (6.73% at σ = 1.0).
+   The σ = 1.0 column is therefore not at the shipped base rate. The intercept was **not** re-solved:
+   doing so would turn a sensitivity run into a recalibration.
+4. **No circularity at any σ.** The out-of-sample peak is 0.6123, and the ceiling never exceeds 0.67.
+5. As in entry 21.5, logistic beats XGBoost at every σ.
+
+**Status:** measurements, recorded. Nothing in the generator or the lenses changes. No sign-off is
+needed, because no owner's consequence moves.

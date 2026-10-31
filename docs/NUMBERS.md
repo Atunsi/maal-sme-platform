@@ -72,6 +72,18 @@ Source: `eval/out/section14_rho_sweep.md` (`python -m eval.run_section14`). Prot
 
 **Flat**: the spread of 0.0100 is less than one standard error (0.0144) and the curve is not monotone. Up to 93% of the oracle-to-measured gap is the economics pipeline, not ρ. Model baseline at ρ = 0.6 under the same protocol: logistic 0.5959 beats early-stopped XGBoost 0.5865 and untuned XGBoost 0.5568. These are the A6 features, not the credit lens's.
 
+## 4b. §14 sensitivity — AUC as a function of label noise
+
+Source: `eval/out/section14_noise_sweep.txt` (`python -m eval.sweep_rho --param noise --values 0.0 0.2 0.5 1.0`, grid fixed before the run, DECISIONS entry 28). Protocol and features as A6, ρ = 0.6. Research scorable N = 9,495; defaults per σ from the seeded latent replication (all 10,000 research). σ = 0.2 is the shipped config.
+
+| σ (label noise, logit units) | 0.0 | 0.2 | 0.5 | 1.0 |
+|---|---|---|---|---|
+| logistic out-of-fold AUC | 0.6123 | 0.5959 | 0.5974 | 0.5882 |
+| oracle ceiling (scorable research) | 0.6691 | 0.6660 | 0.6646 | 0.6502 |
+| research defaults (of 10,000) | 459 | 478 | 501 | 673 |
+
+**Shallow**: from σ = 0 to 1.0 the logistic AUC moves 0.024 (under two standard errors of 0.0144, §4) and the ceiling 0.019; measured AUC stays at 89–92% of the ceiling throughout. Most of the label's unpredictability is the Bernoulli draw at a ~5% event rate, not σ. More noise also raises the default rate (expit is convex), so the σ = 1.0 column is not at the same base rate. The §14 circularity flag (≥ 0.85) is not reached at any σ.
+
 ---
 
 ## 5. Lens results (Week 8 v1s, DECISIONS entry 23)
@@ -134,6 +146,7 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | Within-sector share 56.8% | pre-calibration sector weights | 73.4% (§3) |
 | Medium-tier revenue share 43.9% / 44.0% vs 34.3% | before the Monsha'at register | 19.7% vs 34.3% (§6) |
 | "Synthetic 0.578 vs Berka 0.901, gap 0.32" | compared a CV estimate with a single temporal split | A2 vs A3 under one protocol |
+| "§21 signal-strength tolerance missed by 0.30" (gap 0.307) | pre-calibration run, Berka side from the single temporal split | gap 0.147 primary / 0.285 secondary vs tolerance 0.10 (`eval/out/real_vs_synthetic.md`) |
 | "The model beats any single observable channel" | true pre-calibration; false after (withdrawn, entry 21) | — |
 | "The forecast model loses to the naive baseline" (median error 0.455 vs 0.376; MAPE 18.1% vs 15.0%) | true of the v1 OLS-trend model, which was replaced (entry 27) | §5 forecast rows |
 | "Φ(sd/√2) is an identity / a proof" | agreement degraded to 0.0118 | "a good approximation" (§3) |

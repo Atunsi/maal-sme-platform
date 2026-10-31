@@ -47,6 +47,6 @@ deliverables.
 - **No feature claims prediction without a CI excluding 0.50** — `evidence.py` resolves A → A1/A2 only from `profile_engine/feature_transfer.json`, written by `calibration.reclass_evidence` from `feature_transfer.py`; nothing hand-typed.
 - **No cross-source AUC comparison mixes CV protocols** — the headline row of `real_vs_synthetic.md` is one protocol on all three sources; every other row is labelled secondary.
 
-## Still missing (Week 6–7)
+## Still missing
 
-Expanding-window + entity-level CV on the synthetic side for the credit lens (§13), **AUC-vs-label-noise (§14 — `sweep_rho.py --param noise` implements it but it has never been run; the ρ half is done, see DECISIONS entry 21)**, the holdout-shock lead-time test (§10), SHAP threshold-table verification (§13), the §25 fairness audit. `compare_real.py` already implements the Berka temporal/entity scheme (§7.3) and a contiguous-ID entity split for the synthetic snapshot; the credit lens should reuse those rather than write a third.
+Expanding-window + entity-level CV on the synthetic side for the credit lens (§13), ~~AUC-vs-label-noise~~ (§14 — **done 2026-10-31**, DECISIONS entry 28, `eval/out/section14_noise_sweep.txt`; the ρ half is entry 21), the holdout-shock lead-time test (§10), SHAP threshold-table verification (§13), the §25 fairness audit. `compare_real.py` already implements the Berka temporal/entity scheme (§7.3) and a contiguous-ID entity split for the synthetic snapshot; the credit lens should reuse those rather than write a third.

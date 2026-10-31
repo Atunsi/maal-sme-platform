@@ -239,8 +239,8 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
    fairness audit should expect the signal through features 13, 16–19, 37–40.
    Needs credit lens + profile engine owner sign-off, because it changes their
    Week 11 audit expectations.
-2. **Sector scope** (entry 2) — four sectors modelled, logistics excluded.
-   Recommendation: keep four, name the cut in the report. Week-1-or-never.
+2. ~~Sector scope~~ (entry 2) — **decided 2026-10-31: option A**, four sectors;
+   logistics is a named cut in the report.
 3. **`daily_aggregates` row count** (entry 5) — proposed schema edit. §7 says
    "~90 rows", but features 4, 9 and 45 need a prior 90-day window, so a 90-row
    table makes three committed features uncomputable.
@@ -254,19 +254,26 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
 7. **Feature 41 re-specification on the transaction code; feature 61 in the §31
    underwriting rule** (entry 10) — credit lens + profile engine owners.
 8. **Phase 5 ungrounded dimensions** (entry 11) — obligations not reconciled with
-   the transaction stream by design; sign-off on the `ungrounded:` block.
+   the transaction stream by design; generator owner signed 2026-10-31, profile
+   engine owner and team still to sign.
+9. ~~Ticket-size re-pin~~ (entry 20.1) — **decided 2026-10-31: keep the archived
+   12-Sep-2026 edition this term**; re-pin deferred to next term.
+
+Entry 22 (latent spread) is settled: Path A, confirmed 2026-10-31. Generator-owner
+lines on entries 13, 14, 15, 17, 18 and 20 are signed; the other owners' lines are not.
 
 ## Known gaps
 
-- **No unit tests.** The gate and validation harnesses are integration-level
-  only (the no-look-ahead assertion in `eval/compare_real.py` self-tests with a
-  deliberate violation; that is the only unit-style check). Week 11's
-  full-system integration test (SOP §19) has nothing beneath it.
+- **Unit tests cover the lenses, API, Sharia rules and generator determinism**
+  (`python -m pytest tests`), but not the profile engine's 71 feature formulas
+  feature by feature; those are exercised only through the integration harnesses.
 - **Obligation rows are not reconciled with the transaction stream.** A synthetic
   direct-debit or scheduled row does not add collections to `transactions.csv`,
   because that would move gate numbers (§9.3). Committed outflow can therefore
   exceed observed outflow for some businesses.
-- **The 0.1 tolerance on `real_vs_synthetic_signal_strength` was missed by 0.30**
+- **The 0.1 tolerance on `real_vs_synthetic_signal_strength` was missed**: gap 0.147 on the
+  Berka primary label (0.574 vs 0.721) and 0.285 on the secondary, one protocol on both sides
+  (`eval/out/real_vs_synthetic.md`; the old "missed by 0.30" was the retired single-split comparison)
   in the direction of *more* real signal. The generator's ρ = 0.6 / σ = 0.2 is
   untouched; revisit only through a recorded §21 decision.
 - **Seasonality is measured only for retail and F&B.** Construction and
@@ -282,8 +289,8 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
 - **SAMA SME-specific NPL target is unregistered** pending the §21 Week-1 check
   that a citable published series exists at all. Drop the target rather than
   assert an untraceable number.
-- **DuckDB is installed but unwired** (§37.2). When it is used for a receipted
-  value, `SET threads TO 1` immediately after connecting.
+- **DuckDB backs only the API serving store** (`api/store.py`, `SET threads TO 1`,
+  explicit `ORDER BY`, §37.2). The CLI and the eval harnesses still read CSV.
 
 ## Honesty rules for the defense (SOP §10)
 

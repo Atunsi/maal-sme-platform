@@ -1,0 +1,95 @@
+§14 sensitivity sweep — sigma_noise in [0.0, 0.2, 0.5, 1.0]
+config: config.yaml | populations: research + serving | full scale
+
+[research] seed=42 ids 1..10000 → generating 10000 businesses
+  1000/10000  (5s)
+  2000/10000  (10s)
+  3000/10000  (14s)
+  4000/10000  (19s)
+  5000/10000  (24s)
+  6000/10000  (29s)
+  7000/10000  (33s)
+  8000/10000  (38s)
+  9000/10000  (43s)
+  10000/10000  (48s)
+[serving] seed=43 ids 10001..11000 → generating 1000 businesses
+  1000/1000  (53s)
+generated 11000 businesses, 12,537,615 transactions in 62s
+extended: 41,394 obligations, 4,413 facilities, transaction sub-fields, MCC coverage (79s)
+  sigma_noise=0.0: OOF AUC xgb=0.5784 logit=0.6123 | serving=0.5354 | oracle=0.6691 (154s)
+
+[research] seed=42 ids 1..10000 → generating 10000 businesses
+  1000/10000  (5s)
+  2000/10000  (10s)
+  3000/10000  (16s)
+  4000/10000  (21s)
+  5000/10000  (26s)
+  6000/10000  (31s)
+  7000/10000  (36s)
+  8000/10000  (41s)
+  9000/10000  (46s)
+  10000/10000  (51s)
+[serving] seed=43 ids 10001..11000 → generating 1000 businesses
+  1000/1000  (56s)
+generated 11000 businesses, 12,537,615 transactions in 63s
+extended: 41,394 obligations, 4,413 facilities, transaction sub-fields, MCC coverage (78s)
+  sigma_noise=0.2: OOF AUC xgb=0.5568 logit=0.5959 | serving=0.5687 | oracle=0.6660 (154s)
+
+[research] seed=42 ids 1..10000 → generating 10000 businesses
+  1000/10000  (5s)
+  2000/10000  (11s)
+  3000/10000  (16s)
+  4000/10000  (21s)
+  5000/10000  (26s)
+  6000/10000  (31s)
+  7000/10000  (36s)
+  8000/10000  (41s)
+  9000/10000  (46s)
+  10000/10000  (51s)
+[serving] seed=43 ids 10001..11000 → generating 1000 businesses
+  1000/1000  (56s)
+generated 11000 businesses, 12,537,615 transactions in 63s
+extended: 41,394 obligations, 4,413 facilities, transaction sub-fields, MCC coverage (78s)
+  sigma_noise=0.5: OOF AUC xgb=0.5845 logit=0.5974 | serving=0.6021 | oracle=0.6646 (153s)
+
+[research] seed=42 ids 1..10000 → generating 10000 businesses
+  1000/10000  (5s)
+  2000/10000  (11s)
+  3000/10000  (16s)
+  4000/10000  (21s)
+  5000/10000  (26s)
+  6000/10000  (31s)
+  7000/10000  (36s)
+  8000/10000  (41s)
+  9000/10000  (46s)
+  10000/10000  (51s)
+[serving] seed=43 ids 10001..11000 → generating 1000 businesses
+  1000/1000  (56s)
+generated 11000 businesses, 12,537,615 transactions in 63s
+extended: 41,394 obligations, 4,413 facilities, transaction sub-fields, MCC coverage (79s)
+  sigma_noise=1.0: OOF AUC xgb=0.5687 logit=0.5882 | serving=0.5731 | oracle=0.6502 (157s)
+
+================================================================================================
+AUC as a function of sigma_noise — research population, entity-level 5-fold OOF
+================================================================================================
+             XGB OOF  logit OOF  XGB->serving  XGB in-sample  oracle (latent)
+sigma_noise                                                                  
+0.0           0.5784     0.6123        0.5354         0.9924           0.6691
+0.2           0.5568     0.5959        0.5687         0.9918           0.6660
+0.5           0.5845     0.5974        0.6021         0.9869           0.6646
+1.0           0.5687     0.5882        0.5731         0.9799           0.6502
+
+N research scorable = 9,495 (430 defaults) | N serving scorable = 943 (47 defaults)
+
+NOTE: XGB in-sample exceeds its own OOF by up to 0.435 (430 defaults / 9,495 rows).
+  The model memorises at this event rate. In-sample AUC is an OVERFITTING
+  diagnostic, NOT a circularity signal. The flag below is evaluated on the
+  out-of-sample columns only — the only honest estimates of recoverable signal.
+
+§14 circularity flag (out-of-sample AUC >= 0.85):
+  NOT REACHED at any sigma_noise in [0.0, 0.2, 0.5, 1.0]. Peak out-of-sample AUC = 0.6123.
+  Oracle ceiling = 0.6691 — no feature set can exceed this, at any sigma_noise,
+  because the rest of the label is idiosyncratic noise nothing observable can see.
+  The ceiling itself is below 0.85: an AUC at or above it on this data would be
+  evidence of leakage, not of skill. Treat it as a tripwire.
+exit 0
