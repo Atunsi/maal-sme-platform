@@ -84,8 +84,11 @@ NAME_TO_ID = {v: k for k, v in FEATURE_NAMES.items()}
 
 # §8: what GET /profile returns. 37–39 are included because 40 is defined from them and §8 lists 40.
 PROFILE_FEATURE_IDS: list[int | str] = [
-    *range(1, 19), "18b", *range(19, 27), 32, 33, 36, *range(37, 55), *range(55, 60), 60, 61, 62, "62b", 63, 64, 65, 66, 67, 68, 69
-]
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, "18b", 19,
+    20, 21, 22, 23, 24, 25, 26, 32, 33, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+    47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, "62b", 63, 64, 65,
+    66, 67, 68, 69,
+]  # fmt: skip
 # §7: the separate balance-sheet profile read only by the Zakat lens.
 ZAKAT_PROFILE_FEATURE_IDS: list[int] = [27, 28, 29, 30, 31, 34, 35]
 
