@@ -105,6 +105,16 @@ def test_profile_excludes_zakat_only_features(client):
     assert not ZAKAT_ONLY & set(feats)
 
 
+def test_profile_is_exactly_the_contract_list(client):
+    """§8: /profile returns exactly PROFILE_FEATURE_IDS — no latent_ variable, no label, nothing extra."""
+    from profile_engine.registry import FEATURE_NAMES, PROFILE_FEATURE_IDS
+
+    pr = client.get("/profile/10001", headers=H).json()
+    assert set(pr["features"]) == {FEATURE_NAMES[f] for f in PROFILE_FEATURE_IDS}
+    assert not [k for k in keys_deep(pr) if k.startswith("latent_")]
+    assert not {"default_label", "label_primary", "label_secondary", "p_default"} & set(keys_deep(pr))
+
+
 def test_responses_are_deterministic(client):
     a = client.get("/lenses/credit", params={"business_id": 10002}, headers=H).json()
     b = client.get("/lenses/credit", params={"business_id": 10002}, headers=H).json()
