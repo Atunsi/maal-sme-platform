@@ -1985,11 +1985,36 @@ affected (it reads `daily_aggregates`, computed from the full stream). Berka is 
 `tests/test_profile_engine.py::test_sample_weight_counts_a_thinned_row_at_its_weight` documents
 the gap as a strict `xfail`.
 
+**Correction (2026-11-01, same day, measured against the true value — `python -m eval.thinning_bias`
+→ `eval/out/thinning_bias.md`).** The table above compares "as computed" with "weighted"; neither is
+the truth. The script regenerates the same quick population with the sample rate at 1.0 (thinning has
+its own RNG stream, so this is exactly the stream the file was sampled from; `daily_aggregates` is
+asserted identical) and runs the engine on it. Medians of computed ÷ true over the 376 thinned
+businesses:
+
+| Feature | Today (no weights) | Weighted | What changes in this entry |
+|---|---|---|---|
+| 20 | 0.82 (103.5 vs 138) | 0.82 | confirmed: under-counted, weighting cannot fix it (median 11.7% of true customers never appear) |
+| 21 | 3.24 | 1.02 | confirmed: weighting fixes it |
+| 22 | 3.92 | 20.76 | **wrong direction above.** True median is 0.0000 (244 of 376 businesses are 0). Today's 0.0029 is too *high*, not "understated by about 5×". Thinning drops a customer's earlier receipts, so known customers look new; weighting multiplies those false-new receipts and makes it worse |
+| 5 | 1.14 | 1.14 | **was called unaffected above; it is biased**, and weighting does not help |
+| 10 | 1.00 | 1.00 | confirmed unaffected (outflows are never thinned) |
+| 45 | 0.94 | 0.94 | **was called unaffected above; it is biased**, and weighting does not help |
+| 46 | n/a | n/a | true value is 0 for all 376 businesses, so no bias can show |
+
+The sentences "22 understates new-counterparty share by about 5×" and "5, 10 and 45 compare values
+within one direction, so a uniform thinning cancels" are withdrawn: the first has the wrong direction,
+the second holds only for 10. Proposal item 2 below is corrected accordingly; its original wording
+was "weight `amount` by `sample_weight` in the per-counterparty value sums for 21 and 22 (and, for
+consistency, 5, 10, 45, 46 and `cp_coverage_share`, where it changes nothing in expectation)".
+
 **Proposed (not decided):**
 1. Withdraw the sentence in 13.6 that calls 20–22 unbiased; keep it struck through with a pointer here.
-2. Engine: weight `amount` by `sample_weight` in the per-counterparty value sums for 21 and 22
-   (and, for consistency, 5, 10, 45, 46 and `cp_coverage_share`, where it changes nothing in
-   expectation).
+2. *(Corrected 2026-11-01.)* Weighting fixes only feature 21. Features 20, 22, 5 and 45 depend on
+   which rows exist, not on their amounts, so no weight can repair them. The real choice is for the
+   engine to read counterparty features from an unthinned source, or for the generator to stop
+   thinning (or to keep every customer's first receipt), or to declare these features
+   `not_available_in_source` for thinned businesses.
 3. Feature 20 under thinning needs a definition choice: (a) report it only for unthinned
    businesses (null `not_available_in_source` when any row is thinned), (b) estimate the full count,
    or (c) keep it and state that it counts customers seen in the thinned file. This is a choice for
@@ -2181,6 +2206,20 @@ Effect on the current research population: `sector_relative_regularity_z` (55) h
 standard deviation **2.46** (F&B) and **2.79** (retail) instead of about 1. Construction and
 professional services are close to 0 / 1 on these two features. So 55 and 59 no longer mean "how far
 from the sector average" for the POS sectors.
+
+**Correction (2026-11-01, same day — `python -m eval.reference_stats_drift` →
+`eval/out/reference_stats_drift.md`).** The paragraph above left out the largest effect and two
+others. Means and SDs per sector on the current research population (scored + partial_profile):
+- **59 `sector_relative_concentration_z` has mean 6.63 (retail, N = 4,204) and 7.32 (F&B, N = 1,555)**,
+  not about 0: the typical POS business sits about 7 reference SDs above its "sector average". (Its
+  SDs, 2.79 and 2.46, are as stated above.)
+- 55's SD has collapsed to 0.15 (retail) and 0.07 (F&B), so 55 barely varies inside those sectors.
+- Construction is not "close to 0 / 1" on every feature: 56 has mean −0.44, SD 0.52; 58 has mean
+  −0.25, SD 0.46 (N = 3,486). The pinned construction volatility and balance statistics are about
+  twice the current ones (table above). Construction is close to 0 / 1 on 55 and 59, as stated.
+- Provenance: the stats file entered the repository in `4442e94` and was never changed; `4442e94`
+  is an ancestor of `a4a7f40`, `01b5ebd` and `fa21be6` (git ancestry; the dates are misleading because
+  `4442e94` is a grafted baseline commit).
 
 **Proposed.** Rebuild once (`python -m profile_engine.compute --build-reference-stats`), as
 `sector_reference_stats_v2.json` so v1 stays reproducible, **after entry 30 is settled**. Rebuilding

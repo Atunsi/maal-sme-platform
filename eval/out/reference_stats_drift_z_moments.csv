@@ -1,0 +1,21 @@
+sector,feature,n,mean,SD
+retail_trade,55 sector_relative_regularity_z,4204,1.2760111253141635,0.1458568532103185
+retail_trade,56 sector_relative_volatility_z,4204,0.053561687800365035,0.9824289143533083
+retail_trade,57 sector_relative_days_negative_z,4204,-0.07666941888226299,0.8641102776472123
+retail_trade,58 sector_relative_balance_z,4204,0.13129867144075635,1.0778054870716864
+retail_trade,59 sector_relative_concentration_z,4204,6.633219360590674,2.794513918296437
+food_beverage,55 sector_relative_regularity_z,1555,1.1605536289990925,0.06884772426316976
+food_beverage,56 sector_relative_volatility_z,1555,0.23900241803518782,1.3440037415231583
+food_beverage,57 sector_relative_days_negative_z,1555,-0.05245398983945667,0.9083802605146536
+food_beverage,58 sector_relative_balance_z,1555,0.21275248363444557,1.295116349572776
+food_beverage,59 sector_relative_concentration_z,1555,7.319793286293539,2.460109582011083
+construction,55 sector_relative_regularity_z,3486,-0.0046723310735073634,1.0208507359186358
+construction,56 sector_relative_volatility_z,3486,-0.4432192732758111,0.5192673957647428
+construction,57 sector_relative_days_negative_z,3486,-0.06426586182177987,0.9460606208811004
+construction,58 sector_relative_balance_z,3486,-0.2543459062742061,0.4561059738434794
+construction,59 sector_relative_concentration_z,3486,-0.007729379268738239,0.9898108451122072
+professional_services,55 sector_relative_regularity_z,250,-0.008993807018066896,0.9973186149277784
+professional_services,56 sector_relative_volatility_z,250,0.00962678541700841,0.8483100446975306
+professional_services,57 sector_relative_days_negative_z,250,-0.057945049375789585,0.6206415428502438
+professional_services,58 sector_relative_balance_z,250,0.03237427070631236,0.860296315657934
+professional_services,59 sector_relative_concentration_z,250,-0.06457127718465278,0.9880792128453668

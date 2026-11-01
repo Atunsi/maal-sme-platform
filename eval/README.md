@@ -33,6 +33,12 @@ deliverables.
 | `dimensions_check.py` | §10.2 / §12: obligations terminate, cancellations ↔ latent distress, balloons exist, facilities ↔ latent distress, MCC coverage, evidence stamps | 0 = PASS |
 | `sensitivity.py` | §13.4: class-C features as a RANGE over low/central/high parameter settings → `out/sensitivity_*.md` | 0 |
 | `evidence_table.py` | §13.5: the three-column evidence table, generated from the registry → `out/evidence_table.md` | 0 |
+| `thinning_bias.py` | DECISIONS 30: transaction features on thinned POS businesses — engine as run, weighted, and **true** (same quick population regenerated at sample rate 1.0, in memory) → `out/thinning_bias.md/.png/*.csv` | 0 |
+| `feature24_seam.py` | DECISIONS 31: feature 24 value and null reason together for `insufficient_data` businesses — engine rows, rows after `pipeline.week8.prepare`, and GET /profile on the serving store if present → `out/feature24_seam.md/*.csv` | 0 |
+| `reference_stats_drift.py` | DECISIONS 35: provenance of the pinned §35 stats (git ancestry), pinned vs rebuilt-in-memory μ/σ, mean/SD of 55–59 per sector (expected 0/1) → `out/reference_stats_drift.md/.png/*.csv`; never rebuilds | 0 |
+| `entry1b_check.py` | DECISIONS 1b: Spearman of 11 and 56 (and the named alternatives) inside one sector vs observed default and the hidden risk score, bootstrap CI → `out/entry1b_check.md/.csv` | 0 |
+| `data_provenance.py` | Is the git-ignored full-scale `data/` what the current generator produces? Compares it with a `data/quick` generated from the current code on every shared business; reports dates, seeds, config hashes, and the columns that cannot be compared (population-rank-driven, `generator/dimensions.py`) → `out/data_provenance.md` | 0 = current, 1 = different |
+| `contract_count.py` | The §8 contract (64) vs the credit model's inputs (58): exclusions from `lens_config`, the constant features `build_xy` drops, and the code line → `out/contract_count.md` | 0 |
 
 ## Rules these harnesses enforce (not merely describe)
 
