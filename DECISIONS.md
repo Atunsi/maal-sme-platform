@@ -109,7 +109,7 @@ features, not the sector code") is a claim that could genuinely fail. Read
 this alongside the feature-11 consequence above: the audit should expect real
 within-construction discrimination, just not through features 11 / 56.
 
-**Sign-off:** ☐ credit lens owner ☐ profile engine owner
+**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-01)
 
 ---
 
@@ -425,7 +425,7 @@ Saudi AIS must re-validate the 60-day rule against real activity levels before
 relying on it; the synthetic thin-file population (~1,200 of 11,000) says nothing
 about that.**
 
-**Sign-off:** ☐ profile engine owner ☐ team
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-01) ☐ team
 
 ---
 
@@ -567,7 +567,7 @@ before and after the Phase 5 code landed (`384fa221…`, `f08e169d…`, `c07a11b
 1,018 emergency/temporary lines, 25,831 / 10,507 / 5,050 standing-order /
 direct-debit / scheduled rows.
 
-**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☐ profile engine owner (66–69) ☐ team
+**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☑ profile engine owner (66–69; Faris Alsharifi, 2026-11-01) ☐ team
 
 ---
 
@@ -1114,7 +1114,7 @@ reports the weakest class in the order A2 > A1 > B > B-weak > C.
 only (entry 19 shows the eligibility rule is selective on the label).
 
 **Recorded by:** profile engine owner, 2026-09-17.
-**Sign-off:** ☐ profile engine owner ☐ team (claim wording)
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-01) ☐ team (claim wording)
 
 ---
 
