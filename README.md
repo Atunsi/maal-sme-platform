@@ -54,7 +54,7 @@ write code that breaks one, stop and raise it.
 | Synthetic data generator | [`generator/`](generator/) | generator owner | **BUILT** — Week 3 gate PASSED, re-run unchanged after Phase 5 dimensions (obligations, facilities, transaction sub-fields, MCC coverage) |
 | Berka real-data adapter | [`berka_adapter/`](berka_adapter/) | generator owner | **BUILT** — Phases 0–4 of the grounding SOP accepted/run |
 | Eval harnesses (gate, §21 validation, held-out anomalies, real-vs-synthetic, sensitivity, evidence) | [`eval/`](eval/) | generator owner | **BUILT** (credit-lens CV curves, fairness audit pending Week 6–7) |
-| Profile engine — features 1–69 | [`profile_engine/`](profile_engine/) | profile engine owner | **BUILT** — source-agnostic; 24–26, 34–35 `not_implemented` (module owners) |
+| Profile engine — features 1–69 | [`profile_engine/`](profile_engine/) | profile engine owner | **BUILT** — source-agnostic; 24–26, 34–35 `not_implemented` (module owners); unit tests in `tests/test_profile_engine.py`. **The pinned §35 reference stats predate the Saudi calibration, so 55–59 are off-centre for retail and F&B (feature 59 mean 6.63 / 7.32 instead of 0): entry 35, rebuild planned once, after entry 30** |
 | Credit lens (Base Murabaha + SHAP) | [`lenses/credit/`](lenses/credit/) | credit lens owner | **v1 built** — CV AUC 0.591 (88.8% of ceiling), exact log-odds SHAP; params PROPOSED (entry 23) |
 | Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v2 built** — `naive90` chosen on validation, **beats the naive baseline** on an untouched test (0.323 vs 0.376; entry 27) |
 | Anomaly lens | [`lenses/anomaly/`](lenses/anomaly/) | forecast + anomaly owner | **v1 built** — held-out round-trip recall 0.92, duplicate payment 0.06 (entry 23) |
@@ -212,9 +212,12 @@ recovered — all pass or are reported.
 portfolio amounts) until entry 6's step 3 lands.
 
 **`transactions.csv` carries `sample_weight`.** POS receipts are generated at the measured
-ticket (~33/day for a micro shop) and the `sales` rows of POS sectors are a 10% unbiased
+ticket (~33/day for a micro shop) and the `sales` rows of POS sectors are a 10% random
 thinning (weight 10.0); `daily_aggregates` keeps the full counts and is authoritative.
-Anything that sums inflow amounts from `transactions.csv` must weight by it.
+Anything that sums inflow amounts from `transactions.csv` must weight by it. **The thinning is
+not unbiased for the counterparty features** (DECISIONS entry 30, `python -m eval.thinning_bias`):
+against the true full stream, features 20, 21, 22, 5 and 45 are all biased on thinned businesses,
+and weighting fixes only 21. Feature 1 and the other daily-table features are unaffected.
 
 ## Real-data grounding (2026-09-16) — what is measured and what is judged
 
@@ -238,36 +241,62 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
 1. **Volatility-feature consequence** (entry 1b) — feature 11 / 56 carry
    near-zero signal *within construction* by an understood mechanism. The §25
    fairness audit should expect the signal through features 13, 16–19, 37–40.
-   Needs credit lens + profile engine owner sign-off, because it changes their
-   Week 11 audit expectations.
+   Profile engine owner signed 2026-11-01 (re-measured: `python -m eval.entry1b_check`);
+   credit lens owner still to sign.
 2. ~~Sector scope~~ (entry 2) — **decided 2026-10-31: option A**, four sectors;
    logistics is a named cut in the report.
 3. **`daily_aggregates` row count** (entry 5) — proposed schema edit. §7 says
-   "~90 rows", but features 4, 9 and 45 need a prior 90-day window, so a 90-row
-   table makes three committed features uncomputable.
+   "~90 rows", but features 4, 9, 43 and 45 need a prior 90-day window, so a 90-row
+   table makes four committed features uncomputable. Profile engine owner signed
+   2026-11-01; team still to sign.
 4. **GASTAT calibration** (entry 6) — blocked on pulling the establishment-count
    table.
 5. **Grounding-SOP schema changes** (entry 8) — `external_real`, `evidence_class`,
    `subfamily`, nullable `counterparty_id`, `obligations.csv`, `balances_daily.csv`,
-   `facilities.csv`, features 60–69, the proposed feature-15 formula.
+   `facilities.csv`, features 60–69, the feature-15 formula (wording corrected to match
+   the code). Profile engine owner signed 2026-11-01; team still to sign.
 6. **§15 threshold on real data** (entry 9) — 60 active days excludes every Berka
-   account; `external_real: 10` is the proposed source-labelled threshold.
+   account; `external_real: 10` is the proposed source-labelled threshold. Profile
+   engine owner signed 2026-11-01; team still to sign.
 7. **Feature 41 re-specification on the transaction code; feature 61 in the §31
    underwriting rule** (entry 10) — credit lens + profile engine owners.
 8. **Phase 5 ungrounded dimensions** (entry 11) — obligations not reconciled with
    the transaction stream by design; generator owner signed 2026-10-31, profile
-   engine owner and team still to sign.
+   engine owner signed 2026-11-01 (66–69); team still to sign.
 9. ~~Ticket-size re-pin~~ (entry 20.1) — **decided 2026-10-31: keep the archived
    12-Sep-2026 edition this term**; re-pin deferred to next term.
+10. **A1 / A2 evidence split** (entry 16) — profile engine owner signed 2026-11-01;
+    team still to sign the claim wording.
+11. **POS thinning biases the counterparty features** (entry 30, PROPOSED) — 20, 21, 22,
+    5 and 45 are biased on thinned businesses; only 21 is fixed by weighting. Profile
+    engine owner, generator owner and team.
+12. **Feature 24 has a value and a null reason at once for `insufficient_data` businesses**
+    (entry 31, PROPOSED) — 57 of 57 refused serving businesses through `/profile`.
+    Compliance owner and profile engine owner.
+13. **Where features 24–26, 34 and 35 are computed** (entry 32, PROPOSED, options only) —
+    engine or pipeline. Profile engine owner, compliance owner and team.
+14. **Schema text for features 60–69 and 62b** (entry 33, PROPOSED schema edit v2.9 → v2.10) —
+    count 59 → 71, new sections numbered §38/§39, §31 "feature 45" → 49. Profile engine
+    owner, generator owner and team.
+15. **Entry 10 pre-registration** (entry 34, PROPOSED, implementation blocked) — features 41
+    and 42 with k = 0.15; nothing implemented and no number computed until the credit lens
+    owner agrees.
+16. **Stale §35 reference statistics** (entry 35, PROPOSED) — rebuild once, after entry 30;
+    the credit lens owner retrains afterwards.
 
 Entry 22 (latent spread) is settled: Path A, confirmed 2026-10-31. Generator-owner
-lines on entries 13, 14, 15, 17, 18 and 20 are signed; the other owners' lines are not.
+lines on entries 13, 14, 15, 17, 18 and 20 are signed. Profile engine owner lines on
+entries 1b, 5, 8, 9, 11 and 16 are signed (2026-11-01); 10 and 13 are not. The other
+owners' lines are not signed.
 
 ## Known gaps
 
-- **Unit tests cover the lenses, API, Sharia rules and generator determinism**
-  (`python -m pytest tests`), but not the profile engine's 71 feature formulas
-  feature by feature; those are exercised only through the integration harnesses.
+- **Unit tests cover the lenses, API, Sharia rules, generator determinism and now the
+  profile engine** (`python -m pytest tests`; engine: `tests/test_profile_engine.py` —
+  the §15 states, §16 rules, no bare nulls, determinism, registry, no latent leak). They do
+  not test each of the 71 feature formulas one by one; most are still exercised only
+  through the integration harnesses. One engine test is a strict `xfail` documenting
+  entry 30.
 - **Obligation rows are not reconciled with the transaction stream.** A synthetic
   direct-debit or scheduled row does not add collections to `transactions.csv`,
   because that would move gate numbers (§9.3). Committed outflow can therefore
