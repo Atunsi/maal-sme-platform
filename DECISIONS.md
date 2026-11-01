@@ -192,19 +192,20 @@ table required"); no lens code.
 
 **The conflict:** §7 and §12 both describe `daily_aggregates.csv` as "max ~90
 rows per business". §12 also sets the generator default `window_days: 180`, and
-three features in the committed contract require a *prior* 90-day window by
+four features in the committed contract require a *prior* 90-day window by
 definition:
 
 | feature | definition (schema) | needs |
 |---|---|---|
 | 4 `revenue_growth_rate_90d` | current 90d vs prior 90d | 180 days |
 | 9 `expense_growth_rate_90d` | current 90d vs prior 90d | 180 days |
+| 43 `inflow_break_recency_days` | CUSUM on current-90d inflow, standardised against the prior-90d mean/SD | 180 days |
 | 45 `counterparty_persistence_ratio` | current-90d counterparties ∩ prior-90d | 180 days |
 
 §15's `partial_profile` state ("coverage ≥ 60 but total available history <
 `min_history_days`") only has meaning if more than 90 days *can* be available.
 §8 says `/profile` reads only `daily_aggregates`. A 90-row table therefore makes
-4, 9, and 45 uncomputable for every business and collapses `partial_profile`
+4, 9, 43 and 45 uncomputable for every business and collapses `partial_profile`
 into a permanent state — which is a defect in the contract, not a judgment call.
 
 **Read of the history:** the "~90 rows" wording predates `window_days: 180`
@@ -218,19 +219,25 @@ entry with a version bump, then code):**
 > **one row per calendar day of the generated window (`window_days`, default
 > 180)**. The `< 2s` API target is met by the pre-aggregation itself (one row
 > per day instead of raw transactions), not by capping the row count; 180 rows
-> per business is well within that budget. Features 4, 9 and 45 read the prior
+> per business is well within that budget. Features 4, 9, 43 and 45 read the prior
 > 90 days from this same table; §15's `partial_profile` applies when fewer than
 > `min_history_days` rows exist.
 
 **Generator position until the edit lands:** emit the full window (current
 behaviour). `output.daily_aggregates_trailing_days: 90` remains available so
 the literal current wording can be produced on demand, but it should not be
-the default — the default should not make three contract features
+the default — the default should not make four contract features
 uncomputable.
 
 **Recommendation:** adopt the schema edit. Cost is a wording change and a
-version bump; the alternative is three dead features and a §15 state that
+version bump; the alternative is four dead features and a §15 state that
 never varies.
+
+**Edited 2026-11-01 (profile engine owner's request, before sign-off):** feature 43
+`inflow_break_recency_days` added to the table and to the proposed text. It standardises the
+current window against the prior 90 days, and the engine already requires 180 days of history
+for it (`profile_engine/registry.py` `MIN_HISTORY_DAYS`). "Three" became "four" throughout;
+nothing else in the entry changed.
 
 **Raised by:** generator owner, 2026-09-15  **Sign-off:** ☐ profile engine owner
 (owns features 1–59 and `/profile`) ☐ team
@@ -371,7 +378,7 @@ renames an existing column; the Week 3 gate is re-run unchanged (entry 10).
 | `balances_monthly.csv` optional | §37.1 | `validate_engine_tables` requires transactions/daily/businesses only; a bank feed has no balance sheet |
 | Berka label table | SOP §7.1 | `berka_labels_schema`: `label_primary` (A→0, B→1, C/D→null), `label_secondary` (A+C→0, B+D→1), `censored` |
 | Features 60–65 | new §37 | `profile_engine.registry` — 62 split into `ocr_forward_3m` (62) and `ocr_forward_6m` (62b) |
-| Feature 15 formula | §3 | **PROPOSED**: `100 × mean(min(1, σ_net/daily_outflow), clip(1 − inflow/outflow, 0, 1), days_neg/90, min(1, overdraft_events/5))` — the schema leaves the weighting open |
+| Feature 15 formula | §3 | **PROPOSED**: `100 × mean(σ_net / (σ_net + max((avg_monthly_inflow + avg_monthly_outflow)/30, 500/30)), clip(1 − inflow_outflow_ratio, 0, 1), days_neg / window_days, min(1, overdraft_events/5))`, where σ_net is the std of daily net flow (feature 11), `inflow_outflow_ratio` is feature 12 (`avg_monthly_inflow / max(avg_monthly_outflow, 500)`) and `window_days` is the number of days in the trailing window (90 when complete) — the schema leaves the weighting open (wording corrected 2026-11-01, see below) |
 | Feature 46 threshold | §33 | fixed at 0.5% of the business's trailing-90-day total transaction value, floored at the §16 epsilon — scale-free so it means the same in CZK and SAR |
 | Feature 33 calendar | §15 | operating days exclude Fri/Sat for `synthetic`/`sandbox`, Sat/Sun for `external_real` |
 | `berka.cv_cut_date`, `profile_engine.*` config blocks | `config.yaml` | see entry 9 |
@@ -382,6 +389,15 @@ Berka-specific adapter facts worth knowing: Berka has no time-of-day
 account-days and to within 0.1–0.2 CZK on the rest, all month-end days (interest
 posting rounding) — the gate tolerance is 0.21 CZK and all 4,500 accounts pass;
 14 zero-amount rows are dropped from `transactions.csv` (schema requires > 0).
+
+**Edited 2026-11-01 (profile engine owner's request, before sign-off):** the feature 15 row
+previously read `100 × mean(min(1, σ_net/daily_outflow), clip(1 − inflow/outflow, 0, 1),
+days_neg/90, min(1, overdraft_events/5))`. That is not what the engine computes. The first term
+in `profile_engine/features.py` (`daily_features`, the `t11` line) is
+`σ_net / (σ_net + mean daily gross flow)`, floored at the §16 epsilon; the code comment gives the
+reason (scale-free, and it does not saturate on lumpy flows the way `min(1, σ_net/outflow)` does).
+The other three terms use feature 12 (with its SAR 500 floor) and the actual window length. The row
+now states the code. No engine change; the old wording is kept here so the correction is visible.
 
 **Sign-off:** ☐ profile engine owner (schemas, features 60–65, feature 15 formula) ☐ team
 
@@ -1926,3 +1942,250 @@ lenses produced. None were tuned, and N = 1 per scenario, so these are demonstra
 
 **Sign-off:** ☑ generator owner (menu and levers; Ahmed Altunusi, 2026-10-31) ☐ credit lens owner (findings 1–2) ☐ forecast +
 anomaly owner (findings 3–4) ☐ team (state the findings in the demo)
+
+---
+
+## 30. Entry 13's "unbiased under thinning" claim is false for features 20, 21, 22 — FINDING + PROPOSED (2026-11-01)
+
+**Touches:** entry 13.6 (the `sample_weight` schema change), features 20, 21, 22 and, through
+§35, 59 (`sector_relative_concentration_z`). No engine change in this entry.
+
+**The claim.** Entry 13.6 says: "Transaction-derived features (5, 10, 20–22, 41, 45, 46) are ratios
+and counts of counterparties, unbiased under thinning; anything that sums `transactions.amount` on
+the inflow side must multiply by `sample_weight`." The profile engine never reads `sample_weight`
+(`grep -n sample_weight profile_engine/` finds nothing).
+
+**Measurement (read-only, engine unchanged).** `data/quick` (seed as generated on 2026-11-01),
+the 376 businesses with thinned POS `sales` rows (`sample_weight` = 10; all thinned rows are
+`direction = in`, `counterparty_type = customer`, with a customer ID). The engine's own
+`transaction_features` was run twice: once as it runs today, once with `amount × sample_weight`.
+
+| Feature | Median, as computed | Median, weighted | Median abs. difference | Max abs. difference |
+|---|---|---|---|---|
+| 5 `largest_single_source_ratio` | 0.0448 | 0.0448 | 0.0000 | 0.0000 |
+| 10 `top_expense_category_share` | 0.7004 | 0.7004 | 0.0000 | 0.0000 |
+| **21 `counterparty_concentration_index`** | **0.1056** | **0.0346** | 0.0721 | 0.2114 |
+| **22 `new_counterparty_ratio_30d`** | **0.0029** | **0.0151** | 0.0119 | 0.2673 |
+| 45 `counterparty_persistence_ratio` | 0.9210 | 0.9210 | 0.0000 | 0.0000 |
+| 46 `circular_counterparty_count` | 0 | 0 | 0 | 0 |
+
+Feature 20 (`unique_counterparties_count`) counts distinct customers, so weighting cannot change it,
+but the thinning rate can: thinning the thinned rows by a further 50% (10% → 5% sampling) cut the
+median from 104 to 82 (median drop 17.2%).
+
+**Why.** 21 and 22 pool inflow and outflow value per counterparty; down-weighting POS inflows by 10×
+against unthinned outflows shifts both. 5, 10 and 45 compare values within one direction, so a
+uniform thinning cancels. 20 depends on how many rows exist.
+
+**Consequence.** Thinning happens only in retail and F&B, so the bias is tied to sector. On the
+synthetic data, feature 21 overstates concentration by about 3× and 22 understates new-counterparty
+share by about 5× for POS businesses. Feature 59 inherits 21's bias (entry 35). Feature 2 is not
+affected (it reads `daily_aggregates`, computed from the full stream). Berka is not affected
+(`sample_weight` = 1.0 on every row). The unit test
+`tests/test_profile_engine.py::test_sample_weight_counts_a_thinned_row_at_its_weight` documents
+the gap as a strict `xfail`.
+
+**Proposed (not decided):**
+1. Withdraw the sentence in 13.6 that calls 20–22 unbiased; keep it struck through with a pointer here.
+2. Engine: weight `amount` by `sample_weight` in the per-counterparty value sums for 21 and 22
+   (and, for consistency, 5, 10, 45, 46 and `cp_coverage_share`, where it changes nothing in
+   expectation).
+3. Feature 20 under thinning needs a definition choice: (a) report it only for unthinned
+   businesses (null `not_available_in_source` when any row is thinned), (b) estimate the full count,
+   or (c) keep it and state that it counts customers seen in the thinned file. This is a choice for
+   the profile engine and generator owners.
+4. Any change re-runs the profile engine, the reference statistics (entry 35) and the credit model.
+
+**Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
+
+---
+
+## 31. Feature 24 carries a value and a null reason at the same time for insufficient_data businesses — FINDING, PROPOSED (2026-11-01)
+
+**Touches:** `pipeline/week8.py` `prepare()`; feature 24 `sharia_screen_status`; every output that
+returns both features and null reasons (`/profile`, the Week 8 decision object).
+
+**What happens.** The engine nulls every feature except 32 with reason `insufficient_data` when a
+business is refused under §15 (`profile_engine/features.py` `compute_profiles`). `prepare()` then
+writes a Sharia status into feature 24 for **every** business, including refused ones (the comment
+explains why: screening is about activity and income, not coverage). It removes only the null rows
+whose reason is `not_implemented`. The `insufficient_data` row for feature 24 stays.
+
+**Observed** on `data/quick` (generated 2026-11-01), businesses 15, 87 and 91 (all
+`insufficient_data`): feature 24 = `soft_flag_review`, `compliant`, `compliant`, and each still has a
+null row `sharia_screen_status / insufficient_data`.
+
+**Consequence.** A reader sees a value that also claims to be missing. That breaks the rule that a
+null always has a reason and a value never has one. No test catches it today.
+
+**Options (not decided):**
+- (a) `prepare()` drops every feature-24 null row once it writes a value, whatever the reason.
+- (b) Feature 24 is not written for `insufficient_data` businesses (the screen still runs and goes
+  into the Sharia section, but not into the profile vector).
+
+The choice depends on entry 32 (where feature 24 is computed). No fix today.
+
+**Sign-off:** ☐ compliance owner ☐ profile engine owner
+
+---
+
+## 32. Where features 24–26, 34 and 35 are computed — PROPOSED, options only (2026-11-01)
+
+**Touches:** `profile_engine/features.py` (`not_implemented` for 24–26, 34, 35), `pipeline/week8.py`
+(writes 24), `compliance/sharia.py`, `profile_engine/README.md`.
+
+**Current split.** The engine emits `not_implemented` for 24–26, 34 and 35 on synthetic data and
+`not_available_in_source` for 24, 25, 34, 35 on real data. The Week 8 pipeline computes feature 24 with
+`compliance.sharia.screen` and writes it into the profile frame after the engine has run (entry 26).
+25, 26, 34 and 35 are not computed anywhere. So `python -m profile_engine.compute` and
+`python -m pipeline.week8` give different values for 24, and entry 31's defect sits exactly at that seam.
+
+**Option (a): the engine computes 24 itself** (importing `compliance.sharia`), and later 25, 26, 34, 35.
+- For: one place, one value; every reader of `profiles.csv` sees the same 24; entry 31 disappears.
+- Against: the engine gains a dependency on the compliance module and its rule table; a rule-table
+  change then changes the engine's output and its receipts; the compliance owner's module runs inside
+  the profile engine owner's code.
+
+**Option (b): the engine keeps `not_implemented`; the pipeline is the single place that fills 24
+(and later 25, 26, 34, 35)**, and `profile_engine/README.md` says so.
+- For: clear ownership (compliance code stays with the compliance owner); the engine stays
+  source-agnostic and rule-free.
+- Against: `profiles.csv` from the engine CLI never has 24, so any analysis that reads it directly
+  (training, eval) must go through the pipeline or accept a null; the seam needs its own tests
+  (entry 31).
+
+Either way, entry 31 must be fixed at the same time. After the owners agree: update
+`profile_engine/README.md` with the rule and run `python -m eval.week8_check`.
+
+**Sign-off:** ☐ profile engine owner ☐ compliance owner ☐ team
+
+---
+
+## 33. Schema text for features 60–69 and 62b, the `daily_aggregates` row count, and two corrections — PROPOSED SCHEMA EDIT (v2.9 → v2.10) (2026-11-01)
+
+**Touches:** `docs/Behavioral_Profile_Feature_Schema.md` §7, §12, §31, §36 ("all 59 features"), new
+sections; references entries 5, 8 and 11. The schema is edited only after team sign-off, with a
+version bump to v2.10 and a change-log line.
+
+**The count.** The schema describes features 1–59 plus 18b (§36: "the profile engine (all 59
+features)"). The registry computes **71**: 1–69, 18b and 62b (`profile_engine/registry.py`
+`FEATURE_NAMES`). The 12 not in the schema are 60–69 (10) and 62b. After this edit, schema, registry
+and `profile_engine/README.md` all say 71 (69 numbered + 18b + 62b).
+
+**Section numbers.** Entry 8, entry 11 and `profile_engine/README.md` call the new sections
+"proposed §37" (60–65) and "proposed §38" (66–69). Schema v2.9 already has §37 (Development Tooling).
+Proposed: **§38 Existing-Obligation Features (60–65, 62b)** and **§39 Credit-Facility Features
+(66–69)**, and the README updated to match.
+
+**Proposed rows** (each states what the engine computes today, `profile_engine/features.py`):
+
+| # | Name | Type | Definition | Null reasons |
+|---|---|---|---|---|
+| 60 | `committed_monthly_outflow` | float (SAR) | Σ over active obligations (status `active`, no `final_date` or `final_date` after the as-of date) of `amount × monthly equivalent` (monthly 1, weekly 52/12, quarterly 1/3, one-off 0; `unknown` frequency excluded). 0 when the business has no obligations. | `insufficient_data` only |
+| 61 | `obligation_coverage_ratio` | float | `avg_monthly_inflow / committed_monthly_outflow` | `not_applicable` (no obligations); `near_zero_denominator` (60 < SAR 500) |
+| 62 | `ocr_forward_3m` | float | as 61, counting only obligations still active 90 days after the as-of date | as 61 |
+| 62b | `ocr_forward_6m` | float | as 61, 180 days after the as-of date | as 61 |
+| 63 | `obligation_horizon_months` | float | (latest `final_date` among active dated obligations − as-of date) / 30 | `not_applicable` (none dated, or all ended); `not_available_in_source` (real feed) |
+| 64 | `mandate_cancellation_count_90d` | int | obligations whose status turned `inactive` within the trailing 90 days | `not_available_in_source` (real feed: no status history) |
+| 65 | `balloon_exposure_sar` | float (SAR) | Σ max(0, `final_amount − amount`) over active obligations with a final amount | `not_available_in_source` (real feed) |
+| 66 | `facility_utilisation` | float | `facility_drawn / facility_limit` | `not_applicable` (no line); `not_available_in_source` (real feed) |
+| 67 | `headroom_days_of_burn` | float | `max(headroom, 0) / max(burn_30d, 500/30)` | `not_applicable` (no line, or not burning); `not_available_in_source` |
+| 68 | `max_consecutive_overdraft_days` | int | longest run of consecutive days with end-of-day balance < 0 in the trailing 90 days | `insufficient_data` only |
+| 69 | `emergency_line_present` | bool | facility type is `emergency` or `temporary`; False with no line | `not_available_in_source` (real feed) |
+
+**`daily_aggregates` row count (entry 5):** adopt entry 5's proposed §7/§12 text as edited on
+2026-11-01 (one row per day of `window_days`, default 180; features 4, 9, 43 and 45 read the prior
+90 days).
+
+**Corrections carried in the same edit:**
+1. §31, feature 42 row: "a business with downside-heavy cash flow (feature 45)" → "(feature 49)".
+   Flow asymmetry is feature 49 (`flow_asymmetry_ratio`); 45 is counterparty persistence.
+2. §36: "all 59 features" → "all 71 features (1–69, 18b, 62b)".
+
+**Sign-off:** ☐ profile engine owner ☐ generator owner (60–69 are produced from the generator's tables) ☐ team
+
+---
+
+## 34. Entry 10 pre-registration: features 41 and 42 — PROPOSED, implementation blocked (2026-11-01)
+
+**Touches:** §31 features 41 and 42; the §31 affordability rule; the credit lens (42 is a model input
+and drives the affordability gate). Implements entry 10's proposals only after sign-off.
+
+**Status.** Pre-registration only. The credit lens owner has not agreed (2026-11-01), so nothing is
+implemented and no number is computed with the new formulas. This entry fixes the formulas, the
+constant and the report **before** any result exists, so the result cannot shape them.
+
+**Feature 41 `financing_outflow_ratio`.** Re-specified on the loan-repayment transaction code:
+`min(Σ outflow value with subfamily = LOAN in the trailing 90 days / recurring outflow in the
+trailing 90 days, 1)`; null `near_zero_denominator` when recurring outflow < SAR 500. This is
+exactly today's diagnostic column `financing_outflow_ratio_code`, which becomes feature 41.
+Reason (entry 10): no counterparty MCC exists in either dataset, and debt service moves on transfer
+codes.
+
+**Feature 42 `installment_capacity_sar`.**
+`max(0, avg_monthly_inflow − committed_monthly_outflow) × (1 − min(k × flow_asymmetry_ratio, 0.5))`,
+with **k = 0.15**.
+
+**Why k = 0.15.** It is the value already fixed in schema §31 ("`k = 0.15` (fixed, documented),
+haircut capped at 0.5"), and the engine already uses it. Keeping it means entry 10 changes one thing
+only, the outflow term. The choice does not depend on the approval rate. The cap 0.5 is also kept.
+
+**Known consequence, stated before the run.** Feature 60 is 0 for a business with no obligations,
+so under this formula its capacity becomes the whole haircut inflow. Whether that is intended is a
+question for the credit lens owner before sign-off; the formula is not changed after the run because
+of it.
+
+**What will be reported after implementation, whatever it shows:**
+1. Approval rate before and after, on the research population (1–10,000) and on the serving slice
+   (10,001–11,000), each with N.
+2. Share declined on affordability before and after. Entry 23.3 states 23% of research businesses
+   today; that figure is not in `docs/NUMBERS.md`, so the "before" value will be re-measured with the
+   same script immediately before the change and added to NUMBERS.md.
+3. Change in credit CV AUC after the credit lens owner retrains (`python -m lenses.credit.train`).
+4. The distribution of feature 42 before and after (median, 5th and 95th percentile).
+
+**Already seen.** Feature 42 under the *current* formula (raw outflow) has been seen in earlier work.
+No value of 41 or 42 under the new formulas, and no approval rate derived from them, has been
+computed.
+
+**Sign-off:** ☐ credit lens owner ☐ profile engine owner ☐ team
+
+---
+
+## 35. The pinned §35 sector reference statistics are stale — FINDING + PROPOSED rebuild, once, after entry 30 (2026-11-01)
+
+**Touches:** `profile_engine/sector_reference_stats_v1.json` (sha256 `14026c00…6fae4`), features
+55–59, the credit model (55–59 are inputs).
+
+**What happened.** The file was last committed in `4442e94` (the 2026-09-17 baseline, before the
+Saudi calibration). The generator's calibration changed after it: `a4a7f40` (SAMA inputs, POS
+receipts at the measured ticket, thinning) and `fa21be6` (Monsha'at sector mix). The receipt hash
+still matches the file, so the receipts are correct about *which* stats were used; the stats just
+describe an older population.
+
+**Measurement (read-only, nothing rebuilt).** Stats rebuilt in memory with
+`build_reference_stats` from the current full-scale research population (`data/`, N = 10,000),
+against the pinned file:
+
+| Sector | Base feature | Pinned mean / std | Current mean / std |
+|---|---|---|---|
+| retail_trade | 3 `inflow_regularity_score` | 0.826 / 0.135 | 0.997 / 0.020 |
+| retail_trade | 21 `counterparty_concentration_index` | 0.037 / 0.011 | 0.114 / 0.032 |
+| food_beverage | 3 `inflow_regularity_score` | 0.845 / 0.133 | 0.999 / 0.009 |
+| food_beverage | 21 `counterparty_concentration_index` | 0.038 / 0.012 | 0.125 / 0.029 |
+| construction | 11 `cash_flow_volatility` | 70,848 / 78,440 | 36,082 / 40,731 |
+| construction | 16 `avg_daily_balance` | 940,880 / 1,854,491 | 469,198 / 845,845 |
+
+Effect on the current research population: `sector_relative_regularity_z` (55) has mean **1.16**
+(F&B) and **1.28** (retail) instead of about 0, and `sector_relative_concentration_z` (59) has
+standard deviation **2.46** (F&B) and **2.79** (retail) instead of about 1. Construction and
+professional services are close to 0 / 1 on these two features. So 55 and 59 no longer mean "how far
+from the sector average" for the POS sectors.
+
+**Proposed.** Rebuild once (`python -m profile_engine.compute --build-reference-stats`), as
+`sector_reference_stats_v2.json` so v1 stays reproducible, **after entry 30 is settled**. Rebuilding
+first would pin the thinning bias in feature 21 into the reference table, and it would then need a
+second rebuild. After the rebuild the credit lens owner must retrain (`python -m lenses.credit.train`)
+and record the new credit numbers; NUMBERS.md rows that depend on 55–59 move with it.
+
+**Sign-off:** ☐ profile engine owner ☐ credit lens owner (retrain after the rebuild) ☐ team
