@@ -239,8 +239,8 @@ current window against the prior 90 days, and the engine already requires 180 da
 for it (`profile_engine/registry.py` `MIN_HISTORY_DAYS`). "Three" became "four" throughout;
 nothing else in the entry changed.
 
-**Raised by:** generator owner, 2026-09-15  **Sign-off:** ☐ profile engine owner
-(owns features 1–59 and `/profile`) ☐ team
+**Raised by:** generator owner, 2026-09-15  **Sign-off:** ☑ profile engine owner
+(owns features 1–59 and `/profile`; Faris Alsharifi, 2026-11-01) ☐ team
 
 ---
 
@@ -399,7 +399,7 @@ reason (scale-free, and it does not saturate on lumpy flows the way `min(1, σ_n
 The other three terms use feature 12 (with its SAR 500 floor) and the actual window length. The row
 now states the code. No engine change; the old wording is kept here so the correction is visible.
 
-**Sign-off:** ☐ profile engine owner (schemas, features 60–65, feature 15 formula) ☐ team
+**Sign-off:** ☑ profile engine owner (schemas, features 60–65, feature 15 formula; Faris Alsharifi, 2026-11-01) ☐ team
 
 ---
 
