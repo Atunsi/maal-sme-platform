@@ -377,7 +377,7 @@ renames an existing column; the Week 3 gate is re-run unchanged (entry 10).
 | `obligations.csv` (4th table) | §7, SOP §9.1 | Berka: the real `order` table; frequency **measured** from execution intervals ≤ observation date (5,311 monthly / 1,160 unknown), `final_date`/status history null because the source has none |
 | `balances_monthly.csv` optional | §37.1 | `validate_engine_tables` requires transactions/daily/businesses only; a bank feed has no balance sheet |
 | Berka label table | SOP §7.1 | `berka_labels_schema`: `label_primary` (A→0, B→1, C/D→null), `label_secondary` (A+C→0, B+D→1), `censored` |
-| Features 60–65 | new §37 | `profile_engine.registry` — 62 split into `ocr_forward_3m` (62) and `ocr_forward_6m` (62b) |
+| Features 60–65 | new §38 (was "new §37"; renumbered by entry 33, since v2.9 already has §37) | `profile_engine.registry` — 62 split into `ocr_forward_3m` (62) and `ocr_forward_6m` (62b) |
 | Feature 15 formula | §3 | **PROPOSED**: `100 × mean(σ_net / (σ_net + max((avg_monthly_inflow + avg_monthly_outflow)/30, 500/30)), clip(1 − inflow_outflow_ratio, 0, 1), days_neg / window_days, min(1, overdraft_events/5))`, where σ_net is the std of daily net flow (feature 11), `inflow_outflow_ratio` is feature 12 (`avg_monthly_inflow / max(avg_monthly_outflow, 500)`) and `window_days` is the number of days in the trailing window (90 when complete) — the schema leaves the weighting open (wording corrected 2026-11-01, see below) |
 | Feature 46 threshold | §33 | fixed at 0.5% of the business's trailing-90-day total transaction value, floored at the §16 epsilon — scale-free so it means the same in CZK and SAR |
 | Feature 33 calendar | §15 | operating days exclude Fri/Sat for `synthetic`/`sandbox`, Sat/Sun for `external_real` |

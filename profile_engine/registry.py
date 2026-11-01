@@ -66,7 +66,7 @@ FEATURE_NAMES: dict[int | str, str] = {
     57: "sector_relative_days_negative_z",
     58: "sector_relative_balance_z",
     59: "sector_relative_concentration_z",
-    # SOP_Data_Grounding §9.2 — obligations (proposed schema §37)
+    # SOP_Data_Grounding §9.2 — obligations (proposed schema §38, DECISIONS entry 33)
     60: "committed_monthly_outflow",
     61: "obligation_coverage_ratio",
     62: "ocr_forward_3m",
@@ -74,7 +74,7 @@ FEATURE_NAMES: dict[int | str, str] = {
     63: "obligation_horizon_months",
     64: "mandate_cancellation_count_90d",
     65: "balloon_exposure_sar",
-    # SOP_Data_Grounding §12.1 — credit facilities (proposed schema §38)
+    # SOP_Data_Grounding §12.1 — credit facilities (proposed schema §39, DECISIONS entry 33)
     66: "facility_utilisation",
     67: "headroom_days_of_burn",
     68: "max_consecutive_overdraft_days",
