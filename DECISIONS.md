@@ -2228,3 +2228,132 @@ second rebuild. After the rebuild the credit lens owner must retrain (`python -m
 and record the new credit numbers; NUMBERS.md rows that depend on 55–59 move with it.
 
 **Sign-off:** ☐ profile engine owner ☐ credit lens owner (retrain after the rebuild) ☐ team
+
+---
+
+## 36. Forecast + anomaly owner: the §10 holdout-shock test, the §16 Ramadan run, a seasonal gate and a repeat-payment detector — PRE-REGISTERED before any result (2026-11-02)
+
+**Touches (this commit):** this entry, and `eval/heldout_anomalies.py` (one new held-out type, definition
+only). No code that measures anything exists yet. Results are added later as 36.6 onward, under this
+text, which is not edited after this commit.
+
+**Why one entry.** F2 (holdout shock), F3 (Ramadan run and seasonal gate) and F4 (duplicate detection)
+from the owner hand-over all need a definition fixed before the number exists. Writing them together,
+in one dated commit, means every later result can be checked against what was promised here.
+
+### 36.1 Holdout-shock lead-time test (§10)
+
+- **Population:** serving (`business_id` 10,001–11,000), minus the three demo businesses (their specs
+  are fixed in `config.yaml`) and minus age tier `<1yr` (a thin file has no 90-day history before the
+  shock). Serving was never used to choose a forecast method.
+- **Generation:** each business is regenerated in memory with its own seed, through a harness-side demo
+  spec that sets only `start_date` and `inject_cash_crunch` (the levers the scenario library already
+  uses). `config.yaml` and `generator/` are not changed. Per business and window placement: a control
+  (no shock), a **30% shock (primary, §10's own example)** and a 50% shock (sensitivity).
+- **Shock:** `inject_cash_crunch` at week 14, so revenue drops from day 92 to day 180 (1-based). That
+  leaves 91 days of history before the shock (at least the 90-day fit window) and 89 days after it.
+- **Event:** the first day E ≥ 92 on which the shocked series' actual end-of-day balance is below zero.
+  A business counts as a shock-caused crunch only if its control series stays at or above zero from day
+  92 to day 180. All other businesses are counted in the table and left out of the lead-time numbers.
+- **Detection (projection only):** for every as-of day t from 92 to E − 1, each method is fitted on the
+  history up to t and projects 30 days. The method has detected the crunch if the projected balance is
+  below zero on any of those 30 days. D is the first such t. **Lead time = E − D days.** No detection
+  before E counts as a miss, with lead time 0. The engine's liquidity hazard (features 52–54) is left
+  out on purpose: both methods would read the identical hazard number, so it cannot separate them, and
+  the profile engine would have to be re-run at every as-of day.
+- **Methods compared:** `naive90` (the shipped method, entry 27) and `naive30` (the §10 baseline), from
+  `lenses/forecast/methods.py`, the same functions the lens runs.
+- **False alarms:** the same procedure on the control series of businesses whose control balance never
+  goes below zero from day 92 to day 180. The share with any detection at as-of days 92–150 (the last
+  day whose 30-day projection stays inside the window).
+- **Reported:** per method, N, detection rate, median and interquartile range of lead time (misses as 0),
+  false-alarm rate; and paired, the share of businesses where `naive90` detects earlier, at the same
+  day, or later than `naive30`, with the median paired difference and a bootstrap 95% interval (2,000
+  resamples, seed 0).
+- **No method change follows from this test.** Entry 27 chose `naive90` on accuracy. This test measures
+  what that choice costs in warning time. Switching method because of it would turn this test into a
+  second selection. A future change needs its own protocol with the criterion declared first.
+- **Chart** (`eval/out/holdout_shock.png`): (a) one business, chosen by a rule fixed now so it is not
+  hand-picked: the lowest `business_id` in the neutral 30% run with a shock-caused crunch. It shows the
+  actual balance with and without the shock, and the `naive90` and `naive30` projections made at as-of
+  day 106 (shock + 14), with markers for the shock, each method's detection day and the event. (b) The
+  lead-time distribution of both methods across the population.
+
+### 36.2 Ramadan-window run (§16)
+
+- **Two placements, the same businesses:** neutral, `start_date` 2025-08-01 (the window ends
+  2026-01-27, with no Ramadan or Eid, as for demo business 10002); and Ramadan, `start_date` 2025-11-19,
+  so day 92 is 2026-02-18, the first day of Ramadan 1447. Ramadan and Eid then cover days 92–124, and
+  the pre-Ramadan days 82–91 sit inside the fit window.
+- The shock starts on the first day of Ramadan on purpose. For a sector whose Ramadan sales rise
+  (retail, value ×1.34 in `config.yaml`), the seasonal lift can hide the drop. For one whose sales fall
+  (food and beverage, ×0.82), the season adds to it. So the 36.1 table is reported for both placements
+  side by side, and also by sector.
+- **Limitation, stated and not engineered around:** `ramadan_adjusted` (feature 36) is a coarse flag
+  (§16). The forecast lens makes no seasonal correction, and this run does not add one.
+
+### 36.3 Anomaly seasonal gate (§16)
+
+- **What exists today:** the anomaly lens reads neither feature 36 nor any calendar, so "false-positive
+  rate with and without the seasonal gate" cannot be measured until a gate is defined. It is defined
+  here.
+- **The gate** (`lens_config.anomaly.seasonal_gate`): when on, the amount z-score is computed within
+  (direction, category, season) instead of (direction, category), where season means inside a
+  Ramadan-to-Eid window. The windows are the pinned ones feature 36 already uses
+  (`profile_engine.compute.ramadan_from_config`), so the lens does not bring a calendar of its own. A
+  seasonal group with fewer than 5 rows falls back to (direction, category), as small groups do today.
+  No rule is switched off, so a large transfer during Ramadan still flags.
+- **Why this form:** Ramadan brings fewer, larger baskets (SAMA POS, `config.yaml` §22 block), so a
+  year-round amount baseline marks ordinary Ramadan sales as large. Suppressing the amount rule during
+  Ramadan was the alternative; it was rejected because it would blind the lens for a month.
+- **False-positive measurement:** on the control series of the 36.1 businesses (no injected or held-out
+  rows, so every flag is a false positive by construction), with the gate off and on:
+  1. *Seasonal flag excess* (Ramadan placement only): the share of flags dated inside the season,
+     divided by the share of scanned transactions dated inside it. 1.0 means no seasonal bias.
+  2. *Rule hits before the cap:* transactions breaking a hard rule (amount z or rare hour) per 1,000
+     scanned, inside and outside the season, in both placements. Computed in the harness from the
+     lens's own feature table; nothing new leaves the API.
+- **Decision rule, fixed now:** the gate ships on if the seasonal flag excess falls with the gate and
+  injected-type recall (`eval.anomaly_eval`, injected types only) does not fall. Held-out recall is
+  re-run after that decision and reported. It is never used to make it.
+
+### 36.4 Repeat-payment detector and a new held-out type (§12)
+
+- **Order:** the new held-out type is defined in this commit. The detector is written in a later one.
+- **New held-out type `late_repeat_charge`** (`eval/heldout_anomalies.py`): an existing supplier payment
+  charged again by the same counterparty 1–7 days later, at 97–103% of the original amount, at an
+  ordinary business hour (9–16). It stands for a re-sent or re-billed invoice. It differs from the
+  existing held-out type, which repeats the same amount on the same day.
+- **Detector, fixed now:** a hard rule with `flag_reason` `repeat_payment`. An outflow is flagged when
+  an earlier outflow in the scan window has the same counterparty, an amount within 1%, and a date 0–3
+  days earlier, and the outflow is not part of a recurring series. It is listed with the other hard-rule
+  flags. It is not added to the Isolation Forest, so other results move only through the order of the
+  10-flag list. The tolerances follow ordinary accounts-payable duplicate checks (same vendor, same
+  amount, a short gap); they were not fitted to anything.
+- **Overlap stated before the result:** by construction, at most about 3/7 × 1/3 ≈ 14% of
+  `late_repeat_charge` rows fall inside the rule (lag 1–3 days of 1–7, amount within 1% of a ±3% band).
+  Recall above that would have to come from the forest or another rule. A low number is the expected
+  honest result, not a reason to widen the rule.
+- **Reporting:** the existing held-out recall of 0.06 for the same-day repeat stays on record as the
+  result before any repeat detector. Once the detector exists, the same-day type is something the
+  detector was designed for, so its new recall is reported as designed-for, not held-out.
+  `late_repeat_charge` and `round_trip_transfer` stay held-out. `assert_held_out()` must still pass; the
+  detector code never names a held-out type.
+
+### 36.5 Positions on the parameters already PROPOSED (entries 23.3, 27, 29)
+
+- **No parameter in `lens_config.yaml` changes** (amount z 3.0, rare-hour share 0.01, contamination
+  0.01, at most 10 flags, 180-day scan, hazard watch 0.2 and alert 0.5). Each is a convention or a
+  product setting, not a fitted value. Changing one now would happen after the demo output and the
+  held-out results were seen, which is retuning.
+- **Entry 29 finding 4 (always 10 flags):** the cap stays. The flags are a review queue, ordered most
+  unusual first, not a count of alarms, and the demo must say so. A shorter list would need a
+  materiality rule or a lower contamination, designed on injected types only and pre-registered. It is
+  not planned this term.
+- **F5:** the flags on small ordinary sales (SAR 111–164 on business 10001) are reported as noise. No
+  rule is changed to remove them.
+- **F6:** no new forecast candidate (Prophet or ARIMA) this term. It would add a dependency, and on
+  noisy flows with small trends a longer average is the expected winner. `naive90` stays.
+
+**Sign-off:** ☐ forecast + anomaly owner (36.1–36.5) ☐ generator owner (36.1 uses the crunch lever and
+the window-start override from the harness; no generator change) ☐ team
