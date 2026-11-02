@@ -2486,3 +2486,67 @@ forest adds its own. The flags are a review queue ordered by unusualness, not al
   and profiled from RNG keyed on its own ID, with the generator's latent rank computed over all 11,000.
   Checks: `scenarios.run --check` confirms business 10001 matches the full generation in every value;
   `eval.anomaly_eval` reproduced the committed held-out rows; and the backtest above reproduced exactly.
+
+---
+
+## 37. Four repeat-payment detector variants compared, chosen on seen types, reported once on two new types — PRE-REGISTERED before any result (2026-11-02)
+
+**Touches (this commit):** this entry, and `eval/heldout_anomalies.py` (two new test-only held-out types,
+definition only). No variant code exists yet.
+
+**Why.** Entry 36.8 left the repeat-payment rule off: it was noisy on clean businesses and reached 0.02 on
+the held-out late repeat. The owner asked for four options to be tried and compared. Both repeat-like
+held-out types have now been seen, so choosing a variant by its score on them would flatter the winner.
+This entry uses the forecast protocol of entry 27: choose on one set, report once on another.
+
+### 37.1 The four variants (`lens_config.anomaly.repeat_payment_mode`)
+
+All four share the existing exclusions: outflows only, a counterparty present, not part of a recurring
+series.
+- **`off`** — no repeat signal. The shipped state, and the baseline every variant must beat.
+- **`exact`** (hard rule) — an outflow with the same counterparty and the identical amount (to the
+  halala) as an earlier outflow on the same calendar day.
+- **`rarity`** (hard rule) — the entry 36.4 rule (same counterparty, amount within 1%, 0–3 days later),
+  flagged only when such a close match is rare for that counterparty: among all pairs of that
+  counterparty's outflows in the scan window, the share whose amounts are within 1% of each other must be
+  below 0.01. A business that pays one supplier near-identical amounts all the time gets no flag from a
+  coincidence. The 0.01 matches the existing rare-hour and rare-category cut-offs; it is not fitted.
+- **`forest_feature`** — the entry 36.4 signal is added to the Isolation Forest as a seventh binary input
+  and is not a hard rule, so the forest weighs it with everything else and it cannot claim a flag slot on
+  its own.
+
+### 37.2 Choosing (validation)
+
+- **Data:** the entry 36.8 run — serving, `anomaly_eval` seed 7, 50 businesses per type, K = 10, seasonal
+  gate on — scored for every variant.
+- **Seen types used to choose:** `duplicate_payment` (same day, same amount) and `late_repeat_charge`.
+- **Guard rails, both must hold:** (a) held-out `round_trip_transfer` recall at least 0.90 (no more than
+  0.03 below the shipped 0.93); (b) on clean serving businesses (no anomaly row), at most 1.0 flag per
+  business carrying the repeat signal, so false repeat flags take at most one of the ten review slots on
+  average.
+- **Choice:** among the variants passing both, the highest mean recall@10 over the two seen types; a tie
+  goes to fewer clean repeat flags. If no variant beats `off` on that mean while passing the guard rails,
+  `off` is chosen, and that is the result.
+
+### 37.3 Reporting once (test)
+
+- **Two new held-out types, defined in this commit and injected only with `--final-test`:**
+  - `resent_payment`: an existing supplier payment sent again to the same counterparty, at exactly the
+    same amount, 1–2 days later, at an ordinary hour (9–16).
+  - `vendor_record_duplicate`: an existing supplier payment paid again at exactly the same amount, the
+    same day or the next, to a second counterparty ID for the same supplier (a duplicate vendor record),
+    so no counterparty-keyed rule can see the pair.
+- They are drawn after every existing block, on their own businesses, so all earlier injections are
+  unchanged. The validation runs never inject them.
+- Reported once, for the chosen variant and for `off`, with recall@10, precision@10 and ceiling,
+  round-trip recall and clean repeat flags. Nothing is changed after this report.
+- **Expected limits, stated now:** `exact` cannot see `resent_payment` (a different day). No variant can
+  see `vendor_record_duplicate` through the repeat signal, because every variant keys on the
+  counterparty; it is included to measure that blind spot, not to be won.
+
+### 37.4 What would change the shipped lens
+
+`repeat_payment_mode` in `lens_config.yaml` changes only to the variant chosen under 37.2, and only after
+the 37.3 report exists, recorded in this entry. If `off` is chosen, nothing ships.
+
+**Sign-off:** ☐ forecast + anomaly owner ☐ team
