@@ -99,6 +99,9 @@ python -m pytest tests                                    # unit tests
 python -m scenarios.run --list                            # hostile-demo menu (DECISIONS 29); --scenario NAME, --check
 python -m eval.anomaly_eval                   # §12 injected vs held-out → eval/out/anomaly_eval.md
 python -m eval.forecast_backtest              # §10 model vs naive → eval/out/forecast_backtest.md
+python -m eval.holdout_shock                  # §10/§16 shock lead time, neutral + Ramadan windows → eval/out/holdout_shock.{md,png} (entry 36, ~8 min)
+python -m eval.anomaly_seasonal               # §16 anomaly false positives, seasonal gate off vs on → eval/out/anomaly_seasonal.md (entry 36.7, ~15 min)
+python -m eval.repeat_variants                # repeat-payment variants: choose on seen types, test once → eval/out/repeat_variants.md (entry 37, ~40 min)
 
 python -m profile_engine.compute --dir data          # features 1–69 → data/profiles.csv (+ nulls, status, coverage)
 

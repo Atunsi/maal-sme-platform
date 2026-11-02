@@ -2,7 +2,7 @@
 
 Prepared 2026-11-02 for the forecast + anomaly owner, alongside DECISIONS entry 37. Sources are web pages
 and papers read on that date. None is archived in `sources/` yet, so per §21 none of the figures below may
-be quoted in the report as a benchmark until it is archived and pinned.
+be quoted in the report as a benchmark until it is archived and pinned. Archive status and the exact files to save: `sources/research_duplicates/SOURCES.md`.
 
 ## 1. The difference that matters most
 

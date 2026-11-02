@@ -2593,3 +2593,11 @@ What it says:
 caught; re-sent and vendor-record duplicates are not", never a single "duplicate recall" figure.
 `docs/research/duplicate_payment_detection.md` records how other tools approach this, and why most of
 them depend on invoice numbers and vendor records that a bank-transaction lens does not see.
+
+### 37.6 Latency with the exact check on (2026-11-02)
+
+`eval.latency_test` passes, and the API answers equal the CLI's on the demo businesses. On the same
+2-core, 7 GB machine as 36.9, the anomaly route measured p50 482 ms and maximum 1,271 ms (was 1,148 ms
+with the gate alone), still under the 2 s target. The credit route maximum was 626 ms. As in 36.9,
+`eval/out/latency_week7.md` and NUMBERS §6b are left for the owner to re-time on the team machine;
+timings across machines are not comparable.
