@@ -2357,3 +2357,42 @@ in one dated commit, means every later result can be checked against what was pr
 
 **Sign-off:** ☐ forecast + anomaly owner (36.1–36.5) ☐ generator owner (36.1 uses the crunch lever and
 the window-start override from the harness; no generator change) ☐ team
+
+### 36.6 RESULT — holdout shock and Ramadan run (2026-11-02), definitions as in 36.1–36.2, nothing changed
+
+`python -m eval.holdout_shock` → `eval/out/holdout_shock.md`, `holdout_shock.png`,
+`holdout_shock_per_business.csv`. Serving, N = 751 after the 36.1 exclusions. A re-run gave identical
+tables. Full-scale data was regenerated locally and checked against the team's: `scenarios.run --check`
+confirms business 10001 matches in every value, and `eval.anomaly_eval` reproduced the committed
+held-out rows exactly.
+
+| window, shock | shock-caused crunches | detected: `naive90` / `naive30` | median lead, days: `naive90` / `naive30` | false alarms on the control: `naive90` / `naive30` | paired median difference (90 − 30) [95% CI] |
+|---|---|---|---|---|---|
+| neutral, 30% (primary) | 27 | 88.9% / 96.3% | 15 / 27 | 3.8% / 8.3% (of 636) | −1 [−4, 0] |
+| neutral, 50% | 39 | 69.2% / 82.1% | 13 / 26 | 3.8% / 8.3% | −1 [−14, 0] |
+| Ramadan, 30% | 26 | 84.6% / 92.3% | 18 / 32 | 3.7% / 10.4% (of 616) | −6 [−11, 0] |
+| Ramadan, 50% | 43 | 83.7% / 93.0% | 20 / 35 | 3.7% / 10.4% | −9 [−17, −4] |
+
+What it says:
+- **The shipped method warns later than the baseline.** At the primary setting `naive90` catches 88.9%
+  of shock-caused crunches with a median 15 days' warning; `naive30` catches 96.3% with 27 days. A longer
+  average lags a sudden drop by construction. This is the cost of entry 27's accuracy win, now measured,
+  and it is the population version of entry 29 finding 3.
+- **The baseline's earlier warnings are not free:** it raises about twice the false alarms on the same
+  businesses without a shock (8.3% vs 3.8%; 10.4% vs 3.7% in the Ramadan window). So this is a trade-off
+  between warning time and false alarms, not a loss on every count.
+- **At the primary setting the paired gap is small and its interval reaches zero** (−1 day [−4, 0]). Over
+  the Ramadan window it widens, and at the 50% shock it excludes zero (−9 days [−17, −4]). `naive30`'s
+  false alarms also rise in the Ramadan window while `naive90`'s do not.
+- **Few shocks cause a crunch.** A 30% revenue cut for 89 days pushes only 27 of 751 businesses below
+  zero when their unshocked balance would have stayed positive; 107 more went negative but would have
+  anyway, and are excluded by the 36.1 rule. Every interval here rests on 26–43 businesses.
+- **By sector** (30%, in the report): construction is where `naive90` lags most (median 4 vs 36 days,
+  neutral window, 6 businesses). Professional services had no shock-caused crunch.
+- The chart's panel (a) business, 10063 (construction), was picked by the 36.1 rule. It happens to be a
+  case `naive90` missed and `naive30` caught on day 93, so it is not a typical business; panel (b) is the
+  population view and must be shown with it.
+
+**No method change** (36.1). The liquidity hazard was left out of this test, so the lens's full crunch
+alert, which also reads features 52–54, may warn earlier than either projection alone; that was not
+measured here.

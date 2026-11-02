@@ -123,6 +123,18 @@ Read with entry 29: the declines come from the §31 affordability gate, not from
 
 ---
 
+## 5c. Forecast — §10 holdout shock and §16 Ramadan window (DECISIONS entry 36)
+
+Source: `eval/out/holdout_shock.md` (`python -m eval.holdout_shock`). Serving, demo businesses and the `<1yr` tier excluded, N = 751. Shock from day 92; only shock-caused crunches count (the control stays at or above zero). Lead time = days between the first projected-negative warning and the actual negative balance; a miss is 0. Projection only — the liquidity hazard is not part of this test.
+
+| Number | Value | N | Caveat that must be said with it |
+|---|---|---|---|
+| Lead time, neutral window, 30% shock: `naive90` vs naive30 | **median 15 vs 27 days**; detected 88.9% vs 96.3% | 27 crunches | The paired gap is −1 day [−4, 0]: small, and the interval reaches zero |
+| False alarms on unshocked businesses, neutral window | `naive90` 3.8% vs naive30 8.3% | 636 | Say it with the lead time: the baseline's earlier warnings come with about twice the false alarms |
+| Lead time, Ramadan window, 30% shock: `naive90` vs naive30 | **median 18 vs 32 days**; detected 84.6% vs 92.3%; false alarms 3.7% vs 10.4% | 26 crunches; 616 | Paired gap −6 days [−11, 0]; at 50% it is −9 [−17, −4]. `ramadan_adjusted` is a coarse flag, no seasonal correction |
+
+---
+
 ## 6. Data validity
 
 | Number | Value | Source |

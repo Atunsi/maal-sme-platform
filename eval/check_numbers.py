@@ -87,6 +87,20 @@ def forecast() -> list[tuple[str, str]]:
             ("forecast MAPE model", mape.group(1)), ("forecast MAPE naive", mape.group(2))]
 
 
+def holdout_shock() -> list[tuple[str, str]]:
+    """§5c rows: median lead time and detection share, neutral and Ramadan windows, 30% shock (entry 36)."""
+    t = _read("eval/out/holdout_shock.md")
+    out = []
+    for pl in ("neutral", "ramadan"):
+        det, lead = {}, {}
+        for m in ("naive90", "naive30"):
+            row = re.search(rf"\| {pl} \| 30% \| [0-9,]+ \| [0-9,]+ \| `{m}` \| ([0-9.]+%) \| ([0-9]+) \[", t)
+            det[m], lead[m] = row.group(1), row.group(2)
+        out += [(f"shock {pl} 30% median lead", f"median {lead['naive90']} vs {lead['naive30']} days"),
+                (f"shock {pl} 30% detected", f"detected {det['naive90']} vs {det['naive30']}")]
+    return out
+
+
 def latents() -> list[tuple[str, str]]:
     df = draw_latents(load_config())
     res = df[df["population"] == "research"]
@@ -199,7 +213,7 @@ def forecast_selection() -> list[tuple[str, str]]:
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, noise_sweep, scenarios, gate, selectivity, latency, sharia, forecast_selection):
+    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, gate, selectivity, latency, sharia, forecast_selection):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:
