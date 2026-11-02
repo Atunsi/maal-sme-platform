@@ -2396,3 +2396,30 @@ What it says:
 **No method change** (36.1). The liquidity hazard was left out of this test, so the lens's full crunch
 alert, which also reads features 52–54, may warn earlier than either projection alone; that was not
 measured here.
+
+### 36.7 RESULT — seasonal gate: false positives with and without it (2026-11-02); gate switched ON by the 36.3 rule
+
+`python -m eval.anomaly_seasonal` → `eval/out/anomaly_seasonal.md`. Control series of the 36.1 sample
+(serving, N = 751), so every flag is a false positive.
+
+| window | gate | seasonal flag excess | rule hits per 1,000, in season | rule hits per 1,000, out of season |
+|---|---|---|---|---|
+| Ramadan | off | **1.37** (24.1% of flags in season vs 17.6% of transactions) | 7.42 | 2.99 |
+| Ramadan | on | **1.02** (17.9% vs 17.6%) | 4.47 | 3.62 |
+| neutral | off / on | — (no season in the window) | — | 3.48 / 3.48 |
+
+Injected-type recall, demo business: 2 of 2 with the gate off and on.
+
+- **The seasonal false positives were real.** Without the gate, ordinary Ramadan transactions broke a
+  hard rule 2.5 times as often as the rest of the year (7.42 vs 2.99 per 1,000) and took 37% more than
+  their share of the 10-flag list. With the gate, the Ramadan share of flags matches the Ramadan share of
+  transactions (excess 1.02).
+- **Decision by the 36.3 rule:** the excess fell and injected recall did not, so `seasonal_gate` is now
+  `true` in `lens_config.yaml`. Held-out recall was not computed before this switch; it is in 36.8.
+- **Cost, stated:** rule hits outside the season rise from 2.99 to 3.62 per 1,000. Taking the larger
+  Ramadan baskets out of the year-round baseline makes that baseline tighter, so slightly more ordinary
+  out-of-season amounts now cross z 3.0. Because the list is capped at 10, the total number of flags
+  barely moves (6,567 vs 6,656); what changes is which days they fall on.
+- In the neutral window the gate changes nothing, as designed (no day is in season).
+- A 10-business smoke test before the full run showed the opposite direction (excess 0.93 → 1.24). It
+  was a small-sample artefact, and it is mentioned only so nobody quotes it.
