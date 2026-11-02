@@ -102,7 +102,7 @@ anomaly:
   seasonal_gate: true                 # 36.3: amount baseline per (direction, category, Ramadan-to-Eid season). On by the 36.3 rule (36.7)
   # 36.4 / 37.1: repeat-payment signal. off | window (the 36.4 rule) | exact | rarity | forest_feature.
   # Changed only by the entry 37 protocol (choose on seen types, report once on test-only types).
-  repeat_payment_mode: "off"
+  repeat_payment_mode: "exact"        # chosen 2026-11-02 by the entry 37.2 rule; test reported once in 37.5
   repeat_amount_tolerance: 0.01
   repeat_max_gap_days: 3
   repeat_rarity_max_share: 0.01       # 37.1 rarity: a close match must be this rare for the counterparty

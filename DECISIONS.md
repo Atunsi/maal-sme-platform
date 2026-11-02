@@ -2550,3 +2550,46 @@ series.
 the 37.3 report exists, recorded in this entry. If `off` is chosen, nothing ships.
 
 **Sign-off:** ☐ forecast + anomaly owner ☐ team
+
+### 37.5 RESULT — `exact` chosen; adds nothing on the unseen types; shipped (2026-11-02)
+
+`python -m eval.repeat_variants` → `eval/out/repeat_variants.md`. Validation, then one test run, as in
+37.2–37.3.
+
+| variant | same-day duplicate (seen) | late repeat (seen) | round-trip | repeat flags per clean business | clean businesses with one |
+|---|---|---|---|---|---|
+| `off` | 0.06 | 0.00 | 0.93 | 0.00 | 0 |
+| **`exact`** | **0.66** | 0.00 | 0.93 | **0.00** | 0 |
+| `rarity` | 0.18 | 0.00 | 0.90 | 0.46 | 272 |
+| `forest_feature` | 0.26 | 0.02 | 0.93 | 0.40 | 167 |
+| `window` (36.4, reference only) | 0.60 | 0.02 | 0.86 | 2.44 | 684 |
+
+**Chosen by the 37.2 rule: `exact`** (highest mean over the two seen types, both guard rails passed).
+
+**Test, reported once:** `resent_payment` recall@10 0.00 with `exact` and 0.00 with `off`;
+`vendor_record_duplicate` 0.04 with both (the same rows, caught by other rules).
+
+What it says:
+- **`exact` is a narrow, clean check.** It catches two-thirds of same-day, same-amount repeats with no
+  repeat flag at all on 861 clean businesses and no loss of round-trip recall. The same-day duplicate is
+  a seen type, so 0.66 is a validation number for what `exact` was designed to find, not a held-out
+  result.
+- **It does not generalise, as stated before the run.** A payment re-sent one or two days later is
+  invisible to it (0.00), and so is a duplicate paid under a second supplier ID (no change from `off`).
+  On unseen types, shipping `exact` changes nothing.
+- **Why the others lost.** `rarity` removed most coincidences but also most real duplicates (0.60 under
+  `window` down to 0.18). About half of all counterparties sit at or above the 0.01 cut-off (median
+  close-match rate 0.010 in a 60-business check on `data/quick`), so a duplicate paid to any of them is
+  filtered out with the coincidences. `forest_feature` made the forest weigh the signal, but a repeat is ordinary in every
+  other column, so the forest isolated only some of them (0.26), at 0.40 false repeat flags per business.
+- **The zero false flags for `exact` is a property of this synthetic data.** The generator never creates
+  two identical same-day supplier payments unless one is injected. Real data does: one user's bank feed
+  marked several genuine same-day, same-amount charges from one registrar as duplicates
+  (`docs/research/duplicate_payment_detection.md` §3). Expect some false `repeat_payment` flags on real
+  transactions.
+
+**Shipped (37.4):** `repeat_payment_mode: "exact"` in `lens_config.yaml`. With it on, the shipped
+`eval/out/anomaly_eval.md` labels the same-day type designed-for. Quote "same-day exact duplicates are
+caught; re-sent and vendor-record duplicates are not", never a single "duplicate recall" figure.
+`docs/research/duplicate_payment_detection.md` records how other tools approach this, and why most of
+them depend on invoice numbers and vendor records that a bank-transaction lens does not see.
