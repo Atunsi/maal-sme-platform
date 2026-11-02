@@ -82,7 +82,7 @@ def clean_hits(tx: pd.DataFrame, biz: pd.DataFrame, ids: list[int], acfg: dict, 
     return {"businesses": len(ids), "scanned": max(scanned, 1), "rules": {k: tuple(v) for k, v in rules.items()}}
 
 
-def summarise(res: pd.DataFrame, designed_for: set[str] | None = None) -> pd.DataFrame:
+def summarise(res: pd.DataFrame, status: dict[str, str] | None = None) -> pd.DataFrame:
     out = []
     for t, g in res.groupby("anomaly_type"):
         # Rows of THIS type per business (a business can hold both types), and the flags it actually
@@ -98,7 +98,7 @@ def summarise(res: pd.DataFrame, designed_for: set[str] | None = None) -> pd.Dat
             "median_rank_when_caught": g["rank"].median() if g["caught"].any() else None,
             "reasons": ", ".join(f"{r}×{n}" for r, n in g["reason"].dropna().value_counts().items()) or "—",
             "rule_hit_before_cap": round(float(g["rule_hit_before_cap"].mean()), 4),
-            "status": "designed-for (not held-out)" if t in (designed_for or set()) else "",
+            "status": (status or {}).get(t, ""),
         })
     return pd.DataFrame(out)
 
@@ -138,11 +138,13 @@ def main(argv: list[str] | None = None) -> int:
     assert set(truth["anomaly_type"]) <= set(HELD_OUT_TYPES)
     res_ho = score(tx2, t["businesses"], truth, acfg, windows)
 
-    # Entry 36.4: once the repeat-payment rule is on, the same-day held-out type is one it was designed for.
-    designed_for = {"duplicate_payment"} if repeat_mode(acfg) != "off" else set()
-    s_inj, s_ho = summarise(res_inj), summarise(res_ho, designed_for)
+    # Entries 36.4 and 37: with any repeat signal on, the same-day type is designed-for, and the late repeat
+    # was used to choose the variant, so neither is a held-out result any more.
+    status = ({"duplicate_payment": "designed-for (not held-out)", "late_repeat_charge": "seen, used to choose (entry 37)"}
+              if repeat_mode(acfg) != "off" else {})
+    s_inj, s_ho = summarise(res_inj), summarise(res_ho, status)
     cols = ["anomaly_type", "businesses", "anomalous_rows", "recall_at_k", "precision_at_k", "precision_ceiling", "median_rank_when_caught", "reasons", "rule_hit_before_cap"]
-    ho_cols = cols + (["status"] if designed_for else [])
+    ho_cols = cols + (["status"] if status else [])
 
     # Hard-rule hits on serving businesses that received no held-out row: every hit there is a false positive.
     clean_ids = sorted(set(serving_ids) - set(truth["business_id"]))

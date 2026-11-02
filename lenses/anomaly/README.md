@@ -4,7 +4,7 @@
 
 **2026-11-02 (DECISIONS entry 36):** the **seasonal gate is on** — the amount baseline is computed per Ramadan-to-Eid season, using the pinned windows feature 36 uses. Without it, Ramadan transactions took 37% more than their share of false flags (excess 1.37); with it, 1.02. `python -m eval.anomaly_seasonal`. Held-out results with the gate on (`python -m eval.anomaly_eval`): round-trip recall 0.93; same-day duplicate 0.06 (missed); new held-out type `late_repeat_charge` 0.00.
 
-A **repeat-payment rule** (`repeat_payment_rule`) is built and tested but **off**: it catches 60% of same-day duplicates (a designed-for number, not held-out), reaches only 0.02 on the held-out late repeat, fires 3.31 times per 1,000 transactions on clean businesses, and pushes round-trip recall down to 0.86 by crowding the 10-flag list. Turning it on is an open owner decision (entry 36.8). Any tighter variant needs another new held-out type defined first.
+**Repeat-payment check — `exact` ships (2026-11-02, DECISIONS entry 37):** an outflow to the same counterparty, at the identical amount, on the same day as an earlier one. Four variants were compared on seen types and the winner tested once on two new types (`python -m eval.repeat_variants`). It catches 66% of same-day exact duplicates (designed-for, not a held-out number) with no false repeat flag on 861 clean businesses, and it catches **none** of the payments re-sent 1–2 days later or paid under a second supplier ID. Say exactly that; never quote a single "duplicate recall". Why others' tools do better: `docs/research/duplicate_payment_detection.md`.
 
 The list is always 10 flags long: it is a review queue ordered by unusualness, not a count of alarms (entry 36.5).
 

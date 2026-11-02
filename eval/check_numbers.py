@@ -78,11 +78,22 @@ def anomaly() -> list[tuple[str, str]]:
     seas = _read("eval/out/anomaly_seasonal.md")
     excess = re.findall(r"\| ramadan \| (?:off|on) \| [^|]+\| [^|]+\| [^|]+\| ([0-9.]+) \|", seas)
     return [("held-out round-trip recall", rt[3]), ("held-out round-trip precision", rt[4]),
-            ("held-out round-trip precision ceiling", rt[5]), ("held-out duplicate recall", dp[3]),
+            ("held-out round-trip precision ceiling", rt[5]), ("same-day duplicate recall (shipped, designed-for)", f"**{dp[3]}** — **designed-for"),
             ("repeat rule: designed-for duplicate recall", f"same-day duplicate {rep['duplicate_payment'][3]}"),
             ("repeat rule: held-out late repeat recall", f"late repeat {rep['late_repeat_charge'][3]}"),
             ("repeat rule: round-trip recall", f"round-trip falls to {rep['round_trip_transfer'][3]}"),
-            ("seasonal flag excess off / on", f"{excess[0]} without the gate, {excess[1]} with it")]
+            ("seasonal flag excess off / on", f"{excess[0]} without the gate, {excess[1]} with it"),
+            *repeat_test()]
+
+
+def repeat_test() -> list[tuple[str, str]]:
+    """Entry 37.5 one-time test rows: re-sent and vendor-record duplicates, with the check and without."""
+    t = _read("eval/out/repeat_variants.md")
+    r = {(m, ty): v for m, ty, v in re.findall(r"\| `(\w+)` \| (resent_payment|vendor_record_duplicate) \| \d+ \| ([0-9.]+) \|", t)}
+    rs = r[("exact", "resent_payment")] if r[("exact", "resent_payment")] == r[("off", "resent_payment")] else "MISMATCH"
+    vd = r[("exact", "vendor_record_duplicate")] if r[("exact", "vendor_record_duplicate")] == r[("off", "vendor_record_duplicate")] else "MISMATCH"
+    return [("test: re-sent payment, with and without", f"re-sent payment {rs} with the check and without"),
+            ("test: vendor-record duplicate, with and without", f"vendor-record duplicate {vd} with the check and without")]
 
 
 def forecast() -> list[tuple[str, str]]:
