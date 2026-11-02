@@ -41,7 +41,7 @@ def with_repeat(tx: pd.DataFrame, gap_days: int, factor: float) -> tuple[pd.Data
 
 
 def repeat_flag(tx: pd.DataFrame, tid: int, **over) -> bool:
-    t = transaction_features(tx, {**ACFG, "repeat_payment_rule": True, **over})
+    t = transaction_features(tx, {**ACFG, "repeat_payment_mode": "window", **over})
     return bool(t.loc[t["transaction_id"] == tid, "repeat_payment"].iloc[0])
 
 
@@ -59,7 +59,7 @@ def test_repeat_rule_respects_gap_and_tolerance():
 
 def test_repeat_rule_is_off_unless_switched_on():
     tx, _ = with_repeat(ledger(), gap_days=0, factor=1.0)
-    t = transaction_features(tx, {**ACFG, "repeat_payment_rule": False})
+    t = transaction_features(tx, {**ACFG, "repeat_payment_mode": "off"})
     assert not t["repeat_payment"].any()
 
 
@@ -69,7 +69,7 @@ def test_recurring_series_is_not_a_repeat():
              "direction": "out", "amount": 5000.0, "counterparty_id": "LANDLORD", "counterparty_type": "landlord",
              "category": "rent"} for k in range(4)]
     tx = pd.concat([tx, pd.DataFrame(rent)], ignore_index=True)
-    t = transaction_features(tx, {**ACFG, "repeat_payment_rule": True})
+    t = transaction_features(tx, {**ACFG, "repeat_payment_mode": "window"})
     assert not t.loc[t["counterparty_id"] == "LANDLORD", "repeat_payment"].any()
 
 
@@ -93,10 +93,59 @@ def test_seasonal_gate_without_windows_changes_nothing():
 
 def test_output_carries_reasons_only_never_scores():
     tx, _ = with_repeat(ledger(), gap_days=1, factor=1.0)
-    out = detect(tx, tx["date"].max(), {**ACFG, "repeat_payment_rule": True, "seasonal_gate": True}, SEASON)
+    out = detect(tx, tx["date"].max(), {**ACFG, "repeat_payment_mode": "window", "seasonal_gate": True}, SEASON)
     assert out["status"] == "computed" and len(out["flags"]) <= ACFG["max_flags"]
     allowed = {"repeat_payment", "amount_outlier", "new_counterparty_large_amount", "counterparty_both_directions",
                "unusual_hour", "rare_category", "multivariate_outlier"}
     for f in out["flags"]:
         assert f["flag_reason"] in allowed
         assert not {"score", "threshold", "fraud_reason", "anomaly_score"} & set(f)
+
+
+def test_exact_mode_needs_the_same_amount_on_the_same_day():
+    tx, tid = with_repeat(ledger(), gap_days=0, factor=1.0)
+    assert repeat_flag(tx, tid, repeat_payment_mode="exact")
+    tx, tid = with_repeat(ledger(), gap_days=1, factor=1.0)
+    assert not repeat_flag(tx, tid, repeat_payment_mode="exact")
+    tx, tid = with_repeat(ledger(), gap_days=0, factor=1.001)
+    assert not repeat_flag(tx, tid, repeat_payment_mode="exact")
+
+
+def _pairs_frame(amounts):
+    n = len(amounts)
+    return pd.DataFrame({"direction_in": np.zeros(n), "counterparty_id": ["S"] * n, "recurring": [False] * n,
+                         "amount": np.asarray(amounts, float)})
+
+
+def test_close_match_rate_is_high_for_clustered_amounts_and_low_for_dispersed_ones():
+    from lenses.anomaly.anomaly import _close_match_rate
+
+    clustered = _close_match_rate(_pairs_frame([500, 502, 504, 2000, 2010, 2015] * 5), 0.01).iloc[0]
+    dispersed = _close_match_rate(_pairs_frame(np.geomspace(100, 100_000, 40)), 0.01).iloc[0]
+    assert clustered > 0.01 > dispersed
+
+
+def test_rarity_mode_keeps_a_close_match_for_a_widely_varying_supplier():
+    tx = ledger()
+    sup = tx.index[tx["category"] == "supplier"]
+    tx.loc[sup, "amount"] = np.round(np.geomspace(50, 500_000, len(sup)), 2)   # no two amounts within 1%
+    tx.loc[sup, "counterparty_id"] = "S0"
+    tx, tid = with_repeat(tx, gap_days=1, factor=1.0)
+    assert repeat_flag(tx, tid, repeat_payment_mode="rarity")
+
+
+def test_forest_feature_mode_is_not_a_hard_rule():
+    from lenses.anomaly.anomaly import rule_hits
+
+    tx, tid = with_repeat(ledger(), gap_days=0, factor=1.0)
+    cfg = {**ACFG, "repeat_payment_mode": "forest_feature"}
+    t = transaction_features(tx, cfg)
+    assert t.loc[t["transaction_id"] == tid, "repeat_payment"].iloc[0]
+    assert not rule_hits(t, cfg)[t.index[t["transaction_id"] == tid][0]] or t.loc[t["transaction_id"] == tid, "amount_z"].iloc[0] >= ACFG["amount_z"]
+
+
+def test_unknown_mode_is_refused():
+    import pytest
+
+    with pytest.raises(ValueError):
+        transaction_features(ledger(), {**ACFG, "repeat_payment_mode": "fuzzy"})

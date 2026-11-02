@@ -34,7 +34,7 @@ import yaml
 from eval.heldout_anomalies import HELD_OUT_TYPES, assert_held_out, inject_held_out
 from generator.generate import load_config
 from lenses import load_lens_config
-from lenses.anomaly.anomaly import detect, rule_hits, transaction_features
+from lenses.anomaly.anomaly import detect, repeat_mode, rule_hits, transaction_features
 from pipeline.data import load_tables
 from profile_engine.compute import ramadan_from_config
 
@@ -139,7 +139,7 @@ def main(argv: list[str] | None = None) -> int:
     res_ho = score(tx2, t["businesses"], truth, acfg, windows)
 
     # Entry 36.4: once the repeat-payment rule is on, the same-day held-out type is one it was designed for.
-    designed_for = {"duplicate_payment"} if acfg.get("repeat_payment_rule") else set()
+    designed_for = {"duplicate_payment"} if repeat_mode(acfg) != "off" else set()
     s_inj, s_ho = summarise(res_inj), summarise(res_ho, designed_for)
     cols = ["anomaly_type", "businesses", "anomalous_rows", "recall_at_k", "precision_at_k", "precision_ceiling", "median_rank_when_caught", "reasons", "rule_hit_before_cap"]
     ho_cols = cols + (["status"] if designed_for else [])
