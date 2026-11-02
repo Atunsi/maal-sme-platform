@@ -39,6 +39,7 @@ from lenses.forecast.forecast import forecast
 from lenses.zakat.zakat import compute_zakat
 from pipeline.data import load_tables, run_profiles
 from profile_engine import features as fe
+from profile_engine.compute import ramadan_from_config
 
 DEMO_IDS = [10001, 10002, 10003]
 
@@ -196,7 +197,8 @@ def forecast_section(ctx: Context, p: Prepared, b_id: int) -> dict:
 
 
 def anomaly_section(ctx: Context, p: Prepared, b_id: int) -> dict:
-    return detect(p.rows("transactions", b_id), pd.Timestamp(p.biz(b_id).window_end), ctx.lc["anomaly"])
+    windows, _ = ramadan_from_config(ctx.cfg)  # the pinned windows feature 36 uses (entry 36.3 seasonal gate)
+    return detect(p.rows("transactions", b_id), pd.Timestamp(p.biz(b_id).window_end), ctx.lc["anomaly"], windows)
 
 
 def zakat_section(ctx: Context, p: Prepared, b_id: int) -> dict:

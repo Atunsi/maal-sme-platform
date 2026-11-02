@@ -97,3 +97,9 @@ anomaly:
   recurring_amount_band: 0.10
   rule_violations_also_flag: true     # amount_z / rare-hour rules flag in their own right, listed first
   # amount_z is applied ONE-SIDED (large amounts only): an unusually small payment is not a risk anomaly.
+  # Pre-registered in DECISIONS entry 36 before any result. Each switch is turned on only by the decision
+  # rule written there, and the result that turned it on is recorded in the same entry.
+  seasonal_gate: false                # 36.3: amount baseline per (direction, category, Ramadan-to-Eid season)
+  repeat_payment_rule: false          # 36.4: hard rule, same counterparty + amount within tolerance + short gap
+  repeat_amount_tolerance: 0.01
+  repeat_max_gap_days: 3

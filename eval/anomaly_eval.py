@@ -31,16 +31,18 @@ from pathlib import Path
 import pandas as pd
 
 from eval.heldout_anomalies import HELD_OUT_TYPES, assert_held_out, inject_held_out
+from generator.generate import load_config
 from lenses import load_lens_config
 from lenses.anomaly.anomaly import detect
 from pipeline.data import load_tables
+from profile_engine.compute import ramadan_from_config
 
 
-def score(tx: pd.DataFrame, biz: pd.DataFrame, truth: pd.DataFrame, acfg: dict) -> pd.DataFrame:
+def score(tx: pd.DataFrame, biz: pd.DataFrame, truth: pd.DataFrame, acfg: dict, windows: list | None = None) -> pd.DataFrame:
     rows = []
     as_of = biz.set_index("business_id")["window_end"]
     for b_id, g in truth.groupby("business_id"):
-        out = detect(tx[tx["business_id"] == b_id], pd.Timestamp(as_of[b_id]), acfg)
+        out = detect(tx[tx["business_id"] == b_id], pd.Timestamp(as_of[b_id]), acfg, windows)
         flagged = [f["transaction_id"] for f in out["flags"]]
         for r in g.itertuples(index=False):
             rows.append({
@@ -81,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     d = Path(args.dir)
     acfg = load_lens_config()["anomaly"]
+    windows, _ = ramadan_from_config(load_config())  # as pipeline.week8 passes them (entry 36.3)
     k = int(acfg["max_flags"])
 
     assert_held_out(".", data_dir=d)
@@ -92,13 +95,13 @@ def main(argv: list[str] | None = None) -> int:
     # --- injected types (generated into the demo businesses by the generator) ---
     inj = pd.read_csv(d / "injected_anomalies.csv")
     inj_t = load_tables(d, sorted(inj["business_id"].unique()))
-    res_inj = score(inj_t["transactions"], inj_t["businesses"], inj, acfg)
+    res_inj = score(inj_t["transactions"], inj_t["businesses"], inj, acfg, windows)
 
     # --- held-out types (appended to the serving population here, never generated) ---
     t = load_tables(d, serving_ids)
     tx2, truth = inject_held_out(t["transactions"], t["businesses"], seed=args.seed, n_businesses=args.n_businesses)
     assert set(truth["anomaly_type"]) <= set(HELD_OUT_TYPES)
-    res_ho = score(tx2, t["businesses"], truth, acfg)
+    res_ho = score(tx2, t["businesses"], truth, acfg, windows)
 
     s_inj, s_ho = summarise(res_inj), summarise(res_ho)
     cols = ["anomaly_type", "businesses", "anomalous_rows", "recall_at_k", "precision_at_k", "precision_ceiling", "median_rank_when_caught", "reasons"]
