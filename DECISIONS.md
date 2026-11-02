@@ -2423,3 +2423,50 @@ Injected-type recall, demo business: 2 of 2 with the gate off and on.
 - In the neutral window the gate changes nothing, as designed (no day is in season).
 - A 10-business smoke test before the full run showed the opposite direction (excess 0.93 → 1.24). It
   was a small-sample artefact, and it is mentioned only so nobody quotes it.
+
+### 36.8 RESULT — held-out evaluation with the gate on, and the repeat-payment rule (2026-11-02)
+
+`python -m eval.anomaly_eval` (shipped configuration: gate on, repeat rule off) →
+`eval/out/anomaly_eval.md`; `python -m eval.anomaly_eval --with repeat_payment_rule=true` →
+`eval/out/anomaly_eval_repeat_rule.md`. Serving, 50 businesses per held-out type, seed 7, K = 10.
+New column `rule_hit_before_cap`: the share of rows a hard rule fired on before the list was cut to 10.
+
+| type | status | recall@10, shipped | recall@10, repeat rule on | rule hit before the cap, repeat rule on |
+|---|---|---|---|---|
+| `round_trip_transfer` | held-out | **0.93** (was 0.92 before the gate) | 0.86 | 0.77 |
+| `duplicate_payment` (same day, same amount) | held-out while the rule is off; **designed-for** once it is on | 0.06 | 0.60 | 0.78 |
+| `late_repeat_charge` (new, 36.4) | held-out | 0.00 | **0.02** | 0.04 |
+| injected `large_transfer`, `odd_hours_transaction` | injected | 2 of 2 (ranks 1, 5) | 2 of 2 | 2 of 2 |
+
+Hard-rule hits on the 861 clean serving businesses (no held-out row, so every hit is a false positive):
+amount rule 3.18 per 1,000 transactions, rare hour 1.59, **repeat rule 3.31, in 754 of the 861
+businesses**.
+
+What it says:
+- **The gate did not hurt the held-out results.** Round-trip recall moved from 0.92 to 0.93 and the
+  same-day duplicate stayed at 0.06.
+- **The repeat rule finds what it was built for, partly.** It fires on 78% of same-day duplicates, and 60%
+  reach the 10-flag list; the other 18% are cut by the cap. That 0.60 is a designed-for number, not a
+  held-out result, and must never be quoted as one.
+- **It does not generalise.** On the held-out late repeat it reaches 0.02, below even the at-most-14%
+  overlap stated in 36.4 (the recurring-series exclusion removes some of that overlap).
+- **It is noisy.** On clean businesses it fires 3.31 times per 1,000 transactions, more than the amount
+  rule, because a business paying the same few suppliers several times a week produces amounts within 1%
+  inside 3 days by coincidence. Those false hits compete for the 10 slots, which is why round-trip recall
+  falls from 0.93 to 0.86 with the rule on.
+
+**Shipping decision — OPEN for the owner, recommended OFF.** Entry 36.4 fixed the detector but wrote no
+rule for switching it on, and the numbers above, including held-out ones, were seen before this
+recommendation, so it cannot claim to be blind to them. It rests on the clean-business false positives
+and the round-trip loss, and it keeps the shipped state unchanged (`repeat_payment_rule: false`), which
+is the conservative choice. A tighter variant (for example an exact amount on the same day) would need
+its own pre-registration and **another new held-out type defined first**, because `late_repeat_charge`
+has now been seen.
+
+**F5, precision stated plainly.** Precision@10 sits near its ceiling for round-trip transfers (0.2141 of
+0.2283) because each affected business holds two round-trip rows; for single-row types the ceiling is
+about 0.1 and the lens reaches it only when it catches the row. Most of every list is ordinary activity:
+on clean businesses the hard rules alone produce about 4.8 false hits per 1,000 transactions, before the
+forest adds its own. The flags are a review queue ordered by unusualness, not alarms (36.5).
+
+**Sign-off:** ☐ forecast + anomaly owner (36.6–36.8, and the open repeat-rule decision)

@@ -1,6 +1,12 @@
 # Anomaly lens — v1 BUILT, owner to take over
 
-**v1 (2026-10-11, DECISIONS entry 23):** `anomaly.py` — per-business Isolation Forest + hard univariate rules, `flag_reason` only, scores withheld. `python -m eval.anomaly_eval`: injected types both caught; held-out round-trip recall 0.92; **held-out duplicate payment recall 0.06 (missed)**. If you add a duplicate detector, define a NEW held-out type in `eval/heldout_anomalies.py` first — otherwise the held-out test becomes circular (§12).
+**v1 (2026-10-11, DECISIONS entry 23):** `anomaly.py` — per-business Isolation Forest + hard univariate rules, `flag_reason` only, scores withheld.
+
+**2026-11-02 (DECISIONS entry 36):** the **seasonal gate is on** — the amount baseline is computed per Ramadan-to-Eid season, using the pinned windows feature 36 uses. Without it, Ramadan transactions took 37% more than their share of false flags (excess 1.37); with it, 1.02. `python -m eval.anomaly_seasonal`. Held-out results with the gate on (`python -m eval.anomaly_eval`): round-trip recall 0.93; same-day duplicate 0.06 (missed); new held-out type `late_repeat_charge` 0.00.
+
+A **repeat-payment rule** (`repeat_payment_rule`) is built and tested but **off**: it catches 60% of same-day duplicates (a designed-for number, not held-out), reaches only 0.02 on the held-out late repeat, fires 3.31 times per 1,000 transactions on clean businesses, and pushes round-trip recall down to 0.86 by crowding the 10-flag list. Turning it on is an open owner decision (entry 36.8). Any tighter variant needs another new held-out type defined first.
+
+The list is always 10 flags long: it is a review queue ordered by unusualness, not a count of alarms (entry 36.5).
 
 **Owner:** forecast + anomaly owner · **Schema:** §8, §12, §29, §33 · **Due:** Week 6
 

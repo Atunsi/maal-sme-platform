@@ -74,8 +74,15 @@ def table_rows(text: str) -> dict[str, list[str]]:
 def anomaly() -> list[tuple[str, str]]:
     r = table_rows(_read("eval/out/anomaly_eval.md"))
     rt, dp = r["round_trip_transfer"], r["duplicate_payment"]
+    rep = table_rows(_read("eval/out/anomaly_eval_repeat_rule.md"))
+    seas = _read("eval/out/anomaly_seasonal.md")
+    excess = re.findall(r"\| ramadan \| (?:off|on) \| [^|]+\| [^|]+\| [^|]+\| ([0-9.]+) \|", seas)
     return [("held-out round-trip recall", rt[3]), ("held-out round-trip precision", rt[4]),
-            ("held-out round-trip precision ceiling", rt[5]), ("held-out duplicate recall", dp[3])]
+            ("held-out round-trip precision ceiling", rt[5]), ("held-out duplicate recall", dp[3]),
+            ("repeat rule: designed-for duplicate recall", f"same-day duplicate {rep['duplicate_payment'][3]}"),
+            ("repeat rule: held-out late repeat recall", f"late repeat {rep['late_repeat_charge'][3]}"),
+            ("repeat rule: round-trip recall", f"round-trip falls to {rep['round_trip_transfer'][3]}"),
+            ("seasonal flag excess off / on", f"{excess[0]} without the gate, {excess[1]} with it")]
 
 
 def forecast() -> list[tuple[str, str]]:

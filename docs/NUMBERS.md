@@ -94,9 +94,12 @@ Source: `eval/out/section14_noise_sweep.txt` (`python -m eval.sweep_rho --param 
 | Forecast — test (days 151–180, never used to choose): median scale-free error, `naive90` vs naive30 | **0.323 vs 0.376** research (better for 58.5%); 0.344 vs 0.401 serving (better for 58.4%) | research 9,495; serving 943 | `eval/out/forecast_selection.md`, `eval/out/forecast_backtest.md` |
 | Forecast — test MAPE, `naive90` vs naive30 | 13.0% vs 15.0% | 7,525 research with balance ≥ 1 month of outflow from zero | same |
 | Forecast — test crunch recall / false alarms | `naive90` 79.4% / 0.5%; naive30 81.8% / 1.3% | 1,164 research that went negative | same |
-| Anomaly — held-out round-trip recall@10 | **0.92** (precision 0.2135 of a 0.2297 ceiling) | serving, 50 businesses | `eval/out/anomaly_eval.md` |
-| Anomaly — held-out duplicate payment recall@10 | **0.06** (effectively missed) | serving, 50 businesses | same |
-| Anomaly — injected types | both caught (ranks 1 and 7) | demo business 10001 | same |
+| Anomaly — held-out round-trip recall@10 (shipped: seasonal gate on, entry 36.8) | **0.93** (precision 0.2141 of a 0.2283 ceiling) | serving, 50 businesses | `eval/out/anomaly_eval.md` |
+| Anomaly — held-out duplicate payment (same day) recall@10, repeat rule off | **0.06** (effectively missed) | serving, 50 businesses | same |
+| Anomaly — held-out late repeat charge recall@10, repeat rule off (new type, entry 36.4) | 0.00 | serving, 50 businesses | same |
+| Anomaly — injected types | both caught (ranks 1 and 5) | demo business 10001 | same |
+| Anomaly — repeat-payment rule, **evaluated, not shipped** (entry 36.8) | same-day duplicate 0.6 (**designed-for, not held-out**); held-out late repeat 0.02; round-trip falls to 0.86; 3.31 false hits per 1,000 transactions on clean businesses | serving, 50 per type; 861 clean | `eval/out/anomaly_eval_repeat_rule.md` |
+| Anomaly — seasonal gate (entry 36.7): Ramadan share of false flags ÷ Ramadan share of transactions | **1.37 without the gate, 1.02 with it** | serving, 751, control series | `eval/out/anomaly_seasonal.md` |
 | Sharia screen (feature 24) — research | **85.1% compliant / 14.9% soft_flag_review / 0.0% hard_flag** (soft flags all retail: MCC 5999 or no MCC) | research, 10,000 | `eval/out/sharia_screen.md` |
 | Sharia screen — evidence basis / financing disclosure | declared MCC 60.3% · registered sector 39.7% · disclosure asked of 34.8% | research, 10,000 | same |
 | Zakat — demo 10001 liability | SAR 5,963.26 (base 238,530.46 × 2.5%) | demo | `python -m pipeline.week8 --demo` |
@@ -179,5 +182,6 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | "Synthetic 0.578 vs Berka 0.901, gap 0.32" | compared a CV estimate with a single temporal split | A2 vs A3 under one protocol |
 | "§21 signal-strength tolerance missed by 0.30" (gap 0.307) | pre-calibration run, Berka side from the single temporal split | gap 0.147 primary / 0.285 secondary vs tolerance 0.10 (`eval/out/real_vs_synthetic.md`) |
 | "The model beats any single observable channel" | true pre-calibration; false after (withdrawn, entry 21) | — |
+| Held-out round-trip recall 0.92 (precision 0.2135 of 0.2297) | true before the seasonal gate was switched on (entry 36.7); with it, 0.93 | §5 anomaly rows |
 | "The forecast model loses to the naive baseline" (median error 0.455 vs 0.376; MAPE 18.1% vs 15.0%) | true of the v1 OLS-trend model, which was replaced (entry 27) | §5 forecast rows |
 | "Φ(sd/√2) is an identity / a proof" | agreement degraded to 0.0118 | "a good approximation" (§3) |
