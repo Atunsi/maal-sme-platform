@@ -2470,3 +2470,19 @@ on clean businesses the hard rules alone produce about 4.8 false hits per 1,000 
 forest adds its own. The flags are a review queue ordered by unusualness, not alarms (36.5).
 
 **Sign-off:** ☐ forecast + anomaly owner (36.6–36.8, and the open repeat-rule decision)
+
+### 36.9 Re-run checks after the lens change (2026-11-02)
+
+- `eval.forecast_backtest` reproduces `eval/out/forecast_backtest.md` exactly (the forecast lens is
+  unchanged). `eval.check_numbers` is current, and `eval.week8_check` and `scenarios.run --check` pass
+  with the gate on.
+- `eval.latency_test` passes with the gate on, all 93 tests pass with the serving store built, and the
+  API answers equal the CLI's. The anomaly route's maximum was 1,148 ms on a 2-core, 7 GB machine,
+  under the 2 s target. `eval/out/latency_week7.md` and NUMBERS §6b were **not** replaced, because
+  timings from a different machine are not comparable. The owner should re-run the test on the team
+  machine and update both.
+- This machine could not hold a full-scale generation or profile run in memory, so both were run in
+  business-ID chunks (scratch scripts, not committed). This is exact because every business is generated
+  and profiled from RNG keyed on its own ID, with the generator's latent rank computed over all 11,000.
+  Checks: `scenarios.run --check` confirms business 10001 matches the full generation in every value;
+  `eval.anomaly_eval` reproduced the committed held-out rows; and the backtest above reproduced exactly.
