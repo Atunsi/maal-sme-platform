@@ -14,6 +14,15 @@ Per-transaction features (all generic; none is built around a specific anomaly t
                      the round-tripping signal the schema itself names (§33, feature 46)
   direction          1 = inflow, 0 = outflow
 
+Hard rules that flag in their own right (listed before forest-only outliers):
+  amount_z ≥ threshold (one-sided), a rare hour, and — when `repeat_payment_rule` is on —
+  a repeat payment (entry 36.4): same counterparty, amount within tolerance, a short gap,
+  not part of a recurring series.
+
+Seasonal gate (entry 36.3, `seasonal_gate`): the amount baseline is computed per
+Ramadan-to-Eid season, using the pinned windows feature 36 uses, so ordinary Ramadan
+baskets are not compared with the rest of the year. No rule is switched off.
+
 Output rules (§8, §29):
   * `flag_reason` only — never `fraud_reason`. The lens detects statistical
     anomalies, not fraud.
@@ -24,8 +33,8 @@ Output rules (§8, §29):
 
 Held-out discipline (§12): the evaluation's held-out types live only in
 eval/heldout_anomalies.py. Nothing here was designed around them; in particular
-there is deliberately no duplicate-payment feature, so a held-out duplicate is a
-genuine test of whether generic features catch it.
+the repeat-payment rule was fixed in DECISIONS entry 36.4 only after a new held-out
+type had been defined there, so the evaluation still has unseen types to score.
 """
 
 from __future__ import annotations
@@ -46,13 +55,95 @@ def _robust_z(x: pd.Series) -> pd.Series:
     return (x - med) / mad
 
 
-def transaction_features(tx: pd.DataFrame, acfg: dict) -> pd.DataFrame:
+def in_season(dates: pd.Series, windows: list[tuple[pd.Timestamp, pd.Timestamp]] | None) -> pd.Series:
+    """True on days inside any Ramadan-to-Eid window (the pinned windows feature 36 uses)."""
+    d = pd.to_datetime(dates)
+    out = pd.Series(False, index=dates.index)
+    for start, end in windows or []:
+        out |= (d >= start) & (d <= end)
+    return out
+
+
+REPEAT_MODES = ("off", "window", "exact", "rarity", "forest_feature")
+
+
+def repeat_mode(acfg: dict) -> str:
+    """Entry 37.1 variants. `window` is the entry 36.4 rule; `repeat_payment_rule: true` is its old switch."""
+    mode = acfg.get("repeat_payment_mode") or ("window" if acfg.get("repeat_payment_rule") else "off")
+    if mode not in REPEAT_MODES:
+        raise ValueError(f"repeat_payment_mode {mode!r} not in {REPEAT_MODES}")
+    return mode
+
+
+def _repeat_payment(t: pd.DataFrame, tol: float, gap: int) -> np.ndarray:
+    """An outflow repeating an earlier outflow to the same counterparty, amount within `tol` (relative),
+    0–`gap` days later, neither in a recurring series. The later of the two is the one marked."""
+    flag = np.zeros(len(t), dtype=bool)
+    out = t[(t["direction_in"] == 0) & t["counterparty_id"].notna() & ~t["recurring"]]
+    for _, g in out.groupby(out["counterparty_id"].astype(str), sort=False):
+        if len(g) < 2:
+            continue
+        idx = g.index.to_numpy()
+        day = pd.to_datetime(g["date"]).to_numpy("datetime64[D]").astype(np.int64)
+        amt = g["amount"].to_numpy(float)
+        lo = 0
+        for i in range(1, len(g)):
+            while day[i] - day[lo] > gap:
+                lo += 1
+            prev = amt[lo:i]
+            if len(prev) and (np.abs(amt[i] / np.where(prev == 0, np.nan, prev) - 1) <= tol).any():
+                flag[idx[i]] = True
+    return flag
+
+
+def _close_match_rate(t: pd.DataFrame, tol: float) -> pd.Series:
+    """Per row: the share of all pairs of its counterparty's (non-recurring) outflows whose amounts are
+    within `tol` of each other — how ordinary a close match is for that counterparty (entry 37.1 rarity)."""
+    rate = pd.Series(np.nan, index=t.index)
+    out = t[(t["direction_in"] == 0) & t["counterparty_id"].notna() & ~t["recurring"]]
+    for _, g in out.groupby(out["counterparty_id"].astype(str), sort=False):
+        n = len(g)
+        if n < 2:
+            continue
+        a = np.sort(g["amount"].to_numpy(float))
+        close = int((np.searchsorted(a, a * (1 + tol), side="right") - np.arange(n) - 1).sum())
+        rate.loc[g.index] = close / (n * (n - 1) / 2)
+    return rate
+
+
+def repeat_signal(t: pd.DataFrame, acfg: dict) -> np.ndarray:
+    mode = repeat_mode(acfg)
+    if mode == "off":
+        return np.zeros(len(t), dtype=bool)
+    if mode == "exact":
+        return _repeat_payment(t, tol=1e-9, gap=0) & _same_to_the_halala(t)
+    sig = _repeat_payment(t, float(acfg["repeat_amount_tolerance"]), int(acfg["repeat_max_gap_days"]))
+    if mode == "rarity":
+        rate = _close_match_rate(t, float(acfg["repeat_amount_tolerance"])).to_numpy()
+        sig &= np.nan_to_num(rate, nan=1.0) < float(acfg["repeat_rarity_max_share"])
+    return sig
+
+
+def _same_to_the_halala(t: pd.DataFrame) -> np.ndarray:
+    """True where an earlier same-day outflow to the same counterparty has the identical amount (2 dp)."""
+    key = t["counterparty_id"].astype(str) + "|" + pd.to_datetime(t["date"]).dt.strftime("%Y-%m-%d") + "|" + t["amount"].round(2).astype(str)
+    return (key.duplicated() & (t["direction_in"] == 0)).to_numpy()
+
+
+def transaction_features(tx: pd.DataFrame, acfg: dict, seasonal_windows: list | None = None) -> pd.DataFrame:
     t = tx.sort_values(["date", "hour", "transaction_id"]).reset_index(drop=True).copy()
     t["log_amount"] = np.log1p(t["amount"].astype(float).clip(lower=0))
     t["direction_in"] = (t["direction"].astype(str) == "in").astype(float)
     grp = t.groupby([t["direction"].astype(str), t["category"].astype(str)], observed=True)["log_amount"]
     big = grp.transform("size") >= 5
     t["amount_z"] = np.where(big, grp.transform(_robust_z), t.groupby(t["direction"].astype(str), observed=True)["log_amount"].transform(_robust_z))
+    t["in_season"] = in_season(t["date"], seasonal_windows)
+    if acfg.get("seasonal_gate", False) and t["in_season"].any():
+        # Entry 36.3 seasonal gate: the amount baseline is (direction, category, season), so ordinary
+        # Ramadan baskets — fewer and larger — are compared with Ramadan, not with the rest of the year.
+        # A seasonal group under 5 rows keeps the (direction, category) z above. No rule is switched off.
+        sgrp = t.groupby([t["direction"].astype(str), t["category"].astype(str), t["in_season"]], observed=True)["log_amount"]
+        t["amount_z"] = np.where(sgrp.transform("size") >= 5, sgrp.transform(_robust_z), t["amount_z"])
     n = len(t)
     t["hour_share"] = t.groupby("hour")["hour"].transform("size") / n
     t["hour_rarity"] = -np.log(t["hour_share"])
@@ -76,11 +167,23 @@ def transaction_features(tx: pd.DataFrame, acfg: dict) -> pd.DataFrame:
     t["new_counterparty"] = (has_cp & ~cp.duplicated() & (t["date"] >= burn_in_end)).astype(float)
     dirs = t[has_cp].groupby(cp[has_cp])["direction"].nunique()
     t["both_directions"] = cp.map(dirs).fillna(0).ge(2).astype(float)
+    t["repeat_payment"] = repeat_signal(t, acfg)
     t["direction"] = t["direction_in"]
     return t
 
 
+def rule_hits(t: pd.DataFrame, acfg: dict) -> np.ndarray:
+    """Hard-rule violations that flag in their own right (entry 23 fix 3; entries 36.4, 37.1). In the
+    `forest_feature` mode the repeat signal is a forest input, not a rule, so it is left out here."""
+    if not acfg.get("rule_violations_also_flag", False):
+        return np.zeros(len(t), dtype=bool)
+    rep = t["repeat_payment"] if repeat_mode(acfg) in ("window", "exact", "rarity") else False
+    return ((t["amount_z"] >= acfg["amount_z"]) | (t["hour_share"] < acfg["rare_hour_share"]) | rep).to_numpy()
+
+
 def _reason(r: pd.Series, acfg: dict) -> str:
+    if r["repeat_payment"]:  # the most specific reason first
+        return "repeat_payment"
     if r["amount_z"] >= acfg["amount_z"]:  # one-sided: an unusually SMALL amount is not a risk anomaly
         return "amount_outlier"
     if r["new_counterparty"] and r["amount_z"] >= acfg["new_counterparty_amount_z"]:
@@ -94,23 +197,24 @@ def _reason(r: pd.Series, acfg: dict) -> str:
     return "multivariate_outlier"
 
 
-def detect(tx: pd.DataFrame, as_of: pd.Timestamp, acfg: dict) -> dict:
+def detect(tx: pd.DataFrame, as_of: pd.Timestamp, acfg: dict, seasonal_windows: list | None = None) -> dict:
+    """`seasonal_windows`: the pinned Ramadan-to-Eid windows (profile_engine.compute.ramadan_from_config),
+    used only when `acfg["seasonal_gate"]` is on (entry 36.3)."""
     lo = as_of - pd.Timedelta(days=int(acfg["scan_days"]) - 1)
     w = tx[(tx["date"] >= lo) & (tx["date"] <= as_of)]
     if len(w) < int(acfg["min_transactions"]):
         return {"status": "not_computed", "reason": "too_few_transactions_for_a_baseline", "transactions_scanned": len(w), "flags": []}
 
-    t = transaction_features(w, acfg)
-    X = t[FEATURES].to_numpy(dtype=float)
+    t = transaction_features(w, acfg, seasonal_windows)
+    cols = FEATURES + (["repeat_payment"] if repeat_mode(acfg) == "forest_feature" else [])
+    X = t[cols].to_numpy(dtype=float)
     forest = IsolationForest(
         n_estimators=int(acfg["n_estimators"]), contamination=float(acfg["contamination"]),
         random_state=int(acfg["random_state"]),
     ).fit(X)
     outlier = forest.predict(X) == -1
     score = forest.score_samples(X)  # never leaves this function (§29)
-    rule = np.zeros(len(t), dtype=bool)
-    if acfg.get("rule_violations_also_flag", False):
-        rule = ((t["amount_z"] >= acfg["amount_z"]) | (t["hour_share"] < acfg["rare_hour_share"])).to_numpy()
+    rule = rule_hits(t, acfg)
     # Hard univariate violations first (each ordered most-isolated first), then forest-only outliers.
     order = sorted(np.where(outlier | rule)[0], key=lambda i: (not rule[i], score[i]))
     picked = order[: int(acfg["max_flags"])]

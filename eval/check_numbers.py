@@ -74,8 +74,26 @@ def table_rows(text: str) -> dict[str, list[str]]:
 def anomaly() -> list[tuple[str, str]]:
     r = table_rows(_read("eval/out/anomaly_eval.md"))
     rt, dp = r["round_trip_transfer"], r["duplicate_payment"]
+    rep = table_rows(_read("eval/out/anomaly_eval_repeat_rule.md"))
+    seas = _read("eval/out/anomaly_seasonal.md")
+    excess = re.findall(r"\| ramadan \| (?:off|on) \| [^|]+\| [^|]+\| [^|]+\| ([0-9.]+) \|", seas)
     return [("held-out round-trip recall", rt[3]), ("held-out round-trip precision", rt[4]),
-            ("held-out round-trip precision ceiling", rt[5]), ("held-out duplicate recall", dp[3])]
+            ("held-out round-trip precision ceiling", rt[5]), ("same-day duplicate recall (shipped, designed-for)", f"**{dp[3]}** — **designed-for"),
+            ("repeat rule: designed-for duplicate recall", f"same-day duplicate {rep['duplicate_payment'][3]}"),
+            ("repeat rule: held-out late repeat recall", f"late repeat {rep['late_repeat_charge'][3]}"),
+            ("repeat rule: round-trip recall", f"round-trip falls to {rep['round_trip_transfer'][3]}"),
+            ("seasonal flag excess off / on", f"{excess[0]} without the gate, {excess[1]} with it"),
+            *repeat_test()]
+
+
+def repeat_test() -> list[tuple[str, str]]:
+    """Entry 37.5 one-time test rows: re-sent and vendor-record duplicates, with the check and without."""
+    t = _read("eval/out/repeat_variants.md")
+    r = {(m, ty): v for m, ty, v in re.findall(r"\| `(\w+)` \| (resent_payment|vendor_record_duplicate) \| \d+ \| ([0-9.]+) \|", t)}
+    rs = r[("exact", "resent_payment")] if r[("exact", "resent_payment")] == r[("off", "resent_payment")] else "MISMATCH"
+    vd = r[("exact", "vendor_record_duplicate")] if r[("exact", "vendor_record_duplicate")] == r[("off", "vendor_record_duplicate")] else "MISMATCH"
+    return [("test: re-sent payment, with and without", f"re-sent payment {rs} with the check and without"),
+            ("test: vendor-record duplicate, with and without", f"vendor-record duplicate {vd} with the check and without")]
 
 
 def forecast() -> list[tuple[str, str]]:
@@ -85,6 +103,20 @@ def forecast() -> list[tuple[str, str]]:
     mape = re.search(r"model ([0-9.]+%), naive ([0-9.]+%)", t)
     return [("forecast model median error", m), ("forecast naive median error", n),
             ("forecast MAPE model", mape.group(1)), ("forecast MAPE naive", mape.group(2))]
+
+
+def holdout_shock() -> list[tuple[str, str]]:
+    """§5c rows: median lead time and detection share, neutral and Ramadan windows, 30% shock (entry 36)."""
+    t = _read("eval/out/holdout_shock.md")
+    out = []
+    for pl in ("neutral", "ramadan"):
+        det, lead = {}, {}
+        for m in ("naive90", "naive30"):
+            row = re.search(rf"\| {pl} \| 30% \| [0-9,]+ \| [0-9,]+ \| `{m}` \| ([0-9.]+%) \| ([0-9]+) \[", t)
+            det[m], lead[m] = row.group(1), row.group(2)
+        out += [(f"shock {pl} 30% median lead", f"median {lead['naive90']} vs {lead['naive30']} days"),
+                (f"shock {pl} 30% detected", f"detected {det['naive90']} vs {det['naive30']}")]
+    return out
 
 
 def latents() -> list[tuple[str, str]]:
@@ -199,7 +231,7 @@ def forecast_selection() -> list[tuple[str, str]]:
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, latents, section14, noise_sweep, scenarios, gate, selectivity, latency, sharia, forecast_selection):
+    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, gate, selectivity, latency, sharia, forecast_selection):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

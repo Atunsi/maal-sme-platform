@@ -2228,3 +2228,376 @@ second rebuild. After the rebuild the credit lens owner must retrain (`python -m
 and record the new credit numbers; NUMBERS.md rows that depend on 55–59 move with it.
 
 **Sign-off:** ☐ profile engine owner ☐ credit lens owner (retrain after the rebuild) ☐ team
+
+---
+
+## 36. Forecast + anomaly owner: the §10 holdout-shock test, the §16 Ramadan run, a seasonal gate and a repeat-payment detector — PRE-REGISTERED before any result (2026-11-02)
+
+**Touches (this commit):** this entry, and `eval/heldout_anomalies.py` (one new held-out type, definition
+only). No code that measures anything exists yet. Results are added later as 36.6 onward, under this
+text, which is not edited after this commit.
+
+**Why one entry.** F2 (holdout shock), F3 (Ramadan run and seasonal gate) and F4 (duplicate detection)
+from the owner hand-over all need a definition fixed before the number exists. Writing them together,
+in one dated commit, means every later result can be checked against what was promised here.
+
+### 36.1 Holdout-shock lead-time test (§10)
+
+- **Population:** serving (`business_id` 10,001–11,000), minus the three demo businesses (their specs
+  are fixed in `config.yaml`) and minus age tier `<1yr` (a thin file has no 90-day history before the
+  shock). Serving was never used to choose a forecast method.
+- **Generation:** each business is regenerated in memory with its own seed, through a harness-side demo
+  spec that sets only `start_date` and `inject_cash_crunch` (the levers the scenario library already
+  uses). `config.yaml` and `generator/` are not changed. Per business and window placement: a control
+  (no shock), a **30% shock (primary, §10's own example)** and a 50% shock (sensitivity).
+- **Shock:** `inject_cash_crunch` at week 14, so revenue drops from day 92 to day 180 (1-based). That
+  leaves 91 days of history before the shock (at least the 90-day fit window) and 89 days after it.
+- **Event:** the first day E ≥ 92 on which the shocked series' actual end-of-day balance is below zero.
+  A business counts as a shock-caused crunch only if its control series stays at or above zero from day
+  92 to day 180. All other businesses are counted in the table and left out of the lead-time numbers.
+- **Detection (projection only):** for every as-of day t from 92 to E − 1, each method is fitted on the
+  history up to t and projects 30 days. The method has detected the crunch if the projected balance is
+  below zero on any of those 30 days. D is the first such t. **Lead time = E − D days.** No detection
+  before E counts as a miss, with lead time 0. The engine's liquidity hazard (features 52–54) is left
+  out on purpose: both methods would read the identical hazard number, so it cannot separate them, and
+  the profile engine would have to be re-run at every as-of day.
+- **Methods compared:** `naive90` (the shipped method, entry 27) and `naive30` (the §10 baseline), from
+  `lenses/forecast/methods.py`, the same functions the lens runs.
+- **False alarms:** the same procedure on the control series of businesses whose control balance never
+  goes below zero from day 92 to day 180. The share with any detection at as-of days 92–150 (the last
+  day whose 30-day projection stays inside the window).
+- **Reported:** per method, N, detection rate, median and interquartile range of lead time (misses as 0),
+  false-alarm rate; and paired, the share of businesses where `naive90` detects earlier, at the same
+  day, or later than `naive30`, with the median paired difference and a bootstrap 95% interval (2,000
+  resamples, seed 0).
+- **No method change follows from this test.** Entry 27 chose `naive90` on accuracy. This test measures
+  what that choice costs in warning time. Switching method because of it would turn this test into a
+  second selection. A future change needs its own protocol with the criterion declared first.
+- **Chart** (`eval/out/holdout_shock.png`): (a) one business, chosen by a rule fixed now so it is not
+  hand-picked: the lowest `business_id` in the neutral 30% run with a shock-caused crunch. It shows the
+  actual balance with and without the shock, and the `naive90` and `naive30` projections made at as-of
+  day 106 (shock + 14), with markers for the shock, each method's detection day and the event. (b) The
+  lead-time distribution of both methods across the population.
+
+### 36.2 Ramadan-window run (§16)
+
+- **Two placements, the same businesses:** neutral, `start_date` 2025-08-01 (the window ends
+  2026-01-27, with no Ramadan or Eid, as for demo business 10002); and Ramadan, `start_date` 2025-11-19,
+  so day 92 is 2026-02-18, the first day of Ramadan 1447. Ramadan and Eid then cover days 92–124, and
+  the pre-Ramadan days 82–91 sit inside the fit window.
+- The shock starts on the first day of Ramadan on purpose. For a sector whose Ramadan sales rise
+  (retail, value ×1.34 in `config.yaml`), the seasonal lift can hide the drop. For one whose sales fall
+  (food and beverage, ×0.82), the season adds to it. So the 36.1 table is reported for both placements
+  side by side, and also by sector.
+- **Limitation, stated and not engineered around:** `ramadan_adjusted` (feature 36) is a coarse flag
+  (§16). The forecast lens makes no seasonal correction, and this run does not add one.
+
+### 36.3 Anomaly seasonal gate (§16)
+
+- **What exists today:** the anomaly lens reads neither feature 36 nor any calendar, so "false-positive
+  rate with and without the seasonal gate" cannot be measured until a gate is defined. It is defined
+  here.
+- **The gate** (`lens_config.anomaly.seasonal_gate`): when on, the amount z-score is computed within
+  (direction, category, season) instead of (direction, category), where season means inside a
+  Ramadan-to-Eid window. The windows are the pinned ones feature 36 already uses
+  (`profile_engine.compute.ramadan_from_config`), so the lens does not bring a calendar of its own. A
+  seasonal group with fewer than 5 rows falls back to (direction, category), as small groups do today.
+  No rule is switched off, so a large transfer during Ramadan still flags.
+- **Why this form:** Ramadan brings fewer, larger baskets (SAMA POS, `config.yaml` §22 block), so a
+  year-round amount baseline marks ordinary Ramadan sales as large. Suppressing the amount rule during
+  Ramadan was the alternative; it was rejected because it would blind the lens for a month.
+- **False-positive measurement:** on the control series of the 36.1 businesses (no injected or held-out
+  rows, so every flag is a false positive by construction), with the gate off and on:
+  1. *Seasonal flag excess* (Ramadan placement only): the share of flags dated inside the season,
+     divided by the share of scanned transactions dated inside it. 1.0 means no seasonal bias.
+  2. *Rule hits before the cap:* transactions breaking a hard rule (amount z or rare hour) per 1,000
+     scanned, inside and outside the season, in both placements. Computed in the harness from the
+     lens's own feature table; nothing new leaves the API.
+- **Decision rule, fixed now:** the gate ships on if the seasonal flag excess falls with the gate and
+  injected-type recall (`eval.anomaly_eval`, injected types only) does not fall. Held-out recall is
+  re-run after that decision and reported. It is never used to make it.
+
+### 36.4 Repeat-payment detector and a new held-out type (§12)
+
+- **Order:** the new held-out type is defined in this commit. The detector is written in a later one.
+- **New held-out type `late_repeat_charge`** (`eval/heldout_anomalies.py`): an existing supplier payment
+  charged again by the same counterparty 1–7 days later, at 97–103% of the original amount, at an
+  ordinary business hour (9–16). It stands for a re-sent or re-billed invoice. It differs from the
+  existing held-out type, which repeats the same amount on the same day.
+- **Detector, fixed now:** a hard rule with `flag_reason` `repeat_payment`. An outflow is flagged when
+  an earlier outflow in the scan window has the same counterparty, an amount within 1%, and a date 0–3
+  days earlier, and the outflow is not part of a recurring series. It is listed with the other hard-rule
+  flags. It is not added to the Isolation Forest, so other results move only through the order of the
+  10-flag list. The tolerances follow ordinary accounts-payable duplicate checks (same vendor, same
+  amount, a short gap); they were not fitted to anything.
+- **Overlap stated before the result:** by construction, at most about 3/7 × 1/3 ≈ 14% of
+  `late_repeat_charge` rows fall inside the rule (lag 1–3 days of 1–7, amount within 1% of a ±3% band).
+  Recall above that would have to come from the forest or another rule. A low number is the expected
+  honest result, not a reason to widen the rule.
+- **Reporting:** the existing held-out recall of 0.06 for the same-day repeat stays on record as the
+  result before any repeat detector. Once the detector exists, the same-day type is something the
+  detector was designed for, so its new recall is reported as designed-for, not held-out.
+  `late_repeat_charge` and `round_trip_transfer` stay held-out. `assert_held_out()` must still pass; the
+  detector code never names a held-out type.
+
+### 36.5 Positions on the parameters already PROPOSED (entries 23.3, 27, 29)
+
+- **No parameter in `lens_config.yaml` changes** (amount z 3.0, rare-hour share 0.01, contamination
+  0.01, at most 10 flags, 180-day scan, hazard watch 0.2 and alert 0.5). Each is a convention or a
+  product setting, not a fitted value. Changing one now would happen after the demo output and the
+  held-out results were seen, which is retuning.
+- **Entry 29 finding 4 (always 10 flags):** the cap stays. The flags are a review queue, ordered most
+  unusual first, not a count of alarms, and the demo must say so. A shorter list would need a
+  materiality rule or a lower contamination, designed on injected types only and pre-registered. It is
+  not planned this term.
+- **F5:** the flags on small ordinary sales (SAR 111–164 on business 10001) are reported as noise. No
+  rule is changed to remove them.
+- **F6:** no new forecast candidate (Prophet or ARIMA) this term. It would add a dependency, and on
+  noisy flows with small trends a longer average is the expected winner. `naive90` stays.
+
+**Sign-off:** ☐ forecast + anomaly owner (36.1–36.5) ☐ generator owner (36.1 uses the crunch lever and
+the window-start override from the harness; no generator change) ☐ team
+
+### 36.6 RESULT — holdout shock and Ramadan run (2026-11-02), definitions as in 36.1–36.2, nothing changed
+
+`python -m eval.holdout_shock` → `eval/out/holdout_shock.md`, `holdout_shock.png`,
+`holdout_shock_per_business.csv`. Serving, N = 751 after the 36.1 exclusions. A re-run gave identical
+tables. Full-scale data was regenerated locally and checked against the team's: `scenarios.run --check`
+confirms business 10001 matches in every value, and `eval.anomaly_eval` reproduced the committed
+held-out rows exactly.
+
+| window, shock | shock-caused crunches | detected: `naive90` / `naive30` | median lead, days: `naive90` / `naive30` | false alarms on the control: `naive90` / `naive30` | paired median difference (90 − 30) [95% CI] |
+|---|---|---|---|---|---|
+| neutral, 30% (primary) | 27 | 88.9% / 96.3% | 15 / 27 | 3.8% / 8.3% (of 636) | −1 [−4, 0] |
+| neutral, 50% | 39 | 69.2% / 82.1% | 13 / 26 | 3.8% / 8.3% | −1 [−14, 0] |
+| Ramadan, 30% | 26 | 84.6% / 92.3% | 18 / 32 | 3.7% / 10.4% (of 616) | −6 [−11, 0] |
+| Ramadan, 50% | 43 | 83.7% / 93.0% | 20 / 35 | 3.7% / 10.4% | −9 [−17, −4] |
+
+What it says:
+- **The shipped method warns later than the baseline.** At the primary setting `naive90` catches 88.9%
+  of shock-caused crunches with a median 15 days' warning; `naive30` catches 96.3% with 27 days. A longer
+  average lags a sudden drop by construction. This is the cost of entry 27's accuracy win, now measured,
+  and it is the population version of entry 29 finding 3.
+- **The baseline's earlier warnings are not free:** it raises about twice the false alarms on the same
+  businesses without a shock (8.3% vs 3.8%; 10.4% vs 3.7% in the Ramadan window). So this is a trade-off
+  between warning time and false alarms, not a loss on every count.
+- **At the primary setting the paired gap is small and its interval reaches zero** (−1 day [−4, 0]). Over
+  the Ramadan window it widens, and at the 50% shock it excludes zero (−9 days [−17, −4]). `naive30`'s
+  false alarms also rise in the Ramadan window while `naive90`'s do not.
+- **Few shocks cause a crunch.** A 30% revenue cut for 89 days pushes only 27 of 751 businesses below
+  zero when their unshocked balance would have stayed positive; 107 more went negative but would have
+  anyway, and are excluded by the 36.1 rule. Every interval here rests on 26–43 businesses.
+- **By sector** (30%, in the report): construction is where `naive90` lags most (median 4 vs 36 days,
+  neutral window, 6 businesses). Professional services had no shock-caused crunch.
+- The chart's panel (a) business, 10063 (construction), was picked by the 36.1 rule. It happens to be a
+  case `naive90` missed and `naive30` caught on day 93, so it is not a typical business; panel (b) is the
+  population view and must be shown with it.
+
+**No method change** (36.1). The liquidity hazard was left out of this test, so the lens's full crunch
+alert, which also reads features 52–54, may warn earlier than either projection alone; that was not
+measured here.
+
+### 36.7 RESULT — seasonal gate: false positives with and without it (2026-11-02); gate switched ON by the 36.3 rule
+
+`python -m eval.anomaly_seasonal` → `eval/out/anomaly_seasonal.md`. Control series of the 36.1 sample
+(serving, N = 751), so every flag is a false positive.
+
+| window | gate | seasonal flag excess | rule hits per 1,000, in season | rule hits per 1,000, out of season |
+|---|---|---|---|---|
+| Ramadan | off | **1.37** (24.1% of flags in season vs 17.6% of transactions) | 7.42 | 2.99 |
+| Ramadan | on | **1.02** (17.9% vs 17.6%) | 4.47 | 3.62 |
+| neutral | off / on | — (no season in the window) | — | 3.48 / 3.48 |
+
+Injected-type recall, demo business: 2 of 2 with the gate off and on.
+
+- **The seasonal false positives were real.** Without the gate, ordinary Ramadan transactions broke a
+  hard rule 2.5 times as often as the rest of the year (7.42 vs 2.99 per 1,000) and took 37% more than
+  their share of the 10-flag list. With the gate, the Ramadan share of flags matches the Ramadan share of
+  transactions (excess 1.02).
+- **Decision by the 36.3 rule:** the excess fell and injected recall did not, so `seasonal_gate` is now
+  `true` in `lens_config.yaml`. Held-out recall was not computed before this switch; it is in 36.8.
+- **Cost, stated:** rule hits outside the season rise from 2.99 to 3.62 per 1,000. Taking the larger
+  Ramadan baskets out of the year-round baseline makes that baseline tighter, so slightly more ordinary
+  out-of-season amounts now cross z 3.0. Because the list is capped at 10, the total number of flags
+  barely moves (6,567 vs 6,656); what changes is which days they fall on.
+- In the neutral window the gate changes nothing, as designed (no day is in season).
+- A 10-business smoke test before the full run showed the opposite direction (excess 0.93 → 1.24). It
+  was a small-sample artefact, and it is mentioned only so nobody quotes it.
+
+### 36.8 RESULT — held-out evaluation with the gate on, and the repeat-payment rule (2026-11-02)
+
+`python -m eval.anomaly_eval` (shipped configuration: gate on, repeat rule off) →
+`eval/out/anomaly_eval.md`; `python -m eval.anomaly_eval --with repeat_payment_rule=true` →
+`eval/out/anomaly_eval_repeat_rule.md`. Serving, 50 businesses per held-out type, seed 7, K = 10.
+New column `rule_hit_before_cap`: the share of rows a hard rule fired on before the list was cut to 10.
+
+| type | status | recall@10, shipped | recall@10, repeat rule on | rule hit before the cap, repeat rule on |
+|---|---|---|---|---|
+| `round_trip_transfer` | held-out | **0.93** (was 0.92 before the gate) | 0.86 | 0.77 |
+| `duplicate_payment` (same day, same amount) | held-out while the rule is off; **designed-for** once it is on | 0.06 | 0.60 | 0.78 |
+| `late_repeat_charge` (new, 36.4) | held-out | 0.00 | **0.02** | 0.04 |
+| injected `large_transfer`, `odd_hours_transaction` | injected | 2 of 2 (ranks 1, 5) | 2 of 2 | 2 of 2 |
+
+Hard-rule hits on the 861 clean serving businesses (no held-out row, so every hit is a false positive):
+amount rule 3.18 per 1,000 transactions, rare hour 1.59, **repeat rule 3.31, in 754 of the 861
+businesses**.
+
+What it says:
+- **The gate did not hurt the held-out results.** Round-trip recall moved from 0.92 to 0.93 and the
+  same-day duplicate stayed at 0.06.
+- **The repeat rule finds what it was built for, partly.** It fires on 78% of same-day duplicates, and 60%
+  reach the 10-flag list; the other 18% are cut by the cap. That 0.60 is a designed-for number, not a
+  held-out result, and must never be quoted as one.
+- **It does not generalise.** On the held-out late repeat it reaches 0.02, below even the at-most-14%
+  overlap stated in 36.4 (the recurring-series exclusion removes some of that overlap).
+- **It is noisy.** On clean businesses it fires 3.31 times per 1,000 transactions, more than the amount
+  rule, because a business paying the same few suppliers several times a week produces amounts within 1%
+  inside 3 days by coincidence. Those false hits compete for the 10 slots, which is why round-trip recall
+  falls from 0.93 to 0.86 with the rule on.
+
+**Shipping decision — OPEN for the owner, recommended OFF.** Entry 36.4 fixed the detector but wrote no
+rule for switching it on, and the numbers above, including held-out ones, were seen before this
+recommendation, so it cannot claim to be blind to them. It rests on the clean-business false positives
+and the round-trip loss, and it keeps the shipped state unchanged (`repeat_payment_rule: false`), which
+is the conservative choice. A tighter variant (for example an exact amount on the same day) would need
+its own pre-registration and **another new held-out type defined first**, because `late_repeat_charge`
+has now been seen.
+
+**F5, precision stated plainly.** Precision@10 sits near its ceiling for round-trip transfers (0.2141 of
+0.2283) because each affected business holds two round-trip rows; for single-row types the ceiling is
+about 0.1 and the lens reaches it only when it catches the row. Most of every list is ordinary activity:
+on clean businesses the hard rules alone produce about 4.8 false hits per 1,000 transactions, before the
+forest adds its own. The flags are a review queue ordered by unusualness, not alarms (36.5).
+
+**Sign-off:** ☐ forecast + anomaly owner (36.6–36.8, and the open repeat-rule decision)
+
+### 36.9 Re-run checks after the lens change (2026-11-02)
+
+- `eval.forecast_backtest` reproduces `eval/out/forecast_backtest.md` exactly (the forecast lens is
+  unchanged). `eval.check_numbers` is current, and `eval.week8_check` and `scenarios.run --check` pass
+  with the gate on.
+- `eval.latency_test` passes with the gate on, all 93 tests pass with the serving store built, and the
+  API answers equal the CLI's. The anomaly route's maximum was 1,148 ms on a 2-core, 7 GB machine,
+  under the 2 s target. `eval/out/latency_week7.md` and NUMBERS §6b were **not** replaced, because
+  timings from a different machine are not comparable. The owner should re-run the test on the team
+  machine and update both.
+- This machine could not hold a full-scale generation or profile run in memory, so both were run in
+  business-ID chunks (scratch scripts, not committed). This is exact because every business is generated
+  and profiled from RNG keyed on its own ID, with the generator's latent rank computed over all 11,000.
+  Checks: `scenarios.run --check` confirms business 10001 matches the full generation in every value;
+  `eval.anomaly_eval` reproduced the committed held-out rows; and the backtest above reproduced exactly.
+
+---
+
+## 37. Four repeat-payment detector variants compared, chosen on seen types, reported once on two new types — PRE-REGISTERED before any result (2026-11-02)
+
+**Touches (this commit):** this entry, and `eval/heldout_anomalies.py` (two new test-only held-out types,
+definition only). No variant code exists yet.
+
+**Why.** Entry 36.8 left the repeat-payment rule off: it was noisy on clean businesses and reached 0.02 on
+the held-out late repeat. The owner asked for four options to be tried and compared. Both repeat-like
+held-out types have now been seen, so choosing a variant by its score on them would flatter the winner.
+This entry uses the forecast protocol of entry 27: choose on one set, report once on another.
+
+### 37.1 The four variants (`lens_config.anomaly.repeat_payment_mode`)
+
+All four share the existing exclusions: outflows only, a counterparty present, not part of a recurring
+series.
+- **`off`** — no repeat signal. The shipped state, and the baseline every variant must beat.
+- **`exact`** (hard rule) — an outflow with the same counterparty and the identical amount (to the
+  halala) as an earlier outflow on the same calendar day.
+- **`rarity`** (hard rule) — the entry 36.4 rule (same counterparty, amount within 1%, 0–3 days later),
+  flagged only when such a close match is rare for that counterparty: among all pairs of that
+  counterparty's outflows in the scan window, the share whose amounts are within 1% of each other must be
+  below 0.01. A business that pays one supplier near-identical amounts all the time gets no flag from a
+  coincidence. The 0.01 matches the existing rare-hour and rare-category cut-offs; it is not fitted.
+- **`forest_feature`** — the entry 36.4 signal is added to the Isolation Forest as a seventh binary input
+  and is not a hard rule, so the forest weighs it with everything else and it cannot claim a flag slot on
+  its own.
+
+### 37.2 Choosing (validation)
+
+- **Data:** the entry 36.8 run — serving, `anomaly_eval` seed 7, 50 businesses per type, K = 10, seasonal
+  gate on — scored for every variant.
+- **Seen types used to choose:** `duplicate_payment` (same day, same amount) and `late_repeat_charge`.
+- **Guard rails, both must hold:** (a) held-out `round_trip_transfer` recall at least 0.90 (no more than
+  0.03 below the shipped 0.93); (b) on clean serving businesses (no anomaly row), at most 1.0 flag per
+  business carrying the repeat signal, so false repeat flags take at most one of the ten review slots on
+  average.
+- **Choice:** among the variants passing both, the highest mean recall@10 over the two seen types; a tie
+  goes to fewer clean repeat flags. If no variant beats `off` on that mean while passing the guard rails,
+  `off` is chosen, and that is the result.
+
+### 37.3 Reporting once (test)
+
+- **Two new held-out types, defined in this commit and injected only with `--final-test`:**
+  - `resent_payment`: an existing supplier payment sent again to the same counterparty, at exactly the
+    same amount, 1–2 days later, at an ordinary hour (9–16).
+  - `vendor_record_duplicate`: an existing supplier payment paid again at exactly the same amount, the
+    same day or the next, to a second counterparty ID for the same supplier (a duplicate vendor record),
+    so no counterparty-keyed rule can see the pair.
+- They are drawn after every existing block, on their own businesses, so all earlier injections are
+  unchanged. The validation runs never inject them.
+- Reported once, for the chosen variant and for `off`, with recall@10, precision@10 and ceiling,
+  round-trip recall and clean repeat flags. Nothing is changed after this report.
+- **Expected limits, stated now:** `exact` cannot see `resent_payment` (a different day). No variant can
+  see `vendor_record_duplicate` through the repeat signal, because every variant keys on the
+  counterparty; it is included to measure that blind spot, not to be won.
+
+### 37.4 What would change the shipped lens
+
+`repeat_payment_mode` in `lens_config.yaml` changes only to the variant chosen under 37.2, and only after
+the 37.3 report exists, recorded in this entry. If `off` is chosen, nothing ships.
+
+**Sign-off:** ☐ forecast + anomaly owner ☐ team
+
+### 37.5 RESULT — `exact` chosen; adds nothing on the unseen types; shipped (2026-11-02)
+
+`python -m eval.repeat_variants` → `eval/out/repeat_variants.md`. Validation, then one test run, as in
+37.2–37.3.
+
+| variant | same-day duplicate (seen) | late repeat (seen) | round-trip | repeat flags per clean business | clean businesses with one |
+|---|---|---|---|---|---|
+| `off` | 0.06 | 0.00 | 0.93 | 0.00 | 0 |
+| **`exact`** | **0.66** | 0.00 | 0.93 | **0.00** | 0 |
+| `rarity` | 0.18 | 0.00 | 0.90 | 0.46 | 272 |
+| `forest_feature` | 0.26 | 0.02 | 0.93 | 0.40 | 167 |
+| `window` (36.4, reference only) | 0.60 | 0.02 | 0.86 | 2.44 | 684 |
+
+**Chosen by the 37.2 rule: `exact`** (highest mean over the two seen types, both guard rails passed).
+
+**Test, reported once:** `resent_payment` recall@10 0.00 with `exact` and 0.00 with `off`;
+`vendor_record_duplicate` 0.04 with both (the same rows, caught by other rules).
+
+What it says:
+- **`exact` is a narrow, clean check.** It catches two-thirds of same-day, same-amount repeats with no
+  repeat flag at all on 861 clean businesses and no loss of round-trip recall. The same-day duplicate is
+  a seen type, so 0.66 is a validation number for what `exact` was designed to find, not a held-out
+  result.
+- **It does not generalise, as stated before the run.** A payment re-sent one or two days later is
+  invisible to it (0.00), and so is a duplicate paid under a second supplier ID (no change from `off`).
+  On unseen types, shipping `exact` changes nothing.
+- **Why the others lost.** `rarity` removed most coincidences but also most real duplicates (0.60 under
+  `window` down to 0.18). About half of all counterparties sit at or above the 0.01 cut-off (median
+  close-match rate 0.010 in a 60-business check on `data/quick`), so a duplicate paid to any of them is
+  filtered out with the coincidences. `forest_feature` made the forest weigh the signal, but a repeat is ordinary in every
+  other column, so the forest isolated only some of them (0.26), at 0.40 false repeat flags per business.
+- **The zero false flags for `exact` is a property of this synthetic data.** The generator never creates
+  two identical same-day supplier payments unless one is injected. Real data does: one user's bank feed
+  marked several genuine same-day, same-amount charges from one registrar as duplicates
+  (`docs/research/duplicate_payment_detection.md` §3). Expect some false `repeat_payment` flags on real
+  transactions.
+
+**Shipped (37.4):** `repeat_payment_mode: "exact"` in `lens_config.yaml`. With it on, the shipped
+`eval/out/anomaly_eval.md` labels the same-day type designed-for. Quote "same-day exact duplicates are
+caught; re-sent and vendor-record duplicates are not", never a single "duplicate recall" figure.
+`docs/research/duplicate_payment_detection.md` records how other tools approach this, and why most of
+them depend on invoice numbers and vendor records that a bank-transaction lens does not see.
+
+### 37.6 Latency with the exact check on (2026-11-02)
+
+`eval.latency_test` passes, and the API answers equal the CLI's on the demo businesses. On the same
+2-core, 7 GB machine as 36.9, the anomaly route measured p50 482 ms and maximum 1,271 ms (was 1,148 ms
+with the gate alone), still under the 2 s target. The credit route maximum was 626 ms. As in 36.9,
+`eval/out/latency_week7.md` and NUMBERS §6b are left for the owner to re-time on the team machine;
+timings across machines are not comparable.

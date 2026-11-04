@@ -13,6 +13,19 @@ Types:
                         feature 46 (§33), which no injected type exercises.
   duplicate_payment     an existing supplier payment repeated on the same day
                         with the same amount (a double-charge / double-pay).
+  late_repeat_charge    an existing supplier payment charged again by the same
+                        counterparty 1–7 days later at 97–103% of the amount, at
+                        an ordinary business hour (a re-sent or re-billed invoice).
+                        Added 2026-11-02 (DECISIONS entry 36.4) BEFORE any
+                        repeat-payment detector was written.
+
+Test-only types (DECISIONS entry 37.3) — injected only when `include_test=True`, after the
+detector variant has been chosen on the types above; reported once:
+  resent_payment          an existing supplier payment sent again to the same
+                          counterparty, same amount, 1–2 days later, ordinary hour.
+  vendor_record_duplicate an existing supplier payment paid again, same amount, the
+                          same day or the next, to a second counterparty ID for the
+                          same supplier (a duplicate vendor record).
 
 Usage (eval harness only), from the repo root:
     tx, truth = inject_held_out(transactions, businesses, seed=7, n_businesses=50)
@@ -27,7 +40,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-HELD_OUT_TYPES = ("round_trip_transfer", "duplicate_payment")
+HELD_OUT_TYPES = ("round_trip_transfer", "duplicate_payment", "late_repeat_charge")
+TEST_ONLY_TYPES = ("resent_payment", "vendor_record_duplicate")  # entry 37.3: never used to choose
 
 
 def assert_held_out(repo_root: str | Path = ".", data_dir: str | Path | None = None) -> None:
@@ -38,7 +52,7 @@ def assert_held_out(repo_root: str | Path = ".", data_dir: str | Path | None = N
     generator may inject them. Globbed, so a new module is covered automatically.
     """
     root = Path(repo_root)
-    pattern = re.compile("|".join(HELD_OUT_TYPES))
+    pattern = re.compile("|".join(HELD_OUT_TYPES + TEST_ONLY_TYPES))
     targets = [
         root / "config.yaml",
         *sorted((root / "generator").glob("*.py")),
@@ -57,7 +71,7 @@ def assert_held_out(repo_root: str | Path = ".", data_dir: str | Path | None = N
     inj = Path(data_dir or root / "data") / "injected_anomalies.csv"
     if inj.exists():
         types = set(pd.read_csv(inj)["anomaly_type"])
-        leaked = types & set(HELD_OUT_TYPES)
+        leaked = types & set(HELD_OUT_TYPES + TEST_ONLY_TYPES)
         if leaked:
             raise AssertionError(f"{inj.as_posix()} contains held-out type(s) {leaked} — §12 violation")
 
@@ -67,6 +81,7 @@ def inject_held_out(
     businesses: pd.DataFrame,
     seed: int,
     n_businesses: int = 50,
+    include_test: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Return (transactions with held-out anomalies appended, ground-truth table).
 
@@ -115,6 +130,48 @@ def inject_held_out(
         dup = {k: orig[k] for k in ("business_id", "date", "direction", "amount", "counterparty_id", "counterparty_type", "category")}
         dup["hour"] = int(min(23, orig["hour"] + 1))
         add(dup, "duplicate_payment")
+
+    # --- late_repeat_charge (entry 36.4) ---------------------------------------
+    # Drawn AFTER the two blocks above, so their random draws and results are unchanged.
+    window_end = businesses.set_index("business_id")["window_end"]
+    for b_id in rng.choice(serving, size=min(n_businesses, len(serving)), replace=False):
+        lag = int(rng.integers(1, 8))
+        last_ok = pd.Timestamp(window_end[b_id]) - pd.Timedelta(days=lag)  # the repeat must land inside the window
+        g = tx[(tx["business_id"] == b_id) & (tx["category"] == "supplier") & (tx["date"] <= last_ok)]
+        if g.empty:
+            continue
+        orig = g.sample(1, random_state=int(rng.integers(0, 2**31 - 1))).iloc[0]
+        rep = {k: orig[k] for k in ("business_id", "direction", "counterparty_id", "counterparty_type", "category")}
+        rep["date"] = orig["date"] + pd.Timedelta(days=lag)
+        rep["amount"] = round(float(orig["amount"]) * float(rng.uniform(0.97, 1.03)), 2)
+        rep["hour"] = int(rng.integers(9, 17))
+        add(rep, "late_repeat_charge")
+
+    # --- test-only types (entry 37.3), drawn after everything above ---------------
+    if include_test:
+        for b_id in rng.choice(serving, size=min(n_businesses, len(serving)), replace=False):
+            lag = int(rng.integers(1, 3))
+            last_ok = pd.Timestamp(window_end[b_id]) - pd.Timedelta(days=lag)
+            g = tx[(tx["business_id"] == b_id) & (tx["category"] == "supplier") & (tx["date"] <= last_ok)]
+            if g.empty:
+                continue
+            orig = g.sample(1, random_state=int(rng.integers(0, 2**31 - 1))).iloc[0]
+            rep = {k: orig[k] for k in ("business_id", "direction", "amount", "counterparty_id", "counterparty_type", "category")}
+            rep["date"] = orig["date"] + pd.Timedelta(days=lag)
+            rep["hour"] = int(rng.integers(9, 17))
+            add(rep, "resent_payment")
+        for b_id in rng.choice(serving, size=min(n_businesses, len(serving)), replace=False):
+            lag = int(rng.integers(0, 2))
+            last_ok = pd.Timestamp(window_end[b_id]) - pd.Timedelta(days=lag)
+            g = tx[(tx["business_id"] == b_id) & (tx["category"] == "supplier") & (tx["date"] <= last_ok)]
+            if g.empty:
+                continue
+            orig = g.sample(1, random_state=int(rng.integers(0, 2**31 - 1))).iloc[0]
+            rep = {k: orig[k] for k in ("business_id", "direction", "amount", "counterparty_type", "category")}
+            rep["counterparty_id"] = f"{orig['counterparty_id']}-B"   # the same supplier under a second ID
+            rep["date"] = orig["date"] + pd.Timedelta(days=lag)
+            rep["hour"] = int(rng.integers(9, 17))
+            add(rep, "vendor_record_duplicate")
 
     # Fill the columns the Phase 5 schema added (subfamily, sub-fields, evidence class, sample weight):
     # an injected row is a normal booked transaction with no fee and weight 1.0.

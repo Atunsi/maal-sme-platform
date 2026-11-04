@@ -56,8 +56,8 @@ write code that breaks one, stop and raise it.
 | Eval harnesses (gate, §21 validation, held-out anomalies, real-vs-synthetic, sensitivity, evidence) | [`eval/`](eval/) | generator owner | **BUILT** (credit-lens CV curves, fairness audit pending Week 6–7) |
 | Profile engine — features 1–69 | [`profile_engine/`](profile_engine/) | profile engine owner | **BUILT** — source-agnostic; 24–26, 34–35 `not_implemented` (module owners); unit tests in `tests/test_profile_engine.py`. **The pinned §35 reference stats predate the Saudi calibration, so 55–59 are off-centre for retail and F&B (feature 59 mean 6.63 / 7.32 instead of 0): entry 35, rebuild planned once, after entry 30** |
 | Credit lens (Base Murabaha + SHAP) | [`lenses/credit/`](lenses/credit/) | credit lens owner | **v1 built** — CV AUC 0.591 (88.8% of ceiling), exact log-odds SHAP; params PROPOSED (entry 23) |
-| Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v2 built** — `naive90` chosen on validation, **beats the naive baseline** on an untouched test (0.323 vs 0.376; entry 27) |
-| Anomaly lens | [`lenses/anomaly/`](lenses/anomaly/) | forecast + anomaly owner | **v1 built** — held-out round-trip recall 0.92, duplicate payment 0.06 (entry 23) |
+| Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v2 built** — `naive90` chosen on validation, **beats the naive baseline** on an untouched test (0.323 vs 0.376; entry 27); holdout shock: warns later than the baseline (median 15 vs 27 days) with half the false alarms (entry 36) |
+| Anomaly lens | [`lenses/anomaly/`](lenses/anomaly/) | forecast + anomaly owner | **v1 + seasonal gate + exact repeat check** — held-out round-trip recall 0.93; same-day exact duplicates caught (0.66, designed-for); re-sent and vendor-record duplicates missed (entries 23, 36, 37) |
 | Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; **nisab price is a placeholder** (entry 23) |
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | **Screening v1 built** — feature 24, deterministic rule table (PROPOSED, not certified); 85.1% compliant / 14.9% soft (entry 26) |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
@@ -99,6 +99,9 @@ python -m pytest tests                                    # unit tests
 python -m scenarios.run --list                            # hostile-demo menu (DECISIONS 29); --scenario NAME, --check
 python -m eval.anomaly_eval                   # §12 injected vs held-out → eval/out/anomaly_eval.md
 python -m eval.forecast_backtest              # §10 model vs naive → eval/out/forecast_backtest.md
+python -m eval.holdout_shock                  # §10/§16 shock lead time, neutral + Ramadan windows → eval/out/holdout_shock.{md,png} (entry 36, ~8 min)
+python -m eval.anomaly_seasonal               # §16 anomaly false positives, seasonal gate off vs on → eval/out/anomaly_seasonal.md (entry 36.7, ~15 min)
+python -m eval.repeat_variants                # repeat-payment variants: choose on seen types, test once → eval/out/repeat_variants.md (entry 37, ~40 min)
 
 python -m profile_engine.compute --dir data          # features 1–69 → data/profiles.csv (+ nulls, status, coverage)
 

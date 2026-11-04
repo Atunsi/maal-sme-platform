@@ -1,6 +1,8 @@
 # Forecast lens — v2 BUILT (beats the naive baseline), owner to take over
 
-**Method (2026-10-11, DECISIONS entry 27):** `naive90` (trailing-90-day mean), chosen on a validation window from six candidates fixed in advance (`methods.py`), then reported once on an untouched test window. **It beats the naive-30 baseline**: median error 0.323 vs 0.376 (research), 0.344 vs 0.401 (serving), with fewer than half the false alarms. It is a longer moving average, not a sophisticated model. Any new model must beat it under the same protocol (`python -m eval.forecast_selection`); never pick by reading the test table. Still open: §10 holdout-shock lead time and the §16 Ramadan-window run.
+**Method (2026-10-11, DECISIONS entry 27):** `naive90` (trailing-90-day mean), chosen on a validation window from six candidates fixed in advance (`methods.py`), then reported once on an untouched test window. **It beats the naive-30 baseline**: median error 0.323 vs 0.376 (research), 0.344 vs 0.401 (serving), with fewer than half the false alarms. It is a longer moving average, not a sophisticated model. Any new model must beat it under the same protocol (`python -m eval.forecast_selection`); never pick by reading the test table.
+
+**Holdout shock and Ramadan run (2026-11-02, DECISIONS entry 36):** `python -m eval.holdout_shock`. On a 30% revenue drop, `naive90` warns a median 15 days ahead (88.9% detected) against the baseline's 27 days (96.3%), and the baseline raises about twice the false alarms on unshocked businesses (8.3% vs 3.8%). The gap widens over a Ramadan window. A longer average lags a sudden drop: this is the price of the accuracy win, measured and kept, not tuned away. Chart: `eval/out/holdout_shock.png`.
 
 **Owner:** forecast + anomaly owner · **Schema:** §8, §10, §16, §34 · **Due:** Week 5
 
