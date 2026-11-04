@@ -21,6 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from generator.schemas import COUNTERPARTY_WINDOW_COLUMNS
 from profile_engine.registry import (
     COUNTERPARTY_FEATURE_IDS,
     COVERAGE_MIN_DAYS,
@@ -296,21 +297,44 @@ def daily_features(
 # --------------------------------------------------------------------------- #
 
 
-def transaction_features(tx: pd.DataFrame, biz: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def _windows_as_rows(cp_windows: pd.DataFrame) -> pd.DataFrame:
+    """counterparty_windows as one row per non-zero total, dated at its window's lower edge (DECISIONS entry 30)."""
+    parts = []
+    for col, (side, lo) in COUNTERPARTY_WINDOW_COLUMNS.items():
+        p = cp_windows.loc[cp_windows[col] > 0, ["business_id", "counterparty_id", col]].rename(columns={col: "amount"})
+        parts.append(p.assign(direction=side, dbe=lo))
+    return pd.concat(parts, ignore_index=True)
+
+
+def transaction_features(tx: pd.DataFrame, biz: pd.DataFrame, cp_windows: pd.DataFrame | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Returns (per-business frame of features 5, 10, 20, 21, 22, 45, 46, fi_outflow, loan_outflow, cp_coverage_share), plus prior-window availability."""
     t = tx.merge(biz[["business_id", "window_end", "operating_start_date"]], on="business_id")
     t = t[(t["date"] <= t["window_end"]) & (t["date"] >= t["operating_start_date"])]
     t["dbe"] = (t["window_end"] - t["date"]).dt.days
-    cur = t[t["dbe"] < TRAILING_DAYS]
-    prior = t[(t["dbe"] >= TRAILING_DAYS) & (t["dbe"] < 2 * TRAILING_DAYS)]
     out = pd.DataFrame(index=pd.Index(biz["business_id"], name="business_id"))
 
-    is_in = cur["direction"] == "in"
-    is_out = ~is_in
-    out["fi_outflow_90"] = cur[is_out & (cur["counterparty_type"] == "financial_institution")].groupby("business_id")["amount"].sum()
-    out["loan_outflow_90"] = cur[is_out & (cur["subfamily"] == "LOAN")].groupby("business_id")["amount"].sum()
-    cat = cur[is_out].groupby(["business_id", "category"], observed=True)["amount"].sum()
+    # Outflow-only features: outflows are never thinned, so these read the rows themselves.
+    cur_rows = t[t["dbe"] < TRAILING_DAYS]
+    is_out = cur_rows["direction"] != "in"
+    out["fi_outflow_90"] = cur_rows[is_out & (cur_rows["counterparty_type"] == "financial_institution")].groupby("business_id")["amount"].sum()
+    out["loan_outflow_90"] = cur_rows[is_out & (cur_rows["subfamily"] == "LOAN")].groupby("business_id")["amount"].sum()
+    cat = cur_rows[is_out].groupby(["business_id", "category"], observed=True)["amount"].sum()
     out[F[10]] = (cat / cat.groupby(level=0).transform("sum")).groupby(level=0).max()
+    out["prior_tx_days"] = t[(t["dbe"] >= TRAILING_DAYS) & (t["dbe"] < 2 * TRAILING_DAYS)].groupby("business_id")["date"].nunique()
+
+    # Counterparty features depend on which rows exist, so a thinned business reads the totals taken
+    # before thinning (DECISIONS entry 30). Refusing beats silently computing them on a sample.
+    covered = set() if cp_windows is None else set(cp_windows["business_id"])
+    if "sample_weight" in tx.columns:
+        missing = set(tx.loc[tx["sample_weight"] > 1, "business_id"]) - covered
+        if missing:
+            raise ValueError(f"{len(missing)} business(es) have thinned rows but no counterparty_windows rows, e.g. {sorted(missing)[:3]} (DECISIONS entry 30)")
+    if covered:
+        cols = ["business_id", "counterparty_id", "direction", "amount", "dbe"]
+        keep = cp_windows[cp_windows["business_id"].isin(set(biz["business_id"]))]
+        t = pd.concat([t.loc[~t["business_id"].isin(covered), cols], _windows_as_rows(keep)], ignore_index=True)
+    cur = t[t["dbe"] < TRAILING_DAYS]
+    prior = t[(t["dbe"] >= TRAILING_DAYS) & (t["dbe"] < 2 * TRAILING_DAYS)]
 
     has_cp = cur["counterparty_id"].notna()
     out["cp_coverage_share"] = cur[has_cp].groupby("business_id")["amount"].sum() / cur.groupby("business_id")["amount"].sum()
@@ -339,7 +363,6 @@ def transaction_features(tx: pd.DataFrame, biz: pd.DataFrame) -> tuple[pd.DataFr
     )
     out[F[45]] = cin[persist].groupby("business_id")["amount"].sum() / cin.groupby("business_id")["amount"].sum()
     out.loc[out[F[45]].isna() & cin.groupby("business_id")["amount"].sum().reindex(out.index).gt(0), F[45]] = 0.0
-    out["prior_tx_days"] = prior.groupby("business_id")["date"].nunique()
 
     total_val = cur.groupby("business_id")["amount"].sum()
     thr = np.maximum(CIRCULAR_VALUE_SHARE * total_val, EPS_MONTHLY)
@@ -434,7 +457,7 @@ def compute_profiles(
     obl = tables.get("obligations")
     fac = tables.get("facilities")
     facf = fac.set_index("business_id") if fac is not None else None
-    txf = transaction_features(tx, biz)[0].set_index("business_id")
+    txf = transaction_features(tx, biz, tables.get("counterparty_windows"))[0].set_index("business_id")
     obf = obligation_features(obl, biz).set_index("business_id")
 
     rows, nulls, status_rows, cov_rows = [], [], [], []

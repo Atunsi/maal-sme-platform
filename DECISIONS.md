@@ -767,8 +767,8 @@ at `output.pos_sales_transaction_sample_rate` (0.10)**, each carrying a new colu
 stays authoritative (computed from the full stream); outflows and injected anomaly rows are never
 thinned; the thinning uses its own RNG stream `[seed, id, 3]`. The gate now checks outflows exactly,
 inflows exactly on un-thinned businesses, and Σ amount × sample_weight against inflow_total within
-±2% on thinned ones. Transaction-derived features (5, 10, 20–22, 41, 45, 46) are ratios and
-counts of counterparties, unbiased under thinning; anything that sums `transactions.amount` on
+±2% on thinned ones. ~~Transaction-derived features (5, 10, 20–22, 41, 45, 46) are ratios and
+counts of counterparties, unbiased under thinning~~ **(withdrawn 2026-11-04: false for 5, 20, 21, 22, 45; see entry 30)**; anything that sums `transactions.amount` on
 the inflow side must multiply by `sample_weight`. `base_monthly_inflow_sar` is **not** lowered
 (SOP §10.6: it stays judgement). Schema change: one column, both producers, Pandera-enforced —
 raised here for §9 sign-off.
@@ -2020,6 +2020,50 @@ consistency, 5, 10, 45, 46 and `cp_coverage_share`, where it changes nothing in 
    or (c) keep it and state that it counts customers seen in the thinned file. This is a choice for
    the profile engine and generator owners.
 4. Any change re-runs the profile engine, the reference statistics (entry 35) and the credit model.
+
+**Generator owner's decision (Ahmed Altunusi, 2026-11-04), recorded before any fixed result existed:**
+the engine reads counterparty features from an unthinned source, the first option in item 2. The
+generator writes `counterparty_windows`, per-customer totals from the full stream by window, for
+thinned businesses only, the way `daily_aggregates` is already computed from the full stream. Item 3
+becomes moot: feature 20 keeps its definition and its true value. The engine raises an error if a
+thinned business has no totals, so the bias cannot return silently. A read-only probe on 51 thinned
+businesses (research IDs 1–80) showed keep-first-receipt leaves 20 and 5 biased, because 20 counts
+customers in the trailing 90 days and a first receipt can be older. Stopping thinning is about 7× the
+rows. Marking the features unavailable would make missingness a sector signal.
+
+**Rule fixed now:** the credit AUC after the fix is reported whichever way it moves, and this decision
+is not revisited because of it. Engine code is the profile engine owner's; this change stays PROPOSED
+until that line is ticked.
+
+**Result (2026-11-04).** `python -m eval.thinning_bias`, quick mode, 376 thinned businesses of 600:
+
+| Feature | Median true | Sampled rows ÷ true | `counterparty_windows` ÷ true |
+|---|---|---|---|
+| 20 | 138 | 0.82 | 1.00 |
+| 21 | 0.0335 | 3.24 | 1.00 |
+| 22 | 0.0000 | 3.92 | 1.00 |
+| 5 | 0.0385 | 1.14 | 1.00 |
+| 45 | 0.9992 | 0.94 | 1.00 |
+
+The largest absolute error on any of the 376 businesses is 2.2e-16 on these ratio features and 0 on
+feature 20. `cp_coverage_share` also matches the truth, per `tests/test_thinning.py` (25 businesses).
+
+Full scale (10,000 research + 1,000 serving): `transactions`, `daily_aggregates`, `balances_monthly`,
+`labels`, `businesses`, `obligations` and `facilities` are byte-identical to the previous generation
+(sha256). The new table has 943,756 rows, 60 MB. Week 3 gate: PASS, same one loud SKIP, with three new
+checks that the table covers exactly the thinned businesses and reconciles with `daily_aggregates`
+(worst relative gap 8.5e-06).
+
+Only features 5, 20, 21, 22, 45 and 59 moved, on retail and F&B only; 0 of 4,122 other scorable
+businesses moved. Feature 59 is now mean/SD −0.12 / 0.96 (retail, N = 4,204) and −0.10 / 0.94 (F&B,
+N = 1,555), from 6.63 / 2.79 and 7.32 / 2.46: most of its entry 35 drift was this bias. Features
+55–58 are unchanged, so entry 35 still stands for them.
+
+**Consequence, open: `model_v1.json` no longer matches the engine.** It was trained on the biased
+values. Scored unchanged, not retrained, its median PD on POS businesses falls from 0.0390 to 0.0308
+(N = 6,316), and the risk tier changes for 16.4% of serving (N = 943) and 18.4% of research
+(N = 9,495). CV AUC 0.591 therefore does not describe this combination. Next, in order: entry 35
+rebuild, credit retrain, then re-run everything that reads the profile and update `docs/NUMBERS.md`.
 
 **Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
 

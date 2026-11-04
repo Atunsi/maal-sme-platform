@@ -37,6 +37,7 @@ def load_tables(d: Path) -> dict[str, pd.DataFrame]:
         ("balances_monthly", ["month_end"]),
         ("obligations", ["next_date", "final_date", "status_change_date"]),
         ("facilities", ["emergency_line_since"]),
+        ("counterparty_windows", []),
     ):
         if (d / f"{opt}.csv").exists():
             t[opt] = pd.read_csv(d / f"{opt}.csv", parse_dates=dates)

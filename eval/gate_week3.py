@@ -153,6 +153,16 @@ def structural_checks(cfg: dict, t: dict[str, pd.DataFrame]) -> None:
         r_biz = per_biz.get("in", 0.0) / per_biz["inflow_total"]
         check(r_biz.between(0.8, 1.2).mean() > 0.95, f"per-business weighted inflow within ±20% of inflow_total for {r_biz.between(0.8, 1.2).mean():.1%} of thinned businesses (> 95%)")
 
+    # DECISIONS entry 30: the full-stream totals must reconcile with daily_aggregates, row-rounding aside.
+    cw = t.get("counterparty_windows")
+    check(cw is not None and set(cw["business_id"]) == thinned_biz, "counterparty_windows covers exactly the thinned businesses")
+    if cw is not None and len(cw):
+        per_biz = joined[joined.index.get_level_values("business_id").isin(thinned_biz)].groupby(level="business_id")[["inflow_total", "outflow_total"]].sum()
+        for side, total in (("in", "inflow_total"), ("out", "outflow_total")):
+            s = cw[[c for c in cw.columns if c.startswith(f"{side}_d")]].sum(axis=1).groupby(cw["business_id"]).sum().reindex(per_biz.index)
+            worst = float(((s - per_biz[total]).abs() / per_biz[total].clip(lower=1.0)).max())
+            check(worst <= 1e-3, f"counterparty_windows {side} totals == daily_aggregates.{total} per thinned business (worst relative gap {worst:.2e})")
+
 
 def criterion_1(f: pd.DataFrame) -> None:
     print("\n== Criterion 1: sector-consistent balance sheets (§24, §30) ==")
@@ -322,6 +332,7 @@ def main(argv: list[str] | None = None) -> int:
         "balances_monthly": pd.read_csv(d / "balances_monthly.csv", parse_dates=["month_end"]),
         "businesses": pd.read_csv(d / "businesses.csv", parse_dates=["start_date", "window_end", "operating_start_date"]),
         "labels": pd.read_csv(d / "labels.csv"),
+        "counterparty_windows": pd.read_csv(d / "counterparty_windows.csv", dtype={"counterparty_id": object}),
     }
 
     structural_checks(cfg, t)

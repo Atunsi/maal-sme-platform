@@ -11,10 +11,11 @@ config.yaml (quick mode, the same 600 businesses as `data/quick`); nothing is wr
 The script asserts that daily_aggregates are identical between the two runs, which proves the
 rate is the only difference.
 
-For each thinned business, three values per feature: the engine as it runs today (no weights),
-the engine on `amount × sample_weight` (weighted), and the engine on the full stream (true).
-Features 20, 21, 22 are the claim under test; 5, 10, 45, 46 are controls. Nothing in the engine
-changes; the finding is the output.
+For each thinned business, four values per feature: the engine on sampled rows alone (pre-fix),
+the engine on `amount × sample_weight` (weighted), the engine with counterparty_windows (shipped),
+and the engine on the full stream (true).
+Features 20, 21, 22 are the claim under test; 5, 10, 45, 46 are controls. The shipped variant reads
+counterparty_windows, the fix decided in entry 30; the others record what sampled rows give without it.
 """
 
 from __future__ import annotations
@@ -39,7 +40,7 @@ from profile_engine import features as fe
 FEATURES = (20, 21, 22, 5, 10, 45, 46)
 UNDER_TEST = (20, 21, 22)
 SURFACE, INK, INK2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
-COLOURS = {"no weights (today)": "#2a78d6", "weighted": "#eb6834"}
+COLOURS = {"sampled rows (pre-fix)": "#2a78d6", "weighted": "#eb6834", "counterparty_windows (shipped)": "#1baf7a"}
 
 
 def engine_tables(cfg: dict) -> dict[str, pd.DataFrame]:
@@ -74,8 +75,10 @@ def main(argv: list[str] | None = None) -> int:
     ids = sorted(set(tx_t.loc[tx_t["sample_weight"] > 1, "business_id"]))
     tx_w = tx_t.copy()
     tx_w["amount"] = tx_w["amount"] * tx_w["sample_weight"]
+    tx_w["sample_weight"] = 1.0  # past the engine's refusal: these two variants measure what it refuses to do
     variants = {
-        "no weights (today)": fe.transaction_features(tx_t, biz)[0].set_index("business_id"),
+        "sampled rows (pre-fix)": fe.transaction_features(tx_t.assign(sample_weight=1.0), biz)[0].set_index("business_id"),
+        "counterparty_windows (shipped)": fe.transaction_features(tx_t, biz, thin["counterparty_windows"])[0].set_index("business_id"),
         "weighted": fe.transaction_features(tx_w, biz)[0].set_index("business_id"),
         "true (full stream)": fe.transaction_features(tx_f, biz)[0].set_index("business_id"),
     }
@@ -95,7 +98,7 @@ def main(argv: list[str] | None = None) -> int:
         name = fe.F[f]
         true = per_biz[f"{name} | true (full stream)"].astype(float)
         rec = {"id": f, "feature": name, "role": "under test" if f in UNDER_TEST else "control", "median true": true.median()}
-        for v in ("no weights (today)", "weighted"):
+        for v in COLOURS:
             x = per_biz[f"{name} | {v}"].astype(float)
             rec[f"median {v}"] = x.median()
             rec[f"median abs error {v}"] = (x - true).abs().median()
@@ -121,10 +124,10 @@ def main(argv: list[str] | None = None) -> int:
     fig, ax = plt.subplots(figsize=(10, 4.6), facecolor=SURFACE)
     ax.set_facecolor(SURFACE)
     x = np.arange(len(FEATURES))
-    w = 0.36
+    w = 0.27
     for i, (v, c) in enumerate(COLOURS.items()):
         r = summary[f"median ratio to true {v}"].to_numpy()
-        pos = x + (i - 0.5) * (w + 0.02)
+        pos = x + (i - 1) * (w + 0.02)
         ax.bar(pos, np.where(np.isnan(r), 0.0, r - 1.0), bottom=1.0, width=w, color=c, label=v, zorder=2)
         for p, val in zip(pos, r, strict=True):
             above = np.isnan(val) or val >= 1
@@ -153,9 +156,10 @@ def main(argv: list[str] | None = None) -> int:
     def fmt(v: float) -> str:
         return "n/a" if pd.isna(v) else f"{v:.4f}"
 
-    t, w = "no weights (today)", "weighted"
+    t, w, s = "sampled rows (pre-fix)", "weighted", "counterparty_windows (shipped)"
     srow = summary.set_index("id")
     n_ratio = {f: int((per_biz[f"{fe.F[f]} | true (full stream)"].astype(float) != 0).sum()) for f in FEATURES}
+    max_err = {f: float((per_biz[f"{fe.F[f]} | {s}"].astype(float) - per_biz[f"{fe.F[f]} | true (full stream)"].astype(float)).abs().max()) for f in FEATURES}
     true22 = per_biz[f"{fe.F[22]} | true (full stream)"].astype(float)
     md = [
         "# POS thinning and the transaction features (DECISIONS entry 30)",
@@ -175,16 +179,16 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "",
         (
-            "| # | Feature | Role | Median true | Median today (no weights) | Median weighted | Median abs. error today "
-            "| Median abs. error weighted | Median ratio today ÷ true | Median ratio weighted ÷ true | Businesses with true ≠ 0 |"
+            "| # | Feature | Role | Median true | Median pre-fix | Median weighted | Median abs. error pre-fix "
+            "| Median abs. error weighted | Median ratio pre-fix ÷ true | Median ratio weighted ÷ true | Median shipped | Median ratio shipped ÷ true | Largest abs. error shipped | Businesses with true ≠ 0 |"
         ),
-        "|---|---|---|---|---|---|---|---|---|---|---|",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in summary.to_dict("records"):
         md.append(
             f"| {r['id']} | `{r['feature']}` | {r['role']} | {fmt(r['median true'])} | {fmt(r[f'median {t}'])} | {fmt(r[f'median {w}'])} "
             f"| {fmt(r[f'median abs error {t}'])} | {fmt(r[f'median abs error {w}'])} | {fmt(r[f'median ratio to true {t}'])} "
-            f"| {fmt(r[f'median ratio to true {w}'])} | {n_ratio[r['id']]} of {len(ids)} |"
+            f"| {fmt(r[f'median ratio to true {w}'])} | {fmt(r[f'median {s}'])} | {fmt(r[f'median ratio to true {s}'])} | {max_err[r['id']]:.2e} | {n_ratio[r['id']]} of {len(ids)} |"
         )
 
     def ratio(f: int, v: str) -> float:
@@ -192,20 +196,23 @@ def main(argv: list[str] | None = None) -> int:
 
     md += [
         "",
+        "`shipped` is the engine as it now runs: `transactions.csv` for the rows, `counterparty_windows` for these features (entry 30).",
+        "The columns before it record what sampled rows alone give, and what weighting them would give.",
+        "",
         "## Reading the table (generated from the numbers above)",
         "",
         (
-            f"- **21 `{fe.F[21]}`:** today's value is {ratio(21, t):.2f}× the true value; weighting brings it to {ratio(21, w):.2f}×. "
+            f"- **21 `{fe.F[21]}`:** the pre-fix value is {ratio(21, t):.2f}× the true value; weighting brings it to {ratio(21, w):.2f}×. "
             "It pools inflow and outflow value per counterparty, so down-weighted POS inflows inflate the outflow side. Weighting fixes it."
         ),
         (
             f"- **22 `{fe.F[22]}`:** the true median is {true22.median():.4f} ({int((true22 == 0).sum())} of {len(ids)} businesses have a true value of 0). "
-            f"Today's median is {srow.loc[22, f'median {t}']:.4f}; weighted, {srow.loc[22, f'median {w}']:.4f}. "
+            f"The pre-fix median is {srow.loc[22, f'median {t}']:.4f}; weighted, {srow.loc[22, f'median {w}']:.4f}. "
             "Thinning removes a customer's earlier receipts, so a customer the business already knew looks new in the last 30 days. "
             "Weighting multiplies exactly those false-new receipts by the weight, so it makes the bias worse. Weighting does not fix it."
         ),
         (
-            f"- **20 `{fe.F[20]}`:** today's value is {ratio(20, t):.2f}× the true value; weighting cannot change it ({ratio(20, w):.2f}×). "
+            f"- **20 `{fe.F[20]}`:** the pre-fix value is {ratio(20, t):.2f}× the true value; weighting cannot change it ({ratio(20, w):.2f}×). "
             "A weight scales the amount of a row that was kept; it cannot bring back a customer none of whose receipts were kept. "
             f"In the thinned file a median of **{unseen.median():.1%}** of each business's true customers never appear at all "
             f"(5th–95th percentile {unseen.quantile(0.05):.1%}–{unseen.quantile(0.95):.1%}). The count depends on the sample rate, not on the business."
@@ -223,7 +230,7 @@ def main(argv: list[str] | None = None) -> int:
             "Per-business values: `thinning_bias_per_business.csv`; this table: `thinning_bias_summary.csv`."
         ),
         "",
-        "Nothing is changed by this finding. The engine is untouched; the fix is proposed in DECISIONS entry 30.",
+        "The engine now refuses a thinned business with no `counterparty_windows` rows, so the pre-fix column cannot recur silently.",
     ]
     out.write_text("\n".join(md) + "\n", encoding="utf-8")
     print("\n".join(md))
