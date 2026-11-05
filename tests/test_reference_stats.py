@@ -11,8 +11,9 @@ import pytest
 from profile_engine import compute
 from profile_engine import features as fe
 
-# Full sha256 of the committed v1 file, recorded before entry 35 (DECISIONS 35: 14026c00…6fae4).
-V1_SHA256 = "14026c000b3507ac1f92fa8fbf0c8f11c1d3816060468083eb80896c8ee6fae4"
+# Full canonical (LF) sha256 of the committed v1 file — the hash of the git blob, the same on every OS
+# (DECISIONS 35, correction 2026-11-05; the CRLF hash 14026c00…6fae4 recorded earlier was Windows-only).
+V1_SHA256 = "7816e2ce3d7afa3612fe34f5c5fac71b2e39106ff4ddd7a6b8632d6199b27a7f"
 
 
 def tiny_population() -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -53,7 +54,7 @@ def test_build_writes_v2_and_leaves_v1_bytes_unchanged(stats_dir):
     assert v1.read_bytes() == before
     stats, sha = fe.load_reference_stats()  # resolves REFERENCE_STATS_PATH at call time
     assert stats["version"] == "v2"
-    assert sha == hashlib.sha256(v2.read_bytes()).hexdigest()
+    assert sha == hashlib.sha256(v2.read_bytes().replace(b"\r\n", b"\n")).hexdigest()  # canonical LF
 
 
 def test_guard_refuses_v1_and_refuses_to_overwrite_v2_without_the_flag(stats_dir):
@@ -91,5 +92,17 @@ def test_engine_reads_v2_and_v1_is_not_the_file_in_use():
 
 
 def test_committed_v1_file_is_byte_identical():
-    """v1 stays reproducible for receipts made before entry 35."""
-    assert hashlib.sha256(fe.REFERENCE_STATS_V1_PATH.read_bytes()).hexdigest() == V1_SHA256
+    """v1 stays reproducible for receipts made before entry 35 (canonical LF hash, the same on every OS)."""
+    assert fe.load_reference_stats(fe.REFERENCE_STATS_V1_PATH)[1] == V1_SHA256
+
+
+def test_lf_and_crlf_copies_hash_the_same(tmp_path):
+    """A Windows CRLF checkout and an LF checkout of the same file give the same reference-stats hash."""
+    lf = fe.REFERENCE_STATS_V1_PATH.read_bytes().replace(b"\r\n", b"\n")
+    crlf = lf.replace(b"\n", b"\r\n")
+    assert lf != crlf
+    (tmp_path / "lf.json").write_bytes(lf)
+    (tmp_path / "crlf.json").write_bytes(crlf)
+    (s_lf, h_lf), (s_crlf, h_crlf) = fe.load_reference_stats(tmp_path / "lf.json"), fe.load_reference_stats(tmp_path / "crlf.json")
+    assert h_lf == h_crlf == V1_SHA256 == hashlib.sha256(lf).hexdigest()
+    assert s_lf == s_crlf

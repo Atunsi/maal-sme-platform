@@ -96,6 +96,8 @@ def main(argv: list[str] | None = None) -> int:
     stats, stats_hash = fe.load_reference_stats()
     if stats is None and not args.build_reference_stats:
         print("  §35 reference stats absent — features 55–59 will be null (reference_stats_missing)", flush=True)
+    elif stats is not None:
+        print(f"  §35 reference stats: {fe.REFERENCE_STATS_PATH.name}, sha256 (canonical LF) {stats_hash}", flush=True)
 
     pe = cfg.get("profile_engine", {})
     kwargs = {"hazard_seed": int(pe.get("hazard_seed", 0)), "coverage_min_by_source": pe.get("coverage_min_days_by_source")}
@@ -105,7 +107,7 @@ def main(argv: list[str] | None = None) -> int:
         ref = fe.build_reference_stats(out["features"], tables["businesses"])
         write_reference_stats(ref, fe.REFERENCE_STATS_PATH, args.overwrite_reference_stats)
         stats, stats_hash = fe.load_reference_stats()
-        print(f"  wrote {fe.REFERENCE_STATS_PATH.name} (sha256 {stats_hash}) version {ref['version']}, population {ref['population']}, from {ref['n_businesses']} businesses — re-scoring z-features")
+        print(f"  wrote {fe.REFERENCE_STATS_PATH.name} (sha256, canonical LF, {stats_hash}) version {ref['version']}, population {ref['population']}, from {ref['n_businesses']} businesses — re-scoring z-features")
         before = out["features"]
         out = fe.compute_profiles(tables, wins, years, reference_stats=stats, **kwargs)
         z_cols = {fe.F[z] for z in fe.Z_FEATURES}

@@ -439,13 +439,19 @@ def balance_sheet_row(bm: pd.DataFrame | None, b_id: int, as_of: pd.Timestamp) -
 # --------------------------------------------------------------------------- #
 
 
+def reference_stats_sha256(raw: bytes) -> str:
+    """sha256 of the stats file with line endings canonicalised to LF, so a Windows CRLF checkout and an
+    LF checkout of the same committed file give the same hash (DECISIONS entry 35, correction 2026-11-05)."""
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+
+
 def load_reference_stats(path: Path | None = None) -> tuple[dict | None, str | None]:
-    """Default: the pinned file in use, REFERENCE_STATS_PATH, resolved at call time."""
+    """Default: the pinned file in use, REFERENCE_STATS_PATH, resolved at call time. The hash is canonical LF."""
     path = REFERENCE_STATS_PATH if path is None else path
     if not path.exists():
         return None, None
     raw = path.read_bytes()
-    return json.loads(raw), hashlib.sha256(raw).hexdigest()
+    return json.loads(raw), reference_stats_sha256(raw)
 
 
 def build_reference_stats(features: pd.DataFrame, biz: pd.DataFrame, population: str = "research", version: str = REFERENCE_STATS_VERSION) -> dict:

@@ -2414,6 +2414,15 @@ outcomes it prints for business 10001 already differ from NUMBERS §5b (e.g. `mi
 `late_sudden_shock` and `fraud_pattern` now declined by the risk model; baseline tier C instead of B),
 as expected for an unretrained model reading corrected features; §5b is left for the retrain.
 
+**Correction (2026-11-05).** The hashes recorded in entries 35 and 38 (`14026c00…6fae4` for v1,
+`042aaebd…7e7a` for v2) were taken from a Windows checkout with `core.autocrlf = true`, which writes
+the files with CRLF line endings; `load_reference_stats` hashed the bytes on disk, so the hash depended
+on the machine. The canonical, OS-independent hashes, equal to the committed git blobs, are
+`7816e2ce3d7afa3612fe34f5c5fac71b2e39106ff4ddd7a6b8632d6199b27a7f` (v1) and
+`e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60` (v2). The engine now hashes the file
+with CRLF replaced by LF and reports these everywhere, and `.gitattributes` checks both files out with
+LF line endings. File contents are unchanged.
+
 **Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ credit lens owner (retrain after the rebuild) ☐ team
 
 ---
@@ -2856,6 +2865,8 @@ research and how many serving businesses are clipped, with N.
 **Status: PROPOSED.** Implementation waits for the credit lens owner's line. The retrain must not run
 before this entry is settled. The schema §35 text is updated at the next team-approved schema edit
 (entry 33).
+
+**Hash correction (2026-11-05):** `042aaebd…7e7a` above is the Windows CRLF hash of v2; the canonical hash is `e7d4beb0…7f60` (entry 35, correction 2026-11-05).
 
 **Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ credit lens owner ☐ team
 
