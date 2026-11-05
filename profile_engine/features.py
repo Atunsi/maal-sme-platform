@@ -40,7 +40,13 @@ HAZARD_SIMS, HAZARD_BLOCK = 500, 7  # §34 features 52–54 (block bootstrap pre
 CIRCULAR_VALUE_SHARE = 0.005  # feature 46: fixed documented threshold = 0.5% of trailing-90d total value, floored at EPS_MONTHLY
 WEEKEND_BY_SOURCE = {"synthetic": (4, 5), "sandbox": (4, 5), "external_real": (5, 6)}  # feature 33: Fri/Sat vs Sat/Sun
 MONTHLY_EQUIVALENT = {"monthly": 1.0, "weekly": 52.0 / 12.0, "quarterly": 1.0 / 3.0, "one_off": 0.0}  # `unknown` excluded
-REFERENCE_STATS_PATH = Path(__file__).with_name("sector_reference_stats_v1.json")
+# §35 pinned sector reference statistics (DECISIONS entry 35). v2 is the file in use; v1 is kept
+# byte-identical so receipts made before entry 35 can still be reproduced. Neither is ever rebuilt
+# at serving time.
+REFERENCE_STATS_V1_PATH = Path(__file__).with_name("sector_reference_stats_v1.json")
+REFERENCE_STATS_V2_PATH = Path(__file__).with_name("sector_reference_stats_v2.json")
+REFERENCE_STATS_PATH = REFERENCE_STATS_V2_PATH
+REFERENCE_STATS_VERSION = "v2"
 Z_FEATURES = {55: 3, 56: 11, 57: 13, 58: 16, 59: 21}  # §35 z-score → base feature
 
 F = FEATURE_NAMES
@@ -433,21 +439,23 @@ def balance_sheet_row(bm: pd.DataFrame | None, b_id: int, as_of: pd.Timestamp) -
 # --------------------------------------------------------------------------- #
 
 
-def load_reference_stats(path: Path = REFERENCE_STATS_PATH) -> tuple[dict | None, str | None]:
+def load_reference_stats(path: Path | None = None) -> tuple[dict | None, str | None]:
+    """Default: the pinned file in use, REFERENCE_STATS_PATH, resolved at call time."""
+    path = REFERENCE_STATS_PATH if path is None else path
     if not path.exists():
         return None, None
     raw = path.read_bytes()
     return json.loads(raw), hashlib.sha256(raw).hexdigest()
 
 
-def build_reference_stats(features: pd.DataFrame, biz: pd.DataFrame, population: str = "research") -> dict:
+def build_reference_stats(features: pd.DataFrame, biz: pd.DataFrame, population: str = "research", version: str = REFERENCE_STATS_VERSION) -> dict:
     """§35: μ/σ per sector for features 3, 11, 13, 16, 21 on the research population, pinned once."""
     df = features.merge(biz[["business_id", "sector", "population"]], on="business_id")
     df = df[df["population"] == population]
     stats = {}
     for sector, g in df.groupby("sector"):
         stats[sector] = {F[b]: {"mean": float(g[F[b]].mean()), "std": float(g[F[b]].std(ddof=0)), "n": int(g[F[b]].notna().sum())} for b in Z_FEATURES.values()}
-    return {"version": "v1", "population": population, "n_businesses": len(df), "stats": stats}
+    return {"version": version, "population": population, "n_businesses": len(df), "stats": stats}
 
 
 def compute_profiles(

@@ -12,8 +12,9 @@ it does not know whether a row came from the generator or from Berka.
 | `registry.py` | **Explicit feature-ID membership lists** (`PROFILE_FEATURE_IDS`, `ZAKAT_PROFILE_FEATURE_IDS`), names, `MIN_HISTORY_DAYS`, `NULL_REASONS`. Never a range. |
 | `evidence.py` | Class A / B / C per feature with a basis string (SOP_Data_Grounding §6.3). A mixed metric reports the weakest class. |
 | `features.py` | The computation. Daily-series features per business (numpy), transaction features vectorised, obligations, facilities, balance sheet, §35 z-scores. |
-| `compute.py` | CLI. `python -m profile_engine.compute --dir data` / `--dir data/berka`. |
-| `sector_reference_stats_v1.json` | §35 pinned μ/σ per sector for features 3, 11, 13, 16, 21, built once on the N=10,000 research population (`--build-reference-stats`), never recomputed at serving time. Its sha256 is printed at build. |
+| `compute.py` | CLI. `python -m profile_engine.compute --dir data` / `--dir data/berka`. `--build-reference-stats` writes v2 once; it refuses to write v1 and refuses to replace an existing v2 without `--overwrite-reference-stats`. |
+| `sector_reference_stats_v2.json` | **The pinned file in use** (`features.REFERENCE_STATS_PATH`, [DECISIONS.md entry 35](../DECISIONS.md)). §35 μ/σ per sector for features 3, 11, 13, 16, 21, built once on the N=10,000 research population after entry 30, never recomputed at serving time. Its sha256 goes into every receipt (`reference_stats_sha256`). |
+| `sector_reference_stats_v1.json` | The file pinned before entry 35, built on the pre-calibration population. Kept byte-identical (a test checks its sha256) so receipts made before entry 35 can still be reproduced; not read by the engine. `python -m eval.reference_stats_drift` reports v1 and v2 side by side against the current data. |
 
 ## Outputs (into the data directory)
 

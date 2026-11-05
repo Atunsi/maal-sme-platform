@@ -1,7 +1,12 @@
 """CLI: compute the profile feature vector for every business in a data directory.
 
-    python -m profile_engine.compute --dir data          # synthetic (also writes the pinned §35 reference stats if absent)
+    python -m profile_engine.compute --dir data          # synthetic
     python -m profile_engine.compute --dir data/berka    # Berka — identical engine, no flags
+    python -m profile_engine.compute --dir data --build-reference-stats   # §35: build the pinned v2 stats once (DECISIONS entry 35)
+
+--build-reference-stats writes profile_engine/sector_reference_stats_v2.json from the research population and
+re-scores 55–59 with it. It refuses to write v1 (kept for pre-entry-35 receipts) and refuses to replace an existing
+v2 unless --overwrite-reference-stats is also passed.
 
 Writes into the data directory (git-ignored):
   profiles.csv          wide: one row per business, features by name (+ financing_outflow_ratio_code diagnostic)
@@ -45,6 +50,19 @@ def load_tables(d: Path) -> dict[str, pd.DataFrame]:
     return t
 
 
+def check_reference_stats_target(path: Path, overwrite: bool = False) -> None:
+    """§35 / DECISIONS entry 35: the pinned stats are built once. Never write v1; never replace an existing file unasked."""
+    if path.resolve() == fe.REFERENCE_STATS_V1_PATH.resolve():
+        raise SystemExit(f"refusing to write {path.name}: v1 is kept byte-identical so pre-entry-35 receipts stay reproducible (DECISIONS entry 35)")
+    if path.exists() and not overwrite:
+        raise SystemExit(f"refusing to overwrite {path.name}: the reference stats are pinned once; pass --overwrite-reference-stats to replace them deliberately")
+
+
+def write_reference_stats(ref: dict, path: Path, overwrite: bool = False) -> None:
+    check_reference_stats_target(path, overwrite)
+    path.write_text(json.dumps(ref, indent=2), encoding="utf-8")
+
+
 def ramadan_from_config(cfg: dict) -> tuple[list, set[int]]:
     wins, years = [], set()
     for e in cfg["ramadan_calendar"]:
@@ -57,12 +75,15 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dir", default="data")
     ap.add_argument("--config", default="config.yaml")
-    ap.add_argument("--build-reference-stats", action="store_true", help="§35: (re)build the pinned sector reference table from this directory's research population")
+    ap.add_argument("--build-reference-stats", action="store_true", help=f"§35: build the pinned sector reference table ({fe.REFERENCE_STATS_PATH.name}) from this directory's research population")
+    ap.add_argument("--overwrite-reference-stats", action="store_true", help="with --build-reference-stats: replace an existing pinned file (never v1)")
     args = ap.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     d = Path(args.dir)
     cfg = load_config(args.config)
     t0 = time.time()
+    if args.build_reference_stats:  # refuse before the long run, not after it
+        check_reference_stats_target(fe.REFERENCE_STATS_PATH, args.overwrite_reference_stats)
 
     print(f"loading + validating tables from {d.resolve()} …", flush=True)
     tables = load_tables(d)
@@ -82,10 +103,15 @@ def main(argv: list[str] | None = None) -> int:
     out = fe.compute_profiles(tables, wins, years, reference_stats=stats, **kwargs)
     if args.build_reference_stats:
         ref = fe.build_reference_stats(out["features"], tables["businesses"])
-        fe.REFERENCE_STATS_PATH.write_text(json.dumps(ref, indent=2), encoding="utf-8")
+        write_reference_stats(ref, fe.REFERENCE_STATS_PATH, args.overwrite_reference_stats)
         stats, stats_hash = fe.load_reference_stats()
-        print(f"  wrote {fe.REFERENCE_STATS_PATH.name} (sha256 {stats_hash[:12]}…) from {ref['n_businesses']} research businesses — re-scoring z-features")
+        print(f"  wrote {fe.REFERENCE_STATS_PATH.name} (sha256 {stats_hash}) version {ref['version']}, population {ref['population']}, from {ref['n_businesses']} businesses — re-scoring z-features")
+        before = out["features"]
         out = fe.compute_profiles(tables, wins, years, reference_stats=stats, **kwargs)
+        z_cols = {fe.F[z] for z in fe.Z_FEATURES}
+        base = [c for c in before.columns if c not in z_cols]
+        same = before[base].equals(out["features"][base])
+        print(f"  re-score check: {len(base)} non-z columns identical between the two passes: {same}; z-features changed: {sorted(z_cols)}")
 
     for name, df in out.items():
         path = d / f"profile{'s' if name == 'features' else '_' + name}.csv"
