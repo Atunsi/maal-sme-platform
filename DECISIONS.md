@@ -2288,7 +2288,89 @@ first would pin the thinning bias in feature 21 into the reference table, and it
 second rebuild. After the rebuild the credit lens owner must retrain (`python -m lenses.credit.train`)
 and record the new credit numbers; NUMBERS.md rows that depend on 55–59 move with it.
 
-**Sign-off:** ☐ profile engine owner ☐ credit lens owner (retrain after the rebuild) ☐ team
+**Result (2026-11-05).** Rebuilt once, at full scale, after entry 30 (profile engine owner tick
+2026-11-05, follow-ups in `2ce22c7`). The code change came first and on its own (`c5de8f5`):
+`--build-reference-stats` now writes `sector_reference_stats_v2.json`, refuses to write v1, and
+refuses to replace an existing v2 without `--overwrite-reference-stats`. The v2 file, this entry and
+the regenerated `eval/out/reference_stats_drift*` are in the commit that adds this paragraph.
+
+Commands, in order, one at a time, from the repo root:
+`python -m generator.generate` (exit 0, 283 s; 11,000 businesses, 12,537,615 transactions,
+943,756 `counterparty_windows` rows), `python -m eval.gate_week3` (PASS, the same one loud SKIP:
+professional-services sector differential), `python -m profile_engine.compute --dir data
+--build-reference-stats` (exit 0, 171 s), `python -m eval.reference_stats_drift`.
+
+- `sector_reference_stats_v2.json`: sha256
+  `042aaebd7c43154f0d09d36640e0d2491c7a7d1b0dd097951b398207392a7e7a`; `"version": "v2"`,
+  `"population": "research"`, `"n_businesses": 10000`.
+- v1 is byte-identical: sha256 `14026c000b3507ac1f92fa8fbf0c8f11c1d3816060468083eb80896c8ee6fae4`
+  before the build and after it (a test now asserts the full hash).
+- Only 55–59 changed: the engine compares its first pass (no stats) with the re-scored pass, and all
+  68 other columns were identical on all 11,000 businesses. The engine's 55–59 equal z recomputed
+  from the base features against v2 to 9.1e-15.
+
+Features 55–59 per sector, research population, scored + partial_profile (from
+`eval/out/reference_stats_drift_z_moments.csv`, this run; the v1 column is v1's μ/σ applied to the
+same current base features):
+
+| Sector (N) | Feature | v1 mean / SD | v2 mean / SD |
+|---|---|---|---|
+| retail_trade (4,204) | 55 `sector_relative_regularity_z` | 1.28 / 0.15 | 0.00 / 1.00 |
+| retail_trade (4,204) | 56 `sector_relative_volatility_z` | 0.05 / 0.98 | −0.00 / 1.00 |
+| retail_trade (4,204) | 57 `sector_relative_days_negative_z` | −0.08 / 0.86 | 0.00 / 1.00 |
+| retail_trade (4,204) | 58 `sector_relative_balance_z` | 0.13 / 1.08 | −0.00 / 1.00 |
+| retail_trade (4,204) | 59 `sector_relative_concentration_z` | −0.12 / 0.96 | −0.00 / 1.00 |
+| food_beverage (1,555) | 55 | 1.16 / 0.07 | 0.00 / 1.00 |
+| food_beverage (1,555) | 56 | 0.24 / 1.34 | −0.00 / 1.00 |
+| food_beverage (1,555) | 57 | −0.05 / 0.91 | −0.00 / 1.00 |
+| food_beverage (1,555) | 58 | 0.21 / 1.30 | 0.00 / 1.00 |
+| food_beverage (1,555) | 59 | −0.10 / 0.94 | −0.00 / 1.00 |
+| construction (3,486) | 55 | −0.00 / 1.02 | −0.00 / 1.00 |
+| construction (3,486) | 56 | −0.44 / 0.52 | −0.00 / 1.00 |
+| construction (3,486) | 57 | −0.06 / 0.95 | 0.00 / 1.00 |
+| construction (3,486) | 58 | −0.25 / 0.46 | 0.00 / 1.00 |
+| construction (3,486) | 59 | −0.01 / 0.99 | −0.00 / 1.00 |
+| professional_services (250) | 55 | −0.01 / 1.00 | −0.00 / 1.00 |
+| professional_services (250) | 56 | 0.01 / 0.85 | 0.00 / 1.00 |
+| professional_services (250) | 57 | −0.06 / 0.62 | 0.00 / 1.00 |
+| professional_services (250) | 58 | 0.03 / 0.86 | −0.00 / 1.00 |
+| professional_services (250) | 59 | −0.06 / 0.99 | −0.00 / 1.00 |
+
+The v1 column reproduces the figures above and in entry 30 (55 at 1.28 retail / 1.16 F&B; 59 at
+−0.12 / 0.96 retail, −0.10 / 0.94 F&B). Under v2 every sector is at 0 / 1 to two decimals, as it
+must be: the stats and the table are built from the same research businesses with a value.
+
+**Finding (2026-11-05, reported, nothing changed): feature 55 is near-degenerate in the POS
+sectors.** Two v2 base-feature SDs are below 0.05 and could blow small differences up: feature 3
+`inflow_regularity_score` in F&B (mean 0.999367, SD 0.009149) and retail (0.997474, 0.019639).
+On the research population, 1,547 of 1,555 F&B businesses (99.5%) and 98.1% of 4,204 retail
+businesses have feature 3 exactly 1.0 (daily POS receipts), so 55 is +0.07 (F&B) / +0.13 (retail)
+for almost everyone and very negative for the rest: research z min −22.71 (F&B, N = 1,555; 4 distinct
+values of feature 3) and −17.60 (retail, N = 4,204; 15 distinct values); serving z min −11.39 (F&B,
+N = 148) and −7.33 (retail, N = 409). Mean 0 / SD 1 holds by construction and says nothing about
+this shape: 55 behaves as a rare binary flag with very large magnitude in these two sectors. Feature
+21 is also below 0.05 in absolute SD (F&B 0.0111, retail 0.0111, professional 0.0456), but that is the
+scale of a concentration index, not degeneracy: 21 has one distinct value per business and its z
+stays in −1.94 to 7.52 (research, retail N = 4,204), −1.94 to 5.75 (F&B N = 1,555), −1.40 to 5.12
+(professional N = 250). No SD is exactly 0 at full scale. The z formula and its 1e-9 SD floor are
+unchanged; whether 55 needs a different definition, a floor or exclusion in POS sectors is a decision
+for the profile engine and credit lens owners, not made here.
+
+**Filename.** The schema's §35 section names `sector_reference_stats_v1.json`. From this entry on, the
+pinned file in use is v2; the schema text is updated at the next team-approved schema edit (see entry
+33). v1 is kept so receipts made before this entry can still be reproduced.
+
+**Consequence, stated plainly.** `model_v1.json` was trained on v1 z-features and the pre-entry-30
+counterparty features, so credit CV AUC 0.591 and every `docs/NUMBERS.md` row that depends on the
+credit model or on 55–59 is stale until the credit lens owner retrains (`python -m
+lenses.credit.train`) and records the new numbers. That retrain is the next step. `python -m
+eval.check_numbers` still passes (70 numbers) because it compares the register with the committed
+artifacts, which this entry did not regenerate. `python -m scenarios.run --check` passes, and the
+outcomes it prints for business 10001 already differ from NUMBERS §5b (e.g. `mild_slowdown`,
+`late_sudden_shock` and `fraud_pattern` now declined by the risk model; baseline tier C instead of B),
+as expected for an unretrained model reading corrected features; §5b is left for the retrain.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ credit lens owner (retrain after the rebuild) ☐ team
 
 ---
 

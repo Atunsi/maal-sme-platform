@@ -1,0 +1,115 @@
+{
+  "version": "v2",
+  "population": "research",
+  "n_businesses": 10000,
+  "stats": {
+    "construction": {
+      "inflow_regularity_score": {
+        "mean": 0.14442139832950032,
+        "std": 0.13323816481030246,
+        "n": 3486
+      },
+      "cash_flow_volatility": {
+        "mean": 36082.26309416964,
+        "std": 40731.130415504864,
+        "n": 3486
+      },
+      "days_negative_balance_90d": {
+        "mean": 13.351692484222605,
+        "std": 26.70575963227977,
+        "n": 3486
+      },
+      "avg_daily_balance": {
+        "mean": 469198.17042854294,
+        "std": 845844.5634646692,
+        "n": 3486
+      },
+      "counterparty_concentration_index": {
+        "mean": 0.16200625416521167,
+        "std": 0.06056648956743546,
+        "n": 3486
+      }
+    },
+    "food_beverage": {
+      "inflow_regularity_score": {
+        "mean": 0.9993673910464977,
+        "std": 0.009149324467339223,
+        "n": 1555
+      },
+      "cash_flow_volatility": {
+        "mean": 3996.9315107220095,
+        "std": 4869.534924255585,
+        "n": 1555
+      },
+      "days_negative_balance_90d": {
+        "mean": 3.8617363344051445,
+        "std": 15.262573717124951,
+        "n": 1555
+      },
+      "avg_daily_balance": {
+        "mean": 144272.26650824267,
+        "std": 216160.11828796842,
+        "n": 1555
+      },
+      "counterparty_concentration_index": {
+        "mean": 0.0369753684647766,
+        "std": 0.011143720410877422,
+        "n": 1555
+      }
+    },
+    "professional_services": {
+      "inflow_regularity_score": {
+        "mean": 0.1972923670800987,
+        "std": 0.12997984273855526,
+        "n": 250
+      },
+      "cash_flow_volatility": {
+        "mean": 19590.887856379893,
+        "std": 22700.305102242044,
+        "n": 250
+      },
+      "days_negative_balance_90d": {
+        "mean": 0.504,
+        "std": 3.8979461258462766,
+        "n": 250
+      },
+      "avg_daily_balance": {
+        "mean": 522120.96102080547,
+        "std": 690949.4627371517,
+        "n": 250
+      },
+      "counterparty_concentration_index": {
+        "mean": 0.14230814614013287,
+        "std": 0.04564940866107911,
+        "n": 250
+      }
+    },
+    "retail_trade": {
+      "inflow_regularity_score": {
+        "mean": 0.9974736710323219,
+        "std": 0.01963870560970142,
+        "n": 4204
+      },
+      "cash_flow_volatility": {
+        "mean": 4741.135219427385,
+        "std": 5756.672109460543,
+        "n": 4204
+      },
+      "days_negative_balance_90d": {
+        "mean": 3.256660323501427,
+        "std": 14.551542823755966,
+        "n": 4204
+      },
+      "avg_daily_balance": {
+        "mean": 208551.4566605348,
+        "std": 324405.64799141296,
+        "n": 4204
+      },
+      "counterparty_concentration_index": {
+        "mean": 0.036121474486147526,
+        "std": 0.011059445670365356,
+        "n": 4204
+      }
+    }
+  }
+}
