@@ -2917,4 +2917,50 @@ research + 943 serving (engine). The gate's criterion 1 checks run on a set the 
 exactly. Nothing is changed; aligning the gate's window with the engine's, or labelling the two counts
 in NUMBERS, is for the owners to decide.
 
-**Sign-off:** ☐ profile engine owner ☐ generator owner
+**Profile engine owner position (2026-11-05).** Agreed. The engine's definition (90 days ending at the as-of date) is the one every credit and forecast number uses; A9's population and N should be corrected by its owner.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner
+
+---
+
+## 40. Receipt hashes depend on the machine's line endings — FINDING + PROPOSED, team to decide (2026-11-05)
+
+**Touches:** `pipeline/week8.py` `_sha()` (line 50) and `data_sha256` (lines 60–69); the other raw-byte
+hashers `compliance/sharia.py` `load_rules` (line 38), `scenarios/run.py` (line 53),
+`lenses/credit/train.py` (line 46), `eval/compare_real.py` (line 62), `calibration/check_config.py`
+(line 44), `eval/reference_stats_drift.py` (line 95); `pipeline/verify.py`, which compares receipt
+fields (lines 31–32); a repo-wide `.gitattributes`.
+
+**Finding.** On a Windows checkout with `core.autocrlf = true`, a file stored in git with LF line endings
+is written to disk with CRLF, and these functions hash the bytes on disk. So the receipt hash of the
+same committed file differs between a Windows checkout and a Linux or Mac checkout. Entry 35's
+correction (2026-11-05) fixed this for `reference_stats_sha256` only. In the Week 8 receipt
+(`make_context`):
+- `lens_config_sha256` (`lenses/lens_config.yaml`, stored LF; `_sha`), `sharia_rules_sha256`
+  (`compliance/sharia_rules.yaml`, stored LF; `load_rules`, not `_sha`) and the scenario
+  `scenario_library_sha256` (`scenarios/library.yaml`, stored LF) depend on the machine.
+- `config_sha256` does not, today, but only by accident: `config.yaml` is stored in git **with CRLF**
+  (`git ls-files --eol` shows `i/crlf`), so every checkout hashes CRLF bytes.
+- `data_sha256` depends on the machine for a different reason: it hashes `DataFrame.to_csv()`, whose
+  line terminator is `os.linesep` (`'\r\n'` on Windows, `'\n'` elsewhere; checked on pandas 2.3.3), so
+  `.gitattributes` cannot fix it.
+- `output_sha256` (`json.dumps`) and `credit_model_sha256` (read from the model JSON) do not depend on
+  the machine.
+
+**Consequence.** `pipeline.verify` compares these fields, so a receipt made on Windows fails verification
+on Linux or Mac, and the other way round, although nothing in the decision differs. Reports under
+`eval/out/` record Windows hashes (for example `reference_stats_drift.md` shows `14026c00…` and
+`042aaebd…`).
+
+**Proposed (team decision, not implemented):**
+1. Canonical-LF hashing in `_sha()` (CRLF → LF before hashing), and a repo-wide `.gitattributes` with
+   `* text=auto eol=lf` (binary files are detected and left alone).
+2. For the team to note: `load_rules` and `scenarios/run.py` do not go through `_sha()` and need the
+   same rule; `data_sha256` needs `to_csv(..., lineterminator="\n")`.
+3. With `* text=auto eol=lf`, `config.yaml` is renormalised from CRLF to LF in git once, which changes
+   `config_sha256` on every machine.
+4. Existing Windows-made receipts change hash once (lens config, Sharia rules, scenario library and
+   data, as the reference stats already did), so they no longer verify against new runs. The commit that
+   makes the switch should be recorded here.
+
+**Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
