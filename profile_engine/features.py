@@ -330,6 +330,14 @@ def transaction_features(tx: pd.DataFrame, biz: pd.DataFrame, cp_windows: pd.Dat
         if missing:
             raise ValueError(f"{len(missing)} business(es) have thinned rows but no counterparty_windows rows, e.g. {sorted(missing)[:3]} (DECISIONS entry 30)")
     if covered:
+        # Assumption: counterparty_windows reach back 180 days (last window d90_179), while an unthinned
+        # business's rows reach back over its whole history. Feature 22's "seen before" set (dbe >= 30)
+        # therefore agrees between the two paths only because the generator asserts T <= 180
+        # (generator.generate.counterparty_windows). A longer window must fail here, not diverge.
+        cov_rows = t["business_id"].isin(covered)
+        assert not (cov_rows & (t["dbe"] >= 180)).any(), (
+            "thinned business has rows 180+ days before window_end; counterparty_windows covers only 180 days (DECISIONS entry 30)"
+        )
         cols = ["business_id", "counterparty_id", "direction", "amount", "dbe"]
         keep = cp_windows[cp_windows["business_id"].isin(set(biz["business_id"]))]
         t = pd.concat([t.loc[~t["business_id"].isin(covered), cols], _windows_as_rows(keep)], ignore_index=True)

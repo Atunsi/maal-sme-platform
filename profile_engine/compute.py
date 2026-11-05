@@ -33,14 +33,15 @@ def load_tables(d: Path) -> dict[str, pd.DataFrame]:
         "daily_aggregates": pd.read_csv(d / "daily_aggregates.csv", parse_dates=["date"]),
         "businesses": pd.read_csv(d / "businesses.csv", parse_dates=["start_date", "window_end", "operating_start_date"], dtype={"declared_mcc_code": "Int64"}),
     }
-    for opt, dates in (
-        ("balances_monthly", ["month_end"]),
-        ("obligations", ["next_date", "final_date", "status_change_date"]),
-        ("facilities", ["emergency_line_since"]),
-        ("counterparty_windows", []),
+    for opt, dates, dtype in (
+        ("balances_monthly", ["month_end"], None),
+        ("obligations", ["next_date", "final_date", "status_change_date"], None),
+        ("facilities", ["emergency_line_since"], None),
+        # counterparty_id as object, as pipeline/data.py and eval/gate_week3.py read it (entry 30 review)
+        ("counterparty_windows", [], {"counterparty_id": object}),
     ):
         if (d / f"{opt}.csv").exists():
-            t[opt] = pd.read_csv(d / f"{opt}.csv", parse_dates=dates)
+            t[opt] = pd.read_csv(d / f"{opt}.csv", parse_dates=dates, dtype=dtype)
     return t
 
 

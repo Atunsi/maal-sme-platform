@@ -2065,7 +2065,24 @@ values. Scored unchanged, not retrained, its median PD on POS businesses falls f
 (N = 9,495). CV AUC 0.591 therefore does not describe this combination. Next, in order: entry 35
 rebuild, credit retrain, then re-run everything that reads the profile and update `docs/NUMBERS.md`.
 
-**Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
+**Profile engine owner review (2026-11-05).** Agreed with the engine change. Reproduced on quick
+data (`python -m generator.generate --quick`, then `python -m eval.thinning_bias`, 376 thinned
+businesses of 600): in the `counterparty_windows (shipped)` column, features 20, 21, 22, 5 and 45 have
+median ratio 1.00 to the full-stream truth on all 376, largest absolute error 2.2e-16 on the ratio
+features and 0 on feature 20, matching the result above. `python -m pytest tests`: 97 passed,
+14 skipped (API tests skip without the serving store); `ruff check .` clean. Two follow-ups, in the
+same commit as this paragraph (no computed value changes; the quick re-run above was made with them):
+1. `profile_engine/compute.py` `load_tables` reads `counterparty_windows.csv` with
+   `dtype={"counterparty_id": object}`, as `pipeline/data.py` and `eval/gate_week3.py` already do.
+   Harmless before (every ID has a text prefix), now consistent.
+2. `profile_engine/features.py` `transaction_features`: feature 22's "seen before" set reads all
+   history at least 30 days back for unthinned businesses, but only to day 179 for thinned ones
+   (last window `d90_179`). The two agree only because `generator.generate.counterparty_windows`
+   asserts `T <= 180`. A comment now names that assumption, and an assert refuses a thinned business
+   with any transaction row 180 or more days before `window_end`, so a longer window fails loudly
+   instead of making the two paths disagree.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner ☐ team
 
 ---
 
