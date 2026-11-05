@@ -2744,3 +2744,122 @@ them depend on invoice numbers and vendor records that a bank-transaction lens d
 with the gate alone), still under the 2 s target. The credit route maximum was 626 ms. As in 36.9,
 `eval/out/latency_week7.md` and NUMBERS §6b are left for the owner to re-time on the team machine;
 timings across machines are not comparable.
+
+---
+
+## 38. Features 55-59: z-scores clipped at ±3 before the credit retrain — PROPOSED (profile engine owner), credit lens owner to sign (2026-11-05)
+
+**Touches:** features 55–59 (§35), `profile_engine/features.py` `_fill_zscores` (line 657 computes
+`(v − mean) / max(std, 1e-9)`), the credit lens (55–59 are inputs to a logistic model). Not the v2
+stats file, not the null reasons.
+
+**Finding (entry 35's result, re-checked against `data/profiles.csv` and
+`sector_reference_stats_v2.json`, sha256 `042aaebd…7e7a`, on 2026-11-05).** Feature 3
+`inflow_regularity_score` is exactly 1.0 for 1,547 of 1,555 F&B research businesses (99.5%) and 4,123
+of 4,204 retail research businesses (98.1%): daily POS receipts make the gaps between inflow days
+constant. So v2's feature 3 SD is 0.009149 in F&B (mean 0.999367) and 0.019639 in retail (mean
+0.997474), as `eval/out/reference_stats_drift_pinned_vs_current.csv` records, and feature 55 is
+about +0.07 (F&B) / +0.13 (retail) for almost everyone and very large and negative for the few
+below 1.0:
+
+| Sector | Population (N) | Lowest feature 3 | Lowest z (55) |
+|---|---|---|---|
+| food_beverage | research (1,555) | 0.791604 (business 528) | −22.71 |
+| food_beverage | serving (148) | 0.895198 (business 10507) | −11.39 |
+| retail_trade | research (4,204) | 0.651827 (business 188) | −17.60 |
+| retail_trade | serving (409) | 0.853501 (business 10993) | −7.33 |
+
+N is the businesses with a value (scored + partial_profile). The engine's 55 equals z recomputed from
+feature 3 against v2 to 8.9e-16. Construction and professional services are not affected (feature 3
+SD 0.133 and 0.130; lowest z −1.08 and −1.52).
+
+**Why it matters.** `lenses/credit/model_v1.json` is a logistic regression (L2, C = 1.0) on
+median-imputed, standardised features: contribution = `coef × (x − mean) / scale`, in log-odds
+(`lenses/credit/model.py` `score`). For feature 55 it stores `coef` −0.399718, `mean` 0.753078,
+`scale` 0.890708, no log transform. Computed with that standardisation (and checked with `score()`
+itself), the contribution of feature 55 alone for the business with the most negative z in each sector:
+
+| Sector | Research: business, z → log-odds | Serving: business, z → log-odds |
+|---|---|---|
+| food_beverage | 528, −22.71 → **+10.53** | 10507, −11.39 → **+5.45** |
+| retail_trade | 188, −17.60 → **+8.24** | 10993, −7.33 → **+3.63** |
+| construction | 4, −1.08 → +0.82 | 10009, −1.08 → +0.82 |
+| professional_services | 174, −1.52 → +1.02 | 10255, −1.52 → +1.02 |
+
+For comparison, the typical POS business (z +0.07 F&B, +0.13 retail) gets +0.31 / +0.28, and z = −3
+would give +1.68. A logistic model is linear in z, so one slightly irregular POS business can carry a
+contribution several times the whole spread of the other features. `model_v1.json` was trained on v1,
+where 55 in these sectors had mean 1.16–1.28 and SD 0.07–0.15 (entry 35), so these values are outside
+anything it saw; a retrain on v2 as it stands would fit 55's coefficient on these few extreme values.
+Nothing was retrained.
+
+**Decision proposed by the profile engine owner.** Clip each of 55–59 to [−3, +3] in the engine, all
+sectors, all sources, after the z is computed against the pinned stats. The v2 stats file is unchanged.
+Null reasons are unchanged. 3 is a conventional bound, chosen now from the distribution above, before
+any credit result on v2 exists.
+
+**Rule fixed now:** the credit AUC after the retrain is reported whichever way it moves, and this bound
+is not revisited because of it.
+
+**Alternatives considered:**
+- Keep as is: leaves a few POS businesses with a single-feature contribution of +3.6 to +10.5 log-odds.
+- Null 55 in retail and F&B: missingness would become a sector signal, the problem entry 30 avoided.
+- A different definition of feature 3: a schema change, too late for this retrain.
+
+**To be reported after implementation, stated now:** per sector and per feature 55–59, how many
+research and how many serving businesses are clipped, with N.
+
+**Status: PROPOSED.** Implementation waits for the credit lens owner's line. The retrain must not run
+before this entry is settled. The schema §35 text is updated at the next team-approved schema edit
+(entry 33).
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ credit lens owner ☐ team
+
+---
+
+## 39. Two counts of "insufficient_data": the Week 3 gate and the profile engine use different windows — FINDING (2026-11-05)
+
+**Touches:** `eval/gate_week3.py`, `profile_engine/features.py`, `docs/NUMBERS.md` §2 and §6. No change.
+
+**The two counts** (full-scale data generated 2026-11-05, 11,000 businesses): the Week 3 gate prints
+"9914 scorable businesses; 1086 excluded as insufficient_data" (as NUMBERS §6 records); the engine's
+`profile_status.csv` has 562 `insufficient_data` (research 505, serving 57), so research scorable is
+9,495, A1's N.
+
+**What each one measures.** Both count "active days" (a day with any inflow or outflow) in a trailing
+90-day window and require at least 60. They differ in where the window ends:
+- **Gate** (`eval/gate_week3.py` `profile_features`, lines 74–110): the 90 days ending at the
+  business's **last month-end** in `balances_monthly` (lines 82–83); active days at line 97; the
+  60-day threshold `MIN_COVERAGE` (line 49) applied at line 169 (criterion 1, research + serving) and
+  line 205 (criterion 2, research only).
+- **Engine** (`profile_engine/features.py` `daily_features`, lines 158–167): the 90 days ending at the
+  business's **as-of date** `businesses.window_end`, never before `operating_start_date` (line 158);
+  threshold `coverage_min_days_by_source` from `config.yaml` (60 for synthetic, entry 9).
+
+The last month-end is 27 to 30 days (median 30) before `window_end`, so the gate looks at a window about
+a month earlier. Recomputed on the same data: the gate's window gives 1,086 businesses below 60 days,
+the engine's gives 562; the operating-start filter changes neither count. The engine's definition is
+the §15 rule as the lenses apply it; the gate's is its own reimplementation.
+
+**Which numbers in `docs/NUMBERS.md` use which:**
+- Gate definition: §6 "Scorable / excluded" (9,914 / 1,086); §6 construction `implied_dso_days`
+  (n = 3,679) and professional `implied_dio_days` (n = 261) (criterion 1); §6 Week 3 gate SKIP
+  (professional services 237 businesses / 3 defaults, criterion 2); A9 (0.610).
+- Engine definition: A1, A2, A6, A7 (9,495 / 449); A5 (943 / 45, serving); the oracle ceiling
+  (9,495); the scorable base default rate (449 / 9,495); the §5 forecast rows (research 9,495, serving
+  943, and their subsets 7,525 and 1,164).
+- Neither: the Sharia rows (all 10,000 research), the anomaly rows (50 serving businesses per type), the
+  §5c holdout shock (N = 751, its own filter).
+
+**A9's N.** NUMBERS gives A9 as "research + serving, scorable, 9,914". The AUC is computed in criterion 2
+on research only (line 205): 9,016 businesses by the gate's definition on this data (984 of 10,000
+research below 60 days). This generation is byte-identical to the one behind
+`eval/out/gate_week3_after_monshaat.txt` except for the entry 30 table, and the gate prints the same
+0.610. Recorded here; NUMBERS is not edited in this entry.
+
+**Consequence.** "Scorable" means two different sets in the register: 9,914 of 11,000 (gate) and 9,495
+research + 943 serving (engine). The gate's criterion 1 checks run on a set the lenses never score
+exactly. Nothing is changed; aligning the gate's window with the engine's, or labelling the two counts
+in NUMBERS, is for the owners to decide.
+
+**Sign-off:** ☐ profile engine owner ☐ generator owner
