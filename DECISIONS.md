@@ -490,7 +490,12 @@ synthetic median 2.3). **Proposed:** `installment_capacity_sar` (42) becomes
 and the rule stays `monthly_installment ≤ 0.40 × capacity`. Not yet changed in
 code — §9 process first.
 
-**Sign-off:** ☐ credit lens owner (41, 42, 61) ☐ profile engine owner ☐ team
+**Profile engine owner position (2026-11-05).** Agreed on the profile engine side. Entry 34's formula
+for feature 42, `max(0, avg_monthly_inflow − committed_monthly_outflow) × (1 − min(k ×
+flow_asymmetry_ratio, 0.5))` with k = 0.15, is the one that counts and supersedes the formula text
+above, which omits the 0.5 cap.
+
+**Sign-off:** ☐ credit lens owner (41, 42, 61) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -876,7 +881,18 @@ runs (13.11).
 class-C dimension.
 
 **Recorded by:** generator owner, 2026-09-16.
-**Sign-off:** ☑ generator owner (13.3–13.8; Ahmed Altunusi, 2026-10-31) ☐ profile engine owner (`sample_weight` column, feature 2 now at POS frequency) ☐ team (13.2 blocked status, 13.6 schema change)
+
+**Profile engine owner position (2026-11-05).** Agreed: the `sample_weight` column, and feature 2 at
+POS frequency (it reads `daily_aggregates.inflow_count`, computed from the full stream;
+`profile_engine/features.py:183`). The engine reads `sample_weight` only to refuse a thinned business
+that has no `counterparty_windows` rows (`features.py:334–337`, entry 30). Proposed clarification to
+13.6, not applied here: "In the profile engine, inflow-side counterparty sums for thinned businesses
+read counterparty_windows (entry 30); the weighting rule applies to other readers of
+transactions.csv." Features 41 and 46, listed in the struck sentence, are unaffected: 41 reads
+outflows only, which are never thinned, and 46's true value was 0 on all 376 thinned businesses in
+entry 30's measurement.
+
+**Sign-off:** ☑ generator owner (13.3–13.8; Ahmed Altunusi, 2026-10-31) ☑ profile engine owner (`sample_weight` column, feature 2 now at POS frequency; Faris Alsharifi, 2026-11-05) ☐ team (13.2 blocked status, 13.6 schema change)
 
 ---
 
@@ -2111,7 +2127,13 @@ null always has a reason and a value never has one. No test catches it today.
 
 The choice depends on entry 32 (where feature 24 is computed). No fix today.
 
-**Sign-off:** ☐ compliance owner ☐ profile engine owner
+**Profile engine owner position (2026-11-05).** Fix (b): feature 24 is not written into the profile
+for `insufficient_data` businesses; the screen still runs and stays in the Sharia section. This keeps
+§15 intact (a refused business has every feature except 32 null with reason `insufficient_data`) and
+follows the option (b) position on entry 32. Add a test that no business has both a value and a null
+reason for any feature. Implementation after the compliance owner signs.
+
+**Sign-off:** ☐ compliance owner ☑ profile engine owner (Faris Alsharifi, 2026-11-05)
 
 ---
 
@@ -2143,7 +2165,13 @@ The choice depends on entry 32 (where feature 24 is computed). No fix today.
 Either way, entry 31 must be fixed at the same time. After the owners agree: update
 `profile_engine/README.md` with the rule and run `python -m eval.week8_check`.
 
-**Sign-off:** ☐ profile engine owner ☐ compliance owner ☐ team
+**Profile engine owner position (2026-11-05).** Option (b). The engine keeps `not_implemented` for
+24–26, 34 and 35 (`profile_engine/features.py:508–510`); the pipeline (`pipeline/week8.py`
+`prepare()`) is the only place that fills 24; `profile_engine/README.md` will say so. Reason: it keeps
+rule tables out of the engine and out of its receipts, so a Sharia rule-table change never changes
+`profiles.csv`. The README change and a seam test happen after the compliance owner signs.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ compliance owner ☐ team
 
 ---
 
@@ -2188,7 +2216,19 @@ Proposed: **§38 Existing-Obligation Features (60–65, 62b)** and **§39 Credit
    Flow asymmetry is feature 49 (`flow_asymmetry_ratio`); 45 is counterparty persistence.
 2. §36: "all 59 features" → "all 71 features (1–69, 18b, 62b)".
 
-**Sign-off:** ☐ profile engine owner ☐ generator owner (60–69 are produced from the generator's tables) ☐ team
+**Profile engine owner position (2026-11-05).** Agreed. The proposed rows were checked against
+`profile_engine/features.py` as of `bbbc9d7` and match it, with two wording fixes requested (the
+table above is not edited here):
+1. Feature 69 should also list `not_applicable (no facilities row)`: a synthetic business with no
+   `facilities` row gets 66, 67 and 69 null `not_applicable` (`features.py:625–628`), not False. The
+   generator writes one row per business today (11,000 of 11,000), so the case does not occur yet.
+2. The section header should say once that every feature is null `insufficient_data` for a business
+   refused under §15; today only rows 60 and 68 list it.
+
+The §35 filename change from entry 35 (`sector_reference_stats_v1.json` → `_v2.json`) goes into the
+same schema edit.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner (60–69 are produced from the generator's tables) ☐ team
 
 ---
 
@@ -2234,7 +2274,11 @@ of it.
 No value of 41 or 42 under the new formulas, and no approval rate derived from them, has been
 computed.
 
-**Sign-off:** ☐ credit lens owner ☐ profile engine owner ☐ team
+**Profile engine owner position (2026-11-05).** Agreed: pre-registration only, no code. Because of
+entries 30, 35 and 38, the "before" figures in item 2 are measured on the retrained model, not on
+`model_v1.json`.
+
+**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
