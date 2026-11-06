@@ -1,14 +1,17 @@
 import type { ReactNode } from "react";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ShariaLabel } from "@/components/ShariaPanel";
-import { Plate, Num, ProvenanceLine, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
+import { Num, Plate, ProvenanceLine, Refusal, SubHeading, TableScroll, TH } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
+import { scenarioName } from "@/lib/scenario-label";
 import type { ScenarioObject } from "@/lib/types";
 
-const DECISION_TONE = { approved: "ok", declined: "bad" } as const;
-const LEVEL_TONE = { none: "ok", watch: "warn", crunch: "bad" } as const;
-const SHARIA_TONE = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
+const DECISION_VARIANT = { approved: "ok", declined: "bad" } as const;
+const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
+const SHARIA_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
+
+const SHORT = 12;
 
 type FlagReason = NonNullable<Extract<ScenarioObject["anomaly"], { status: "computed" }>>["flags"][number]["flag_reason"];
 
@@ -18,51 +21,83 @@ function flagReasons(o: ScenarioObject): Partial<Record<FlagReason, number>> {
   return counts;
 }
 
+/** What a row shows, and the raw value that decides whether it changed. */
+type Cell = { shown: ReactNode; raw: unknown };
+
 /** One column of values, every one read from the object. A lens that did not run says so (U10). */
-function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, ReactNode> {
+function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, Cell> {
   const notRun = m.refusal.title;
+  const s = m.scenarios;
   const detail = o.credit_decision_detail;
   const alert = o.forecast?.status === "computed" ? o.forecast.crunch_alert : null;
-  const reasons = Object.entries(flagReasons(o)) as [FlagReason, number][];
+  const counts = flagReasons(o);
+  const reasons = (Object.entries(counts) as [FlagReason, number][]).sort(([a], [b]) => a.localeCompare(b));
+  const sharia = o.governance.sharia_screen.sharia_screen_status;
+  // U10: a Zakat calculation that did not run shows no amount.
+  const zakatShown = o.zakat && o.zakat.status !== "not_computed" && o.zakat.liability_sar !== null;
   return {
-    decision: o.credit ? <Plate variant={DECISION_TONE[o.credit.decision]}>{m.enums.decision[o.credit.decision]}</Plate> : notRun,
-    declineOrigin: detail?.decline_origin ? m.enums.decline_origin[detail.decline_origin] : o.credit ? m.common.dash : notRun,
-    amount: !o.credit ? notRun : o.credit.amount_sar === null ? m.common.dash : <Num>{formatSar(o.credit.amount_sar, locale)}</Num>,
-    pd: detail ? <Num>{formatRaw(detail.pd, locale)}</Num> : notRun,
-    alert: alert ? <Plate variant={LEVEL_TONE[alert.level]}>{m.enums.level[alert.level]}</Plate> : notRun,
-    days: !alert ? notRun : alert.days_to_projected_negative_balance === null ? m.common.dash : (
-      <Num>{formatInt(alert.days_to_projected_negative_balance, locale)}</Num>
-    ),
-    flags: o.anomaly ? <Num>{formatInt(o.anomaly.flags.length, locale)}</Num> : notRun,
-    reasons: o.anomaly ? (
-      <ul>
-        {reasons.map(([reason, count]) => (
-          <li key={reason}>
-            {m.enums.flag_reason[reason]}: <Num>{formatInt(count, locale)}</Num>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      notRun
-    ),
-    // U10: a Zakat calculation that did not run shows no amount.
-    zakat: !o.zakat ? notRun : o.zakat.status === "not_computed" || o.zakat.liability_sar === null ? m.common.dash : (
-      <Num>{formatSar(o.zakat.liability_sar, locale)}</Num>
-    ),
-    zakatStatus: o.zakat ? m.enums.zakat_status[o.zakat.status] : notRun,
-    sharia: (
-      <Plate variant={SHARIA_TONE[o.governance.sharia_screen.sharia_screen_status]}>
-        {m.enums.sharia[o.governance.sharia_screen.sharia_screen_status]}
-      </Plate>
-    ),
+    decision: {
+      raw: o.credit?.decision ?? null,
+      shown: o.credit ? <Plate variant={DECISION_VARIANT[o.credit.decision]}>{m.enums.decision[o.credit.decision]}</Plate> : notRun,
+    },
+    declineOrigin: {
+      raw: o.credit ? (detail?.decline_origin ?? "none") : null,
+      shown: !o.credit ? notRun : detail?.decline_origin ? m.enums.decline_origin[detail.decline_origin] : s.notDeclined,
+    },
+    amount: {
+      raw: o.credit ? o.credit.amount_sar : "not_run",
+      shown: !o.credit ? notRun : o.credit.amount_sar === null ? s.notOffered : <Num>{formatSar(o.credit.amount_sar, locale)}</Num>,
+    },
+    pd: { raw: detail?.pd ?? null, shown: detail ? <Num>{formatRaw(detail.pd, locale)}</Num> : notRun },
+    alert: { raw: alert?.level ?? null, shown: alert ? <Plate variant={LEVEL_VARIANT[alert.level]}>{m.enums.level[alert.level]}</Plate> : notRun },
+    days: {
+      raw: alert ? alert.days_to_projected_negative_balance : "not_run",
+      shown: !alert ? notRun : alert.days_to_projected_negative_balance === null ? m.forecast.noneProjected : (
+        <Num>{formatInt(alert.days_to_projected_negative_balance, locale)}</Num>
+      ),
+    },
+    flags: { raw: o.anomaly?.flags.length ?? null, shown: o.anomaly ? <Num>{formatInt(o.anomaly.flags.length, locale)}</Num> : notRun },
+    reasons: {
+      raw: o.anomaly ? reasons : null,
+      shown: o.anomaly ? (
+        <ul>
+          {reasons.map(([reason, count]) => (
+            <li key={reason}>
+              {m.enums.flag_reason[reason]}: <Num>{formatInt(count, locale)}</Num>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        notRun
+      ),
+    },
+    zakat: {
+      raw: zakatShown ? o.zakat!.liability_sar : (o.zakat?.status ?? null),
+      shown: !o.zakat ? notRun : zakatShown ? <Num>{formatSar(o.zakat.liability_sar!, locale)}</Num> : m.common.dash,
+    },
+    zakatStatus: { raw: o.zakat?.status ?? null, shown: o.zakat ? m.enums.zakat_status[o.zakat.status] : notRun },
+    sharia: { raw: sharia, shown: <Plate variant={SHARIA_VARIANT[sharia]}>{m.enums.sharia[sharia]}</Plate> },
   };
+}
+
+function Head({ object, align }: { object: ScenarioObject; align?: boolean }) {
+  return (
+    <th scope="col" className={`${TH} !py-5 align-top ${align ? "" : "border-s border-line"}`}>
+      <span lang="en" dir="ltr" className="block text-start font-semibold">
+        {scenarioName(object.scenario.label).name}
+      </span>
+      <span dir="ltr" className="block text-start font-mono text-[11px] font-normal text-muted">
+        {object.receipt.output_sha256.slice(0, SHORT)}
+      </span>
+    </th>
+  );
 }
 
 type Props = { baseline: ScenarioObject; chosen: ScenarioObject; locale: Locale; m: Messages };
 
 export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
   const s = m.scenarios;
-  const rows: [keyof ReturnType<typeof column> & string, string][] = [
+  const rows: [string, string][] = [
     ["decision", m.credit.decision],
     ["declineOrigin", m.credit.declineOrigin],
     ["amount", m.credit.amount],
@@ -80,46 +115,58 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
   const placeholder = [baseline, chosen].some((o) => o.zakat?.nisab_source_status === "placeholder_unverified");
   const note = <p className="mb-2 text-sm">{s.receiptNote}</p>;
   return (
-    <div data-testid="scenario-compare">
+    <div data-testid="scenario-compare" className="flex flex-col gap-4">
       <ProvenanceLine value={chosen} locale={locale} m={m} />
-      {chosen.status === "insufficient_data" && (
-        <div className="mb-3">
-          <Refusal reason={chosen.lenses_not_run_reason} m={m} />
-        </div>
-      )}
-      <TableScroll label={s.compareLabel}>
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th scope="col" className={TH}>
-                {s.measure}
-              </th>
-              <th scope="col" className={TH}>
-                {s.baseline}
-              </th>
-              <th scope="col" className={TH}>
-                {s.chosen}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(([key, label]) => (
-              <tr key={key}>
-                <th scope="row" className={`${TD} text-start font-medium`}>
-                  {label}
+      {chosen.status === "insufficient_data" && <Refusal reason={chosen.lenses_not_run_reason} m={m} />}
+      <div className="border border-line bg-card">
+        <TableScroll label={s.compareLabel}>
+          <table className="w-full min-w-[640px] border-collapse">
+            <thead>
+              <tr className="border-b-2 border-ink">
+                <th scope="col" className={`${TH} !py-5`}>
+                  <span className="heading block text-[22px] text-ink">{s.diff}</span>
                 </th>
-                <td className={TD}>{left[key]}</td>
-                <td className={TD}>{right[key]}</td>
+                <Head object={baseline} />
+                <Head object={chosen} />
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </TableScroll>
-      <div className="mt-3 flex flex-wrap gap-2">
+            </thead>
+            <tbody>
+              {rows.map(([key, label], i) => {
+                const changed = JSON.stringify(left[key]!.raw) !== JSON.stringify(right[key]!.raw);
+                const delay = `${(0.9 + i * 0.12).toFixed(2)}s`;
+                return (
+                  <tr key={key} className={`rise border-t border-line2 ${changed ? "text-ink" : "bg-grey text-muted"}`} style={{ animationDelay: delay }}>
+                    <th scope="row" className="px-5 py-3 text-start font-normal">
+                      <span className="flex items-center gap-3">
+                        <Plate
+                          variant={changed ? "accent" : "line"}
+                          className={`w-[84px] flex-none !px-0 text-center !text-[11px] ${changed ? "stamp-in" : ""}`}
+                          style={changed ? { animationDelay: delay } : undefined}
+                        >
+                          {changed ? s.changed : s.same}
+                        </Plate>
+                        <span>{label}</span>
+                      </span>
+                    </th>
+                    <td className="border-s border-line px-5 py-3 font-mono text-sm">{left[key]!.shown}</td>
+                    <td
+                      className={`border-s border-line px-5 py-3 font-mono text-sm ${changed ? "flash bg-accent-soft font-semibold" : ""}`}
+                      style={changed ? { animationDelay: delay } : undefined}
+                    >
+                      {right[key]!.shown}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </TableScroll>
+      </div>
+      <div className="flex flex-wrap gap-2">
         <ShariaLabel m={m} />
         {placeholder && <Plate variant="warn">{m.zakat.placeholder}</Plate>}
       </div>
-      <p className="mt-3 text-sm">{m.anomaly.queue}</p>
+      <p className="text-sm">{m.anomaly.queue}</p>
       <SubHeading>{s.receipts}</SubHeading>
       <ReceiptPanel receipt={baseline.receipt} lens={s.baseline} m={m} note={note} />
       <ReceiptPanel receipt={chosen.receipt} lens={s.chosen} m={m} note={note} />
