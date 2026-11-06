@@ -101,8 +101,6 @@
   --color-field-line: var(--fieldLine);
   --color-hero: var(--hero);
   --color-solid: #2e3192;
-  --color-brand: #2e3192;
-  --color-neutral-soft: var(--rule2);
   --color-gold: #c9a227;
   --font-sans: var(--font-plex-sans), var(--font-plex-arabic), system-ui, sans-serif;
   --font-cond: var(--font-plex-cond), var(--font-plex-arabic), system-ui, sans-serif;
@@ -194,6 +192,9 @@ summary {
   font-size: 13px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+:lang(ar) .plate {
+  font-size: 14px;
 }
 :lang(ar) .plate,
 :lang(ar) .caps,
@@ -326,6 +327,208 @@ summary {
   animation-delay: 0.8s;
 }
 
+/* Credit: bars grow out of the centre axis, in turn. */
+.bar-grow {
+  display: block;
+  flex: none;
+  height: 18px;
+  animation: growx 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.bar-from-start {
+  transform-origin: var(--o-start);
+}
+.bar-from-end {
+  transform-origin: var(--o-end);
+}
+
+/* Sharia: the frame draws edge by edge, then breathes. Its edges stand without any animation (U6). */
+.frame {
+  position: relative;
+  padding: 22px 26px;
+  background: var(--warnBg);
+  animation: breathe 4s 1.4s ease-in-out infinite;
+}
+.frame-edge {
+  position: absolute;
+  background: var(--warnText);
+}
+.frame-top,
+.frame-bottom {
+  left: 0;
+  right: 0;
+  height: 3px;
+  animation: growx 0.5s ease both;
+}
+.frame-side-a,
+.frame-side-b {
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  animation: growy 0.4s ease both;
+}
+.frame-top {
+  top: 0;
+  transform-origin: var(--o-start);
+  animation-delay: 0.2s;
+}
+.frame-side-a {
+  inset-inline-end: 0;
+  transform-origin: top;
+  animation-delay: 0.7s;
+}
+.frame-bottom {
+  bottom: 0;
+  transform-origin: var(--o-end);
+  animation-delay: 1.1s;
+}
+.frame-side-b {
+  inset-inline-start: 0;
+  transform-origin: bottom;
+  animation-delay: 1.6s;
+}
+
+/* Zakat: bars fill in order, the nisab marker drops, the hawl track fills. */
+.fill-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  animation: growx 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.fill-from-start {
+  transform-origin: var(--o-start);
+}
+.fill-from-end {
+  transform-origin: var(--o-end);
+}
+.stripe {
+  background: repeating-linear-gradient(135deg, var(--bad) 0 6px, var(--stripe) 6px 12px);
+}
+.drop {
+  animation: drop 0.5s both;
+}
+
+/* Forecast: a clip reveals the lines left to right, so nothing is ever drawn over the chart. */
+.reveal {
+  animation: reveal 2.2s 0.4s cubic-bezier(0.45, 0.05, 0.25, 1) both;
+}
+.pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: pulse 1.8s ease-out infinite;
+}
+.fade-late {
+  animation: fade 0.5s 2.5s both;
+}
+
+/* Review: the scan line sweeps once and is gone; marks rise as it passes. */
+.scan {
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: 100%;
+  width: 2px;
+  opacity: 0;
+  background: var(--accent);
+  box-shadow: 0 0 0 6px rgba(46, 49, 146, 0.12);
+  animation: sweep 3s 0.4s linear both;
+}
+.tick {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  width: 20px;
+  margin-left: -10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.tick-bar {
+  position: absolute;
+  bottom: 0;
+  left: 7px;
+  width: 6px;
+  transform-origin: bottom;
+  animation: growy 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.tick[aria-pressed="true"] .tick-bar {
+  left: 5px;
+  width: 10px;
+  box-shadow: 0 0 0 4px var(--accentSoft2);
+}
+.scan-fill {
+  height: 6px;
+  background: var(--ink);
+  animation: fillw 3s 0.4s linear both;
+}
+.row-pick {
+  transition: background 0.2s;
+}
+.row-pick:hover {
+  background: var(--bg);
+}
+.row-pick[data-picked="true"] {
+  background: var(--accentSoft);
+  font-weight: 600;
+}
+
+/* Scenarios: rows rise in sequence and changed plates stamp in. */
+.stamp-in {
+  animation: stampin 0.5s both;
+}
+.flash {
+  animation: flash 1.2s ease both;
+}
+.menu-link {
+  transition: background 0.2s, padding 0.2s;
+}
+.menu-link:hover {
+  padding-inline-start: 24px;
+}
+
+/* Landing: the flow's travelling dots, the floating card and the plain details rows. */
+.flowline {
+  position: relative;
+  flex: 1 1 40px;
+  min-width: 24px;
+  height: 2px;
+  background: var(--rule);
+  align-self: center;
+}
+.dot {
+  position: absolute;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c9a227;
+  opacity: 0;
+  animation: travel 2.4s linear infinite;
+}
+.floaty {
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+}
+.cta {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 -2px #c9a227;
+}
+details.faq summary {
+  list-style: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+details.faq summary::-webkit-details-marker {
+  display: none;
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -404,6 +607,121 @@ summary {
   }
   to {
     background-position: -560px 0;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    background: var(--warnBg);
+  }
+  50% {
+    background: var(--warnBg2);
+  }
+}
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sweep {
+  0% {
+    left: 0%;
+    opacity: 1;
+  }
+  95% {
+    left: 100%;
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+@keyframes fillw {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+@keyframes stampin {
+  0% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes flash {
+  0% {
+    background: var(--accentSoft2);
+  }
+  100% {
+    background: var(--accentSoft);
+  }
+}
+
+@keyframes travel {
+  0% {
+    inset-inline-start: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    inset-inline-start: 100%;
+    opacity: 0;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
   }
 }
 

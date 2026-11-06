@@ -268,7 +268,9 @@
     "eyebrow": "Business {id}, {n} fixed scenarios, nothing is typed in",
     "diff": "Diff sheet",
     "changed": "Changed",
-    "same": "Same"
+    "same": "Same",
+    "notDeclined": "Not declined",
+    "notOffered": "Not offered"
   },
   "enums": {
     "status": {
@@ -384,7 +386,8 @@
     "noNegative": "No negative balance projected",
     "negativeIn": "Negative balance projected in {n} days",
     "listed": "{n} listed",
-    "queueNote": "A queue for a person, not an alarm"
+    "queueNote": "A queue for a person, not an alarm",
+    "scanned": "{n} scanned"
   },
   "landing": {
     "eyebrow": "SME financial health, Sharia-aware",

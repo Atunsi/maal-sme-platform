@@ -1,30 +1,91 @@
+import type { CSSProperties, ReactNode } from "react";
+import { LensHead } from "@/components/BusinessHeader";
 import { ComplianceView } from "@/components/ComplianceView";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
-import { Plate, BackendText, Card, Code, Field, Fields, Num, ProvenanceLine, Refusal, SubHeading } from "@/components/ui";
+import { BackendText, Code, Num, Plate, Refusal, SubHeading } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
-import type { Locale, Messages } from "@/lib/i18n";
+import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { CreditExplanation, CreditResponse } from "@/lib/types";
 
-const DIRECTION_TONE = { supports: "ok", against: "warn", either: "ink" } as const;
+type Line = CreditExplanation["public_tier"][number];
 
-function PublicTier({ lines, locale, m }: { lines: CreditExplanation["public_tier"]; locale: Locale; m: Messages }) {
+// Bar length comes from the magnitude word alone. The word is all the public tier carries (U4).
+const BAR_PX = { strongly: 220, moderately: 132, marginally: 56 } as const;
+const DIRECTION_VARIANT = { supports: "ok", against: "bad", either: "ink" } as const;
+const BAR_COLOUR = { supports: "bg-ok", against: "bg-bad", either: "bg-ink" } as const;
+
+function Bar({ line, from, index }: { line: Line; from: "start" | "end"; index: number }) {
+  const style: CSSProperties = { width: `min(${BAR_PX[line.magnitude!]}px, 45%)`, animationDelay: `${(0.35 + index * 0.18).toFixed(2)}s` };
+  return <span aria-hidden="true" className={`bar-grow bar-from-${from} ${BAR_COLOUR[line.direction!]}`} style={style} />;
+}
+
+function LineText({ line, locale, m }: { line: Line; locale: Locale; m: Messages }) {
   return (
-    <ul className="space-y-2">
-      {lines.map((line, i) => (
-        <li key={line.feature_id ?? `line-${i}`} className="rounded border border-line p-2">
-          <BackendText locale={locale} m={m}>
-            {line.text}
-          </BackendText>
-          {line.magnitude && line.direction && (
-            <span className="mt-1 flex gap-2">
-              <Plate variant="ink">{m.enums.magnitude[line.magnitude]}</Plate>
-              <Plate variant={DIRECTION_TONE[line.direction]}>{m.enums.direction[line.direction]}</Plate>
-            </span>
-          )}
-        </li>
+    <span className="block min-w-0 text-base">
+      <BackendText locale={locale} m={m}>
+        {line.text}
+      </BackendText>
+      <span className="mt-1 flex flex-wrap gap-2">
+        <Plate variant="ink">{m.enums.magnitude[line.magnitude!]}</Plate>
+        <Plate variant={DIRECTION_VARIANT[line.direction!]}>{m.enums.direction[line.direction!]}</Plate>
+      </span>
+    </span>
+  );
+}
+
+/** One row on the centre axis: against on one side, supports on the other, either across both. */
+function AxisRow({ line, index, locale, m }: { line: Line; index: number; locale: Locale; m: Messages }) {
+  const words = <LineText line={line} locale={locale} m={m} />;
+  const against = line.direction === "against";
+  const either = line.direction === "either";
+  return (
+    <div className="grid min-h-[88px] grid-cols-2 items-stretch border-t border-line2">
+      <div className="flex items-center justify-end gap-4 border-e-[3px] border-ink py-3 pe-0 ps-2">
+        {against && words}
+        {(against || either) && <Bar line={line} from="end" index={index} />}
+      </div>
+      <div className="flex items-center gap-4 py-3 pe-2">
+        {!against && <Bar line={line} from="start" index={index} />}
+        {!against && words}
+      </div>
+    </div>
+  );
+}
+
+function PublicTier({ lines, locale, m }: { lines: Line[]; locale: Locale; m: Messages }) {
+  const onAxis = lines.filter((line) => line.magnitude && line.direction);
+  const plain = lines.filter((line) => !line.magnitude || !line.direction);
+  return (
+    <section aria-label={m.credit.factors} className="slidein flex flex-col gap-1.5 border border-line bg-card p-5 sm:p-9">
+      {plain.map((line, i) => (
+        // A compliance decline has one template line and no factors, so it takes no axis.
+        <BackendText key={line.feature_id ?? `line-${i}`} locale={locale} m={m}>
+          {line.text}
+        </BackendText>
       ))}
-    </ul>
+      {onAxis.length > 0 && (
+        <>
+          <div className="heading caps grid grid-cols-2 pb-2.5 text-sm">
+            <span className="pe-5 text-end text-bad">{m.credit.against}</span>
+            <span className="ps-5 text-ok">{m.credit.supports}</span>
+          </div>
+          {onAxis.map((line, i) => (
+            <AxisRow key={line.feature_id ?? `line-${i}`} line={line} index={i} locale={locale} m={m} />
+          ))}
+          <p className="mt-4 text-[13px] text-muted">{m.credit.barNote}</p>
+        </>
+      )}
+    </section>
+  );
+}
+
+function Term({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="min-w-0 p-5">
+      <dt className="text-[13px] text-muted">{label}</dt>
+      <dd className="font-mono text-xl">{children}</dd>
+    </div>
   );
 }
 
@@ -32,84 +93,87 @@ type Props = { data: CreditResponse; initialView: "public" | "compliance"; local
 
 export function CreditCard({ data, initialView, locale, m }: Props) {
   const { credit, credit_decision_detail: detail, credit_explanation: explanation } = data;
-  return (
-    <Card id="credit" title={m.credit.title}>
-      <ProvenanceLine value={data} locale={locale} m={m} />
-      {!credit || !detail || !explanation ? (
+  if (!credit || !detail || !explanation) {
+    return (
+      <>
+        <LensHead data={data} title={m.credit.title} locale={locale} m={m} />
         <Refusal reason={data.lens_not_run_reason} m={m} />
-      ) : (
-        <>
-          <p className="mb-3 text-sm text-muted">{m.credit.note}</p>
-          <p className="mb-3">
-            <span className="me-2 text-sm text-muted">{m.credit.decision}</span>
-            <Plate variant={credit.decision === "approved" ? "ok" : "bad"}>{m.enums.decision[credit.decision]}</Plate>
-          </p>
-          <Fields>
-            {credit.amount_sar !== null && (
-              <Field label={m.credit.amount}>
-                <Num>{formatSar(credit.amount_sar, locale)}</Num>
-              </Field>
-            )}
-            {credit.base_markup_pct !== null && (
-              // U1: display only. Nothing on this page can change the markup.
-              <Field label={m.credit.markup}>
-                <Num>{formatRaw(credit.base_markup_pct, locale)}%</Num>{" "}
-                <Plate variant="ink">{m.credit.markupFixed}</Plate>
-              </Field>
-            )}
-            {credit.adjusted_markup_pct !== null && (
-              <Field label={m.credit.adjustedMarkup}>
-                <Num>{formatRaw(credit.adjusted_markup_pct, locale)}%</Num>
-              </Field>
-            )}
-            {credit.repayment_months !== null && (
-              <Field label={m.credit.months}>
-                <Num>{formatInt(credit.repayment_months, locale)}</Num>
-              </Field>
-            )}
-            <Field label={m.credit.latePolicy}>
-              <Code>{credit.late_penalty_policy}</Code>
-            </Field>
-            {detail.offer_status && (
-              <Field label={m.credit.offerStatus}>
-                <Plate variant={detail.offer_status === "unconditional" ? "ok" : "warn"}>
-                  {m.enums.offer_status[detail.offer_status]}
-                </Plate>
-              </Field>
-            )}
-            {detail.decline_reason && (
-              <Field label={m.credit.declineReason}>{m.enums.decline_reason[detail.decline_reason]}</Field>
-            )}
-            {detail.decline_origin && (
-              <Field label={m.credit.declineOrigin}>{m.enums.decline_origin[detail.decline_origin]}</Field>
-            )}
-          </Fields>
-          {detail.conditions && detail.conditions.length > 0 && (
-            <>
-              <SubHeading>{m.credit.conditions}</SubHeading>
-              <ul className="space-y-1">
-                {detail.conditions.map((condition) => (
-                  <li key={condition}>
-                    <BackendText locale={locale} m={m}>
-                      {condition}
-                    </BackendText>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-          <SubHeading>{m.credit.explanation}</SubHeading>
-          <CreditViewSwitch
-            initialView={initialView}
-            labels={{ group: m.credit.viewLabel, public: m.credit.viewPublic, compliance: m.credit.viewCompliance }}
-            publicSlot={<PublicTier lines={explanation.public_tier} locale={locale} m={m} />}
-            complianceSlot={
-              <ComplianceView explanation={explanation} detail={detail} receipt={data.receipt} locale={locale} m={m} />
-            }
-          />
-        </>
+        <ReceiptPanel receipt={data.receipt} lens={m.credit.title} m={m} />
+      </>
+    );
+  }
+  const approved = credit.decision === "approved";
+  const aside = (
+    <div className="flex items-center gap-3">
+      <Plate variant={approved ? "ok" : "bad"}>{m.enums.decision[credit.decision]}</Plate>
+      {credit.amount_sar !== null && (
+        <span className="font-mono text-xl">
+          <Num>{formatSar(credit.amount_sar, locale)}</Num>
+        </span>
       )}
+    </div>
+  );
+  return (
+    <>
+      <LensHead data={data} title={approved ? m.credit.titleApproved : m.credit.titleDeclined} aside={aside} locale={locale} m={m} />
+      <CreditViewSwitch
+        initialView={initialView}
+        labels={{ group: m.credit.viewLabel, public: m.credit.viewPublic, compliance: m.credit.viewCompliance }}
+        publicSlot={<PublicTier lines={explanation.public_tier} locale={locale} m={m} />}
+        complianceSlot={<ComplianceView explanation={explanation} detail={detail} receipt={data.receipt} locale={locale} m={m} />}
+      />
+      <section aria-label={m.credit.terms} className="rise" style={{ animationDelay: "0.3s" }}>
+        {/* U1: display only. Nothing on this page can change the markup. */}
+        <dl className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] border border-line bg-card">
+          {credit.amount_sar !== null && (
+            <Term label={m.credit.amount}>
+              <Num>{formatSar(credit.amount_sar, locale)}</Num>
+            </Term>
+          )}
+          {credit.repayment_months !== null && (
+            <Term label={m.credit.months}>{fill(m.overview.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</Term>
+          )}
+          {credit.base_markup_pct !== null && (
+            <Term label={m.credit.markup}>
+              <Num>{formatRaw(credit.base_markup_pct, locale)}%</Num>{" "}
+              <Plate variant="ink" className="align-middle">
+                {m.credit.markupFixed}
+              </Plate>
+            </Term>
+          )}
+          {credit.adjusted_markup_pct !== null && (
+            <Term label={m.credit.adjustedMarkup}>
+              <Num>{formatRaw(credit.adjusted_markup_pct, locale)}%</Num>
+            </Term>
+          )}
+          <Term label={m.credit.latePolicy}>
+            <Code>{credit.late_penalty_policy}</Code>
+          </Term>
+          {detail.offer_status && (
+            <Term label={m.credit.offerStatus}>
+              <Plate variant={detail.offer_status === "unconditional" ? "ok" : "warn"}>{m.enums.offer_status[detail.offer_status]}</Plate>
+            </Term>
+          )}
+          {detail.decline_reason && <Term label={m.credit.declineReason}>{m.enums.decline_reason[detail.decline_reason]}</Term>}
+          {detail.decline_origin && <Term label={m.credit.declineOrigin}>{m.enums.decline_origin[detail.decline_origin]}</Term>}
+        </dl>
+      </section>
+      {detail.conditions && detail.conditions.length > 0 && (
+        <section aria-label={m.credit.conditions}>
+          <SubHeading>{m.credit.conditions}</SubHeading>
+          <ul className="space-y-1">
+            {detail.conditions.map((condition) => (
+              <li key={condition}>
+                <BackendText locale={locale} m={m}>
+                  {condition}
+                </BackendText>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <p className="text-[13px] text-muted">{m.credit.note}</p>
       <ReceiptPanel receipt={data.receipt} lens={m.credit.title} m={m} />
-    </Card>
+    </>
   );
 }

@@ -72,11 +72,7 @@ export const reviewReadout: Fn<AnomalyResponse> = (data, locale, m) => {
   return {
     variant: "ink",
     state: fill(m.overview.listed, { n: formatInt(a.flags.length, locale) }),
-    figure: (
-      <>
-        <Num>{formatInt(a.transactions_scanned, locale)}</Num> {m.anomaly.scanned}
-      </>
-    ),
+    figure: fill(m.overview.scanned, { n: formatInt(a.transactions_scanned, locale) }),
     note: m.overview.queueNote,
   };
 };

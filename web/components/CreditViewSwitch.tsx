@@ -32,8 +32,8 @@ export function CreditViewSwitch({ initialView, labels, publicSlot, complianceSl
       type="button"
       aria-pressed={view === value}
       onClick={() => choose(value)}
-      className={`rounded px-3 py-1 text-sm font-medium ${
-        view === value ? "bg-brand text-white" : "border border-line bg-card text-ink"
+      className={`min-h-11 cursor-pointer border-0 px-4.5 py-2.5 text-sm transition-colors ${
+        view === value ? "bg-ink font-semibold text-page" : "bg-card font-medium text-ink"
       }`}
     >
       {label}
@@ -41,11 +41,12 @@ export function CreditViewSwitch({ initialView, labels, publicSlot, complianceSl
   );
 
   return (
-    <div>
-      <div role="group" aria-label={labels.group} className="mb-3 flex gap-2">
+    <div className="flex flex-col gap-6">
+      <div role="group" aria-label={labels.group} className="rise flex self-start border border-ink" style={{ animationDelay: "0.15s" }}>
         {button("public", labels.public)}
         {button("compliance", labels.compliance)}
       </div>
+      {/* `hidden` removes the slot from layout, so its entrance replays each time it is shown. */}
       <div hidden={view !== "public"}>{publicSlot}</div>
       <div hidden={view !== "compliance"}>{complianceSlot}</div>
     </div>

@@ -40,8 +40,10 @@ type Props = { explanation: CreditExplanation; detail: CreditDetail; receipt: Re
 export function ComplianceView({ explanation, detail, receipt, locale, m }: Props) {
   const tier = explanation.compliance_tier;
   const c = m.compliance;
+  const contributions = byAbsoluteContribution(tier.contributions);
+  const largest = Math.abs(contributions[0]?.contribution_logodds ?? 0) || 1; // the scale comes from the response
   return (
-    <div data-testid="compliance-view">
+    <div data-testid="compliance-view" className="panel slidein flex flex-col gap-1 p-5 font-mono text-[13px] sm:p-9">
       <Fields>
         <Field label={c.units}>
           <BackendText locale={locale} m={m}>
@@ -111,14 +113,14 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
           <thead>
             <tr>
               {[c.featureId, c.feature, c.contribution, c.imputed].map((label) => (
-                <th key={label} scope="col" className={`${TH} sticky top-0 bg-card`}>
+                <th key={label} scope="col" className={`${TH} sticky top-0 bg-panel`}>
                   {label}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {byAbsoluteContribution(tier.contributions).map((row) => (
+            {contributions.map((row, i) => (
               <tr key={row.feature_id}>
                 <td className={TD}>
                   <Num>{row.feature_id}</Num>
@@ -128,6 +130,11 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
                 </td>
                 <td className={TD}>
                   <Num>{formatRaw(row.contribution_logodds, locale)}</Num>
+                  <span
+                    aria-hidden="true"
+                    className={`bar-grow bar-from-start mt-1 !h-2 ${row.contribution_logodds > 0 ? "bg-bad" : "bg-ok"}`}
+                    style={{ width: `${((Math.abs(row.contribution_logodds) / largest) * 100).toFixed(1)}%`, animationDelay: `${Math.min(0.2 + i * 0.1, 1.2).toFixed(2)}s` }}
+                  />
                 </td>
                 <td className={TD}>{row.imputed ? m.common.yes : m.common.no}</td>
               </tr>

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { RetryButton } from "@/components/RetryButton";
 import type { Locale, Messages } from "@/lib/i18n";
 import { formatDate } from "@/lib/format";
@@ -7,8 +7,12 @@ import type { ApiErrorKind, Provenance } from "@/lib/types";
 export type PlateVariant = "ok" | "bad" | "warn" | "ink" | "accent" | "line";
 
 /** Status is always a word on a plate, so it never depends on colour or a symbol (U14). */
-export function Plate({ variant, className, children }: { variant: PlateVariant; className?: string; children: ReactNode }) {
-  return <span className={`plate plate-${variant}${className ? ` ${className}` : ""}`}>{children}</span>;
+export function Plate({ variant, className, style, children }: { variant: PlateVariant; className?: string; style?: CSSProperties; children: ReactNode }) {
+  return (
+    <span className={`plate plate-${variant}${className ? ` ${className}` : ""}`} style={style}>
+      {children}
+    </span>
+  );
 }
 
 /** The page column: the design's 1240 px sheet, used by every page but the landing and sign-in. */
@@ -26,7 +30,7 @@ export function Card({ id, title, children }: { id?: string; title: string; chil
 }
 
 export function SubHeading({ children }: { children: ReactNode }) {
-  return <h3 className="mb-2 mt-5 text-sm font-semibold text-muted">{children}</h3>;
+  return <h3 className="heading caps mb-2 mt-5 text-sm text-muted">{children}</h3>;
 }
 
 export function Fields({ children }: { children: ReactNode }) {
@@ -130,5 +134,5 @@ export function TableScroll({ label, tall, children }: { label: string; tall?: b
   );
 }
 
-export const TH = "border-b border-line px-2 py-1 text-start text-sm font-semibold";
-export const TD = "border-b border-line px-2 py-1 text-sm";
+export const TH = "border-b border-line px-4 py-3 text-start text-sm font-medium text-muted";
+export const TD = "border-b border-line2 px-4 py-2.5 text-sm";
