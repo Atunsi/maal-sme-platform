@@ -1,16 +1,31 @@
+import { LensHead } from "@/components/BusinessHeader";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
-import { BackendText, Card, Code, Field, Fields, Num, ProvenanceLine, Refusal, TableScroll, TD, TH } from "@/components/ui";
-import { formatDate, formatInt, formatSar } from "@/lib/format";
-import type { Locale, Messages } from "@/lib/i18n";
+import { ReviewBoard } from "@/components/ReviewBoard";
+import { BackendText, Num, Refusal } from "@/components/ui";
+import { formatDate, formatInt } from "@/lib/format";
+import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { AnomalyResponse } from "@/lib/types";
 
 /** U8: flag_reason categories only, framed as a review queue, with no severity the API did not send. */
 export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale: Locale; m: Messages }) {
   const a = data.anomaly;
   const n = m.anomaly;
+  const computed = a?.status === "computed" ? a : null;
+  // "N of cap" needs the cap, and no response carries it, so only the count is shown (DECISIONS 42).
+  const aside = computed && (
+    <div className="sm:text-end">
+      <div className="font-mono text-[40px] leading-tight">
+        <Num>{formatInt(computed.flags.length, locale)}</Num>
+      </div>
+      <div className="text-[13px] text-muted">{fill(n.listedOf, { n: formatInt(computed.transactions_scanned, locale) })}</div>
+      <div aria-hidden="true" className="ms-auto mt-2 h-1.5 w-[220px] max-w-full bg-line">
+        <div className="scan-fill" />
+      </div>
+    </div>
+  );
   return (
-    <Card id="anomaly" title={n.title}>
-      <ProvenanceLine value={data} locale={locale} m={m} />
+    <>
+      <LensHead data={data} title={n.title} aside={aside} locale={locale} m={m} />
       {!a ? (
         <Refusal reason={data.lens_not_run_reason} m={m} />
       ) : a.status === "not_computed" ? (
@@ -19,64 +34,12 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
         </p>
       ) : (
         <>
-          <p className="mb-3">{n.queue}</p>
-          <Fields>
-            <Field label={n.window}>
-              <bdi>
-                {formatDate(a.scan_window.from, locale)} to {formatDate(a.scan_window.to, locale)}
-              </bdi>
-            </Field>
-            <Field label={n.scanned}>
-              <Num>{formatInt(a.transactions_scanned, locale)}</Num>
-            </Field>
-            <Field label={n.listed}>
-              <Num>{formatInt(a.flags.length, locale)}</Num>
-            </Field>
-          </Fields>
-          {a.flags.length === 0 ? (
-            <p className="mt-3">{n.noFlags}</p>
-          ) : (
-            <>
-              <div className="mt-4" />
-              <TableScroll label={n.title}>
-                <table className="w-full">
-                  <thead>
-                    <tr>
-                      {[n.date, n.hour, n.direction, n.amount, n.counterparty, n.category, n.reason].map((label) => (
-                        <th key={label} scope="col" className={TH}>
-                          {label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {a.flags.map((flag) => (
-                      <tr key={flag.transaction_id}>
-                        <td className={TD}>
-                          <bdi>{formatDate(flag.date, locale)}</bdi>
-                        </td>
-                        <td className={TD}>
-                          <Num>{flag.hour}</Num>
-                        </td>
-                        <td className={TD}>{m.enums.flow[flag.direction]}</td>
-                        <td className={TD}>
-                          <Num>{formatSar(flag.amount_sar, locale)}</Num>
-                        </td>
-                        <td className={TD}>
-                          <Code>{flag.counterparty_type}</Code>
-                        </td>
-                        <td className={TD}>
-                          <Code>{flag.category}</Code>
-                        </td>
-                        <td className={TD}>{m.enums.flag_reason[flag.flag_reason]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </TableScroll>
-            </>
-          )}
-          <div className="mt-3 text-sm">
+          <p className="max-w-[720px] text-base text-muted">{n.queue}</p>
+          <p className="text-sm text-muted">
+            {n.window}: <bdi>{fill(n.windowValue, { from: formatDate(a.scan_window.from, locale), to: formatDate(a.scan_window.to, locale) })}</bdi>
+          </p>
+          {a.flags.length === 0 ? <p>{n.noFlags}</p> : <ReviewBoard a={a} locale={locale} labels={{ anomaly: n, enums: m.enums }} />}
+          <div className="text-sm">
             <span className="text-muted">{n.method}</span>
             <BackendText locale={locale} m={m}>
               {a.method}
@@ -85,6 +48,6 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
         </>
       )}
       <ReceiptPanel receipt={data.receipt} lens={n.title} m={m} />
-    </Card>
+    </>
   );
 }
