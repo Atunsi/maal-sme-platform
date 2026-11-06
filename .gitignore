@@ -25,3 +25,12 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Web UI
+web/node_modules/
+web/.next/
+web/.env*.local
+web/test-results/
+web/playwright-report/
+web/next-env.d.ts
+web/tsconfig.tsbuildinfo

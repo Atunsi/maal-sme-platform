@@ -1,0 +1,27 @@
+{
+  "business_id": 10003,
+  "population": "serving",
+  "data_source": "synthetic",
+  "sector": "professional_services",
+  "as_of": "2026-07-30",
+  "status": "insufficient_data",
+  "coverage_days_90d": 35,
+  "lens_not_run_reason": "insufficient_data",
+  "anomaly": null,
+  "receipt": {
+    "schema_version": "v2.9",
+    "config_sha256": "9d60db774d169931054cb48fd3f492557488ae413716b908913b367bd5479137",
+    "lens_config_sha256": "b084a52af106f5c062c94bfb41d64999bd98fb437561b954de5ce7f661246f76",
+    "credit_model_version": "v1",
+    "credit_model_sha256": "c7b6f7332476823dd2912c74e29c9c79f3c7566c278809bc7dbf6fc64a2cf982",
+    "credit_model_cv_auc": 0.5912,
+    "credit_model_oracle_ceiling_auc": 0.666,
+    "reference_stats_sha256": "14026c000b3507ac1f92fa8fbf0c8f11c1d3816060468083eb80896c8ee6fae4",
+    "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
+    "code_commit": "54f070c48eb806c06c892e155a73986d13221bf7+dirty",
+    "generated_by": "api",
+    "data_sha256": "8b5a7257416e06b3e6f0aca0d1624db7dd4b8192b356e6e4c683458eedb546f7",
+    "output_sha256": "4951ac3cb34c35491ea0d6ea1b11df6f5cf895ba3a3088fdaa94dc80c8aaa76d",
+    "scope": "Covers the deterministic core only: re-running with these inputs reproduces this object byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is outside its scope and cannot affect the decision (§36)."
+  }
+}

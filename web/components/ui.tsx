@@ -1,0 +1,142 @@
+import type { ReactNode } from "react";
+import { RetryButton } from "@/components/RetryButton";
+import type { Locale, Messages } from "@/lib/i18n";
+import { formatDate } from "@/lib/format";
+import type { ApiErrorKind, Provenance } from "@/lib/types";
+
+type Tone = "good" | "warn" | "bad" | "neutral";
+
+const TONES: Record<Tone, { className: string; glyph: string }> = {
+  good: { className: "bg-good-soft text-good", glyph: "✓" },
+  warn: { className: "bg-warn-soft text-warn", glyph: "!" },
+  bad: { className: "bg-bad-soft text-bad", glyph: "✕" },
+  neutral: { className: "bg-neutral-soft text-neutral", glyph: "•" },
+};
+
+/** Status always carries a glyph and words, so it never depends on colour alone (U14). */
+export function Badge({ tone, children }: { tone: Tone; children: ReactNode }) {
+  const { className, glyph } = TONES[tone];
+  return (
+    <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-sm font-medium ${className}`}>
+      <span aria-hidden="true">{glyph}</span>
+      {children}
+    </span>
+  );
+}
+
+export function Card({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
+  return (
+    <section id={id} aria-label={title} className="min-w-0 rounded-lg border border-line bg-card p-5">
+      <h2 className="mb-3 text-lg font-semibold">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+export function SubHeading({ children }: { children: ReactNode }) {
+  return <h3 className="mb-2 mt-5 text-sm font-semibold text-muted">{children}</h3>;
+}
+
+export function Fields({ children }: { children: ReactNode }) {
+  return <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">{children}</dl>;
+}
+
+export function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-sm text-muted">{label}</dt>
+      <dd className="break-words font-medium">{children}</dd>
+    </div>
+  );
+}
+
+/** Numbers and identifiers stay left-to-right inside Arabic text. */
+export function Num({ children }: { children: ReactNode }) {
+  return <bdi dir="ltr">{children}</bdi>;
+}
+
+/**
+ * Text produced by the backend: templates, prompts, method strings. It is deterministic and owned by
+ * the credit and compliance owners, so the UI never translates or rewrites it. In Arabic it stays
+ * English in an LTR block with a label, so no second, unreviewed version of a template exists.
+ */
+export function BackendText({ locale, m, children }: { locale: Locale; m: Messages; children: string }) {
+  return (
+    <span className="block">
+      <span lang="en" dir="ltr" className="block text-start">
+        {children}
+      </span>
+      {locale === "ar" && <span className="text-xs text-muted">{m.common.englishTemplate}</span>}
+    </span>
+  );
+}
+
+/** Raw identifiers and hashes as returned. */
+export function Code({ children }: { children: ReactNode }) {
+  return (
+    <code lang="en" dir="ltr" className="break-all font-mono text-sm">
+      {children}
+    </code>
+  );
+}
+
+export function ProvenanceLine({ value, locale, m }: { value: Provenance; locale: Locale; m: Messages }) {
+  return (
+    <p className="mb-3 text-sm text-muted">
+      {m.common.population}: {m.enums.population[value.population]} · {m.common.dataSource}:{" "}
+      {m.enums.data_source[value.data_source]} · {m.common.asOf}: <bdi>{formatDate(value.as_of, locale)}</bdi>
+    </p>
+  );
+}
+
+export function Refusal({ reason, m }: { reason: "insufficient_data" | undefined; m: Messages }) {
+  return (
+    <div role="status" className="rounded border border-line bg-neutral-soft p-3">
+      <p className="font-semibold">
+        <Badge tone="neutral">{m.refusal.title}</Badge>
+      </p>
+      <p className="mt-2">{m.refusal.body}</p>
+      {reason && (
+        <p className="mt-1 text-sm">
+          {m.refusal.reason}: {m.enums.lens_status[reason]} (<Code>{reason}</Code>)
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function ApiError({ kind, detail, m }: { kind: ApiErrorKind; detail?: string; m: Messages }) {
+  return (
+    <div role="alert" className="rounded border border-bad bg-bad-soft p-3 text-bad">
+      <p>{m.errors[kind]}</p>
+      {detail && (
+        <p className="mt-1">
+          <Code>{detail}</Code>
+        </p>
+      )}
+      {(kind === "rate_limited" || kind === "server" || kind === "network") && <RetryButton label={m.common.retry} />}
+    </div>
+  );
+}
+
+export function CardLoading({ title, m }: { title: string; m: Messages }) {
+  return (
+    <Card title={title}>
+      <p role="status" className="text-muted">
+        {m.common.loading}
+      </p>
+    </Card>
+  );
+}
+
+/** A table that may be wider than the card scrolls inside a keyboard-focusable region. */
+export function TableScroll({ label, tall, children }: { label: string; tall?: boolean; children: ReactNode }) {
+  return (
+    <div role="region" aria-label={label} tabIndex={0} className={`overflow-auto ${tall ? "max-h-96" : ""}`}>
+      {children}
+    </div>
+  );
+}
+
+export const TH = "border-b border-line px-2 py-1 text-start text-sm font-semibold";
+export const TD = "border-b border-line px-2 py-1 text-sm";

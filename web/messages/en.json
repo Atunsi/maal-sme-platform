@@ -1,0 +1,291 @@
+{
+  "app": {
+    "name": "Ma'al",
+    "tagline": "SME financial health demo"
+  },
+  "nav": {
+    "skip": "Skip to main content",
+    "home": "Businesses",
+    "scenarios": "Scenarios",
+    "main": "Main",
+    "language": "Language"
+  },
+  "banner": {
+    "synthetic": "Synthetic data. No figure on this site describes a real business."
+  },
+  "footer": {
+    "scope": "Synthetic data only. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent."
+  },
+  "common": {
+    "population": "Population",
+    "dataSource": "Data source",
+    "asOf": "As of",
+    "coverage": "Days with activity, last 90",
+    "status": "Status",
+    "sector": "Sector",
+    "business": "Business",
+    "loading": "Loading…",
+    "retry": "Try again",
+    "back": "Choose another business",
+    "yes": "Yes",
+    "no": "No",
+    "none": "None",
+    "dash": "—",
+    "englishTemplate": "English template; Arabic template pending",
+    "days": "days"
+  },
+  "errors": {
+    "config": "Setup error: the web server has no API address or key configured.",
+    "unauthorized": "Setup error: the API rejected this web server's key. This is not a sign-in problem.",
+    "not_found": "This business is not in the serving population.",
+    "rate_limited": "The API's per-business request limit was reached. Wait a moment and try again.",
+    "server": "The API returned an error.",
+    "network": "The API could not be reached.",
+    "contract": "The API response did not match what this page expects, so nothing from it is shown."
+  },
+  "refusal": {
+    "title": "Not scored",
+    "body": "This business has too little recent activity for any lens to run. This is a refusal to score. It is not a low result.",
+    "reason": "Reason"
+  },
+  "partial": {
+    "body": "Scored, but these features have no prior period to compare against:"
+  },
+  "picker": {
+    "title": "Choose a business",
+    "intro": "Every business here belongs to the serving population, a synthetic demo slice. Pick a demo business or enter an ID.",
+    "inputLabel": "Business ID",
+    "inputHelp": "A serving ID from {min} to {max}.",
+    "submit": "Open dashboard",
+    "invalid": "Enter a whole number from {min} to {max}.",
+    "demoTitle": "Demo businesses",
+    "available": "Serving businesses in this store",
+    "unavailable": "Could not read the store size from the API."
+  },
+  "dashboard": {
+    "title": "Business {id}",
+    "profileTitle": "Profile features",
+    "profileIntro": "Raw feature values as the API returned them, with the reason for any missing value.",
+    "feature": "Feature",
+    "value": "Value",
+    "nullReason": "Reason missing"
+  },
+  "credit": {
+    "title": "Credit lens",
+    "note": "Demo output of the credit lens. This is not an offer from any bank, and the markup is not an APR.",
+    "decision": "Decision",
+    "amount": "Amount",
+    "markup": "Base markup",
+    "markupFixed": "Fixed at signing",
+    "adjustedMarkup": "Adjusted markup",
+    "months": "Repayment months",
+    "latePolicy": "Late-payment policy",
+    "offerStatus": "Offer status",
+    "conditions": "Conditions",
+    "declineReason": "Decline reason",
+    "declineOrigin": "Decline origin",
+    "explanation": "Why",
+    "viewLabel": "Explanation view",
+    "viewPublic": "Public view",
+    "viewCompliance": "Compliance View"
+  },
+  "compliance": {
+    "units": "Units",
+    "modelFacts": "Model",
+    "pd": "pd",
+    "logit": "logit",
+    "riskTier": "risk_tier",
+    "modelVersion": "model_version",
+    "modelSha": "model_sha256",
+    "cvAuc": "credit_model_cv_auc (from receipt)",
+    "ceilingAuc": "credit_model_oracle_ceiling_auc (from receipt)",
+    "trace": "Public line to table row",
+    "featureId": "Feature ID",
+    "magnitude": "Magnitude",
+    "direction": "Direction",
+    "thresholdRow": "Threshold row",
+    "phraseKey": "Phrase key",
+    "phrase": "Phrase",
+    "thresholdTable": "Threshold table",
+    "phrases": "Phrase lookup",
+    "key": "Key",
+    "rule": "Rule",
+    "contributions": "Contributions (largest first)",
+    "feature": "Feature",
+    "contribution": "Contribution",
+    "imputed": "Imputed"
+  },
+  "sharia": {
+    "title": "Sharia screen",
+    "label": "Rule-based screening, pending Sharia-advisor confirmation",
+    "ruleTableStatus": "Rule table status",
+    "ruleTableVersion": "Rule table version",
+    "evidence": "Evidence basis",
+    "declaredMcc": "Declared MCC",
+    "rules": "Rules triggered",
+    "ruleId": "Rule",
+    "severity": "Severity",
+    "detail": "Detail",
+    "questions": "Questions for the owner",
+    "questionsNote": "Shown for information. This demo does not collect answers.",
+    "explanation": "Compliance note"
+  },
+  "forecast": {
+    "title": "Forecast lens",
+    "balanceToday": "Balance today",
+    "alert": "Crunch alert",
+    "daysToNegative": "Days to projected negative balance",
+    "hazard": "Liquidity hazard",
+    "drivers": "Drivers",
+    "ramadan": "Ramadan adjusted",
+    "method": "Method",
+    "chartTitle": "Projected balance, today to day 90",
+    "chartNote": "Both lines are projections. The API returns no daily history, so no actual line is drawn.",
+    "chartAlt": "Line chart of projected balance for the model and the naive baseline. The table below gives the same values.",
+    "day": "Day",
+    "dayN": "Day {n}",
+    "model": "Model",
+    "baseline": "Naive baseline",
+    "series": "Series",
+    "horizon": "Horizon (days)",
+    "netFlow": "Projected net flow",
+    "projected": "Projected balance",
+    "minimum": "Minimum projected balance",
+    "notComputed": "The forecast did not run.",
+    "historyDays": "Days of history"
+  },
+  "anomaly": {
+    "title": "Anomaly lens",
+    "queue": "A review queue: these transactions are for a person to look at. The lens fills its fixed cap for every business, so a full list is normal and proves nothing by itself.",
+    "window": "Scan window",
+    "scanned": "Transactions scanned",
+    "listed": "Listed for review",
+    "date": "Date",
+    "hour": "Hour",
+    "direction": "Direction",
+    "amount": "Amount",
+    "counterparty": "Counterparty type",
+    "category": "Category",
+    "reason": "Flag reason",
+    "method": "Method",
+    "notComputed": "The anomaly lens did not run.",
+    "noFlags": "No transactions listed for review."
+  },
+  "zakat": {
+    "title": "Zakat",
+    "liability": "Liability",
+    "base": "Zakat base",
+    "assets": "Zakatable assets",
+    "liabilities": "Deductible liabilities",
+    "nisab": "Nisab value",
+    "nisabBasis": "Nisab basis",
+    "placeholder": "Nisab price is a placeholder, unverified",
+    "rate": "Rate",
+    "thresholdMet": "Nisab threshold met",
+    "snapshot": "Balance-sheet snapshot",
+    "hawlStart": "Hawl start",
+    "hawlEnd": "Hawl completion",
+    "hawlSource": "Hawl start source",
+    "hawlRule": "Hawl rule",
+    "method": "Method",
+    "statusLabel": "Result",
+    "reason": "Reason"
+  },
+  "receipt": {
+    "title": "Receipt: {lens}",
+    "scope": "Scope",
+    "noScope": "This route returns no scope string.",
+    "profile": "profile"
+  },
+  "enums": {
+    "status": {
+      "scored": "Scored",
+      "partial_profile": "Partial profile",
+      "insufficient_data": "Insufficient data"
+    },
+    "decision": {
+      "approved": "Approved",
+      "declined": "Declined"
+    },
+    "magnitude": {
+      "strongly": "Strong",
+      "moderately": "Moderate",
+      "marginally": "Marginal"
+    },
+    "direction": {
+      "supports": "Supports",
+      "against": "Against",
+      "either": "Either way"
+    },
+    "offer_status": {
+      "unconditional": "Unconditional",
+      "conditional_on_sharia_review": "Conditional on Sharia review"
+    },
+    "decline_reason": {
+      "risk_model": "Risk model",
+      "affordability_no_installment_capacity": "Affordability: no instalment capacity",
+      "affordability_below_minimum_amount": "Affordability: below the minimum amount",
+      "sharia_hard_flag": "Sharia hard flag"
+    },
+    "decline_origin": {
+      "risk_model": "Risk model",
+      "affordability": "Affordability",
+      "compliance": "Compliance"
+    },
+    "sharia": {
+      "compliant": "Compliant",
+      "soft_flag_review": "Soft flag: review",
+      "hard_flag": "Hard flag"
+    },
+    "evidence": {
+      "declared_mcc": "Declared merchant code",
+      "registered_sector": "Registered sector"
+    },
+    "level": {
+      "none": "No alert",
+      "watch": "Watch",
+      "crunch": "Crunch"
+    },
+    "flag_reason": {
+      "repeat_payment": "Repeat payment",
+      "amount_outlier": "Unusual amount",
+      "new_counterparty_large_amount": "Large amount, new counterparty",
+      "counterparty_both_directions": "Counterparty in both directions",
+      "unusual_hour": "Unusual hour",
+      "rare_category": "Rare category",
+      "multivariate_outlier": "Unusual combination"
+    },
+    "flow": {
+      "in": "In",
+      "out": "Out"
+    },
+    "sector": {
+      "retail_trade": "Retail trade",
+      "food_beverage": "Food and beverage",
+      "construction": "Construction",
+      "professional_services": "Professional services"
+    },
+    "population": {
+      "serving": "Serving"
+    },
+    "data_source": {
+      "synthetic": "Synthetic",
+      "sandbox": "Sandbox"
+    },
+    "lens_status": {
+      "too_few_transactions_for_a_baseline": "Too few transactions for a baseline",
+      "insufficient_history": "Insufficient history",
+      "insufficient_data": "Insufficient data"
+    },
+    "zakat_status": {
+      "computed": "Computed",
+      "zero_liability": "Zero liability",
+      "not_computed": "Not computed"
+    },
+    "zakat_reason": {
+      "below_nisab": "Below nisab",
+      "hawl_incomplete": "Hawl incomplete",
+      "no_balance_sheet_snapshot": "No balance-sheet snapshot"
+    }
+  }
+}
