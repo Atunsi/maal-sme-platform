@@ -1,12 +1,12 @@
-import { BackendText, Badge, Card, Code, Field, Fields, ProvenanceLine, SubHeading, TableScroll, TD, TH } from "@/components/ui";
+import { BackendText, Plate, Card, Code, Field, Fields, ProvenanceLine, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import type { Locale, Messages } from "@/lib/i18n";
 import type { CreditResponse } from "@/lib/types";
 
-const STATUS_TONE = { compliant: "good", soft_flag_review: "warn", hard_flag: "bad" } as const;
+const STATUS_TONE = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
 
 /** U6: this is the fixed label for every Sharia display. It is not a Sharia determination. */
 export function ShariaLabel({ m }: { m: Messages }) {
-  return <Badge tone="warn">{m.sharia.label}</Badge>;
+  return <Plate variant="warn">{m.sharia.label}</Plate>;
 }
 
 export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale: Locale; m: Messages }) {
@@ -20,7 +20,7 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
       </p>
       <Fields>
         <Field label={m.common.status}>
-          <Badge tone={STATUS_TONE[s.sharia_screen_status]}>{m.enums.sharia[s.sharia_screen_status]}</Badge>
+          <Plate variant={STATUS_TONE[s.sharia_screen_status]}>{m.enums.sharia[s.sharia_screen_status]}</Plate>
         </Field>
         <Field label={m.sharia.ruleTableStatus}>
           <Code>{s.rule_table_status}</Code>

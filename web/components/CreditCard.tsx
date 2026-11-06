@@ -1,12 +1,12 @@
 import { ComplianceView } from "@/components/ComplianceView";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
-import { Badge, BackendText, Card, Code, Field, Fields, Num, ProvenanceLine, Refusal, SubHeading } from "@/components/ui";
+import { Plate, BackendText, Card, Code, Field, Fields, Num, ProvenanceLine, Refusal, SubHeading } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import type { CreditExplanation, CreditResponse } from "@/lib/types";
 
-const DIRECTION_TONE = { supports: "good", against: "warn", either: "neutral" } as const;
+const DIRECTION_TONE = { supports: "ok", against: "warn", either: "ink" } as const;
 
 function PublicTier({ lines, locale, m }: { lines: CreditExplanation["public_tier"]; locale: Locale; m: Messages }) {
   return (
@@ -18,8 +18,8 @@ function PublicTier({ lines, locale, m }: { lines: CreditExplanation["public_tie
           </BackendText>
           {line.magnitude && line.direction && (
             <span className="mt-1 flex gap-2">
-              <Badge tone="neutral">{m.enums.magnitude[line.magnitude]}</Badge>
-              <Badge tone={DIRECTION_TONE[line.direction]}>{m.enums.direction[line.direction]}</Badge>
+              <Plate variant="ink">{m.enums.magnitude[line.magnitude]}</Plate>
+              <Plate variant={DIRECTION_TONE[line.direction]}>{m.enums.direction[line.direction]}</Plate>
             </span>
           )}
         </li>
@@ -42,7 +42,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
           <p className="mb-3 text-sm text-muted">{m.credit.note}</p>
           <p className="mb-3">
             <span className="me-2 text-sm text-muted">{m.credit.decision}</span>
-            <Badge tone={credit.decision === "approved" ? "good" : "bad"}>{m.enums.decision[credit.decision]}</Badge>
+            <Plate variant={credit.decision === "approved" ? "ok" : "bad"}>{m.enums.decision[credit.decision]}</Plate>
           </p>
           <Fields>
             {credit.amount_sar !== null && (
@@ -54,7 +54,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
               // U1: display only. Nothing on this page can change the markup.
               <Field label={m.credit.markup}>
                 <Num>{formatRaw(credit.base_markup_pct, locale)}%</Num>{" "}
-                <Badge tone="neutral">{m.credit.markupFixed}</Badge>
+                <Plate variant="ink">{m.credit.markupFixed}</Plate>
               </Field>
             )}
             {credit.adjusted_markup_pct !== null && (
@@ -72,9 +72,9 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
             </Field>
             {detail.offer_status && (
               <Field label={m.credit.offerStatus}>
-                <Badge tone={detail.offer_status === "unconditional" ? "good" : "warn"}>
+                <Plate variant={detail.offer_status === "unconditional" ? "ok" : "warn"}>
                   {m.enums.offer_status[detail.offer_status]}
-                </Badge>
+                </Plate>
               </Field>
             )}
             {detail.decline_reason && (

@@ -23,7 +23,7 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
           <Fields>
             <Field label={n.window}>
               <bdi>
-                {formatDate(a.scan_window.from, locale)} – {formatDate(a.scan_window.to, locale)}
+                {formatDate(a.scan_window.from, locale)} to {formatDate(a.scan_window.to, locale)}
               </bdi>
             </Field>
             <Field label={n.scanned}>

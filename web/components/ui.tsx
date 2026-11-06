@@ -4,24 +4,11 @@ import type { Locale, Messages } from "@/lib/i18n";
 import { formatDate } from "@/lib/format";
 import type { ApiErrorKind, Provenance } from "@/lib/types";
 
-type Tone = "good" | "warn" | "bad" | "neutral";
+export type PlateVariant = "ok" | "bad" | "warn" | "ink" | "accent" | "line";
 
-const TONES: Record<Tone, { className: string; glyph: string }> = {
-  good: { className: "bg-good-soft text-good", glyph: "✓" },
-  warn: { className: "bg-warn-soft text-warn", glyph: "!" },
-  bad: { className: "bg-bad-soft text-bad", glyph: "✕" },
-  neutral: { className: "bg-neutral-soft text-neutral", glyph: "•" },
-};
-
-/** Status always carries a glyph and words, so it never depends on colour alone (U14). */
-export function Badge({ tone, children }: { tone: Tone; children: ReactNode }) {
-  const { className, glyph } = TONES[tone];
-  return (
-    <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-sm font-medium ${className}`}>
-      <span aria-hidden="true">{glyph}</span>
-      {children}
-    </span>
-  );
+/** Status is always a word on a plate, so it never depends on colour or a symbol (U14). */
+export function Plate({ variant, className, children }: { variant: PlateVariant; className?: string; children: ReactNode }) {
+  return <span className={`plate plate-${variant}${className ? ` ${className}` : ""}`}>{children}</span>;
 }
 
 export function Card({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
@@ -83,8 +70,8 @@ export function Code({ children }: { children: ReactNode }) {
 export function ProvenanceLine({ value, locale, m }: { value: Provenance; locale: Locale; m: Messages }) {
   return (
     <p className="mb-3 text-sm text-muted">
-      {m.common.population}: {m.enums.population[value.population]} · {m.common.dataSource}:{" "}
-      {m.enums.data_source[value.data_source]} · {m.common.asOf}: <bdi>{formatDate(value.as_of, locale)}</bdi>
+      {m.common.population}: {m.enums.population[value.population]}, {m.common.dataSource}:{" "}
+      {m.enums.data_source[value.data_source]}, {m.common.asOf}: <bdi>{formatDate(value.as_of, locale)}</bdi>
     </p>
   );
 }
@@ -93,7 +80,7 @@ export function Refusal({ reason, m }: { reason: "insufficient_data" | undefined
   return (
     <div role="status" className="rounded border border-line bg-neutral-soft p-3">
       <p className="font-semibold">
-        <Badge tone="neutral">{m.refusal.title}</Badge>
+        <Plate variant="ink">{m.refusal.title}</Plate>
       </p>
       <p className="mt-2">{m.refusal.body}</p>
       {reason && (

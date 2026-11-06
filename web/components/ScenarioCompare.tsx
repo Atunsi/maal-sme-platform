@@ -1,14 +1,14 @@
 import type { ReactNode } from "react";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ShariaLabel } from "@/components/ShariaPanel";
-import { Badge, Num, ProvenanceLine, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
+import { Plate, Num, ProvenanceLine, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import type { ScenarioObject } from "@/lib/types";
 
-const DECISION_TONE = { approved: "good", declined: "bad" } as const;
-const LEVEL_TONE = { none: "good", watch: "warn", crunch: "bad" } as const;
-const SHARIA_TONE = { compliant: "good", soft_flag_review: "warn", hard_flag: "bad" } as const;
+const DECISION_TONE = { approved: "ok", declined: "bad" } as const;
+const LEVEL_TONE = { none: "ok", watch: "warn", crunch: "bad" } as const;
+const SHARIA_TONE = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
 
 type FlagReason = NonNullable<Extract<ScenarioObject["anomaly"], { status: "computed" }>>["flags"][number]["flag_reason"];
 
@@ -25,11 +25,11 @@ function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, 
   const alert = o.forecast?.status === "computed" ? o.forecast.crunch_alert : null;
   const reasons = Object.entries(flagReasons(o)) as [FlagReason, number][];
   return {
-    decision: o.credit ? <Badge tone={DECISION_TONE[o.credit.decision]}>{m.enums.decision[o.credit.decision]}</Badge> : notRun,
+    decision: o.credit ? <Plate variant={DECISION_TONE[o.credit.decision]}>{m.enums.decision[o.credit.decision]}</Plate> : notRun,
     declineOrigin: detail?.decline_origin ? m.enums.decline_origin[detail.decline_origin] : o.credit ? m.common.dash : notRun,
     amount: !o.credit ? notRun : o.credit.amount_sar === null ? m.common.dash : <Num>{formatSar(o.credit.amount_sar, locale)}</Num>,
     pd: detail ? <Num>{formatRaw(detail.pd, locale)}</Num> : notRun,
-    alert: alert ? <Badge tone={LEVEL_TONE[alert.level]}>{m.enums.level[alert.level]}</Badge> : notRun,
+    alert: alert ? <Plate variant={LEVEL_TONE[alert.level]}>{m.enums.level[alert.level]}</Plate> : notRun,
     days: !alert ? notRun : alert.days_to_projected_negative_balance === null ? m.common.dash : (
       <Num>{formatInt(alert.days_to_projected_negative_balance, locale)}</Num>
     ),
@@ -51,9 +51,9 @@ function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, 
     ),
     zakatStatus: o.zakat ? m.enums.zakat_status[o.zakat.status] : notRun,
     sharia: (
-      <Badge tone={SHARIA_TONE[o.governance.sharia_screen.sharia_screen_status]}>
+      <Plate variant={SHARIA_TONE[o.governance.sharia_screen.sharia_screen_status]}>
         {m.enums.sharia[o.governance.sharia_screen.sharia_screen_status]}
-      </Badge>
+      </Plate>
     ),
   };
 }
@@ -117,7 +117,7 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
       </TableScroll>
       <div className="mt-3 flex flex-wrap gap-2">
         <ShariaLabel m={m} />
-        {placeholder && <Badge tone="warn">{m.zakat.placeholder}</Badge>}
+        {placeholder && <Plate variant="warn">{m.zakat.placeholder}</Plate>}
       </div>
       <p className="mt-3 text-sm">{m.anomaly.queue}</p>
       <SubHeading>{s.receipts}</SubHeading>

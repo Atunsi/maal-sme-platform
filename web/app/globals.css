@@ -1,36 +1,394 @@
 @import "tailwindcss";
+@source not "../docs";
+@source not "../maal-design-direction";
+@source not "../fixtures";
+@source not "../scenarios-data";
 
-@theme {
-  --color-ink: #1c1b18;
-  --color-muted: #57554f;
-  --color-line: #dedcd3;
-  --color-page: #f7f6f2;
-  --color-card: #ffffff;
-  --color-brand: #0f5c4d;
-  --color-brand-soft: #e3f0ec;
-  --color-good: #14532d;
-  --color-good-soft: #e3f3ea;
-  --color-warn: #6b4700;
-  --color-warn-soft: #fdf1d3;
-  --color-bad: #8a1c12;
-  --color-bad-soft: #fbe6e3;
-  --color-neutral: #3f3e3a;
-  --color-neutral-soft: #ecebe5;
-  --color-series-model: #2a78d6;
-  --color-series-baseline: #eb6834;
+/* Tokens from the design bundle's .th-light and .th-dark blocks. The theme class sits on <html>. */
+:root,
+.th-light {
+  --bg: #f3f4f1;
+  --surface: #ffffff;
+  --ink: #101418;
+  --muted: #5a6470;
+  --rule: #d9dde0;
+  --rule2: #eef0f1;
+  --accent: #2e3192;
+  --accentSoft: #eeeffb;
+  --accentSoft2: #cfd3f2;
+  --ok: #0b6e63;
+  --bad: #b0361f;
+  --badSoft: #fbf3f1;
+  --warnText: #7a4f00;
+  --warnBg: #fbefd6;
+  --warnBg2: #f6e0b0;
+  --ochre: #8a5a00;
+  --panel: #101418;
+  --panelText: #f3f4f1;
+  --panelMuted: #b8c0c8;
+  --panelRule: #2a3038;
+  --grey: #fafaf8;
+  --field: #ffffff;
+  --fieldLine: #9aa3ac;
+  --hero: #2e3192;
+  --stripe: #f4d8d2;
+  --tile: url("/brand/maal-logo-tile-light.svg");
+  color-scheme: light;
+}
+
+.th-dark {
+  --bg: #0b0e13;
+  --surface: #141922;
+  --ink: #e8eaed;
+  --muted: #9aa4ae;
+  --rule: #2a313b;
+  --rule2: #1e242d;
+  --accent: #a3a6ff;
+  --accentSoft: #23264a;
+  --accentSoft2: #33377a;
+  --ok: #4cc7b3;
+  --bad: #f08a72;
+  --badSoft: #2a1714;
+  --warnText: #f2c46b;
+  --warnBg: #2e2512;
+  --warnBg2: #45381a;
+  --ochre: #d9a441;
+  --panel: #1c2230;
+  --panelText: #e8eaed;
+  --panelMuted: #9aa4ae;
+  --panelRule: #2e3644;
+  --grey: #10141a;
+  --field: #0f131a;
+  --fieldLine: #4a5360;
+  --hero: #1a1c5c;
+  --stripe: #3a2019;
+  --tile: url("/brand/maal-logo-tile-dark.svg");
+  color-scheme: dark;
+}
+
+/* Animation origins follow the reading direction, so bars grow from the right in Arabic. */
+:root {
+  --o-start: left;
+  --o-end: right;
+}
+[dir="rtl"] {
+  --o-start: right;
+  --o-end: left;
+}
+[dir="ltr"] {
+  --o-start: left;
+  --o-end: right;
+}
+
+@theme inline {
+  --color-page: var(--bg);
+  --color-card: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--rule);
+  --color-line2: var(--rule2);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accentSoft);
+  --color-ok: var(--ok);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--badSoft);
+  --color-warn: var(--warnText);
+  --color-warn-soft: var(--warnBg);
+  --color-ochre: var(--ochre);
+  --color-panel: var(--panel);
+  --color-grey: var(--grey);
+  --color-field: var(--field);
+  --color-field-line: var(--fieldLine);
+  --color-hero: var(--hero);
+  --color-solid: #2e3192;
+  --color-brand: #2e3192;
+  --color-neutral-soft: var(--rule2);
+  --color-gold: #c9a227;
+  --font-sans: var(--font-plex-sans), var(--font-plex-arabic), system-ui, sans-serif;
+  --font-cond: var(--font-plex-cond), var(--font-plex-arabic), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), var(--font-plex-arabic), monospace;
 }
 
 html {
-  font-family: "Segoe UI", "Noto Sans Arabic", Tahoma, system-ui, sans-serif;
-  color: var(--color-ink);
-  background: var(--color-page);
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bg);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+html[lang="ar"] {
+  font-family: var(--font-plex-arabic), var(--font-plex-sans), system-ui, sans-serif;
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-brand);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
+}
+
+.on-hero :focus-visible {
+  outline-color: #ffffff;
 }
 
 summary {
   cursor: pointer;
+}
+
+/* A dark surface inside either theme: everything in it reads the panel's own colours. */
+.panel {
+  --surface: var(--panel);
+  --ink: var(--panelText);
+  --muted: var(--panelMuted);
+  --rule: var(--panelRule);
+  --rule2: var(--panelRule);
+  --accent: #a3a6ff;
+  --ok: #3fb5a5;
+  --bad: #e07a5f;
+  background: var(--panel);
+  color: var(--panelText);
+}
+
+/* Status is a word on a plate, never a symbol. */
+.plate {
+  display: inline-block;
+  padding: 5px 10px;
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.plate-ok {
+  background: #0b6e63;
+  color: #ffffff;
+}
+.plate-bad {
+  background: #b0361f;
+  color: #ffffff;
+}
+.plate-warn {
+  background: var(--warnBg);
+  color: var(--warnText);
+  box-shadow: inset 0 0 0 1.5px var(--warnText);
+}
+.plate-ink {
+  background: var(--ink);
+  color: var(--bg);
+}
+.plate-accent {
+  background: #2e3192;
+  color: #ffffff;
+}
+.plate-line {
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--fieldLine);
+}
+
+/* Spaced capitals suit Latin only: letter spacing breaks Arabic joining. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+:lang(ar) .plate,
+:lang(ar) .eyebrow,
+:lang(ar).eyebrow {
+  letter-spacing: 0;
+}
+
+.heading {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.navlink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 2px;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.navlink[aria-current="page"] {
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.themebtn {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.textlink {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+  color: var(--accent);
+}
+
+.field {
+  min-height: 48px;
+  padding: 0 14px;
+  font-size: 16px;
+  background: var(--field);
+  color: var(--ink);
+  border: 1px solid var(--fieldLine);
+}
+
+.solid-btn {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  background: #2e3192;
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* The repeated motif: small Arabic logos drifting under the header and between sections. */
+.weave {
+  height: 28px;
+  background-image: var(--tile);
+  background-size: 28px 28px;
+  background-repeat: repeat-x;
+  animation: weave 40s linear infinite;
+}
+.weave.ondark,
+.mk.ondark {
+  background-image: url("/brand/maal-logo-tile-dark.svg");
+}
+.mk {
+  display: inline-block;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  background-image: var(--tile);
+  background-size: 22px 22px;
+  vertical-align: -5px;
+}
+
+/* Every element's base style is its final state, so nothing depends on an animation to appear. */
+.rise {
+  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.slidein {
+  animation: slidein 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.lg-body {
+  transform-box: fill-box;
+  animation: lgrise 0.6s 0.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.lg-madda {
+  transform-box: fill-box;
+  animation: lgland 0.55s 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.lg-body.lg-late {
+  animation-delay: 0.3s;
+}
+.lg-madda.lg-late {
+  animation-delay: 0.8s;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes slidein {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes growx {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes growy {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.97);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lgrise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lgland {
+  0% {
+    opacity: 0;
+    transform: translateY(-26px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(2px);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes weave {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -560px 0;
+  }
+}
+
+/* Motion never carries meaning here: with it off, everything sits in its final state at once. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

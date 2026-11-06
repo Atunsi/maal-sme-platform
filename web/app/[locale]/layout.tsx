@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Arabic, IBM_Plex_Sans_Condensed } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
-import { LanguageToggle } from "@/components/LanguageToggle";
+import { SiteHeader } from "@/components/SiteHeader";
 import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
+import { THEME_BOOT } from "@/lib/theme";
 import "../globals.css";
+
+// next/font downloads these at build time and serves them from this app: no runtime call to Google.
+const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-sans" });
+const arabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], weight: ["400", "500", "600", "700"], variable: "--font-plex-arabic" });
+const condensed = IBM_Plex_Sans_Condensed({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-plex-cond" });
+const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono" });
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -22,39 +29,28 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   if (!isLocale(locale)) notFound();
   const m = getMessages(locale);
   return (
-    <html lang={locale} dir={dirOf(locale)}>
+    // The boot script adds the theme class before hydration, so React must not object to it.
+    <html
+      lang={locale}
+      dir={dirOf(locale)}
+      suppressHydrationWarning
+      className={`${sans.variable} ${arabic.variable} ${condensed.variable} ${mono.variable}`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body className="flex min-h-screen flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:m-2 focus:inline-block focus:underline">
           {m.nav.skip}
         </a>
-        <div role="note" className="bg-warn-soft px-4 py-2 text-center text-sm font-medium text-warn">
-          <span aria-hidden="true">! </span>
-          {m.banner.synthetic}
-        </div>
-        <header className="border-b border-line bg-card">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-            <Link href={`/${locale}`} className="text-lg font-semibold text-brand">
-              {m.app.name}
-            </Link>
-            <span className="text-sm text-muted">{m.app.tagline}</span>
-            <nav aria-label={m.nav.main} className="ms-auto flex items-center gap-4">
-              <Link href={`/${locale}`} className="text-sm font-medium underline">
-                {m.nav.home}
-              </Link>
-              <Link href={`/${locale}/scenarios`} className="text-sm font-medium underline">
-                {m.nav.scenarios}
-              </Link>
-              <Suspense>
-                <LanguageToggle locale={locale} label={m.nav.language} />
-              </Suspense>
-            </nav>
-          </div>
-        </header>
-        <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+        <Suspense>
+          <SiteHeader locale={locale} m={{ nav: m.nav, app: m.app }} />
+        </Suspense>
+        <main id="main" className="w-full flex-1">
           {children}
         </main>
-        <footer className="border-t border-line bg-card">
-          <p className="mx-auto max-w-6xl px-4 py-4 text-sm text-muted">{m.footer.scope}</p>
+        <footer className="border-t border-line">
+          <p className="mx-auto max-w-[1240px] px-6 py-4 text-[13px] text-muted">{m.footer.scope}</p>
         </footer>
       </body>
     </html>

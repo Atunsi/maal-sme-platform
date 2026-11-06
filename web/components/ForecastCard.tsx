@@ -1,11 +1,11 @@
 import { ForecastChart, type ForecastPoint } from "@/components/ForecastChart";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
-import { BackendText, Badge, Card, Field, Fields, Num, ProvenanceLine, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
+import { BackendText, Plate, Card, Field, Fields, Num, ProvenanceLine, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ForecastResponse } from "@/lib/types";
 
-const LEVEL_TONE = { none: "good", watch: "warn", crunch: "bad" } as const;
+const LEVEL_TONE = { none: "ok", watch: "warn", crunch: "bad" } as const;
 
 type Computed = Extract<NonNullable<ForecastResponse["forecast"]>, { status: "computed" }>;
 
@@ -35,7 +35,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
     <>
       <p className="mb-3 flex flex-wrap items-center gap-2">
         <span className="text-sm text-muted">{n.alert}</span>
-        <Badge tone={LEVEL_TONE[alert.level]}>{m.enums.level[alert.level]}</Badge>
+        <Plate variant={LEVEL_TONE[alert.level]}>{m.enums.level[alert.level]}</Plate>
       </p>
       <Fields>
         <Field label={n.balanceToday}>
@@ -49,7 +49,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
           )}
         </Field>
         <Field label={n.hazard}>
-          <Num>{hazard.join(" · ")}</Num>
+          <Num>{hazard.join(", ")}</Num>
         </Field>
         <Field label={n.ramadan}>
           {f.ramadan_adjusted === null ? m.common.dash : f.ramadan_adjusted ? m.common.yes : m.common.no}

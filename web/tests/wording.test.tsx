@@ -68,9 +68,9 @@ describe("credit contract guards", () => {
   });
 
   it("U1 the only input in the app is the business picker", () => {
-    const withInput = readdirSync(join(webRoot, "components")).filter((file) =>
-      /<(input|select|textarea)\b/.test(readFileSync(join(webRoot, "components", file), "utf8")),
-    );
+    const withInput = readdirSync(join(webRoot, "components"), { recursive: true, encoding: "utf8" })
+      .filter((file) => file.endsWith(".tsx"))
+      .filter((file) => /<(input|select|textarea)\b/.test(readFileSync(join(webRoot, "components", file), "utf8")));
     expect(withInput).toEqual(["BusinessPicker.tsx"]);
   });
 });

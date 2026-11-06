@@ -1,10 +1,10 @@
 import { ReceiptPanel } from "@/components/ReceiptPanel";
-import { BackendText, Badge, Card, Code, Field, Fields, Num, ProvenanceLine, Refusal } from "@/components/ui";
+import { BackendText, Plate, Card, Code, Field, Fields, Num, ProvenanceLine, Refusal } from "@/components/ui";
 import { formatDate, formatRaw, formatSar } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import type { ZakatResponse } from "@/lib/types";
 
-const STATUS_TONE = { computed: "good", zero_liability: "neutral", not_computed: "warn" } as const;
+const STATUS_TONE = { computed: "ok", zero_liability: "ink", not_computed: "warn" } as const;
 
 export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Locale; m: Messages }) {
   const z = data.zakat;
@@ -22,8 +22,8 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
         <>
           <p className="mb-3 flex flex-wrap items-center gap-2">
             <span className="text-sm text-muted">{m.zakat.statusLabel}</span>
-            <Badge tone={STATUS_TONE[z.status]}>{m.enums.zakat_status[z.status]}</Badge>
-            {placeholder && <Badge tone="warn">{m.zakat.placeholder}</Badge>}
+            <Plate variant={STATUS_TONE[z.status]}>{m.enums.zakat_status[z.status]}</Plate>
+            {placeholder && <Plate variant="warn">{m.zakat.placeholder}</Plate>}
           </p>
           {z.status !== "computed" && z.reason && (
             <div className="mb-3">

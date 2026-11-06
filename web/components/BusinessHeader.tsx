@@ -1,16 +1,16 @@
-import { Badge, Code, Field, Fields, Num, ProvenanceLine } from "@/components/ui";
+import { Plate, Code, Field, Fields, Num, ProvenanceLine } from "@/components/ui";
 import { formatInt } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ProfileResponse } from "@/lib/types";
 
-const STATUS_TONE = { scored: "good", partial_profile: "warn", insufficient_data: "neutral" } as const;
+const STATUS_TONE = { scored: "ok", partial_profile: "warn", insufficient_data: "ink" } as const;
 
 export function BusinessHeader({ data, locale, m }: { data: ProfileResponse; locale: Locale; m: Messages }) {
   return (
     <header className="rounded-lg border border-line bg-card p-5">
       <div className="mb-2 flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold">{fill(m.dashboard.title, { id: data.business_id })}</h1>
-        <Badge tone={STATUS_TONE[data.status]}>{m.enums.status[data.status]}</Badge>
+        <Plate variant={STATUS_TONE[data.status]}>{m.enums.status[data.status]}</Plate>
       </div>
       <ProvenanceLine value={data} locale={locale} m={m} />
       <Fields>

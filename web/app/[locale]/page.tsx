@@ -20,8 +20,8 @@ export default async function PickerPage({ params }: { params: Promise<{ locale:
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">{p.title}</h1>
-        <p className="mt-1 max-w-2xl">{p.intro}</p>
+        <h1 className="text-2xl font-semibold">{m.landing.title}</h1>
+        <p className="mt-1 max-w-2xl">{m.landing.lead}</p>
       </div>
       <Card title={p.inputLabel}>
         <BusinessPicker
@@ -40,7 +40,7 @@ export default async function PickerPage({ params }: { params: Promise<{ locale:
       </Card>
       <section aria-labelledby="demo-heading">
         <h2 id="demo-heading" className="mb-3 text-lg font-semibold">
-          {p.demoTitle}
+          {m.admin.title}
         </h2>
         <ul className="grid gap-4 sm:grid-cols-3">
           {demo.businesses.map((business) => (

@@ -1,20 +1,37 @@
 {
+  "_review": "English source text. The redesign's new strings come from the design bundle mockups.",
   "app": {
     "name": "Ma'al",
-    "tagline": "SME financial health demo"
+    "tagline": "where your business is heading"
   },
   "nav": {
     "skip": "Skip to main content",
-    "home": "Businesses",
+    "home": "Ma'al home",
     "scenarios": "Scenarios",
-    "main": "Main",
-    "language": "Language"
-  },
-  "banner": {
-    "synthetic": "Synthetic data. No figure on this site describes a real business."
+    "main": "Pages",
+    "language": "Language",
+    "overview": "Overview",
+    "credit": "Credit",
+    "sharia": "Sharia screen",
+    "zakat": "Zakat",
+    "forecast": "Forecast",
+    "review": "Review queue",
+    "sections": "Sections",
+    "how": "How it works",
+    "lenses": "The four lenses",
+    "why": "Why Ma'al",
+    "faq": "Questions",
+    "admin": "All businesses",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signedInAs": "Signed in as",
+    "roleOwner": "Owner of business {id}",
+    "roleAdmin": "Admin",
+    "themeDark": "Dark theme",
+    "themeLight": "Light theme"
   },
   "footer": {
-    "scope": "Synthetic data only. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent."
+    "scope": "Synthetic data only. Population: serving. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent."
   },
   "common": {
     "population": "Population",
@@ -24,13 +41,13 @@
     "status": "Status",
     "sector": "Sector",
     "business": "Business",
-    "loading": "Loading…",
+    "loading": "Loading",
     "retry": "Try again",
     "back": "Choose another business",
     "yes": "Yes",
     "no": "No",
     "none": "None",
-    "dash": "—",
+    "dash": "Not available",
     "englishTemplate": "English template; Arabic template pending",
     "days": "days"
   },
@@ -52,13 +69,10 @@
     "body": "Scored, but these features have no prior period to compare against:"
   },
   "picker": {
-    "title": "Choose a business",
-    "intro": "Every business here belongs to the serving population, a synthetic demo slice. Pick a demo business or enter an ID.",
-    "inputLabel": "Business ID",
+    "inputLabel": "Open a business by ID",
     "inputHelp": "A serving ID from {min} to {max}.",
-    "submit": "Open dashboard",
+    "submit": "Open",
     "invalid": "Enter a whole number from {min} to {max}.",
-    "demoTitle": "Demo businesses",
     "available": "Serving businesses in this store",
     "unavailable": "Could not read the store size from the API."
   },
@@ -78,7 +92,7 @@
     "markup": "Base markup",
     "markupFixed": "Fixed at signing",
     "adjustedMarkup": "Adjusted markup",
-    "months": "Repayment months",
+    "months": "Repayment",
     "latePolicy": "Late-payment policy",
     "offerStatus": "Offer status",
     "conditions": "Conditions",
@@ -87,7 +101,14 @@
     "explanation": "Why",
     "viewLabel": "Explanation view",
     "viewPublic": "Public view",
-    "viewCompliance": "Compliance View"
+    "viewCompliance": "Compliance View",
+    "titleApproved": "Why the credit lens approved",
+    "titleDeclined": "Why the credit lens declined",
+    "factors": "Factors",
+    "against": "Worked against approval",
+    "supports": "Supported approval",
+    "barNote": "Bar length shows the word the model returned: strongly, moderately or marginally. It is not a number.",
+    "terms": "Offer terms"
   },
   "compliance": {
     "units": "Units",
@@ -128,10 +149,15 @@
     "detail": "Detail",
     "questions": "Questions for the owner",
     "questionsNote": "Shown for information. This demo does not collect answers.",
-    "explanation": "Compliance note"
+    "explanation": "Compliance note",
+    "frameNote": "This screen applies a rule table. It is not a Sharia determination.",
+    "checked": "What was checked",
+    "used": "Used",
+    "recorded": "Recorded",
+    "notConfirmed": "Not yet confirmed"
   },
   "forecast": {
-    "title": "Forecast lens",
+    "title": "Forecast",
     "balanceToday": "Balance today",
     "alert": "Crunch alert",
     "daysToNegative": "Days to projected negative balance",
@@ -152,10 +178,17 @@
     "projected": "Projected balance",
     "minimum": "Minimum projected balance",
     "notComputed": "The forecast did not run.",
-    "historyDays": "Days of history"
+    "historyDays": "Days of history",
+    "pageTitle": "Runway, today to day {n}",
+    "keyFigures": "Key figures",
+    "floor": "{amount}, the cash floor",
+    "below": "below the floor",
+    "today": "today",
+    "tableLabel": "Projection table",
+    "noneProjected": "None projected"
   },
   "anomaly": {
-    "title": "Anomaly lens",
+    "title": "Review queue",
     "queue": "A review queue: these transactions are for a person to look at. The lens fills its fixed cap for every business, so a full list is normal and proves nothing by itself.",
     "window": "Scan window",
     "scanned": "Transactions scanned",
@@ -169,7 +202,12 @@
     "reason": "Flag reason",
     "method": "Method",
     "notComputed": "The anomaly lens did not run.",
-    "noFlags": "No transactions listed for review."
+    "noFlags": "No transactions listed for review.",
+    "windowValue": "{from} to {to}",
+    "listedOf": "listed, from {n} transactions scanned",
+    "timeline": "Timeline of queued transactions",
+    "markLabel": "{date}, {reason}",
+    "timelineAlt": "{n} transactions placed by date between {from} and {to}. The table gives the same list."
   },
   "zakat": {
     "title": "Zakat",
@@ -189,7 +227,16 @@
     "hawlRule": "Hawl rule",
     "method": "Method",
     "statusLabel": "Result",
-    "reason": "Reason"
+    "reason": "Reason",
+    "pageTitle": "Zakat, from assets to amount",
+    "buildTitle": "How the base is built",
+    "less": "Less deductible liabilities",
+    "nisabLine": "nisab {value}, {basis}",
+    "amountTitle": "The amount",
+    "asReturned": "Values as returned by the API. Not a ZATCA assessment.",
+    "hawlTitle": "The hawl, one lunar year",
+    "buildAlt": "Zakatable assets {assets}, less deductible liabilities {liabilities}, give a zakat base of {base}. The nisab is {nisab}.",
+    "hawlAlt": "The hawl runs from {start} to {end}. The balance-sheet snapshot is {snapshot}."
   },
   "receipt": {
     "title": "Receipt: {lens}",
@@ -198,7 +245,7 @@
     "profile": "profile"
   },
   "scenarios": {
-    "title": "Scenarios on business {id}",
+    "title": "What breaks when the business does",
     "intro": "Each scenario rebuilds this one business in memory under a disaster chosen from a fixed menu. Nothing is typed in, and the disaster is the only difference from the baseline.",
     "menu": "Scenario menu",
     "resultTitle": "Chosen scenario next to the baseline",
@@ -217,7 +264,11 @@
       "The anomaly lens always returns its cap, even in the calm scenario, so its list is a review queue and not an alarm."
     ],
     "caveat": "Each scenario is a single business (N = 1). These are demonstrations, not estimates.",
-    "library": "Scenario library version"
+    "library": "Scenario library version",
+    "eyebrow": "Business {id}, {n} fixed scenarios, nothing is typed in",
+    "diff": "Diff sheet",
+    "changed": "Changed",
+    "same": "Same"
   },
   "enums": {
     "status": {
@@ -309,5 +360,167 @@
       "hawl_incomplete": "Hawl incomplete",
       "no_balance_sheet_snapshot": "No balance-sheet snapshot"
     }
+  },
+  "overview": {
+    "welcome": "Welcome back. Here is where business {id} is heading.",
+    "greeting": "أهلًا بعودتك",
+    "repayment": "Repayment",
+    "monthsValue": "{n} months",
+    "markupLabel": "Base markup, fixed at signing",
+    "late": "Late payments",
+    "lateValue": "go to charity",
+    "notRun": "Lens not run",
+    "receiptEyebrow": "Receipt",
+    "receiptTitle": "You can re-run this decision.",
+    "receiptBody": "The receipt lists what produced it. Run the same config, model, data and code, and the output hash must match.",
+    "output": "output",
+    "model": "model",
+    "commit": "commit",
+    "readouts": "Five readouts. Open one for its own page.",
+    "open": "Open {lens}",
+    "mcc": "MCC {v}",
+    "noMcc": "No declared MCC",
+    "hazard30": "30-day hazard {v}",
+    "noNegative": "No negative balance projected",
+    "negativeIn": "Negative balance projected in {n} days",
+    "listed": "{n} listed",
+    "queueNote": "A queue for a person, not an alarm"
+  },
+  "landing": {
+    "eyebrow": "SME financial health, Sharia-aware",
+    "title": "Know where your business is heading, and why.",
+    "lead": "Ma'al reads a small business's cash flow through four lenses: credit, Sharia screen, zakat and forecast. Every result carries a receipt anyone can re-run. This demo runs on synthetic data.",
+    "ctaSignIn": "Sign in to the demo",
+    "ctaScenarios": "See the {n} scenarios",
+    "cardBusiness": "Business {id}, {sector}",
+    "illustrative": "Illustrative, synthetic data",
+    "cardTerms": "{months} months, {markup}% markup fixed at signing",
+    "builtFor": "Built for",
+    "audiences": [
+      "Business owners",
+      "Banks and financing companies",
+      "Sharia and compliance reviewers",
+      "Arabic and English"
+    ],
+    "howEyebrow": "How it works",
+    "howTitle": "From transactions to a decision you can check",
+    "steps": [
+      {
+        "title": "Transactions",
+        "text": "Ninety days or more of bank and POS activity for one business."
+      },
+      {
+        "title": "Profile",
+        "text": "Behavioural features computed once, each with its reason when missing."
+      },
+      {
+        "title": "Four lenses",
+        "text": "Credit, Sharia screen, zakat and forecast, plus a review queue."
+      },
+      {
+        "title": "Verdict and receipt",
+        "text": "A plain answer, with a receipt of hashes anyone can re-run."
+      }
+    ],
+    "lensEyebrow": "The four lenses",
+    "lensTitle": "One business, four honest views",
+    "lensOpen": "Open the {lens} page",
+    "lensText": {
+      "credit": "Approve, decline or set conditions, with the factors that pushed each way. Markup is fixed at signing; late payments go to charity.",
+      "sharia": "A rule-based screen that says plainly it is pending Sharia-advisor confirmation, and shows every rule it checked.",
+      "zakat": "From zakatable assets to the amount due, step by step, with the hawl and the nisab marked.",
+      "forecast": "Projected runway against the cash floor, next to a naive baseline so the model has to earn its place."
+    },
+    "countsLabel": "Ma'al in numbers",
+    "factLenses": "lenses on every business",
+    "factScenarios": "fixed stress scenarios",
+    "factReceipt": "receipt for every decision",
+    "factLanguages": "languages, Arabic and English",
+    "factsNote": "Counts of what the demo contains, not performance claims.",
+    "whyEyebrow": "Why Ma'al",
+    "whyTitle": "Most lenders hide the model or reduce it to a score. Ma'al shows its work.",
+    "why": [
+      {
+        "title": "A receipt on every decision",
+        "text": "Each result carries the hashes of its config, model, data and code. Re-run it with the same inputs and the output hash must match."
+      },
+      {
+        "title": "Sharia-first, and honest about it",
+        "text": "The screen is labelled as rule-based until a Sharia advisor confirms the rule table. Markup never changes after signing."
+      },
+      {
+        "title": "Zakat you can follow",
+        "text": "The amount is built in front of you from the balance sheet, with the nisab source marked when it is still a placeholder."
+      },
+      {
+        "title": "Model numbers on the receipt",
+        "text": "The credit model's cross-validated AUC and its ceiling are printed on every compliance view, straight from the receipt."
+      }
+    ],
+    "faqTitle": "Questions",
+    "faqOpen": "Open",
+    "faq": [
+      {
+        "q": "Is this a loan offer?",
+        "a": "No. Ma'al shows the output of a demo credit lens on synthetic data. It is not an offer from any bank, and the markup is not an APR."
+      },
+      {
+        "q": "Is the Sharia screen a religious ruling?",
+        "a": "No. It applies a rule table and says so on every page until a Sharia advisor confirms that table."
+      },
+      {
+        "q": "Is the data real?",
+        "a": "No. Every business in the demo is synthetic. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent."
+      },
+      {
+        "q": "What does a receipt let me do?",
+        "a": "It lists what produced the result, so anyone with the repository can re-run the decision and check that the output hash matches."
+      }
+    ],
+    "closeLabel": "Sign in",
+    "closeTitle": "See where a business is heading.",
+    "closeCta": "Sign in as owner or admin",
+    "project": "Ma'al, a senior graduation project. Demo on synthetic data only.",
+    "notOffer": "No figure here is an offer from a bank, and markup is not an APR."
+  },
+  "signIn": {
+    "about": "About Ma'al",
+    "meaning": "(ma'al) means the outcome: where things end up. See where your business is heading, and why.",
+    "receiptLine": "Every decision carries a receipt you can re-run.",
+    "title": "Sign in",
+    "intro": "Choose who you are signing in as.",
+    "roleGroup": "Account type",
+    "owner": "Business owner",
+    "ownerHint": "See your own business",
+    "admin": "Admin",
+    "adminHint": "Review all businesses",
+    "cr": "Commercial registration number",
+    "crHint": "10 digits",
+    "email": "Work email",
+    "emailHint": "name@bank.sa",
+    "password": "Password",
+    "ctaOwner": "Sign in to my business",
+    "ctaAdmin": "Sign in as admin",
+    "demo": "Demo sign-in. No accounts exist and nothing you type is checked or saved.",
+    "synthetic": "This demo runs on synthetic data."
+  },
+  "admin": {
+    "eyebrow": "Serving population, synthetic data",
+    "title": "All businesses",
+    "tableLabel": "Businesses",
+    "business": "Business",
+    "profile": "Profile status",
+    "credit": "Credit lens",
+    "shows": "What it shows",
+    "open": "Open {id}",
+    "openColumn": "Open",
+    "notRun": "Not run",
+    "error": "Could not read this business from the API.",
+    "showsUnconditional": "Unconditional offer",
+    "showsConditional": "Conditional on Sharia review, owner prompt",
+    "showsDeclined": "Declined on {reason}",
+    "showsRefused": "Refusal shown, lens not run",
+    "showsPartial": "Some features unavailable",
+    "note": "Five businesses chosen to show each state the API returns (serving population, N = {n}, synthetic data). A full list needs GET /businesses, a proposed API change."
   }
 }
