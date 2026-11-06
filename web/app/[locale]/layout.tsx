@@ -41,6 +41,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
               <Link href={`/${locale}`} className="text-sm font-medium underline">
                 {m.nav.home}
               </Link>
+              <Link href={`/${locale}/scenarios`} className="text-sm font-medium underline">
+                {m.nav.scenarios}
+              </Link>
               <Suspense>
                 <LanguageToggle locale={locale} label={m.nav.language} />
               </Suspense>

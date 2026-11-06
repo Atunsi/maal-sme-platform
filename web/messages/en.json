@@ -197,6 +197,28 @@
     "noScope": "No scope field on this receipt.",
     "profile": "profile"
   },
+  "scenarios": {
+    "title": "Scenarios on business {id}",
+    "intro": "Each scenario rebuilds this one business in memory under a disaster chosen from a fixed menu. Nothing is typed in, and the disaster is the only difference from the baseline.",
+    "menu": "Scenario menu",
+    "resultTitle": "Chosen scenario next to the baseline",
+    "compareLabel": "Scenario and baseline compared",
+    "measure": "Measure",
+    "baseline": "Baseline",
+    "chosen": "Chosen scenario",
+    "pd": "PD (model output)",
+    "receipts": "Receipts",
+    "receiptNote": "Scenario objects are built in memory, so the verify command in the scope above does not apply to them. They are checked by their integrity hash and by scenarios.run --check (DECISIONS 41).",
+    "findingsTitle": "What these show",
+    "findings": [
+      "Collapses are declined by the affordability gate, not by the risk model.",
+      "PD does not rise with the disaster, so the risk model is not a stress detector.",
+      "A shock in the final three weeks is invisible to the forecast, which averages over a longer period.",
+      "The anomaly lens always returns its cap, even in the calm scenario, so its list is a review queue and not an alarm."
+    ],
+    "caveat": "Each scenario is a single business (N = 1). These are demonstrations, not estimates.",
+    "library": "Scenario library version"
+  },
   "enums": {
     "status": {
       "scored": "Scored",

@@ -1,9 +1,10 @@
+import type { ReactNode } from "react";
 import { Code } from "@/components/ui";
 import { fill, type Messages } from "@/lib/i18n";
 import type { Receipt } from "@/lib/types";
 
 /** Every receipt field as returned, `scope` verbatim (U13). Keys stay raw: they are identifiers. */
-export function ReceiptPanel({ receipt, lens, m }: { receipt: Receipt; lens: string; m: Messages }) {
+export function ReceiptPanel({ receipt, lens, m, note }: { receipt: Receipt; lens: string; m: Messages; note?: ReactNode }) {
   const { scope, ...fields } = receipt;
   return (
     <details className="mt-4 rounded border border-line p-3">
@@ -17,6 +18,7 @@ export function ReceiptPanel({ receipt, lens, m }: { receipt: Receipt; lens: str
         ) : (
           <p className="mb-2 text-sm">{m.receipt.noScope}</p>
         )}
+        {note}
         <dl>
           {Object.entries(fields).map(([key, value]) => (
             <div key={key} className="border-t border-line py-1">
