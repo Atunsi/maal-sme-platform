@@ -7,11 +7,4 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-// jsdom has no layout engine, which Recharts' ResponsiveContainer needs.
-globalThis.ResizeObserver = class {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};
-
 afterEach(cleanup);

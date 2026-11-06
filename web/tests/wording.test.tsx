@@ -71,7 +71,7 @@ describe("credit contract guards", () => {
     const withInput = readdirSync(join(webRoot, "components"), { recursive: true, encoding: "utf8" })
       .filter((file) => file.endsWith(".tsx"))
       .filter((file) => /<(input|select|textarea)\b/.test(readFileSync(join(webRoot, "components", file), "utf8")));
-    expect(withInput).toEqual(["BusinessPicker.tsx"]);
+    expect(withInput.sort()).toEqual(["BusinessPicker.tsx", "SignInForm.tsx"]); // the sign-in is U15 as amended; its fields feed nothing
   });
 });
 

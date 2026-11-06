@@ -68,20 +68,20 @@ test("scenario menu changes the chosen scenario", async ({ page }) => {
 });
 
 test("picker: a valid ID opens the dashboard", async ({ page }) => {
-  await page.goto("/en");
-  await page.getByRole("textbox", { name: "Business ID" }).fill("10009");
-  await page.getByRole("button", { name: "Open dashboard" }).click();
+  await page.goto("/en/admin", { waitUntil: "networkidle" });
+  await page.getByRole("textbox", { name: "Open a business by ID" }).fill("10009");
+  await page.getByRole("button", { name: "Open", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/business\/10009$/);
   await expect(page.getByRole("heading", { name: "Business 10009" })).toBeVisible();
 });
 
 for (const value of ["9999", "11001", "abc", "10001.5", ""]) {
   test(`picker: "${value}" is refused before any call`, async ({ page }) => {
-    await page.goto("/en");
-    await page.getByRole("textbox", { name: "Business ID" }).fill(value);
-    await page.getByRole("button", { name: "Open dashboard" }).click();
+    await page.goto("/en/admin", { waitUntil: "networkidle" });
+    await page.getByRole("textbox", { name: "Open a business by ID" }).fill(value);
+    await page.getByRole("button", { name: "Open", exact: true }).click();
     await expect(page.locator("main").getByRole("alert")).toContainText("whole number");
-    await expect(page).toHaveURL(/\/en$/);
+    await expect(page).toHaveURL(/\/en\/admin$/);
   });
 }
 

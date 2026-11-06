@@ -1,8 +1,0 @@
-{
-  "_source": "Written by hand from config.yaml demo_businesses (ids and English names). Arabic names are a first draft.",
-  "businesses": [
-    { "id": 10001, "name_en": "Ramadan-overlap retail (zakat-seeded)", "name_ar": "تجزئة تتداخل مع رمضان (ببيانات زكاة أولية)" },
-    { "id": 10002, "name_en": "Non-overlap retail (no zakat seed)", "name_ar": "تجزئة لا تتداخل مع رمضان (دون بيانات زكاة أولية)" },
-    { "id": 10003, "name_en": "Thin-file professional services", "name_ar": "خدمات مهنية ببيانات محدودة" }
-  ]
-}

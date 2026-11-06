@@ -10,6 +10,8 @@ export const SCENARIO_PAGES = index.scenarios.map(({ name }) => `/scenarios?s=${
 
 export const PAGES = [
   "",
+  "/sign-in",
+  "/admin",
   ...BUSINESSES.flatMap((id) => [`/business/${id}`, ...LENS_ROUTES.map((route) => `/business/${id}/${route}`)]),
   ...SCENARIO_PAGES,
 ];
