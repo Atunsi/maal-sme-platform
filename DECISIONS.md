@@ -2601,3 +2601,89 @@ them depend on invoice numbers and vendor records that a bank-transaction lens d
 with the gate alone), still under the 2 s target. The credit route maximum was 626 ms. As in 36.9,
 `eval/out/latency_week7.md` and NUMBERS §6b are left for the owner to re-time on the team machine;
 timings across machines are not comparable.
+
+---
+
+## 41. Web UI first pass: Next.js app over the five read-paths; scenario objects verified by integrity + `scenarios.run --check` — PROPOSED (2026-11-06)
+
+**Touches:** new `web/`; `.gitignore`; the README status row. `api/`, `pipeline/`, `lenses/`,
+`profile_engine/`, `compliance/`, `scenarios/`, `config.yaml` and the schema are unchanged.
+
+**What was built.** The first pass of the Weeks 9 and 10 UI (§19): a business picker, a dashboard
+(credit, Sharia screen, Zakat, forecast, anomaly, profile, a receipt per lens), the §10 Compliance View
+toggle, a scenario page for the 8 entries of the entry 29 library next to the baseline, and English and
+Arabic with RTL. Next.js App Router, TypeScript strict, Tailwind; run instructions in `web/README.md`.
+The Arabic is a first draft, not yet reviewed.
+
+**The API key stays server-side.** The browser talks only to the Next.js server. `web/lib/api.ts` is the
+only reader of `MAAL_API_KEY` and imports `server-only`, so no CORS change to `api/` was needed.
+
+**Rules, and how each is enforced and tested** (`web/tests/`, `web/e2e/`):
+
+| # | Rule | Enforced by | Test |
+|---|---|---|---|
+| U1 | Markup fixed at signing | Strict `credit` schema; `markup_fixed_at_inception` can only be true; no input exists | `U1 a stressed markup field fails the schema`; `U1 the only input in the app is the business picker` |
+| U2 | Late penalty charity-directed | Schema accepts only `charity_directed`; shown as returned | `U2 any other late-penalty policy fails the schema` |
+| U3 | Zakat and Sharia deterministic | Values as returned; SAR at 2 decimals | `U3 SAR keeps exactly 2 decimals and changes nothing` |
+| U4 | No generated text in the Compliance View | The component renders response fields and column labels only | `U4 every table cell is a value from the response`; `U4 snapshot for 10001` |
+| U5 | No `eligible` field on a navigator | No navigator built | none needed |
+| U6 | Sharia screen is not a determination (entry 26) | One fixed label component | `U6 fixed label and rule_table_status on every state` |
+| U7 | Nisab price is a placeholder | Badge from `nisab_source_status` | `U3 U7 computed (10001)` |
+| U8 | `flag_reason` only | Strict flag schema; review-queue wording | `U8 a flag carrying a score fails the schema`; `U8 the flags table never says fraud or score` |
+| U9 | No peer benchmarking (§36.4) | Features 55–59 listed as raw names and values | `U9 features 55-59 appear as raw names` |
+| U10 | `insufficient_data` is explicit (§15) | Schema requires the refusal; one `Refusal` component | `insufficient_data (10003)`; `U10 not_computed (synthetic state)` |
+| U11 | Every number carries its population | Line on every card, permanent banner; schema accepts only `serving` | `U11 population and data source are shown`; `renders and passes axe` |
+| U12 | Model honesty | AUC and ceiling read from the receipt; findings panel | `U12 AUC and ceiling come from the receipt`; `U12 quotes no number` |
+| U13 | Receipt scope | Verbatim where present; `/profile` says it has none | `U13 lens receipt shows scope verbatim`; `U13 /profile receipt says it has no scope field` |
+| U14 | WCAG 2.1 AA | Semantic HTML, keyboard toggles, status as glyph plus words, table beside the chart | `renders and passes axe` (axe, 30 pages across both locales) |
+| U15 | No personal data, demo scope stated | No accounts or tracking; footer (§18, §29) | `U15 the footer states the demo scope` |
+
+Results: 104 vitest and 48 Playwright tests pass. Eight deliberate breakages each failed the expected
+test. Repo pytest and ruff are unchanged (98 passed, 1 xfailed; clean).
+
+**Scenario verification rule.** A scenario object counts as verified when (a) it hashes to its own
+`receipt.output_sha256` (`pipeline.week8.output_sha256`), and (b) `python -m scenarios.run --check`
+exits 0 (contract, byte-identical re-run, time budget). `pipeline.verify` cannot apply: it re-runs a
+decision from the generated `data/`, and a scenario is an in-memory overlay on business 10001, so
+its `data_sha256` can never match. All 8 failed it, as expected, including the baseline, because a
+single-business run numbers its surrogate IDs from 1 (entry 29). The 8 exported objects pass both checks
+(N = 1 each; library sha256 `8f84b917…cc0e7d`, code commit `c571185`).
+
+**Scenario receipts carry a misleading line, for the generator owner.** Their `scope` says
+`verify: python -m pipeline.verify <file>`, which does not work on them. The UI shows the scope
+verbatim and adds a note under it. Better to change the wording at the source.
+
+**Backend templates are not translated.** `public_tier[].text`, owner prompts, disclosures, conditions,
+drivers, rule details, `compliance_explanation` and every `method` string stay in English in an LTR block
+in Arabic mode, labelled as pending an Arabic template. They are deterministic templates owned by the
+credit and compliance owners (SOP §7 lists Arabic templates as their own work item), and a UI translation
+would be a second, unreviewed version. Enum keys with a fixed meaning are UI labels and are translated.
+
+**Finding: the serving store is not safe under concurrent requests.** `api/store.py` shares one DuckDB
+connection across request threads. Concurrent requests fail, and some return HTTP 200 computed from
+another request's rows. The Week 7 latency result does not cover this.
+
+| Measured | Population, N | Result |
+|---|---|---|
+| UI run: concurrent `/lenses/zakat` | Quick store (300 serving), 48 requests over 8 businesses, 1 run | 41 HTTP 500; 4 HTTP 200 with a `data_sha256` different from the sequential answer; 3 correct |
+| Faris: concurrent Zakat requests | Quick store (300 serving), 48 per run, 3 runs | 41 to 43 HTTP 500 per run |
+| Faris: threaded store loads | Quick store (300 serving), 200 loads | 1 load held another business's rows |
+| Faris: per-call `cursor()` | Quick store (300 serving), 200 loads, 1 run | 200 of 200 correct |
+| Through the UI queue | Quick store, 15 concurrent page loads over 5 businesses | 60 of 60 lens hashes matched; 0 API errors |
+
+The UI works around this: `web/lib/api.ts` sends one API request at a time, and each card still loads
+and fails on its own. This makes the dashboard sequential until the store is fixed, which is not what §8
+intends. **The fix is the API owner's.** Remove the queue after it.
+
+**Entry 29, one wording correction for its owners.** Finding 1 says the collapse PDs are "no higher than
+the baseline's". On the exported objects `combined_crisis` is 0.056133 and the baseline 0.055732, so that
+one is slightly higher. The finding's point stands (N = 1 each, and both are declined by affordability,
+not by the risk model), and nothing was changed.
+
+**API additions proposed, not built:** the store fix above; `GET /businesses` (id, sector, status) for
+the picker; a scenarios route so the page can run them live; daily history for the §10 model vs baseline vs
+actual chart, which today draws no actual line; `scope` on `/profile` receipts.
+
+**Open: UI ownership.** SOP §3 names no UI owner.
+
+**Sign-off:** ☐ team (UI ownership and scope) ☐ API owner (store fix, proposed routes) ☐ generator owner (scenario verification rule, receipt scope wording) ☐ credit lens owner (Compliance View) ☐ compliance owner (Sharia and Zakat panels, Arabic templates)
