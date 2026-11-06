@@ -1,10 +1,26 @@
-# Web UI — first pass, PROPOSED (DECISIONS entry 41)
+# Web UI — redesign, PROPOSED (DECISIONS entries 41 and 42)
 
 **Schema:** §8, §10, §11, §13, §15, §29, §36 · **Due:** Weeks 9 and 10 (§19) · **Owner:** open (entry 41)
 
-A Next.js app over the five API read-paths: a business picker, a dashboard, the Compliance View,
-a scenario demo page, and English and Arabic with RTL. It is a demo on synthetic data. It has no
-accounts, tracking or logging of business data.
+A Next.js app over the five API read-paths, in English and Arabic with RTL, in light and dark themes.
+It is a demo on synthetic data. It has no real accounts, tracking or logging of business data.
+
+## Pages
+
+| Route | Page |
+|---|---|
+| `/[locale]` | Public landing page |
+| `/[locale]/sign-in` | Demo sign-in, two roles |
+| `/[locale]/admin` | The five demo businesses, and open a business by ID |
+| `/[locale]/business/[id]` | Overview: verdict sheet, receipt, five readouts, profile features |
+| `/[locale]/business/[id]/credit` | Credit, with the Compliance View at `?view=compliance` |
+| `/[locale]/business/[id]/sharia` | Sharia screen |
+| `/[locale]/business/[id]/zakat` | Zakat |
+| `/[locale]/business/[id]/forecast` | Forecast |
+| `/[locale]/business/[id]/review` | Review queue |
+| `/[locale]/scenarios` | Scenario diff sheet, chosen with `?s=` |
+
+The design reference is in `docs/design/` (read its README first). Its mockups are a spec, not code.
 
 ## Run
 
@@ -44,8 +60,8 @@ npm run test         # vitest; the scenario test also calls python from the repo
 npm run e2e          # Playwright, in Microsoft Edge; needs the API and a finished build
 ```
 
-`npm run e2e` takes about three minutes, because the 429 test waits out the API's real one-minute
-rate window.
+`npm run e2e` takes a while: it runs axe on every page in both locales and both themes, and the 429
+test waits out the API's real one-minute rate window.
 
 ## Constraints
 
@@ -59,7 +75,25 @@ rate window.
   labelled as pending an Arabic template. A UI translation would be a second, unreviewed version.
 - **Every number comes from an API response or an exported scenario object.** Nothing from
   `docs/NUMBERS.md` is hard-coded.
-- **Rules U1 to U15** are listed in entry 41, each with how it is enforced and tested.
+- **Rules U1 to U15** are listed in entry 41, each with how it is enforced and tested. Entry 42 amends
+  U11 and U15.
+- **No symbol characters in UI text.** Status is a word on a plate (`Plate` in `components/ui.tsx`).
+- **Motion never carries meaning.** Each animated element's base style is its final state, so under
+  `prefers-reduced-motion: reduce` the page simply shows that state. Time axes stay left to right in
+  Arabic; other bars mirror through `--o-start` and `--o-end`.
+
+## Theme
+
+Light and dark tokens are CSS variables in `app/globals.css`, on a `th-light` or `th-dark` class on
+`<html>`. The default follows `prefers-color-scheme`. A choice is kept in `localStorage` only, never
+in a cookie. `.panel` is a dark surface in either theme; components inside it need no dark variant.
+
+## Demo sign-in
+
+`/sign-in` chooses a role and routes to a page. It checks no credentials, creates no account or
+session, stores nothing, sets no cookie and sends nothing to the API. The fields are uncontrolled and
+unnamed. The role rides in the URL (`?as=owner` or `?as=admin`), proves nothing and gates nothing:
+`/admin` is open to anyone who visits it. A real deployment would need PDPL handling.
 
 ## Fixtures and scenarios
 

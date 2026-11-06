@@ -2687,3 +2687,83 @@ actual chart, which today draws no actual line; `scope` on `/profile` receipts.
 **Open: UI ownership.** SOP §3 names no UI owner.
 
 **Sign-off:** ☐ team (UI ownership and scope) ☐ API owner (store fix, proposed routes) ☐ generator owner (scenario verification rule, receipt scope wording) ☐ credit lens owner (Compliance View) ☐ compliance owner (Sharia and Zakat panels, Arabic templates)
+
+---
+
+## 42. Web UI redesign to the design bundle; U11 and U15 amended for the demo — PROPOSED (2026-11-06)
+
+**Touches:** `web/` and the README status row. `api/`, `pipeline/`, `lenses/`, `profile_engine/`, `compliance/`,
+`scenarios/`, `config.yaml` and the schema are unchanged. Builds on entry 41; rules U1 to U15 are as listed
+there, with the two amendments below.
+
+**What changed and why.** The first pass read as generic: every card the same weight, everything on one
+long page, no brand on the first screen. The design bundle (`web/docs/design/`) replaces that with Faris's
+Arabic logo and an English companion wordmark in every header, light and dark themes, one page per lens
+plus an overview, lens visuals with motion, a scenario diff sheet, a public landing page, a demo sign-in and
+an admin list. The bundle's competitor review found three things worth acting on: Saudi lenders sell speed
+and trust but never show why; underwriting tools show evidence visually; and brand-led fintechs repeat
+one motif. So the pages lead with the reason for a decision, and "pending Sharia-advisor confirmation"
+is shown more prominently, not less. The landing page uses counts of what the demo contains, not
+performance claims.
+
+**U11 amended, word for word.** The yellow synthetic-data banner is removed. Instead, every page shows
+population and data source: the footer of every page reads "Synthetic data only. Population: serving." (and
+its Arabic), and the landing, sign-in and admin pages say "synthetic data" in their body copy. Every number
+still carries its population where the old rule required it.
+
+**U15 amended, word for word.** A demo sign-in page is allowed, front-end only: it chooses a role (Business
+owner or Admin) and routes to the right page. It checks no credentials, creates no account or session,
+stores nothing, sets no cookie and sends nothing to the API. The page says so in plain words. Everything
+else in U15 stands (no tracking, analytics or logging of business data; the PDPL and SAMA Open Banking
+footer note).
+
+**New rules.**
+- No symbol characters in UI text: no check marks, crosses, exclamation marks, arrows, delta signs, middle
+  dots, ellipses or em dashes in any rendered text, in either language. Status is a word on a plate.
+- No hash-derived visual patterns ("seals" or "fingerprints") anywhere. Receipts stay plain text.
+- Theme preference may be kept in `localStorage` only (no cookie), defaulting to the system
+  `prefers-color-scheme`.
+
+**Logo files.** `web/docs/design/logo/maal-ar.svg` (sha256 `75d20f0cc5bbdffb8f2eec20612f05522a83714a834a41beb1a32b2f40263311`)
+and `web/docs/design/logo/maal-en.svg` (sha256 `3e103bda95aee4c0745566147a6d389fcb124bacd6ca64d273a4265180229771`).
+`tests/brand.test.tsx` checks both hashes, and that the React components hold the same path data
+coordinate for coordinate. `maal-ar.svg` is one compound path, not the two paths the bundle README
+describes; the app splits it at its last subpath (the madda) so the two parts can animate. No coordinate
+changes.
+
+**Figures.** Every figure comes from an API response or an exported scenario object. Positions, widths and
+dates in the visuals are computed from the response at render time. The landing card reads the exported
+`baseline` scenario object; its counts come from code (the lens list, the scenario index, the locale list).
+`tests/visuals.test.tsx` fails if any of the mockups' 10001 figures appears in a source file.
+
+**Could not be built as designed.**
+
+| Element | What happens instead | Why |
+|---|---|---|
+| "N of cap" on the review queue ("10 of 10 slots") | The count and the transactions scanned; no cap | The cap is `max_flags` in `lens_config.yaml`, and no response carries it. Hard-coding it is not allowed. Proposed: add it to the anomaly response |
+| Legend text "Model, naive90" and "Naive baseline, trailing 30-day mean" | "Model" and "Naive baseline"; the page shows the API's `method` string verbatim under the table | Those details exist only inside that free-text string, and parsing it for a legend would be fragile |
+| Reem Kufi for Arabic accents in the mockups | IBM Plex Sans Arabic | SOP lists four IBM Plex families only |
+| Mockup wording "Every result is signed with a receipt" | "Every result carries a receipt" | A receipt is a list of hashes, not a signature |
+| The `.ink` plate's white text; the forecast cover rectangle | Plate text uses the page ground colour; a clip reveals the lines | Mockup defects: white on `--ink` fails contrast in the dark theme, and the cover would hide the chart under reduced motion |
+
+**Where the symbol rule stops.** Backend text is verbatim by U4 and U13 and is not UI text. One real
+template holds an em dash: the Sharia rule detail for MCC 5921 ("package stores — beer, wine, liquor"), reached
+only by a hard flag, which no demo business has (it appears in a synthetic-state fixture). It stays as
+returned. Scenario labels hold one too ("Severe revenue collapse — inflows down 60% from week 14"); the
+dash there is a separator, so the UI shows the two parts on separate lines, as the design does, and drops no
+word. The generator owner may prefer to change the source label.
+
+**Time axes stay left to right in Arabic** (forecast chart, review timeline, hawl track), following entry
+41's chart rule. Non-time bars mirror, so credit and zakat bars grow from the right.
+
+**One rule test had to widen.** `U1 the only input in the app is the business picker` now also allows
+`SignInForm.tsx`, because the U15 amendment adds inputs. U1's point stands: no input can change terms. New
+tests check that the sign-in fields have no name, are never read, and send and store nothing.
+
+**The demo role proves nothing.** It rides in the URL (`?as=`) and gates nothing, so `/admin` is open to any
+visitor. That is fine for synthetic data and would not be for real data.
+
+**The request queue stays** (entry 41). The overview makes the five requests of the first-pass dashboard, and
+each lens page makes one.
+
+**Sign-off:** ☐ team (redesign, U11 and U15 amendments) ☐ compliance owner (Sharia and Zakat pages, Arabic copy) ☐ credit lens owner (Credit and Compliance views)

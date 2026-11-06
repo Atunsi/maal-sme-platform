@@ -62,7 +62,7 @@ write code that breaks one, stop and raise it.
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | **Screening v1 built** — feature 24, deterministic rule table (PROPOSED, not certified); 85.1% compliant / 14.9% soft (entry 26) |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
 | API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 252 ms on all 1,000; entries 25–27) |
-| Next.js UI | [`web/`](web/) | open (entry 41) | **First pass built, PROPOSED** — picker, dashboard, Compliance View, scenario page, Arabic and English; API calls are queued until the store concurrency bug is fixed (entry 41). Own Week 10 gate. |
+| Next.js UI | [`web/`](web/) | open (entry 41) | **Redesign built, PROPOSED** (entry 42) — landing page, demo sign-in, admin list, overview, one page per lens, Compliance View, scenario diff sheet, light and dark themes, Arabic and English; API calls are queued until the store concurrency bug is fixed (entry 41). Own Week 10 gate. |
 
 Each component directory has a README stating its contract, the schema sections
 that govern it, and the constraints it must not implement around. **Read the
