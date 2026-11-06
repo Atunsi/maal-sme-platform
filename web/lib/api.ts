@@ -16,10 +16,10 @@ import type { ApiErrorKind, ApiResult } from "@/lib/types";
 
 const STATUS_KIND: Record<number, ApiErrorKind> = { 401: "unauthorized", 404: "not_found", 429: "rate_limited" };
 
-// One API request at a time, across all visitors to this server. api/store.py shares a single
-// DuckDB connection between request threads, so parallel calls fail with HTTP 500 or, worse, return
-// HTTP 200 computed from another request's rows (measured 2026-11-06). Remove this queue once
-// the API owner has fixed the store, and the five requests run in parallel as §8 intends.
+// One API request at a time, across all visitors to this server. This works around a bug in
+// api/store.py: ServingStore shares one DuckDB connection between request threads, so parallel calls
+// fail with HTTP 500 or, worse, return HTTP 200 computed from another request's rows (DECISIONS 41).
+// Remove this queue once api/store.py is fixed, and the five requests run in parallel as §8 intends.
 let queueTail: Promise<unknown> = Promise.resolve();
 
 function oneAtATime<T>(task: () => Promise<T>): Promise<T> {

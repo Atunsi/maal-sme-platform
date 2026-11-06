@@ -445,7 +445,7 @@
     "credit_model_oracle_ceiling_auc": 0.666,
     "reference_stats_sha256": "14026c000b3507ac1f92fa8fbf0c8f11c1d3816060468083eb80896c8ee6fae4",
     "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
-    "code_commit": "54f070c48eb806c06c892e155a73986d13221bf7+dirty",
+    "code_commit": "0a26c550830933b4affe3aabbdd8e75559968ac9",
     "generated_by": "api",
     "data_sha256": "eb3b3cf1d550b02c4719bd51af46977c5326664170f934b2f09298fc5e5e5a18",
     "output_sha256": "ba49959c1dc9be019d08018b2d6932ceee323c063070bc1b6bf737cdc1dd69cb",

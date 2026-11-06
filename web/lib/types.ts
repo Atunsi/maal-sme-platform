@@ -9,6 +9,8 @@ import type {
   HealthResponse,
   ProfileResponse,
   Receipt,
+  ScenarioIndex,
+  ScenarioObject,
   ShariaScreen,
   ZakatResponse,
 } from "@/lib/schemas";
@@ -24,6 +26,8 @@ export type AnomalyResponse = z.infer<typeof AnomalyResponse>;
 export type ZakatResponse = z.infer<typeof ZakatResponse>;
 export type ProfileResponse = z.infer<typeof ProfileResponse>;
 export type HealthResponse = z.infer<typeof HealthResponse>;
+export type ScenarioObject = z.infer<typeof ScenarioObject>;
+export type ScenarioIndex = z.infer<typeof ScenarioIndex>;
 
 export type ApiErrorKind =
   | "config"

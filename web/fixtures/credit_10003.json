@@ -31,7 +31,7 @@
     "credit_model_oracle_ceiling_auc": 0.666,
     "reference_stats_sha256": "14026c000b3507ac1f92fa8fbf0c8f11c1d3816060468083eb80896c8ee6fae4",
     "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
-    "code_commit": "54f070c48eb806c06c892e155a73986d13221bf7+dirty",
+    "code_commit": "0a26c550830933b4affe3aabbdd8e75559968ac9",
     "generated_by": "api",
     "data_sha256": "8b5a7257416e06b3e6f0aca0d1624db7dd4b8192b356e6e4c683458eedb546f7",
     "output_sha256": "706b6e393553bcf477d43047ee51a2fb2683115d66df8a6c6d517893539f5c9b",

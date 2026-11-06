@@ -235,6 +235,41 @@ export const ProfileResponse = z.object({
   null_reasons: z.record(z.string(), z.string()),
 });
 
+// A scenario object is the Week 8 object, not an API response, so it differs from the routes above:
+// sharia_screen sits under governance, the reason key is plural, and credit sections are null, not absent.
+export const ScenarioObject = z
+  .object({
+    ...header,
+    lenses_not_run_reason: z.literal("insufficient_data").optional(),
+    credit: Credit.nullable(),
+    credit_explanation: CreditExplanation.nullable(),
+    credit_decision_detail: CreditDetail.nullable(),
+    forecast: ForecastBody.nullable(),
+    anomaly: AnomalyBody.nullable(),
+    zakat: ZakatBody.nullable(),
+    governance: z.object({ sharia_screen: ShariaScreen }),
+    scenario: z.object({
+      id: z.string(),
+      label: z.string(),
+      library_version: z.string(),
+      library_status: z.string(),
+      overrides: z.record(z.string(), z.unknown()),
+    }),
+    receipt: Receipt.required({ scope: true }).extend({ scenario_library_sha256: sha256 }),
+  })
+  .refine((o) => refusalIsExplicit(o.credit, { status: o.status, lens_not_run_reason: o.lenses_not_run_reason }), {
+    message: "scenario body and status disagree (§15)",
+  });
+
+export const ScenarioIndex = z.object({
+  library_version: z.string(),
+  library_status: z.string(),
+  library_sha256: sha256,
+  base_business: z.number().int(),
+  code_commit: z.string(),
+  scenarios: z.array(z.object({ name: z.string(), label: z.string(), story: z.string(), output_sha256: sha256 })),
+});
+
 export const HealthResponse = z.object({
   status: z.string(),
   serving_businesses: z.number().int(),

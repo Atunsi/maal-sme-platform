@@ -194,7 +194,7 @@
   "receipt": {
     "title": "Receipt: {lens}",
     "scope": "Scope",
-    "noScope": "This route returns no scope string.",
+    "noScope": "No scope field on this receipt.",
     "profile": "profile"
   },
   "enums": {
