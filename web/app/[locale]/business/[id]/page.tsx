@@ -1,105 +1,98 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Suspense, type ReactNode } from "react";
-import { AnomalyCard } from "@/components/AnomalyCard";
-import { BusinessHeader } from "@/components/BusinessHeader";
-import { CreditCard } from "@/components/CreditCard";
-import { ForecastCard } from "@/components/ForecastCard";
+import { notFound, redirect } from "next/navigation";
+import { Lens, NotServing } from "@/components/LensPage";
 import { ProfilePanel } from "@/components/ProfilePanel";
-import { ShariaPanel } from "@/components/ShariaPanel";
-import { ApiError, Card, CardLoading } from "@/components/ui";
-import { ZakatCard } from "@/components/ZakatCard";
+import { creditReadout, forecastReadout, ReadoutCard, reviewReadout, shariaReadout, zakatReadout } from "@/components/Readouts";
+import { ApiError, Card, Page } from "@/components/ui";
+import { VerdictSheet } from "@/components/VerdictSheet";
 import { getAnomaly, getCredit, getForecast, getProfile, getZakat } from "@/lib/api";
-import { fill, getMessages, isLocale, type Messages } from "@/lib/i18n";
+import { roleQuery } from "@/lib/businesses";
+import { fill, getMessages, isLocale } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
-import type { ApiResult } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-/** One lens: its own loading state and its own error, so a slow or failed lens blocks no other (§8). */
-function Lens<T>({ title, result, m, children }: { title: string; result: Promise<ApiResult<T>>; m: Messages; children: (data: T) => ReactNode }) {
-  return (
-    <Suspense fallback={<CardLoading title={title} m={m} />}>
-      <Resolved title={title} result={result} m={m}>
-        {children}
-      </Resolved>
-    </Suspense>
-  );
-}
-
-async function Resolved<T>({ title, result, m, children }: { title: string; result: Promise<ApiResult<T>>; m: Messages; children: (data: T) => ReactNode }) {
-  const r = await result;
-  if (r.ok) return children(r.data);
-  return (
-    <Card title={title}>
-      <ApiError kind={r.kind} detail={r.detail} m={m} />
-    </Card>
-  );
-}
-
-function NotServing({ locale, m, id }: { locale: string; m: Messages; id: string }) {
-  return (
-    <div className="space-y-3">
-      <h1 className="text-2xl font-semibold">{fill(m.dashboard.title, { id })}</h1>
-      <ApiError kind="not_found" m={m} />
-      <Link href={`/${locale}`} className="underline">
-        {m.common.back}
-      </Link>
-    </div>
-  );
-}
-
 type Props = {
   params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ view?: string | string[] }>;
+  searchParams: Promise<{ view?: string | string[]; as?: string | string[] }>;
 };
 
-export default async function DashboardPage({ params, searchParams }: Props) {
+export default async function OverviewPage({ params, searchParams }: Props) {
   const { locale, id: rawId } = await params;
   if (!isLocale(locale)) notFound();
   const m = getMessages(locale);
   const id = Number(rawId);
   if (!isServingId(id)) return <NotServing locale={locale} m={m} id={rawId} />;
-  const initialView = (await searchParams).view === "compliance" ? "compliance" : "public";
+  const { view, as } = await searchParams;
+  const query = roleQuery(as);
+  // First-pass links to the Compliance View pointed here. It now lives on the credit page.
+  if (view === "compliance") redirect(`/${locale}/business/${id}/credit?view=compliance${query.replace("?", "&")}`);
 
   // All five start here and never reject. lib/api.ts runs them one at a time for now, so the order
   // matters: the anomaly route is the slowest, and last it delays no other card.
-  const profile = getProfile(id);
   const credit = getCredit(id);
   const zakat = getZakat(id);
   const forecast = getForecast(id);
+  const profile = getProfile(id);
   const anomaly = getAnomaly(id);
 
-  const first = await profile;
+  const first = await credit;
   if (!first.ok && first.kind === "not_found") return <NotServing locale={locale} m={m} id={rawId} />;
 
+  const root = `/${locale}/business/${id}`;
+  const partial = (status: string) => (status === "partial_profile" ? m.enums.status.partial_profile : undefined);
+
   return (
-    <div className="space-y-5">
+    <Page>
+      <div className="rise flex flex-wrap items-baseline justify-between gap-3">
+        <h1 className="heading text-[30px]">{fill(m.overview.welcome, { id })}</h1>
+        {locale === "en" && (
+          <span lang="ar" className="text-[22px] text-accent">
+            {m.overview.greeting}
+          </span>
+        )}
+      </div>
       {first.ok ? (
-        <BusinessHeader data={first.data} locale={locale} m={m} />
+        <VerdictSheet data={first.data} locale={locale} m={m} />
       ) : (
-        <Card title={fill(m.dashboard.title, { id })}>
+        <Card title={m.credit.title}>
           <ApiError kind={first.kind} detail={first.detail} m={m} />
         </Card>
       )}
-      <Lens title={m.credit.title} result={credit} m={m}>
-        {(data) => <CreditCard data={data} initialView={initialView} locale={locale} m={m} />}
+      <section aria-labelledby="readouts" className="flex flex-col gap-3.5">
+        <h2 id="readouts" className="heading caps text-[15px] text-muted">
+          {m.overview.readouts}
+        </h2>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
+          <Lens title={m.nav.credit} result={credit} m={m}>
+            {(data) => (
+              <ReadoutCard lens={m.nav.credit} href={`${root}/credit${query}`} readout={creditReadout(data, locale, m)} partial={partial(data.status)} index={0} m={m} />
+            )}
+          </Lens>
+          <Lens title={m.nav.sharia} result={credit} m={m}>
+            {(data) => (
+              <ReadoutCard lens={m.nav.sharia} href={`${root}/sharia${query}`} readout={shariaReadout(data, locale, m)} partial={partial(data.status)} index={1} m={m} />
+            )}
+          </Lens>
+          <Lens title={m.nav.zakat} result={zakat} m={m}>
+            {(data) => (
+              <ReadoutCard lens={m.nav.zakat} href={`${root}/zakat${query}`} readout={zakatReadout(data, locale, m)} partial={partial(data.status)} index={2} m={m} />
+            )}
+          </Lens>
+          <Lens title={m.nav.forecast} result={forecast} m={m}>
+            {(data) => (
+              <ReadoutCard lens={m.nav.forecast} href={`${root}/forecast${query}`} readout={forecastReadout(data, locale, m)} partial={partial(data.status)} index={3} m={m} />
+            )}
+          </Lens>
+          <Lens title={m.nav.review} result={anomaly} m={m}>
+            {(data) => (
+              <ReadoutCard lens={m.nav.review} href={`${root}/review${query}`} readout={reviewReadout(data, locale, m)} partial={partial(data.status)} index={4} m={m} />
+            )}
+          </Lens>
+        </div>
+      </section>
+      <Lens title={m.dashboard.profileTitle} result={profile} m={m}>
+        {(data) => <ProfilePanel data={data} m={m} />}
       </Lens>
-      <div className="grid gap-5 lg:grid-cols-2">
-        <Lens title={m.sharia.title} result={credit} m={m}>
-          {(data) => <ShariaPanel data={data} locale={locale} m={m} />}
-        </Lens>
-        <Lens title={m.zakat.title} result={zakat} m={m}>
-          {(data) => <ZakatCard data={data} locale={locale} m={m} />}
-        </Lens>
-      </div>
-      <Lens title={m.forecast.title} result={forecast} m={m}>
-        {(data) => <ForecastCard data={data} locale={locale} m={m} />}
-      </Lens>
-      <Lens title={m.anomaly.title} result={anomaly} m={m}>
-        {(data) => <AnomalyCard data={data} locale={locale} m={m} />}
-      </Lens>
-      {first.ok && <ProfilePanel data={first.data} m={m} />}
-    </div>
+    </Page>
   );
 }

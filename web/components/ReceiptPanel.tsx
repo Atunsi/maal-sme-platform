@@ -7,7 +7,7 @@ import type { Receipt } from "@/lib/types";
 export function ReceiptPanel({ receipt, lens, m, note }: { receipt: Receipt; lens: string; m: Messages; note?: ReactNode }) {
   const { scope, ...fields } = receipt;
   return (
-    <details className="mt-4 rounded border border-line p-3">
+    <details className="mt-4 border border-line p-3">
       <summary className="text-sm font-medium">{fill(m.receipt.title, { lens })}</summary>
       <div className="mt-2">
         <p className="text-sm font-semibold text-muted">{m.receipt.scope}</p>

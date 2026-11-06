@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 import { apiEnv } from "./helpers";
 
 test("compliance toggle switches the view and updates the URL", async ({ page }) => {
-  await page.goto("/en/business/10002", { waitUntil: "networkidle" });
+  await page.goto("/en/business/10002/credit", { waitUntil: "networkidle" });
   const view = page.getByTestId("compliance-view");
   const compliance = page.getByRole("button", { name: "Compliance View" });
   const publicView = page.getByRole("button", { name: "Public view" });
@@ -21,7 +21,7 @@ test("compliance toggle switches the view and updates the URL", async ({ page })
 });
 
 test("compliance toggle works from the keyboard and shows a focus ring", async ({ page }) => {
-  await page.goto("/en/business/10006", { waitUntil: "networkidle" });
+  await page.goto("/en/business/10006/credit", { waitUntil: "networkidle" });
   const compliance = page.getByRole("button", { name: "Compliance View" });
   await compliance.focus();
   await page.keyboard.press("Enter");
@@ -34,22 +34,22 @@ test("compliance toggle works from the keyboard and shows a focus ring", async (
 });
 
 test("a shared ?view=compliance link opens the Compliance View", async ({ page }) => {
-  await page.goto("/en/business/10007?view=compliance", { waitUntil: "networkidle" });
+  await page.goto("/en/business/10007/credit?view=compliance", { waitUntil: "networkidle" });
   await expect(page.getByTestId("compliance-view")).toBeVisible();
 });
 
 test("language toggle keeps the page, the business and the view", async ({ page }) => {
-  await page.goto("/en/business/10008", { waitUntil: "networkidle" });
+  await page.goto("/en/business/10008/credit", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Compliance View" }).click();
   await expect(page).toHaveURL(/\?view=compliance$/);
 
   await page.getByRole("link", { name: /العربية/ }).click();
-  await expect(page).toHaveURL(/\/ar\/business\/10008\?view=compliance$/);
+  await expect(page).toHaveURL(/\/ar\/business\/10008\/credit\?view=compliance$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByTestId("compliance-view")).toBeVisible();
 
   await page.getByRole("link", { name: /English/ }).click();
-  await expect(page).toHaveURL(/\/en\/business\/10008\?view=compliance$/);
+  await expect(page).toHaveURL(/\/en\/business\/10008\/credit\?view=compliance$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
 });
 
@@ -98,7 +98,7 @@ test("a research ID in the URL is refused", async ({ page }) => {
 });
 
 test("receipt panel opens and shows the scope verbatim", async ({ page }) => {
-  await page.goto("/en/business/10010", { waitUntil: "networkidle" });
+  await page.goto("/en/business/10010/zakat", { waitUntil: "networkidle" });
   const summary = page.getByText("Receipt: Zakat");
   const scope = page.locator("details", { has: summary }).getByText("Covers the deterministic core only", { exact: false });
   await expect(scope).toBeHidden();
@@ -145,4 +145,10 @@ test("the key never appears in what the browser receives", async ({ page }) => {
   await page.goto("/en/business/10013", { waitUntil: "networkidle" });
   expect(bodies.length).toBeGreaterThan(1);
   expect(bodies.filter((text) => text.includes(MAAL_API_KEY))).toEqual([]);
+});
+
+test("a first-pass ?view=compliance link on the overview lands on the credit page", async ({ page }) => {
+  await page.goto("/en/business/10014?view=compliance", { waitUntil: "networkidle" });
+  await expect(page).toHaveURL(/\/en\/business\/10014\/credit\?view=compliance$/);
+  await expect(page.getByTestId("compliance-view")).toBeVisible();
 });

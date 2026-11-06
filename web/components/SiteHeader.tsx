@@ -52,12 +52,15 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
     <>
       <header className="border-b border-line bg-card">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 py-3">
-          <Link href={base} aria-label={nav.home} className="flex items-center gap-3.5 text-accent no-underline">
-            <ArabicLogo height={46} animate />
-            <EnglishWordmark height={20} animate />
-            <span className="max-w-[120px] border-s border-line ps-3.5 text-xs leading-tight text-muted">{m.app.tagline}</span>
-          </Link>
-          <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-wrap gap-x-5 text-[15px]">
+          <div className="flex items-center gap-3.5">
+            <Link href={base} aria-label={nav.home} className="flex items-center gap-3.5 text-accent no-underline">
+              <ArabicLogo height={46} animate />
+              <EnglishWordmark height={20} animate />
+            </Link>
+            {/* Beside the link, not in it: visible text must be part of a link's accessible name. */}
+            {!signedIn && <span className="max-w-[120px] border-s border-line ps-3.5 text-xs leading-tight text-muted">{m.app.tagline}</span>}
+          </div>
+          <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-wrap gap-x-4 text-[15px]">
             {navItems(rest, base, query, nav, admin).map((item) => (
               <Link key={item.href} href={item.href} aria-current={item.current ? "page" : undefined} className="navlink">
                 {item.label}
@@ -74,11 +77,11 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
             <LanguageToggle locale={locale} label={nav.language} />
             <ThemeToggle labels={{ dark: nav.themeDark, light: nav.themeLight }} />
             {signedIn ? (
-              <Link href={`${base}/sign-in`} className="textlink">
+              <Link href={`${base}/sign-in`} prefetch={false} className="textlink">
                 {nav.signOut}
               </Link>
             ) : (
-              <Link href={`${base}/sign-in`} className="solid-btn min-h-11">
+              <Link href={`${base}/sign-in`} prefetch={false} className="solid-btn min-h-11">
                 {nav.signIn}
               </Link>
             )}

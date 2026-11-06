@@ -11,10 +11,15 @@ export function Plate({ variant, className, children }: { variant: PlateVariant;
   return <span className={`plate plate-${variant}${className ? ` ${className}` : ""}`}>{children}</span>;
 }
 
+/** The page column: the design's 1240 px sheet, used by every page but the landing and sign-in. */
+export function Page({ children }: { children: ReactNode }) {
+  return <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-8 px-6 pb-16 pt-10">{children}</div>;
+}
+
 export function Card({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
   return (
-    <section id={id} aria-label={title} className="min-w-0 rounded-lg border border-line bg-card p-5">
-      <h2 className="mb-3 text-lg font-semibold">{title}</h2>
+    <section id={id} aria-label={title} className="min-w-0 border border-line bg-card p-6">
+      <h2 className="heading mb-3 text-2xl">{title}</h2>
       {children}
     </section>
   );
@@ -78,9 +83,9 @@ export function ProvenanceLine({ value, locale, m }: { value: Provenance; locale
 
 export function Refusal({ reason, m }: { reason: "insufficient_data" | undefined; m: Messages }) {
   return (
-    <div role="status" className="rounded border border-line bg-neutral-soft p-3">
+    <div role="status" className="border border-line bg-grey p-4">
       <p className="font-semibold">
-        <Plate variant="ink">{m.refusal.title}</Plate>
+        <Plate variant="warn">{m.refusal.title}</Plate>
       </p>
       <p className="mt-2">{m.refusal.body}</p>
       {reason && (
@@ -94,7 +99,7 @@ export function Refusal({ reason, m }: { reason: "insufficient_data" | undefined
 
 export function ApiError({ kind, detail, m }: { kind: ApiErrorKind; detail?: string; m: Messages }) {
   return (
-    <div role="alert" className="rounded border border-bad bg-bad-soft p-3 text-bad">
+    <div role="alert" className="border border-bad bg-bad-soft p-4 text-bad">
       <p>{m.errors[kind]}</p>
       {detail && (
         <p className="mt-1">
