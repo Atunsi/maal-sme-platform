@@ -1,11 +1,13 @@
+import type { ReactNode } from "react";
+import { LensHead } from "@/components/BusinessHeader";
 import { ForecastChart, type ForecastPoint } from "@/components/ForecastChart";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
-import { BackendText, Plate, Card, Field, Fields, Num, ProvenanceLine, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
+import { BackendText, Num, Plate, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ForecastResponse } from "@/lib/types";
 
-const LEVEL_TONE = { none: "ok", watch: "warn", crunch: "bad" } as const;
+const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
 
 type Computed = Extract<NonNullable<ForecastResponse["forecast"]>, { status: "computed" }>;
 
@@ -18,6 +20,15 @@ function points(f: Computed): ForecastPoint[] {
     }
   }
   return rows;
+}
+
+function Figure({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="min-w-0 p-5">
+      <dt className="text-[13px] text-muted">{label}</dt>
+      <dd className="font-mono text-[22px]">{children}</dd>
+    </div>
+  );
 }
 
 function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
@@ -33,30 +44,26 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
   });
   return (
     <>
-      <p className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="text-sm text-muted">{n.alert}</span>
-        <Plate variant={LEVEL_TONE[alert.level]}>{m.enums.level[alert.level]}</Plate>
-      </p>
-      <Fields>
-        <Field label={n.balanceToday}>
+      <dl aria-label={n.keyFigures} className="rise grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border border-line bg-card" style={{ animationDelay: "0.1s" }}>
+        <Figure label={n.balanceToday}>
           <Num>{formatSar(f.balance_today_sar, locale)}</Num>
-        </Field>
-        <Field label={n.daysToNegative}>
+        </Figure>
+        <Figure label={n.hazard}>
+          <span className="text-base">
+            <Num>{hazard.join(", ")}</Num>
+          </span>
+        </Figure>
+        <Figure label={n.daysToNegative}>
           {alert.days_to_projected_negative_balance === null ? (
-            m.common.dash
+            n.noneProjected
           ) : (
             <Num>{formatInt(alert.days_to_projected_negative_balance, locale)}</Num>
           )}
-        </Field>
-        <Field label={n.hazard}>
-          <Num>{hazard.join(", ")}</Num>
-        </Field>
-        <Field label={n.ramadan}>
-          {f.ramadan_adjusted === null ? m.common.dash : f.ramadan_adjusted ? m.common.yes : m.common.no}
-        </Field>
-      </Fields>
+        </Figure>
+        <Figure label={n.ramadan}>{f.ramadan_adjusted === null ? m.common.dash : f.ramadan_adjusted ? m.common.yes : m.common.no}</Figure>
+      </dl>
       {alert.drivers.length > 0 && (
-        <>
+        <section aria-label={n.drivers}>
           <SubHeading>{n.drivers}</SubHeading>
           <ul className="space-y-1">
             {alert.drivers.map((driver) => (
@@ -67,18 +74,37 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
               </li>
             ))}
           </ul>
-        </>
+        </section>
       )}
-      <SubHeading>{n.chartTitle}</SubHeading>
-      <ForecastChart
-        data={points(f)}
-        locale={locale}
-        labels={{ model: n.model, baseline: n.baseline, day: n.dayN, alt: n.chartAlt }}
-      />
-      <p className="mt-1 text-sm text-muted">{n.chartNote}</p>
-      <div className="mt-3">
+      <section aria-label={n.chartTitle} className="flex flex-col gap-4 border border-line bg-card p-5 sm:p-8">
+        <ForecastChart
+          data={points(f)}
+          locale={locale}
+          labels={{
+            model: n.model,
+            baseline: n.baseline,
+            day: n.dayN,
+            alt: n.chartAlt,
+            floor: fill(n.floor, { amount: formatSar(0, locale) }),
+            below: n.below,
+            today: n.today,
+          }}
+        />
+        <div className="flex flex-wrap gap-7 text-sm">
+          <span className="flex items-center gap-2">
+            <span aria-hidden="true" className="h-[3px] w-7 bg-accent" />
+            {n.model}
+          </span>
+          <span className="flex items-center gap-2">
+            <span aria-hidden="true" className="h-0 w-7 border-t-[3px] border-dashed border-ochre" />
+            {n.baseline}
+          </span>
+        </div>
+        <p className="text-[13px] text-muted">{n.chartNote}</p>
+      </section>
+      <section aria-label={n.tableLabel} className="rise border border-line bg-card" style={{ animationDelay: "0.3s" }}>
         <TableScroll label={n.chartTitle}>
-          <table className="w-full">
+          <table className="w-full min-w-[720px]">
             <thead>
               <tr>
                 {[n.series, n.horizon, n.projected, n.minimum, n.netFlow].map((label) => (
@@ -88,11 +114,11 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="font-mono">
               {series.flatMap(({ label, rows }) =>
                 rows.map((row) => (
                   <tr key={`${label}-${row.horizon_days}`}>
-                    <td className={TD}>{label}</td>
+                    <td className={`${TD} font-sans`}>{label}</td>
                     <td className={TD}>
                       <Num>{fill(n.dayN, { n: row.horizon_days })}</Num>
                     </td>
@@ -111,8 +137,8 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
             </tbody>
           </table>
         </TableScroll>
-      </div>
-      <div className="mt-3 text-sm">
+      </section>
+      <div className="text-sm">
         <span className="text-muted">{n.method}</span>
         <BackendText locale={locale} m={m}>
           {f.method}
@@ -124,20 +150,28 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
 
 export function ForecastCard({ data, locale, m }: { data: ForecastResponse; locale: Locale; m: Messages }) {
   const f = data.forecast;
+  const n = m.forecast;
+  const computed = f?.status === "computed" ? f : null;
+  const lastDay = computed?.model.at(-1)?.horizon_days;
+  const aside = computed && (
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted">{n.alert}</span>
+      <Plate variant={LEVEL_VARIANT[computed.crunch_alert.level]}>{m.enums.level[computed.crunch_alert.level]}</Plate>
+    </div>
+  );
   return (
-    <Card id="forecast" title={m.forecast.title}>
-      <ProvenanceLine value={data} locale={locale} m={m} />
+    <>
+      <LensHead data={data} title={lastDay ? fill(n.pageTitle, { n: lastDay }) : n.title} aside={aside} locale={locale} m={m} />
       {!f ? (
         <Refusal reason={data.lens_not_run_reason} m={m} />
       ) : f.status === "not_computed" ? (
         <p role="status">
-          {m.forecast.notComputed} {m.enums.lens_status[f.reason]} ({m.forecast.historyDays}:{" "}
-          <Num>{formatInt(f.history_days, locale)}</Num>)
+          {n.notComputed} {m.enums.lens_status[f.reason]} ({n.historyDays}: <Num>{formatInt(f.history_days, locale)}</Num>)
         </p>
       ) : (
         <Body f={f} locale={locale} m={m} />
       )}
-      <ReceiptPanel receipt={data.receipt} lens={m.forecast.title} m={m} />
-    </Card>
+      <ReceiptPanel receipt={data.receipt} lens={n.title} m={m} />
+    </>
   );
 }
