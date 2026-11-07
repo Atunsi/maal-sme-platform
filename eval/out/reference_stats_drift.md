@@ -17,8 +17,9 @@ File in use by the engine: `sector_reference_stats_v2.json`. v1 is kept for rece
 
 ### v2
 
-- File: `profile_engine/sector_reference_stats_v2.json`, sha256 `042aaebd7c43154f0d09d36640e0d2491c7a7d1b0dd097951b398207392a7e7a`. Keys: version, population, n_businesses, stats; version `v2`, population `research`, N = 10,000.
-- Not yet committed.
+- File: `profile_engine/sector_reference_stats_v2.json`, sha256 `e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60`. Keys: version, population, n_businesses, stats; version `v2`, population `research`, N = 10,000.
+- Commits that touched it (1):
+  - `bbbc9d7` author date 2026-11-05 21:55:58 +0300, commit date 2026-11-05 21:55:58 +0300: Entry 35: pin sector_reference_stats_v2.json, built once at full scale
 
 ## Pinned against rebuilt-from-current (research population)
 
