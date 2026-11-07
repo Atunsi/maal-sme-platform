@@ -179,7 +179,7 @@ def explain(contribs: list[dict], ccfg: dict) -> dict:
     return {
         "public_tier": public,
         "compliance_tier": {
-            "units": "log-odds of default, relative to the training-mean business (exact SHAP for this linear model)",
+            "units": "log-odds of default, relative to the standardized training-mean baseline (exact additive linear-model contributions)",
             "threshold_table": {"strongly": f"|c| > {th['strong']}", "moderately": f"{th['moderate']} <= |c| <= {th['strong']}", "marginally": f"|c| < {th['moderate']}"},
             "phrases": {f"{m}/{d}": p for (m, d), p in PHRASES.items()},
             "contributions": [

@@ -174,3 +174,49 @@ def test_credit_contributions_reconstruct_logit():
             rel_tol=0,
             abs_tol=1e-10,
         )
+
+@pytest.mark.parametrize(
+    ("contribution", "expected"),
+    [
+        (0.0, "marginally"),
+        (0.099, "marginally"),
+        (0.1, "moderately"),
+        (-0.1, "moderately"),
+        (0.3, "moderately"),
+        (-0.3, "moderately"),
+        (0.301, "strongly"),
+        (-0.301, "strongly"),
+    ],
+)
+def test_credit_explanation_magnitude_boundaries(contribution, expected):
+    from lenses.credit.model import _magnitude
+
+    thresholds = LC["credit"]["explanation_thresholds"]
+
+    assert _magnitude(contribution, thresholds) == expected
+
+def test_credit_customer_explanation_uses_exact_template():
+    from lenses.credit.model import FEATURE_LABELS, PHRASES, explain
+
+    contribs = [
+        {
+            "feature_id": 1,
+            "feature": "avg_monthly_inflow",
+            "contribution_logodds": -0.4,
+            "imputed": False,
+        }
+    ]
+
+    result = explain(contribs, LC["credit"])
+    public = result["public_tier"]
+
+    assert len(public) == 1
+    assert public[0]["magnitude"] == "strongly"
+    assert public[0]["direction"] == "supports"
+
+    expected = (
+        f"Your {FEATURE_LABELS['avg_monthly_inflow']} "
+        f"{PHRASES[('strongly', 'supports')]}."
+    )
+
+    assert public[0]["text"] == expected
