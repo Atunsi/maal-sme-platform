@@ -32,7 +32,7 @@ import pandas as pd
 
 from pipeline.data import load_tables
 
-TABLES = ("businesses", "daily_aggregates", "balances_monthly", "transactions", "obligations", "facilities", "labels")
+TABLES = ("businesses", "daily_aggregates", "balances_monthly", "transactions", "obligations", "facilities", "counterparty_windows", "labels")
 DEFAULT_STORE = "data/serving.duckdb"
 
 

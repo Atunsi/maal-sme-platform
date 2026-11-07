@@ -44,7 +44,7 @@ from profile_engine.compute import ramadan_from_config
 DEMO_IDS = [10001, 10002, 10003]
 
 
-INPUT_TABLES = ("businesses", "daily_aggregates", "balances_monthly", "transactions", "obligations", "facilities")
+INPUT_TABLES = ("businesses", "daily_aggregates", "balances_monthly", "transactions", "obligations", "facilities", "counterparty_windows")
 
 
 def _sha(path: str | Path) -> str:
@@ -62,8 +62,8 @@ def data_sha256(tables: dict, b_id: int) -> str:
     h = hashlib.sha256()
     for name in INPUT_TABLES:
         t = tables.get(name)
-        if t is None:
-            continue
+        if t is None or (name == "counterparty_windows" and not (t["business_id"] == b_id).any()):
+            continue  # exists only for thinned businesses; an unthinned business's hash does not move
         h.update(name.encode())
         h.update(t[t["business_id"] == b_id].to_csv(index=False, date_format="%Y-%m-%d").encode())
     return h.hexdigest()

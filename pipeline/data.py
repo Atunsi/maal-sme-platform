@@ -43,6 +43,7 @@ def load_tables(d: str | Path, business_ids: list[int] | None = None) -> dict[st
         "labels": _read(d, "labels", ids),
         "obligations": _read(d, "obligations", ids, parse_dates=["next_date", "final_date", "status_change_date"]),
         "facilities": _read(d, "facilities", ids, parse_dates=["emergency_line_since"]),
+        "counterparty_windows": _read(d, "counterparty_windows", ids, dtype={"counterparty_id": object}),
     }
     tx_path = d / "transactions.csv"
     if ids:

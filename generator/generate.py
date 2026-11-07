@@ -231,6 +231,20 @@ def sample_registry(cfg: dict, pop_name: str, pop: dict, b_id: int, demo: dict |
 # --------------------------------------------------------------------------- #
 
 
+def counterparty_windows(day, direction, amount, cpid, T: int) -> dict:
+    """Per-counterparty totals by window from the FULL stream, before thinning (DECISIONS entry 30)."""
+    assert T <= 180, "counterparty_windows covers 180 days before window_end"
+    codes, ids = pd.factorize(pd.Series(cpid, dtype=object), use_na_sentinel=False)
+    dbe = T - 1 - day
+    rounded = np.round(amount, 2)  # the precision transactions.csv carries
+    out = {"cpid": np.asarray(ids, dtype=object)}
+    for col, (side, lo) in schemas.COUNTERPARTY_WINDOW_COLUMNS.items():
+        hi = {0: 30, 30: 90, 90: 180}[lo]
+        m = (direction == (1 if side == "in" else 0)) & (dbe >= lo) & (dbe < hi)
+        out[col] = np.round(np.bincount(codes[m], weights=rounded[m], minlength=len(ids)).astype(float), 2)  # an empty window gives ints
+    return out
+
+
 def _lognormal_unit_mean(rng, sigma, size):
     return rng.lognormal(-0.5 * sigma * sigma, sigma, size)
 
@@ -455,7 +469,9 @@ def generate_business(cfg: dict, biz: dict, stats: dict) -> dict:
     n_all = len(order)
     keep = np.ones(n_all, dtype=bool)
     weight = np.ones(n_all)
+    cp_windows = None
     if rate < 1.0:
+        cp_windows = counterparty_windows(day[order], direction[order], amount[order], cpid[order], T)  # no RNG draw
         sales_in = (direction[order] == 1) & (category[order] == CAT_SALES)
         anomaly_pos = np.zeros(n_all, dtype=bool)
         anomaly_pos[[i for i, _ in anomalies]] = True
@@ -477,6 +493,7 @@ def generate_business(cfg: dict, biz: dict, stats: dict) -> dict:
             "category": category[sel],
             "cpid": cpid[sel],
             "sample_weight": weight[keep],
+            "cp_windows": cp_windows,
             "dates": dates,
         },
         "daily": {
@@ -527,7 +544,7 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
     agg_days = cfg["output"].get("daily_aggregates_trailing_days")
 
     registry, labels, latents, anomalies, monthly = [], [], [], [], []
-    tx_parts, daily_parts = [], []
+    tx_parts, daily_parts, cp_parts = [], [], []
     tx_offset = 0
     t0 = time.time()
 
@@ -584,6 +601,8 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
                 }
             )
             tx_offset += n_tx
+            if tx["cp_windows"] is not None:
+                cp_parts.append({"business_id": np.full(len(tx["cp_windows"]["cpid"]), b_id), **tx["cp_windows"]})
 
             d = out["daily"]
             T = len(d["dates"])
@@ -638,8 +657,20 @@ def generate(cfg: dict, quick: bool = False) -> dict[str, pd.DataFrame]:
     balances["data_source"] = src
     balances["evidence_class"] = evc
 
+    cp_cols = list(schemas.COUNTERPARTY_WINDOW_COLUMNS)
+    cp_windows = pd.DataFrame(
+        {
+            "business_id": stack(cp_parts, "business_id") if cp_parts else np.array([], dtype=int),
+            "counterparty_id": stack(cp_parts, "cpid") if cp_parts else np.array([], dtype=object),
+            **{c: stack(cp_parts, c) if cp_parts else np.array([], dtype=float) for c in cp_cols},
+        }
+    )
+    cp_windows["data_source"] = src
+    cp_windows["evidence_class"] = evc
+
     tables = {
         "transactions": transactions,
+        "counterparty_windows": cp_windows,
         "daily_aggregates": daily,
         "balances_daily": balances_daily,
         "balances_monthly": balances,

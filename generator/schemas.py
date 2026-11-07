@@ -249,8 +249,28 @@ berka_labels_schema = DataFrameSchema(
     name="berka_labels",
 )
 
+# DECISIONS entry 30: per-customer totals from the FULL stream, for businesses whose POS `sales` rows
+# are thinned in transactions.csv. Counterparty features depend on which rows exist, so no weight on
+# the kept rows can repair them. Columns are (direction, days before window_end): lower edges 0, 30, 90.
+COUNTERPARTY_WINDOW_COLUMNS = {
+    "in_d0_29": ("in", 0), "in_d30_89": ("in", 30), "in_d90_179": ("in", 90),
+    "out_d0_29": ("out", 0), "out_d30_89": ("out", 30), "out_d90_179": ("out", 90),
+}
+counterparty_windows_schema = DataFrameSchema(
+    {
+        "business_id": Column(int, Check.gt(0)),
+        "counterparty_id": Column(str, nullable=True),
+        **{c: Column(float, Check.ge(0)) for c in COUNTERPARTY_WINDOW_COLUMNS},
+        "data_source": _src,
+        "evidence_class": _evc,
+    },
+    strict=True,
+    unique=["business_id", "counterparty_id"],
+    name="counterparty_windows",
+)
+
 REQUIRED_ENGINE_TABLES = ("transactions", "daily_aggregates", "businesses")
-OPTIONAL_ENGINE_TABLES = ("balances_monthly", "balances_daily", "obligations", "facilities")
+OPTIONAL_ENGINE_TABLES = ("balances_monthly", "balances_daily", "obligations", "facilities", "counterparty_windows")
 ENGINE_FACING = {
     "transactions": transactions_schema,
     "daily_aggregates": daily_aggregates_schema,
@@ -259,6 +279,7 @@ ENGINE_FACING = {
     "obligations": obligations_schema,
     "facilities": facilities_schema,
     "businesses": businesses_schema,
+    "counterparty_windows": counterparty_windows_schema,
 }
 
 
