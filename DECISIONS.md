@@ -2712,8 +2712,10 @@ its Arabic), and the landing, sign-in and admin pages say "synthetic data" in th
 still carries its population where the old rule required it.
 
 **U15 amended, word for word.** A demo sign-in page is allowed, front-end only: it chooses a role (Business
-owner or Admin) and routes to the right page. It checks no credentials, creates no account or session,
-stores nothing, sets no cookie and sends nothing to the API. The page says so in plain words. Everything
+owner or Admin) and routes to the right page. Both roles need the demo password `pass`, compared in the
+browser only; the registration number and username are not read, and the username is any text, not an
+email. It creates no account or session, stores nothing, sets no cookie and sends nothing to the API. The
+password is in the page's code, so it keeps out nobody. The page says so in plain words. Everything
 else in U15 stands (no tracking, analytics or logging of business data; the PDPL and SAMA Open Banking
 footer note).
 
@@ -2758,7 +2760,8 @@ word. The generator owner may prefer to change the source label.
 
 **One rule test had to widen.** `U1 the only input in the app is the business picker` now also allows
 `SignInForm.tsx`, because the U15 amendment adds inputs. U1's point stands: no input can change terms. New
-tests check that the sign-in fields have no name, are never read, and send and store nothing.
+tests check that the sign-in fields have no name, that only the password is read, that a wrong password
+stays on the page, and that the form sends and stores nothing.
 
 **The demo role proves nothing.** It rides in the URL (`?as=`) and gates nothing, so `/admin` is open to any
 visitor. That is fine for synthetic data and would not be for real data.

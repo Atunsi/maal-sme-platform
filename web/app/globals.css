@@ -80,6 +80,47 @@
   --o-end: right;
 }
 
+/* Every box has rounded corners: cards and panels, then controls, plates and bars, in steps. */
+:root {
+  --r-box: 14px;
+  --r-ctl: 10px;
+  --r-plate: 6px;
+  --r-bar: 4px;
+}
+.border,
+.bg-card,
+.panel,
+.frame,
+.rounded-box {
+  border-radius: var(--r-box);
+}
+.field,
+.solid-btn,
+.themebtn,
+.rounded-ctl {
+  border-radius: var(--r-ctl);
+}
+.plate {
+  border-radius: var(--r-plate);
+}
+.bar-grow,
+.fill-bar,
+.tick-bar,
+.scan-fill,
+.rounded-bar {
+  border-radius: var(--r-bar);
+}
+/* Full-width bands and cells inside a hairline grid stay square. */
+.bleed,
+.square {
+  border-radius: 0;
+}
+/* A box whose children paint their own background clips them to its corners. */
+.clip-box {
+  border-radius: var(--r-box);
+  overflow: hidden;
+}
+
 @theme inline {
   --color-page: var(--bg);
   --color-card: var(--surface);
@@ -341,50 +382,33 @@ summary {
   transform-origin: var(--o-end);
 }
 
-/* Sharia: the frame draws edge by edge, then breathes. Its edges stand without any animation (U6). */
+/* Sharia: the rounded outline draws itself once round the frame, then the frame breathes. The outline
+   stands without any animation (U6). */
 .frame {
   position: relative;
   padding: 22px 26px;
   background: var(--warnBg);
   animation: breathe 4s 1.4s ease-in-out infinite;
 }
-.frame-edge {
+.frame-line {
   position: absolute;
-  background: var(--warnText);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
 }
-.frame-top,
-.frame-bottom {
-  left: 0;
-  right: 0;
-  height: 3px;
-  animation: growx 0.5s ease both;
-}
-.frame-side-a,
-.frame-side-b {
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  animation: growy 0.4s ease both;
-}
-.frame-top {
-  top: 0;
-  transform-origin: var(--o-start);
-  animation-delay: 0.2s;
-}
-.frame-side-a {
-  inset-inline-end: 0;
-  transform-origin: top;
-  animation-delay: 0.7s;
-}
-.frame-bottom {
-  bottom: 0;
-  transform-origin: var(--o-end);
-  animation-delay: 1.1s;
-}
-.frame-side-b {
-  inset-inline-start: 0;
-  transform-origin: bottom;
-  animation-delay: 1.6s;
+.frame-path {
+  x: 1.5px;
+  y: 1.5px;
+  width: calc(100% - 3px);
+  height: calc(100% - 3px);
+  rx: calc(var(--r-box) - 1.5px);
+  fill: none;
+  stroke: var(--warnText);
+  stroke-width: 3px;
+  stroke-dasharray: 1;
+  animation: draw 1.6s 0.2s ease-in-out both;
 }
 
 /* Zakat: bars fill in order, the nisab marker drops, the hawl track fills. */
@@ -610,6 +634,14 @@ details.faq summary::-webkit-details-marker {
   }
 }
 
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
 @keyframes breathe {
   0%,
   100% {

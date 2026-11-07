@@ -117,7 +117,7 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
       <h2 id="amount" className="heading text-2xl">
         {n.amountTitle}
       </h2>
-      <div aria-hidden="true" className="relative h-11" style={{ background: "var(--panelRule)" }}>
+      <div aria-hidden="true" className="rounded-bar relative h-11 overflow-hidden" style={{ background: "var(--panelRule)" }}>
         <div className="fill-bar fill-from-start start-0 min-w-3" style={{ width: pct(z.rate, 1), background: "#e0b05c", animationDelay: "3.2s" }} />
       </div>
       <div className="font-mono text-base leading-relaxed">

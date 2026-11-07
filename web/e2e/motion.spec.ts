@@ -43,10 +43,12 @@ test("reduced motion: credit shows bars and the Compliance View at their final s
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
 });
 
-test("reduced motion: U6 the Sharia frame and its edges stand without animation", async ({ page }) => {
+test("reduced motion: U6 the Sharia frame and its outline stand without animation", async ({ page }) => {
   await settledWithoutMotion(page, "/en/business/10001/sharia");
   await expect(page.getByText("Rule-based screening, pending Sharia-advisor confirmation")).toBeVisible();
-  for (const edge of [".frame-top", ".frame-side-a", ".frame-bottom", ".frame-side-b"]) await expect(page.locator(edge)).toBeVisible();
+  const outline = page.locator(".frame-path");
+  await expect(outline).toBeVisible();
+  expect(await outline.evaluate((el) => getComputedStyle(el).strokeDashoffset)).toMatch(/^0(px)?$/);
 });
 
 test("reduced motion: U7 zakat shows the placeholder plate, the bars and the nisab marker", async ({ page }) => {

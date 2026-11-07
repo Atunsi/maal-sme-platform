@@ -35,7 +35,7 @@ function SectionHead({ eyebrow, title, id, onDark }: { eyebrow: string; title: s
 
 function Tile({ label, children, first }: { label: string; children: ReactNode; first?: boolean }) {
   return (
-    <div className={`bg-card py-2.5 ${first ? "pe-3" : "px-3"}`}>
+    <div className={`square bg-card py-2.5 ${first ? "pe-3" : "px-3"}`}>
       <div className="text-xs text-muted">{label}</div>
       {children}
     </div>
@@ -128,10 +128,10 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
               {l.lead}
             </p>
             <div className="rise flex flex-wrap gap-3.5" style={{ animationDelay: "0.55s" }}>
-              <Link href={`/${locale}/sign-in`} className="cta inline-flex min-h-[52px] items-center bg-white px-6 font-semibold text-solid no-underline">
+              <Link href={`/${locale}/sign-in`} className="cta rounded-ctl inline-flex min-h-[52px] items-center bg-white px-6 font-semibold text-solid no-underline">
                 {l.ctaSignIn}
               </Link>
-              <Link href={`/${locale}/scenarios`} className="inline-flex min-h-[52px] items-center border-[1.5px] border-white px-6 font-semibold text-white no-underline">
+              <Link href={`/${locale}/scenarios`} className="rounded-ctl inline-flex min-h-[52px] items-center border-[1.5px] border-white px-6 font-semibold text-white no-underline">
                 {fill(l.ctaScenarios, { n: scenarioCount === null ? "" : formatInt(scenarioCount, locale) })}
               </Link>
             </div>
@@ -147,7 +147,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       </section>
       <LogoBand />
 
-      <section aria-label={l.builtFor} className="border-b border-line bg-card">
+      <section aria-label={l.builtFor} className="bleed border-b border-line bg-card">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-12 gap-y-4 px-6 py-6">
           <span className="heading caps text-[13px] text-muted">{l.builtFor}</span>
           {l.audiences.map((audience) => (
@@ -178,7 +178,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      <section id="lenses" aria-labelledby="lensh" className="border-y border-line bg-card">
+      <section id="lenses" aria-labelledby="lensh" className="bleed border-y border-line bg-card">
         <div className="mx-auto flex max-w-[1240px] flex-col gap-9 px-6 py-[72px] sm:py-[88px]">
           <SectionHead eyebrow={l.lensEyebrow} title={l.lensTitle} id="lensh" />
           <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5">
@@ -259,7 +259,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
             </div>
             <div className="heading mt-2 text-4xl">{l.closeTitle}</div>
           </div>
-          <Link href={`/${locale}/sign-in`} className="cta inline-flex min-h-14 items-center bg-white px-7 text-[17px] font-semibold text-solid no-underline">
+          <Link href={`/${locale}/sign-in`} className="cta rounded-ctl inline-flex min-h-14 items-center bg-white px-7 text-[17px] font-semibold text-solid no-underline">
             {l.closeCta}
           </Link>
         </div>

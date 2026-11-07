@@ -25,7 +25,7 @@ function ReceiptAside({ receipt, lens, m }: { receipt: Receipt; lens: string; m:
     [o.commit, receipt.code_commit.replace(/^([0-9a-f]{7})[0-9a-f]*/, "$1")],
   ];
   return (
-    <aside aria-label={o.receiptEyebrow} className="panel flex min-w-0 flex-[1_1_320px] flex-col gap-4 p-8">
+    <aside aria-label={o.receiptEyebrow} className="panel square flex min-w-0 flex-[1_1_320px] flex-col gap-4 p-8">
       <div className="rise" style={{ animationDelay: "1.2s" }}>
         <div className="eyebrow text-gold">{o.receiptEyebrow}</div>
         <div className="heading mt-1.5 text-[26px]">{o.receiptTitle}</div>
@@ -51,7 +51,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
   const o = m.overview;
   const approved = credit?.decision === "approved";
   return (
-    <section aria-labelledby="verdict" className="flex flex-wrap border border-ink bg-card">
+    <section aria-labelledby="verdict" className="clip-box flex flex-wrap border border-ink bg-card">
       <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4 p-6 sm:p-9">
         <BusinessHeader data={data} locale={locale} m={m} />
         {!credit || !detail ? (

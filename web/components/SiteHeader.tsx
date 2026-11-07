@@ -23,12 +23,13 @@ function navItems(rest: string, base: string, query: string, nav: Messages["nav"
       { href: "#faq", label: nav.faq },
     ];
   }
-  if (admin && !rest.startsWith("/business")) {
-    return [{ href: `${base}/admin${query}`, label: nav.admin, current: rest === "/admin" }, scenarios];
-  }
+  const all = { href: `${base}/admin${query}`, label: nav.admin, current: rest === "/admin" };
+  if (admin && !rest.startsWith("/business")) return [all, scenarios];
   const id = /^\/business\/(\d+)/.exec(rest)?.[1] ?? DEMO_BUSINESS;
   const root = `${base}/business/${id}`;
   return [
+    // An admin who opened a business can always get back to the list.
+    ...(admin ? [all] : []),
     { href: `${root}${query}`, label: nav.overview, current: rest === `/business/${id}` },
     ...LENSES.map((lens) => ({ href: `${root}/${lens}${query}`, label: nav[lens], current: rest === `/business/${id}/${lens}` })),
     scenarios,
@@ -50,7 +51,7 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
 
   return (
     <>
-      <header className="border-b border-line bg-card">
+      <header className="bleed border-b border-line bg-card">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 py-3">
           <div className="flex items-center gap-3.5">
             <Link href={base} aria-label={nav.home} className="flex items-center gap-3.5 text-accent no-underline">

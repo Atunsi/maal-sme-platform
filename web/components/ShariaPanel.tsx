@@ -16,10 +16,9 @@ export function ShariaLabel({ m }: { m: Messages }) {
 function PendingFrame({ m }: { m: Messages }) {
   return (
     <div className="frame">
-      <span aria-hidden="true" className="frame-edge frame-top" />
-      <span aria-hidden="true" className="frame-edge frame-side-a" />
-      <span aria-hidden="true" className="frame-edge frame-bottom" />
-      <span aria-hidden="true" className="frame-edge frame-side-b" />
+      <svg aria-hidden="true" className="frame-line">
+        <rect className="frame-path" pathLength={1} />
+      </svg>
       <p className="heading text-2xl text-warn">{m.sharia.label}</p>
       <p className="mt-1 text-sm text-muted">{m.sharia.frameNote}</p>
     </div>

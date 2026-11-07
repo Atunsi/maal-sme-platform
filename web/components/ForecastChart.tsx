@@ -45,7 +45,7 @@ export function ForecastChart({ data, locale, labels }: Props) {
     // Time runs left to right in Arabic too, so the chart is pinned LTR and never mirrored.
     <div dir="ltr">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={labels.alt} className="h-auto w-full">
-        {below && <rect x={LEFT} y={zero} width={RIGHT - LEFT} height={FLOOR_BOTTOM - zero} fill="var(--badSoft)" />}
+        {below && <rect x={LEFT} y={zero} width={RIGHT - LEFT} height={FLOOR_BOTTOM - zero} rx={4} fill="var(--badSoft)" />}
         {data.slice(1, -1).map((d) => (
           <line key={d.day} x1={x(d.day)} x2={x(d.day)} y1={TOP} y2={FLOOR_BOTTOM} stroke="var(--rule)" />
         ))}

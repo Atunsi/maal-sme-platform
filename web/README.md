@@ -90,9 +90,10 @@ in a cookie. `.panel` is a dark surface in either theme; components inside it ne
 
 ## Demo sign-in
 
-`/sign-in` chooses a role and routes to a page. It checks no credentials, creates no account or
-session, stores nothing, sets no cookie and sends nothing to the API. The fields are uncontrolled and
-unnamed. The role rides in the URL (`?as=owner` or `?as=admin`), proves nothing and gates nothing:
+`/sign-in` chooses a role and routes to a page. The password for both roles is `pass`, checked in the
+browser only; the registration number and username are not read, and the username need not be an email.
+It creates no account or session, stores nothing, sets no cookie and sends nothing to the API. The fields
+are unnamed. The role rides in the URL (`?as=owner` or `?as=admin`), proves nothing and gates nothing:
 `/admin` is open to anyone who visits it. A real deployment would need PDPL handling.
 
 ## Fixtures and scenarios

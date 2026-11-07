@@ -13,11 +13,15 @@ test("sign-in sends no request and stores nothing", async ({ page, context }) =>
   await page.getByLabel("Commercial registration number").fill(TYPED);
   await page.getByLabel("Password").fill(TYPED);
   await page.getByRole("button", { name: "Admin" }).click();
-  await page.getByLabel("Work email").fill(`${TYPED}@bank.sa`);
+  await page.getByLabel("Username").fill(TYPED);
   await page.getByRole("button", { name: "Business owner" }).click();
+  await page.getByRole("button", { name: "Sign in to my business" }).click();
+  await expect(page.locator("#sign-in-wrong")).toHaveText("Wrong password. Try again.");
+  await expect(page).toHaveURL(/\/en\/sign-in$/);
   await page.waitForTimeout(300);
   expect(requests).toEqual([]);
 
+  await page.getByLabel("Password").fill("pass");
   await page.getByRole("button", { name: "Sign in to my business" }).click();
   await expect(page).toHaveURL(/\/en\/business\/10001\?as=owner$/);
   await expect(page.getByText("Owner of business 10001")).toBeVisible();
@@ -31,13 +35,15 @@ test("sign-in sends no request and stores nothing", async ({ page, context }) =>
 
 test("sign-in says what it is, on the page", async ({ page }) => {
   await page.goto("/en/sign-in");
-  await expect(page.getByText("Demo sign-in. No accounts exist and nothing you type is checked or saved.")).toBeVisible();
+  await expect(page.getByText("Demo sign-in. No accounts exist. The password is checked in this browser only, and nothing you type is saved or sent.")).toBeVisible();
   await expect(page.locator("footer")).toContainText("Synthetic data only. Population: serving.");
 });
 
 test("the Admin role routes to the admin page and shows in the header", async ({ page }) => {
   await page.goto("/en/sign-in", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Admin" }).click();
+  await page.getByLabel("Username").fill("faris");
+  await page.getByLabel("Password").fill("pass");
   await page.getByRole("button", { name: "Sign in as admin" }).click();
   await expect(page).toHaveURL(/\/en\/admin\?as=admin$/);
   await expect(page.getByRole("heading", { name: "All businesses" })).toBeVisible();
@@ -70,6 +76,17 @@ test("admin links open a business with the admin role", async ({ page }) => {
   await page.getByRole("link", { name: "Open 10004" }).click();
   await expect(page).toHaveURL(/\/en\/business\/10004\?as=admin$/);
   await expect(page.getByText("Signed in as")).toBeVisible();
+  const main = page.getByRole("navigation", { name: "Pages" });
+  await main.getByRole("link", { name: "Zakat", exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/business\/10004\/zakat\?as=admin$/);
+  await main.getByRole("link", { name: "All businesses" }).click();
+  await expect(page).toHaveURL(/\/en\/admin\?as=admin$/);
+  await expect(page.getByRole("heading", { name: "All businesses" })).toBeVisible();
+});
+
+test("an owner gets no link to the admin list", async ({ page }) => {
+  await page.goto("/en/business/10001?as=owner", { waitUntil: "networkidle" });
+  await expect(page.getByRole("link", { name: "All businesses" })).toHaveCount(0);
 });
 
 test("the landing counts come from the code", async ({ page }) => {

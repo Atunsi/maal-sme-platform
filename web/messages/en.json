@@ -499,12 +499,12 @@
     "adminHint": "Review all businesses",
     "cr": "Commercial registration number",
     "crHint": "10 digits",
-    "email": "Work email",
-    "emailHint": "name@bank.sa",
+    "username": "Username",
     "password": "Password",
     "ctaOwner": "Sign in to my business",
     "ctaAdmin": "Sign in as admin",
-    "demo": "Demo sign-in. No accounts exist and nothing you type is checked or saved.",
+    "wrongPassword": "Wrong password. Try again.",
+    "demo": "Demo sign-in. No accounts exist. The password is checked in this browser only, and nothing you type is saved or sent.",
     "synthetic": "This demo runs on synthetic data."
   },
   "admin": {

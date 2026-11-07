@@ -50,7 +50,7 @@ export default async function ScenariosPage({ params, searchParams }: Props) {
       </div>
 
       <div className="flex flex-wrap items-start gap-7">
-        <nav aria-label={s.menu} className="flex min-w-0 flex-[1_1_280px] flex-col border border-ink bg-card">
+        <nav aria-label={s.menu} className="clip-box flex min-w-0 flex-[1_1_280px] flex-col border border-ink bg-card">
           {menu.map((entry, i) => {
             const current = entry.name === selected.name;
             const { name, detail } = scenarioName(entry.label);
@@ -59,7 +59,7 @@ export default async function ScenariosPage({ params, searchParams }: Props) {
                 key={entry.name}
                 href={`/${locale}/scenarios?s=${entry.name}${role}`}
                 aria-current={current ? "page" : undefined}
-                className={`menu-link rise flex min-h-11 flex-col gap-0.5 px-4 py-3.5 no-underline ${i ? "border-t border-line" : ""} ${
+                className={`menu-link square rise flex min-h-11 flex-col gap-0.5 px-4 py-3.5 no-underline ${i ? "border-t border-line" : ""} ${
                   current ? "bg-solid text-white" : "bg-card text-ink"
                 }`}
                 style={{ animationDelay: `${(0.1 + i * 0.06).toFixed(2)}s` }}

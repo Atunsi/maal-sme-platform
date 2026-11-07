@@ -9,7 +9,7 @@ import { CreditCard } from "@/components/CreditCard";
 import { ForecastCard } from "@/components/ForecastCard";
 import { creditReadout, forecastReadout, reviewReadout, shariaReadout, zakatReadout } from "@/components/Readouts";
 import { ScenarioCompare } from "@/components/ScenarioCompare";
-import { SignInForm } from "@/components/SignInForm";
+import { DEMO_PASSWORD, SignInForm } from "@/components/SignInForm";
 import { VerdictSheet } from "@/components/VerdictSheet";
 import { ZakatCard } from "@/components/ZakatCard";
 import { DEMO_BUSINESSES } from "@/lib/businesses";
@@ -255,17 +255,30 @@ describe("overview", () => {
 
 describe("demo sign-in", () => {
   it("U15 the page's text says what it is, in both languages", () => {
-    expect(en.signIn.demo).toBe("Demo sign-in. No accounts exist and nothing you type is checked or saved.");
+    expect(en.signIn.demo).toBe("Demo sign-in. No accounts exist. The password is checked in this browser only, and nothing you type is saved or sent.");
     expect(ar.signIn.demo).toContain("تجريبي");
   });
 
-  it("U15 no field has a name or a value the form could read", () => {
+  it("U15 no field has a name, and the form sends and stores nothing", () => {
     const { container } = render(<SignInForm locale="en" s={en.signIn} />);
     const fields = [...container.querySelectorAll("input")];
     expect(fields.length).toBeGreaterThan(1);
     for (const field of fields) expect(field.getAttribute("name")).toBeNull();
     const code = readFileSync(join(webRoot, "components", "SignInForm.tsx"), "utf8");
-    expect(code).not.toMatch(/\.value|FormData|fetch\(|localStorage|sessionStorage|document\.cookie/);
+    expect(code).not.toMatch(/FormData|fetch\(|localStorage|sessionStorage|document\.cookie/);
+    // The password is the only field the form reads.
+    expect(code.match(/\.value\b/g)).toHaveLength(1);
+  });
+
+  it("U15 the demo password is pass, and the username is not checked as an email", () => {
+    expect(DEMO_PASSWORD).toBe("pass");
+    render(<SignInForm locale="en" s={en.signIn} />);
+    fireEvent.click(screen.getByRole("button", { name: /Admin/ }));
+    expect(screen.getByLabelText("Username").getAttribute("type")).toBe("text");
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "wrong" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in as admin" }));
+    expect(screen.getByRole("alert").textContent).toBe(en.signIn.wrongPassword);
+    expect(screen.getByLabelText("Password").getAttribute("aria-invalid")).toBe("true");
   });
 
   it("U11 landing, sign-in and admin say synthetic data in their body copy", () => {
