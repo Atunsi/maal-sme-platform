@@ -109,7 +109,7 @@ features, not the sector code") is a claim that could genuinely fail. Read
 this alongside the feature-11 consequence above: the audit should expect real
 within-construction discrimination, just not through features 11 / 56.
 
-**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-01)
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☑ profile engine owner (Faris Alsharifi, 2026-11-01)
 
 ---
 
@@ -495,7 +495,7 @@ for feature 42, `max(0, avg_monthly_inflow − committed_monthly_outflow) × (1 
 flow_asymmetry_ratio, 0.5))` with k = 0.15, is the one that counts and supersedes the formula text
 above, which omits the 0.5 cap.
 
-**Sign-off:** ☐ credit lens owner (41, 42, 61) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07; features 41, 42, 61; subject to Entry 34 and team approval) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -1078,7 +1078,7 @@ comparison under one CV protocol on all three sources is entry 19 (Workstream B4
 C 25 — the A1/A2 split is entry 16).
 
 **Recorded by:** generator owner, 2026-09-17.
-**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☐ credit-lens owner (professional_services cell is below the §23 minimum at N = 10,000)
+**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☑ credit-lens owner (Abdulrahman Alharbi, 2026-11-08; acknowledges professional_services insufficient defaults and SKIP)
 
 ---
 
@@ -1287,7 +1287,7 @@ interval for the population AUC; with 22 primary defaults that fold-to-fold spre
 width, and the report says so.
 
 **Recorded by:** credit-lens owner, 2026-09-17.
-**Sign-off:** ☐ credit-lens owner ☐ team (protocol as the standing headline; §21 definition wording)
+**Sign-off:** ☑ credit-lens owner (Abdulrahman Alharbi, 2026-11-08; approves unified CV protocol and documented eligibility limitations) ☐ team (protocol as the standing headline; §21 definition wording)
 
 ---
 
@@ -1687,7 +1687,7 @@ so the generator config's hash — cited by the calibration and compare_real rec
   pre-aggregated store.
 - **Everyone:** unit tests — there are still none beneath the integration checks.
 
-**Sign-off:** ☐ credit lens owner (23.3 credit) ☐ forecast + anomaly owner (23.3
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves 23.3 credit policy, subject to Entry 34 change control) ☐ forecast + anomaly owner (23.3
 anomaly, forecast) ☐ compliance owner + Sharia advisor (23.3 Zakat) ☐ team (gating
 Zakat on insufficient_data)
 
@@ -1822,7 +1822,7 @@ confirmation" — never as a Sharia determination.
 (notably 5993 tobacco and 7929 entertainment, where scholars differ, and the decision to treat existing
 financing as a disclosure rather than a flag); the Compliance View toggle (UI, Week 10).
 
-**Sign-off:** ☐ compliance owner ☐ Sharia advisor ☐ credit lens owner (the §27 gate and conditional offers)
+**Sign-off:** ☐ compliance owner ☐ Sharia advisor ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves compliance gate and conditional offers, subject to Sharia-advisor confirmation)
 
 ---
 
@@ -2278,7 +2278,7 @@ computed.
 entries 30, 35 and 38, the "before" figures in item 2 are measured on the retrained model, not on
 `model_v1.json`.
 
-**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07; accepts documented affordability risk) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -2999,3 +2999,64 @@ on Linux or Mac, and the other way round, although nothing in the decision diffe
    makes the switch should be recorded here.
 
 **Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
+
+
+## Credit Lens — Section 25 Within-Sector Fairness Audit (2026-11-08)
+
+**Owner:** Abdulrahman Alharbi — Credit Lens
+
+**Status:** Audit executed; Section 25 acceptance criterion NOT DEMONSTRATED. Further review required.
+
+**Methodology.** Evaluated the frozen Credit Lens model using exact additive
+linear-model contributions (coefficient multiplied by standardized feature
+value). Contributions plus the intercept reconstruct the model logit.
+This is not a separately estimated SHAP analysis. Feature attributions
+were grouped and ranked independently within each sector using mean
+absolute contribution and within-sector standard deviation.
+
+**Research population:** 9,495 eligible businesses across four sectors,
+including 3,486 construction businesses. The serving population was
+evaluated separately for calibration (943 businesses).
+
+**Construction findings.**
+- Only 2 of the top 10 features by mean absolute contribution belong
+  to the specified liquidity/working-capital groups (11–19, 37–40).
+- Sector-relative regularity (feature 55) ranks fifth, with mean
+  absolute contribution approximately 0.3073 log-odds.
+- Volatility index (15) ranks second; implied DPO days (39) ranks sixth.
+- No explicit sector-code feature is included in the model, but
+  indirect sector-proxy effects cannot be ruled out.
+
+**Serving-population calibration.**
+- Construction: 360 businesses, 25 defaults; predicted 5.64%,
+  observed 6.94% (difference -1.31 percentage points).
+- Food and beverage: 148 businesses, 5 defaults; predicted 4.61%,
+  observed 3.38% (+1.23 pp).
+- Professional services: 26 businesses, 0 defaults; predicted 1.00%,
+  observed 0.00% (+1.00 pp).
+- Retail trade: 409 businesses, 15 defaults; predicted 4.22%,
+  observed 3.67% (+0.56 pp).
+
+**Assessment.** The Section 25 requirement that liquidity and
+working-capital resilience features dominate construction-sector
+attributions is not demonstrated. Calibration differences alone do
+not establish fairness. Small default counts, particularly in
+professional services, limit interpretation.
+
+**Consequence.** Record the result for team review. Do not claim
+fairness approval or change model coefficients, feature definitions,
+or scoring behavior without the required team decisions.
+
+**Reproduction:** `python -m eval.within_sector_fairness`
+
+**Outputs:**
+- `eval/out/within_sector_fairness.csv`
+- `eval/out/within_sector_calibration.csv`
+- `eval/out/within_sector_serving_calibration.csv`
+- `eval/out/within_sector_fairness.md`
+
+**Credit Lens owner position (2026-11-08).** Audit findings documented;
+Section 25 remains open pending review.
+
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08;
+audit execution and findings only — not fairness approval)
