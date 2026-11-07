@@ -48,6 +48,10 @@ REFERENCE_STATS_V2_PATH = Path(__file__).with_name("sector_reference_stats_v2.js
 REFERENCE_STATS_PATH = REFERENCE_STATS_V2_PATH
 REFERENCE_STATS_VERSION = "v2"
 Z_FEATURES = {55: 3, 56: 11, 57: 13, 58: 16, 59: 21}  # §35 z-score → base feature
+# DECISIONS 38: each §35 z is clipped to [-Z_CLIP, +Z_CLIP] after it is computed against the pinned stats,
+# all sectors, all sources. The bound was fixed before any credit result on v2 existed. The stats file and
+# the base features (3, 11, 13, 16, 21) are unchanged, so the unclipped z is recomputable for audit.
+Z_CLIP = 3.0
 
 F = FEATURE_NAMES
 
@@ -660,4 +664,5 @@ def _fill_zscores(p: Profile, sector: str, stats: dict | None) -> None:
             p.null(zid, p.reasons.get(base, "insufficient_events"))
             continue
         s = stats["stats"][sector][F[base]]
-        p.set(zid, float((v - s["mean"]) / max(s["std"], 1e-9)))
+        z = (v - s["mean"]) / max(s["std"], 1e-9)
+        p.set(zid, float(np.clip(z, -Z_CLIP, Z_CLIP)))

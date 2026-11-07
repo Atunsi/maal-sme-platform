@@ -84,10 +84,11 @@ def main(argv: list[str] | None = None) -> int:
     status = pd.read_csv(d / "profile_status.csv", usecols=["business_id", "status"])
     current = fe.build_reference_stats(prof, biz)
     df = prof.merge(biz, on="business_id").merge(status, on="business_id")
+    scorable = df[df["status"] != "insufficient_data"]  # research + serving, for the entry 38 clip counts
     df = df[(df["population"] == "research") & (df["status"] != "insufficient_data")]
     zs = {z: fe.F[z] for z in fe.Z_FEATURES}
 
-    prov, drift, moments, engine_check = {}, [], [], None
+    prov, drift, moments, engine_check, clipped = {}, [], [], None, None
     for v, path in files.items():
         raw = path.read_bytes()
         pinned = json.loads(raw)
@@ -106,14 +107,28 @@ def main(argv: list[str] | None = None) -> int:
                 x = g[name].dropna()
                 moments.append({"stats_version": v, "sector": s, "feature": f"{zid} {name}", "n": len(x), "mean": x.mean(), "SD": x.std(ddof=0)})
         if v == in_use:
-            diff = (z[list(zs.values())].to_numpy() - df[list(zs.values())].to_numpy())
+            # The engine clips each z to ±Z_CLIP (DECISIONS 38); compare like with like. The moments above
+            # stay unclipped, so they still describe the reference fit itself.
+            zc = z[list(zs.values())].clip(-fe.Z_CLIP, fe.Z_CLIP)
+            diff = (zc.to_numpy() - df[list(zs.values())].to_numpy())
             engine_check = float(np.nanmax(np.abs(diff))) if np.isfinite(diff).any() else float("nan")
+            # DECISIONS 38 asks for clip counts per sector and feature, research and serving, with N.
+            both = scorable.reset_index(drop=True)
+            zb = zscores(both, pinned)
+            clipped = pd.DataFrame([
+                {"population": pop, "sector": s, "feature": f"{zid} {name}", "n": int(x.notna().sum()),
+                 "clipped_low": int((x < -fe.Z_CLIP).sum()), "clipped_high": int((x > fe.Z_CLIP).sum())}
+                for pop in ("research", "serving") for s in SECTORS for zid, name in zs.items()
+                for x in [zb.loc[((both["population"] == pop) & (both["sector"] == s)).to_numpy(), name]]
+            ])
     drift, moments = pd.DataFrame(drift), pd.DataFrame(moments)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     drift.to_csv(out.with_name("reference_stats_drift_pinned_vs_current.csv"), index=False)
     moments.to_csv(out.with_name("reference_stats_drift_z_moments.csv"), index=False)
+    if clipped is not None:
+        clipped.to_csv(out.with_name("reference_stats_clip_counts.csv"), index=False)
 
     # Chart: one row per pinned file, two panels (mean, SD) of features 55–59 per sector; reference lines at 0 and 1.
     versions = list(files)

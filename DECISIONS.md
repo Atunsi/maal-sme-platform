@@ -2868,7 +2868,42 @@ before this entry is settled. The schema §35 text is updated at the next team-a
 
 **Hash correction (2026-11-05):** `042aaebd…7e7a` above is the Windows CRLF hash of v2; the canonical hash is `e7d4beb0…7f60` (entry 35, correction 2026-11-05).
 
-**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ credit lens owner ☐ team
+**Credit lens owner's decision (Abdulrahman Alharbi, 2026-11-07), recorded before any credit result
+on v2 exists:** accepted as proposed, subject to the schema edit and the team sign-off below. Features
+55–59 are clipped to [−3, +3] in the engine (`profile_engine/features.py`, `Z_CLIP = 3.0`), all sectors,
+all sources, after the z is computed against the pinned v2 stats. Checked before signing:
+1. §35 defines 55–59 as `(feature − μ) / max(σ, ε)` with no bound, so this is a definition change, not
+   something the schema already permits. The §35 text follows at the next team-approved schema edit
+   (entry 33). §35 also says the layer must not be retrofitted after Week 8; the clip changes the range
+   of the §35 layer, not its existence, and the team box below is where that reading is accepted.
+2. The bound was committed in `823ff74` (2026-11-05 22:24 +0300); `lenses/credit/model_v1.json` was last
+   changed on 2026-10-11, and no credit AUC on v2 is recorded in this file or in `eval/out/`.
+3. `_fill_zscores` is the only place 55–59 are computed. Training (`profile_engine.compute`), Week 8 and
+   the API store (`pipeline/data.py`) and the scenarios all reach it through `compute_profiles`, and the
+   credit scorer only standardises what the engine returns, so training and serving clip identically.
+4. The anomaly lens does not read feature 59 in code, despite §35's "Used by: Credit, Anomaly", so the
+   anomaly owner bears no consequence. `eval/reference_stats_drift.py` now compares the engine with the
+   clipped recomputation (its z moments stay unclipped, describing the reference fit). Week 8 objects,
+   receipts, NUMBERS §5b and the API store move with the retrain, as they already do for entry 30.
+5. The v2 file (canonical sha256 `e7d4beb0…7f60`) and base features 3, 11, 13, 16, 21 in `profiles.csv`
+   are unchanged, so the unclipped z stays recomputable for audit.
+
+On quick data (`data/quick`, 300 + 300 businesses) the bound also binds on the upper tails of 56–59 in
+every sector, construction included, not only on the lower tail of 55 in retail and F&B. These are
+small-sample counts and are not reported as results. The full-scale counts per sector and feature,
+research and serving, with N, are written by `python -m eval.reference_stats_drift` to
+`eval/out/reference_stats_clip_counts.csv` and are reported here after the full-scale profile run.
+
+**Implemented (2026-11-07):** `profile_engine/features.py` (`Z_CLIP`, clip in `_fill_zscores`),
+`eval/reference_stats_drift.py` (clipped engine check, clip-count CSV),
+`tests/test_reference_stats.py` (new clip test). `python -m pytest tests`: 105 passed, 14 skipped (API
+tests skip without the serving store); `ruff check .` clean. On quick data the engine's 55–59 equal the
+clipped recomputation against v2 to 8.8e-15. Nothing retrained.
+
+**Rule restated:** the credit AUC after the retrain is reported whichever way it moves, and the bound is
+not revisited because of it. The retrain waits for the team box.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☐ team
 
 ---
 

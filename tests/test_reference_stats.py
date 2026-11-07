@@ -106,3 +106,16 @@ def test_lf_and_crlf_copies_hash_the_same(tmp_path):
     (s_lf, h_lf), (s_crlf, h_crlf) = fe.load_reference_stats(tmp_path / "lf.json"), fe.load_reference_stats(tmp_path / "crlf.json")
     assert h_lf == h_crlf == V1_SHA256 == hashlib.sha256(lf).hexdigest()
     assert s_lf == s_crlf
+
+
+def test_zscores_are_clipped_at_z_clip_and_values_inside_are_untouched():
+    """DECISIONS 38: §35 z is clipped to ±Z_CLIP after scoring against the pinned stats, in the engine."""
+    stats = {"stats": {"retail_trade": {fe.F[b]: {"mean": 1.0, "std": 0.01, "n": 10} for b in fe.Z_FEATURES.values()}}}
+    for base_value, expected in [(0.70, -fe.Z_CLIP), (1.50, fe.Z_CLIP), (0.99, -1.0)]:
+        p = fe.Profile()
+        for b in fe.Z_FEATURES.values():
+            p.set(b, base_value)
+        fe._fill_zscores(p, "retail_trade", stats)
+        for zid in fe.Z_FEATURES:
+            assert p.values[zid] == pytest.approx(expected)
+    assert fe.Z_CLIP == 3.0
