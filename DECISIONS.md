@@ -2903,7 +2903,7 @@ clipped recomputation against v2 to 8.8e-15. Nothing retrained.
 **Rule restated:** the credit AUC after the retrain is reported whichever way it moves, and the bound is
 not revisited because of it. The retrain waits for the team box.
 
-**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☐ team
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☑ team (approval confirmed 2026-11-07)
 
 ---
 
