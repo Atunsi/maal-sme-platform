@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
+import { DigitsSync } from "@/components/DigitsToggle";
+import { DIGITS_BOOT } from "@/lib/digits";
 import { THEME_BOOT } from "@/lib/theme";
 import "../globals.css";
 
@@ -29,7 +31,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   if (!isLocale(locale)) notFound();
   const m = getMessages(locale);
   return (
-    // The boot script adds the theme class before hydration, so React must not object to it.
+    // The boot scripts add the theme class and the digits mark before hydration, so React must not object.
     <html
       lang={locale}
       dir={dirOf(locale)}
@@ -38,6 +40,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        <script dangerouslySetInnerHTML={{ __html: DIGITS_BOOT }} />
       </head>
       <body className="flex min-h-screen flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:m-2 focus:inline-block focus:underline">
@@ -52,6 +55,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <footer className="border-t border-line">
           <p className="mx-auto max-w-[1240px] px-6 py-4 text-[13px] text-muted">{m.footer.scope}</p>
         </footer>
+        {locale === "ar" && <DigitsSync />}
       </body>
     </html>
   );

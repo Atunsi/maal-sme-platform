@@ -32,7 +32,7 @@ function ReceiptAside({ receipt, lens, m }: { receipt: Receipt; lens: string; m:
         <div className="heading mt-1.5 text-[26px]">{o.receiptTitle}</div>
         <p className="mt-1.5 text-sm text-muted">{o.receiptBody}</p>
       </div>
-      <dl className="rise grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: "1.5s" }}>
+      <dl data-latin className="rise grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: "1.5s" }}>
         {rows.map(([key, value]) => (
           <div key={key} className="contents">
             <dt className="text-muted">{key}</dt>

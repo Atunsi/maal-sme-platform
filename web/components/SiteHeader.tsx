@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ArabicLogo, EnglishWordmark, LogoBand } from "@/components/brand/Logos";
+import { DigitsToggle } from "@/components/DigitsToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
@@ -77,6 +78,7 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
             )}
             <LanguageToggle locale={locale} label={nav.language} />
             <ThemeToggle labels={{ dark: nav.themeDark, light: nav.themeLight }} />
+            {locale === "ar" && <DigitsToggle labels={{ arab: nav.digitsArab, latn: nav.digitsLatn }} />}
             {signedIn ? (
               <Link href={`${base}/sign-in`} prefetch={false} className="textlink">
                 {nav.signOut}

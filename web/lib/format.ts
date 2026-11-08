@@ -1,17 +1,24 @@
+import type { Digits } from "@/lib/digits";
 import type { Locale } from "@/lib/i18n";
 
-// Western digits in both languages until the digit question is decided (report section 10).
+// Every number, amount, percentage and date the app shows is formatted here. Western digits are the
+// default in both languages; Arabic can also show Arabic-Indic digits (E8, DECISIONS 43). The server always
+// formats Western: the digits choice lives in localStorage, and the client rewrites the page's text to
+// exactly what these functions return with digits "arab" (lib/digits.ts, tests/digits.test.ts).
 // Arabic pins the Gregorian calendar: ar-SA defaults to Umm al-Qura, which would silently
 // change every date the API returns.
-const TAGS: Record<Locale, string> = { en: "en-GB-u-nu-latn", ar: "ar-SA-u-ca-gregory-nu-latn" };
+const TAGS: Record<Locale, Record<Digits, string>> = {
+  en: { latn: "en-GB-u-nu-latn", arab: "en-GB-u-nu-latn" }, // English always shows Western digits
+  ar: { latn: "ar-SA-u-ca-gregory-nu-latn", arab: "ar-SA-u-ca-gregory-nu-arab" },
+};
 
 /** Bidi marks from the Arabic number formats scramble negatives inside the LTR wrapper (Num). */
 const plain = (text: string) => text.replace(/[‎‏؜]/g, "");
 
 /** 2 decimals: the API rounds SAR to 2, so this never changes a displayed amount (U3). */
-export function formatSar(value: number, locale: Locale): string {
+export function formatSar(value: number, locale: Locale, digits: Digits = "latn"): string {
   return plain(
-    new Intl.NumberFormat(TAGS[locale], {
+    new Intl.NumberFormat(TAGS[locale][digits], {
       style: "currency",
       currency: "SAR",
       minimumFractionDigits: 2,
@@ -20,18 +27,18 @@ export function formatSar(value: number, locale: Locale): string {
   );
 }
 
-export function formatInt(value: number, locale: Locale): string {
-  return plain(new Intl.NumberFormat(TAGS[locale], { maximumFractionDigits: 0 }).format(value));
+export function formatInt(value: number, locale: Locale, digits: Digits = "latn"): string {
+  return plain(new Intl.NumberFormat(TAGS[locale][digits], { maximumFractionDigits: 0 }).format(value));
 }
 
 /** All the digits the API sent, for rates, PD, hazards and percentages. */
-export function formatRaw(value: number, locale: Locale): string {
-  return plain(new Intl.NumberFormat(TAGS[locale], { maximumFractionDigits: 20, useGrouping: false }).format(value));
+export function formatRaw(value: number, locale: Locale, digits: Digits = "latn"): string {
+  return plain(new Intl.NumberFormat(TAGS[locale][digits], { maximumFractionDigits: 20, useGrouping: false }).format(value));
 }
 
 /** Month names, not digits: the Arabic numeric form carries bidi marks that scramble inside LTR text. */
-export function formatDate(iso: string, locale: Locale): string {
-  return new Intl.DateTimeFormat(TAGS[locale], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(
+export function formatDate(iso: string, locale: Locale, digits: Digits = "latn"): string {
+  return new Intl.DateTimeFormat(TAGS[locale][digits], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(
     new Date(`${iso}T00:00:00Z`),
   );
 }

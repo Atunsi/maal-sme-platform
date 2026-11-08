@@ -94,7 +94,7 @@ function Head({ object, align }: { object: ScenarioObject; align?: boolean }) {
       <span lang="en" dir="ltr" className="block text-start font-semibold">
         {scenarioName(object.scenario.label).name}
       </span>
-      <span dir="ltr" className="block text-start font-mono text-[11px] font-normal text-muted">
+      <span dir="ltr" data-latin className="block text-start font-mono text-[11px] font-normal text-muted">
         {object.receipt.output_sha256.slice(0, SHORT)}
       </span>
     </th>

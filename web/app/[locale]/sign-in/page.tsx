@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ArabicLogo, EnglishWordmark, LogoBand } from "@/components/brand/Logos";
+import { DigitsToggle } from "@/components/DigitsToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SignInForm } from "@/components/SignInForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -52,6 +53,7 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
             <LanguageToggle locale={locale} label={m.nav.language} />
           </Suspense>
           <ThemeToggle labels={{ dark: m.nav.themeDark, light: m.nav.themeLight }} />
+          {locale === "ar" && <DigitsToggle labels={{ arab: m.nav.digitsArab, latn: m.nav.digitsLatn }} />}
         </div>
         <div className="mx-auto flex w-full max-w-[440px] flex-1 flex-col justify-center gap-6">
           <div className="rise" style={{ animationDelay: "0.3s" }}>
