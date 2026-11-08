@@ -2916,8 +2916,8 @@ not revisited because of it. The retrain waits for the team box.
   artifact changed (sha256 `c7b6f733…f982` → `7ed936b6…9274`, intercept −3.151 → −3.142). Entries 30, 35
   and 38 were applied together, so this change cannot be attributed to any one of them.
 - The retrain commit (`79160cb`, 22:45) precedes the commit recording the team box (`67a5779`, 22:50,
-  2026-11-07). Whether the team approved before the retrain ran, and who approved: [TO BE CONFIRMED BY
-  THE CREDIT LENS OWNER].
+  2026-11-07). The team approved the entry 38 clip before the retrain ran; the
+  approval was committed afterwards (credit lens owner, confirmed 2026-11-08).
 
 **Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☑ team (approval confirmed 2026-11-07)
 
@@ -3083,13 +3083,11 @@ vs latent management quality ρ = +0.0385. Feature 3's coefficient is +1.294 wit
 construction; feature 55: 3.39 overall, 1,022.1 in construction. So the top construction attribution
 carries almost no standalone signal about default in construction.
 
-**Ablation, recorded as a finding — no model change follows from it.** Research CV mean AUC: full model
-0.5919; without the "§25 features" group 0.5960; that group alone 0.5621; full minus without-the-group is
-negative in all 20 repeats (mean −0.0041). Which features the group contains: [TO BE STATED BY THE CREDIT
-LENS OWNER with the script]. These are CV means (NUMBERS A1 reports the median, 0.5911). Dropping the group,
-because this comparison came out higher, would be choosing a model on the protocol that also produces
-the headline number. Any change to the feature set is a new PROPOSED entry with its selection rule
-fixed before it is evaluated; the shipped model and A1 stay as they are.
+**Ablation: not recorded.** The credit lens owner ran a feature-group ablation in a working session,
+but which features the group contained was not recorded, so its numbers are not stated here or used
+anywhere. If it is re-run, the script is committed first with the feature list, and any change to the
+feature set is a new PROPOSED entry with its selection rule fixed before it is evaluated. The shipped
+model and A1 stay as they are.
 
 **Serving-population calibration (943 businesses, 45 defaults), predicted vs observed default rate.**
 Construction 360 / 25 defaults: 5.64% vs 6.94% (−1.31 pp, under-predicted). Food & beverage 148 / 5:
