@@ -8,6 +8,7 @@ import { DEMO_BUSINESS } from "@/lib/businesses";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, getMessages, isLocale, LOCALES, type Locale, type Messages } from "@/lib/i18n";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
+import { TOUR_STEPS, tourHref } from "@/lib/tour";
 import type { ScenarioObject } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -134,6 +135,13 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
               </Link>
               <Link href={`/${locale}/scenarios`} className="rounded-ctl inline-flex min-h-[52px] items-center border-[1.5px] border-white px-6 font-semibold text-white no-underline">
                 {fill(l.ctaScenarios, { n: scenarioCount === null ? "" : formatInt(scenarioCount, locale) })}
+              </Link>
+              <Link
+                href={tourHref(locale, TOUR_STEPS[0]!, null)}
+                data-tour-start
+                className="rounded-ctl inline-flex min-h-[52px] items-center px-2 font-semibold text-white underline underline-offset-4"
+              >
+                {m.tour.start}
               </Link>
             </div>
           </div>

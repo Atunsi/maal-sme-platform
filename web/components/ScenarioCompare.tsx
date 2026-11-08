@@ -123,7 +123,7 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
   const placeholder = [baseline, chosen].some((o) => o.zakat?.nisab_source_status === "placeholder_unverified");
   const note = <p className="mb-2 text-sm">{s.receiptNote}</p>;
   return (
-    <div data-testid="scenario-compare" className="flex flex-col gap-4">
+    <div data-testid="scenario-compare" data-tour="diff" className="flex flex-col gap-4">
       <ProvenanceLine value={chosen} locale={locale} m={m} />
       {chosen.status === "insufficient_data" && <Refusal reason={chosen.lenses_not_run_reason} m={m} />}
       <div className="border border-line bg-card">

@@ -10,6 +10,7 @@ import { getAnomaly, getCredit, getForecast, getProfile, getZakat } from "@/lib/
 import { roleQuery } from "@/lib/businesses";
 import { fill, getMessages, isLocale } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
+import { TOUR_STEPS } from "@/lib/tour";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +54,9 @@ export default async function OverviewPage({ params, searchParams }: Props) {
               {m.overview.greeting}
             </span>
           )}
+          <Link href={`${root}?tour=${TOUR_STEPS[0]!.id}${query.replace("?", "&")}`} className="textlink font-semibold" data-tour-start data-print-hide>
+            {m.tour.start}
+          </Link>
           <Link href={`${root}/sheet${query}`} className="textlink font-semibold" data-print-hide>
             {m.sheet.open}
           </Link>

@@ -45,7 +45,7 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
     { label: n.base, value: sar(base), start: "0%", width: pct(base, scale), strong: true },
   ];
   return (
-    <section aria-labelledby="build" className="flex flex-col gap-5 border border-line bg-card p-5 sm:p-9">
+    <section aria-labelledby="build" data-tour="waterfall" className="flex flex-col gap-5 border border-line bg-card p-5 sm:p-9">
       <h2 id="build" className="heading text-2xl">
         {n.buildTitle}
       </h2>

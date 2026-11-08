@@ -858,6 +858,27 @@ details.faq summary::-webkit-details-marker {
   }
 }
 
+/* E1: the guided tour. The panel sits at the bottom of the screen; the page keeps room for it, and the
+   step's target gets a thick outline (the caption also names it). */
+body {
+  padding-bottom: var(--tour-h, 0px);
+}
+.tour-panel {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  max-height: 50vh;
+  overflow-y: auto;
+  border-top: 3px solid var(--accent);
+  background: var(--surface);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+}
+.tour-target {
+  outline: 4px solid var(--accent) !important;
+  outline-offset: 4px;
+}
+
 /* E2: the decision sheet on paper. Light tokens whatever the theme, nothing interactive, no motion, each
    section kept whole and table headers repeated across pages. */
 @page {

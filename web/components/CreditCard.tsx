@@ -56,7 +56,7 @@ function PublicTier({ lines, locale, m }: { lines: Line[]; locale: Locale; m: Me
   const onAxis = lines.filter((line) => line.magnitude && line.direction);
   const plain = lines.filter((line) => !line.magnitude || !line.direction);
   return (
-    <section aria-label={m.credit.factors} className="slidein flex flex-col gap-1.5 border border-line bg-card p-5 sm:p-9">
+    <section aria-label={m.credit.factors} data-tour="factors" className="slidein flex flex-col gap-1.5 border border-line bg-card p-5 sm:p-9">
       {plain.map((line, i) => (
         // A compliance decline has one template line and no factors, so it takes no axis.
         <BackendText key={line.feature_id ?? `line-${i}`} locale={locale} m={m}>

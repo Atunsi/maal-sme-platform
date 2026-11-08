@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { DigitsSync } from "@/components/DigitsToggle";
 import { SiteHeader } from "@/components/SiteHeader";
+import { TourPanel } from "@/components/TourPanel";
 import { DIGITS_BOOT } from "@/lib/digits";
 import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
 import { THEME_BOOT } from "@/lib/theme";
@@ -67,6 +68,12 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           </div>
         </footer>
         {locale === "ar" && <DigitsSync />}
+        <Suspense>
+          <TourPanel
+            locale={locale}
+            labels={{ ...m.tour, sheet: m.sheet.open, how: m.footer.how }}
+          />
+        </Suspense>
       </body>
     </html>
   );

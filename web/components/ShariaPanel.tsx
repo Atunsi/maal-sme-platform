@@ -15,7 +15,7 @@ export function ShariaLabel({ m }: { m: Messages }) {
 /** U6 on the Sharia page: the same fixed label, in a frame that stands with or without its motion. */
 function PendingFrame({ m }: { m: Messages }) {
   return (
-    <div className="frame">
+    <div className="frame" data-tour="pending">
       <svg aria-hidden="true" className="frame-line">
         <rect className="frame-path" pathLength={1} />
       </svg>

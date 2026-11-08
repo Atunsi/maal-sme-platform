@@ -48,7 +48,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
 
   return (
     <>
-      <section aria-label={n.timeline} className="flex flex-col gap-3 border border-line bg-card px-5 pb-6 pt-9 sm:px-9">
+      <section aria-label={n.timeline} data-tour="timeline" className="flex flex-col gap-3 border border-line bg-card px-5 pb-6 pt-9 sm:px-9">
         {/* Time runs left to right in Arabic too, so the track is pinned LTR. */}
         <div dir="ltr" role="group" aria-label={fill(n.timelineAlt, { n: formatInt(a.flags.length, locale), from: formatDate(from, locale), to: formatDate(to, locale) })}>
           <div className="relative h-[120px] border-b-2 border-ink">

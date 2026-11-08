@@ -77,7 +77,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
           </ul>
         </section>
       )}
-      <section aria-label={n.chartTitle} className="flex flex-col gap-4 border border-line bg-card p-5 sm:p-8">
+      <section aria-label={n.chartTitle} data-tour="runway" className="flex flex-col gap-4 border border-line bg-card p-5 sm:p-8">
         <ForecastChart
           data={points(f)}
           locale={locale}

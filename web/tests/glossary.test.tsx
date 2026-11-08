@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { Term } from "@/components/Term";
 import { GLOSSARY, glossaryFor } from "@/lib/glossary";
 import { HOW_INTRO, HOW_SECTIONS, plainText } from "@/lib/howItWorks";
+import { TOUR_STEPS } from "@/lib/tour";
 import GlossaryPage from "@/app/[locale]/glossary/page";
 import { en, webRoot } from "./helpers";
 
@@ -23,6 +24,7 @@ export const FIXED_TEXT: { name: string; texts: string[] }[] = [
       ...HOW_SECTIONS.flatMap((s) => [s.en.title, s.en.linkLabel, s.ar.title, s.ar.linkLabel, ...[...s.en.body, ...s.ar.body].map(plainText)]),
     ],
   },
+  { name: "tour", texts: TOUR_STEPS.flatMap((s) => [s.en.title, s.en.caption, s.ar.title, s.ar.caption]) },
 ];
 
 describe("glossary catalogue", () => {

@@ -419,6 +419,15 @@
     "receipt": "Receipt",
     "open": "Decision sheet"
   },
+  "tour": {
+    "region": "Guided tour",
+    "start": "Take the tour",
+    "back": "Back",
+    "next": "Next",
+    "end": "End tour",
+    "position": "Step {x} of {y}",
+    "missing": "This part didn't load. You can go to the next step."
+  },
   "landing": {
     "eyebrow": "SME financial health, Sharia-aware",
     "title": "Know where your business is heading, and why.",

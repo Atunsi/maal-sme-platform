@@ -43,7 +43,7 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
   const contributions = byAbsoluteContribution(tier.contributions);
   const largest = Math.abs(contributions[0]?.contribution_logodds ?? 0) || 1; // the scale comes from the response
   return (
-    <div data-testid="compliance-view" className="panel slidein flex flex-col gap-1 p-5 font-mono text-[13px] sm:p-9">
+    <div data-testid="compliance-view" data-tour="compliance" className="panel slidein flex flex-col gap-1 p-5 font-mono text-[13px] sm:p-9">
       <Fields>
         <Field label={c.units}>
           <BackendText locale={locale} m={m}>
