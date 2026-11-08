@@ -950,6 +950,7 @@ body {
     --tile: url("/brand/maal-logo-tile-light.svg");
     color-scheme: light;
   }
+  html,
   body {
     background: #ffffff;
   }

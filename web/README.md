@@ -11,14 +11,30 @@ It is a demo on synthetic data. It has no real accounts, tracking or logging of 
 |---|---|
 | `/[locale]` | Public landing page |
 | `/[locale]/sign-in` | Demo sign-in, two roles |
-| `/[locale]/admin` | The five demo businesses, and open a business by ID |
+| `/[locale]/admin` | The five demo businesses, then every serving business from `GET /businesses`, searched with `?q=`, `?sector=` and `?page=` |
 | `/[locale]/business/[id]` | Overview: verdict sheet, receipt, five readouts, profile features |
 | `/[locale]/business/[id]/credit` | Credit, with the Compliance View at `?view=compliance` |
 | `/[locale]/business/[id]/sharia` | Sharia screen |
 | `/[locale]/business/[id]/zakat` | Zakat |
 | `/[locale]/business/[id]/forecast` | Forecast |
 | `/[locale]/business/[id]/review` | Review queue |
-| `/[locale]/scenarios` | Scenario diff sheet, chosen with `?s=` |
+| `/[locale]/business/[id]/sheet` | Printable decision sheet ("Print or save as PDF") |
+| `/[locale]/scenarios` | Scenario diff sheet, chosen with `?s=` (or `?scenario=`, which Play all writes) |
+| `/[locale]/scenarios/custom` | Custom scenario builder; the shocks ride in `?shock=` |
+| `/[locale]/glossary` | Every glossary term |
+| `/[locale]/how-it-works` | How Ma'al decides |
+
+Enhancements (DECISIONS 43):
+
+- **Guided tour.** "Take the tour" on the landing page and the overview. The step is in the URL (`?tour=<step>`); Escape ends it. Steps live in `lib/tour.ts`.
+- **Print sheet.** `/business/[id]/sheet`, with print CSS for A4. No print timestamp.
+- **Glossary.** `lib/glossary.ts`; `<Term>` marks a term's first appearance on a page.
+- **Receipts.** Copy buttons, the scope's re-run command, and "Check a hash", all in the browser.
+- **Chart readouts.** The forecast chart takes focus (Left, Right, Home, End, Escape); Zakat bars and review marks show their value on hover, focus or tap.
+- **Digits.** In Arabic only, a header switch to Arabic-Indic digits, kept in `localStorage` (`maal-digits`), never a cookie. The server renders Western digits and the client rewrites them after hydration; hashes, commands, links and backend text are never rewritten.
+- **Phones and tablets.** Below 768 px the page links fold into a Menu; no page scrolls sideways at 360 px. Playwright projects `phone-360`, `phone-390`, `tablet-768` and `laptop-1280` run `e2e/mobile.spec.ts`; the rest of the suite runs as `desktop`.
+- **Play all** on the scenario page, one scenario every 8 seconds, with Pause.
+- **Custom scenarios** and the **admin list** call the DECISIONS 44 routes through the same queue.
 
 The design reference is in `docs/design/` (read its README first). Its mockups are a spec, not code.
 

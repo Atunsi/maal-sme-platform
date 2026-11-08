@@ -16,7 +16,8 @@ async function smallTargets(page: Page): Promise<string[]> {
       if (style.display === "none" || style.visibility === "hidden" || el.closest("[hidden], .sr-only, [aria-hidden=true]")) continue;
       if (el.matches(".term, .sr-only") || el.closest("p, li, dd, td, th, .term-wrap")?.matches("p, li, dd")) continue; // inline in text (WCAG 2.5.8 exception)
       if (el.matches("a[href^='#main']")) continue; // the skip link, visible only on focus
-      const r = el.getBoundingClientRect();
+      // A checkbox or field inside its label is pressed through the whole label: measure the label.
+      const r = (el.matches("input") && el.closest("label") ? el.closest("label")! : el).getBoundingClientRect();
       if (r.width === 0 && r.height === 0) continue;
       if (r.width < 43.5 || r.height < 43.5) small.push(`${el.tagName.toLowerCase()} "${(el.textContent ?? el.getAttribute("aria-label") ?? "").trim().slice(0, 30)}" ${r.width.toFixed(0)}x${r.height.toFixed(0)}`);
     }

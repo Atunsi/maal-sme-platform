@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
 import { ComplianceView } from "@/components/ComplianceView";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
+import { Term as GlossaryTerm } from "@/components/Term";
 import { BackendText, Code, Num, Plate, Refusal, SubHeading } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -79,7 +80,7 @@ function PublicTier({ lines, locale, m }: { lines: Line[]; locale: Locale; m: Me
   );
 }
 
-function Term({ label, children }: { label: string; children: ReactNode }) {
+function Term({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <div className="min-w-0 p-5">
       <dt className="text-[13px] text-muted">{label}</dt>
@@ -132,7 +133,13 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
             <Term label={m.credit.months}>{fill(m.overview.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</Term>
           )}
           {credit.base_markup_pct !== null && (
-            <Term label={m.credit.markup}>
+            <Term
+              label={
+                <GlossaryTerm id="markup-fixed" locale={locale}>
+                  {m.credit.markup}
+                </GlossaryTerm>
+              }
+            >
               <Num>{formatRaw(credit.base_markup_pct, locale)}%</Num>{" "}
               <Plate variant="ink" className="align-middle">
                 {m.credit.markupFixed}

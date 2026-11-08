@@ -61,8 +61,8 @@ write code that breaks one, stop and raise it.
 | Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; **nisab price is a placeholder** (entry 23) |
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | **Screening v1 built** — feature 24, deterministic rule table (PROPOSED, not certified); 85.1% compliant / 14.9% soft (entry 26) |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
-| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 252 ms on all 1,000; entries 25–27) |
-| Next.js UI | [`web/`](web/) | open (entry 41) | **Redesign built, PROPOSED** (entry 42) — landing page, demo sign-in, admin list, overview, one page per lens, Compliance View, scenario diff sheet, light and dark themes, Arabic and English; API calls are queued until the store concurrency bug is fixed (entry 41). Own Week 10 gate. |
+| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 252 ms on all 1,000; entries 25–27). **Proposed additions** (entry 44): `GET /businesses`, `GET /scenarios`, `POST /scenarios/run`; the review cap in the anomaly response stopped (S9) |
+| Next.js UI | [`web/`](web/) | open (entry 41) | **Enhancements built, PROPOSED** (entry 43: tour, print sheet, glossary, receipt tools, chart readouts, Arabic-Indic digits, phones and tablets, how-it-works, Play all, searchable admin list, custom scenarios), on the redesign (entry 42) — landing page, demo sign-in, admin list, overview, one page per lens, Compliance View, scenario diff sheet, light and dark themes, Arabic and English; API calls are queued until the store concurrency bug is fixed (entry 41). Own Week 10 gate. |
 
 Each component directory has a README stating its contract, the schema sections
 that govern it, and the constraints it must not implement around. **Read the

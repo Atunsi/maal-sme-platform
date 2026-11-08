@@ -1,5 +1,5 @@
 {
-  "_review": "مسودة للمراجعة: كل النصوص العربية الجديدة في إعادة التصميم، وهي الأقسام nav وoverview وlanding وsignIn وadmin والمفاتيح الجديدة في credit وsharia وzakat وforecast وanomaly وscenarios. لم يراجعها مختص بعد.",
+  "_review": "مسودة للمراجعة: كل النصوص العربية الجديدة في إعادة التصميم، وهي الأقسام nav وoverview وlanding وsignIn وadmin والمفاتيح الجديدة في credit وsharia وzakat وforecast وanomaly وscenarios. لم يراجعها مختص بعد. وكذلك كل النصوص العربية الجديدة في تحسينات القرار 43، وهي الأقسام glossary وsheet وtour وcustom والمفاتيح الجديدة في nav (الأرقام والقائمة) وfooter وreceipt وforecast وadmin وanomaly وerrors وscenarios وlanding، إضافة إلى المسرد في lib/glossary.ts والجولة في lib/tour.ts وصفحة كيف يقرر مآل في lib/howItWorks.ts، وكلها معلَّمة draft هناك. لم يراجعها مختص بعد.",
   "app": {
     "name": "مآل",
     "tagline": "إلى أين تتجه منشأتك"
