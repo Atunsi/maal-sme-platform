@@ -86,6 +86,8 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
             day: n.dayN,
             alt: n.chartAlt,
             floor: fill(n.floor, { amount: formatSar(0, locale) }),
+            floorName: n.floorName,
+            keys: n.chartKeys,
             below: n.below,
             today: n.today,
           }}

@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
+import { TipButton } from "@/components/TipButton";
 import { BackendText, Code, Field, Fields, Num, Plate, Refusal } from "@/components/ui";
 import { formatDate, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -26,6 +27,8 @@ function Step({ label, value, strong, children }: { label: string; value: string
   );
 }
 
+const GRID = "grid grid-cols-1 items-center gap-x-6 gap-y-4 pb-5 sm:grid-cols-[240px_1fr]";
+
 /** Assets, less liabilities, the base and the nisab marker, all on one scale taken from the response. */
 function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
   const { zakatable_assets_sar: assets, deductible_liabilities_sar: liabilities, zakat_base_sar: base } = z;
@@ -35,32 +38,59 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
   const sar = (value: number) => formatSar(value, locale);
   const nisabAt = pct(z.nisab_value_sar, scale);
   const alt = fill(n.buildAlt, { assets: sar(assets), liabilities: sar(liabilities), base: sar(base), nisab: sar(z.nisab_value_sar) });
+  const bars = [
+    { label: n.assets, value: sar(assets), start: "0%", width: pct(assets, scale), strong: false },
+    { label: n.less, value: sar(liabilities), start: pct(Math.max(assets - liabilities, 0), scale), width: pct(Math.min(liabilities, assets), scale), strong: false },
+    { label: n.base, value: sar(base), start: "0%", width: pct(base, scale), strong: true },
+  ];
   return (
     <section aria-labelledby="build" className="flex flex-col gap-5 border border-line bg-card p-5 sm:p-9">
       <h2 id="build" className="heading text-2xl">
         {n.buildTitle}
       </h2>
-      <div role="img" aria-label={alt} className="grid grid-cols-1 items-center gap-x-6 gap-y-4 pb-5 sm:grid-cols-[240px_1fr]">
-        <Step label={n.assets} value={sar(assets)}>
-          <div className="fill-bar fill-from-start start-0 bg-accent" style={{ width: pct(assets, scale), animationDelay: "0.2s" }} />
-        </Step>
-        <Step label={n.less} value={sar(liabilities)}>
-          {/* The deduction hangs from the end of the assets bar and eats back towards the base. */}
-          <div
-            className="fill-bar fill-from-end stripe"
-            style={{ insetInlineStart: pct(Math.max(assets - liabilities, 0), scale), width: pct(Math.min(liabilities, assets), scale), animationDelay: "1s" }}
-          />
-        </Step>
-        <Step label={n.base} value={sar(base)} strong>
-          <div className="fill-bar fill-from-start start-0 bg-ink" style={{ width: pct(base, scale), animationDelay: "1.8s" }} />
-          <div aria-hidden="true" className="drop absolute -inset-y-3.5 w-[3px] bg-ochre" style={{ insetInlineStart: nisabAt, animationDelay: "2.6s" }} />
-          <div
-            className="drop absolute top-[34px] whitespace-nowrap font-mono text-xs text-warn"
-            style={{ insetInlineStart: `calc(${nisabAt} + 10px)`, animationDelay: "2.7s" }}
-          >
-            {fill(n.nisabLine, { value: sar(z.nisab_value_sar), basis: z.nisab_basis })}
-          </div>
-        </Step>
+      <div className="relative">
+        <div role="img" aria-label={alt} className={GRID}>
+          <Step label={n.assets} value={sar(assets)}>
+            <div className="fill-bar fill-from-start start-0 bg-accent" style={{ width: pct(assets, scale), animationDelay: "0.2s" }} />
+          </Step>
+          <Step label={n.less} value={sar(liabilities)}>
+            {/* The deduction hangs from the end of the assets bar and eats back towards the base. */}
+            <div
+              className="fill-bar fill-from-end stripe"
+              style={{ insetInlineStart: bars[1]!.start, width: bars[1]!.width, animationDelay: "1s" }}
+            />
+          </Step>
+          <Step label={n.base} value={sar(base)} strong>
+            <div className="fill-bar fill-from-start start-0 bg-ink" style={{ width: pct(base, scale), animationDelay: "1.8s" }} />
+            <div aria-hidden="true" className="drop absolute -inset-y-3.5 w-[3px] bg-ochre" style={{ insetInlineStart: nisabAt, animationDelay: "2.6s" }} />
+            <div
+              className="drop absolute top-[34px] whitespace-nowrap font-mono text-xs text-warn"
+              style={{ insetInlineStart: `calc(${nisabAt} + 10px)`, animationDelay: "2.7s" }}
+            >
+              {fill(n.nisabLine, { value: sar(z.nisab_value_sar), basis: z.nisab_basis })}
+            </div>
+          </Step>
+        </div>
+        {/* E5: one focusable target per bar, laid over the picture in the same grid. Outside the image, because
+            an image's children are presentational and cannot hold controls. */}
+        <div className={`pointer-events-none absolute inset-0 ${GRID}`}>
+          {bars.map((bar) => (
+            <Fragment key={bar.label}>
+              <div aria-hidden="true" className={`invisible ${bar.strong ? "font-semibold" : ""}`}>
+                <div className="text-sm">{bar.label}</div>
+                <div className="font-mono text-lg">{bar.value}</div>
+              </div>
+              <div className="relative h-[30px]">
+                <TipButton
+                  label={`${bar.label}: ${bar.value}`}
+                  tip={`${bar.label}: ${bar.value}`}
+                  className="pointer-events-auto absolute -inset-y-[7px]"
+                  style={{ insetInlineStart: bar.start, width: bar.width }}
+                />
+              </div>
+            </Fragment>
+          ))}
+        </div>
       </div>
     </section>
   );

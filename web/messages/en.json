@@ -183,6 +183,8 @@
     "keyFigures": "Key figures",
     "floor": "{amount}, the cash floor",
     "below": "below the floor",
+    "floorName": "Cash floor",
+    "chartKeys": "Forecast chart readout. Use the Left and Right arrow keys to move between today and each horizon, Home and End for the first and last, and Escape to hide the readout.",
     "today": "today",
     "tableLabel": "Projection table",
     "noneProjected": "None projected"

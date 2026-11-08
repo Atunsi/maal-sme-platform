@@ -305,6 +305,42 @@ summary {
   border-color: var(--ink);
 }
 
+/* Chart readouts (E5): a transparent target over a mark, and its tip. Shown by state, so Esc closes it. */
+.tipped {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+.tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  inset-inline-start: 0;
+  z-index: 20;
+  width: max-content;
+  max-width: min(80vw, 320px);
+  padding: 5px 9px;
+  border-radius: var(--r-plate);
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: start;
+  pointer-events: none;
+}
+.tipped[data-open="true"] .tip,
+.tick[data-open="true"] .tip {
+  display: block;
+}
+.tip-end {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
 .field {
   min-height: 48px;
   padding: 0 14px;

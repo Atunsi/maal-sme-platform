@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Code, Num, TableScroll, TD, TH } from "@/components/ui";
 import { formatDate, formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -25,6 +25,17 @@ const dayOf = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
 /** U8: reasons only, placed by date. One mark per listed transaction; a mark and its row select each other. */
 export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale; labels: Pick<Messages, "anomaly" | "enums"> }) {
   const [picked, setPicked] = useState<number | null>(null);
+  // E5: the mark whose date and reason are showing. Hover, focus or a tap shows it; Esc, leaving or a tap
+  // elsewhere hides it. Click-to-highlight (picked) is separate and stays as it was.
+  const [shown, setShown] = useState<number | null>(null);
+  useEffect(() => {
+    if (shown === null) return;
+    const away = (event: PointerEvent) => {
+      if (!(event.target as Element).closest?.(".tick")) setShown(null);
+    };
+    document.addEventListener("pointerdown", away);
+    return () => document.removeEventListener("pointerdown", away);
+  }, [shown]);
   const n = labels.anomaly;
   const { from, to } = a.scan_window;
   const span = dayOf(to) - dayOf(from) || 1;
@@ -45,20 +56,35 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
               const at = position(flag.date);
               const look = LOOK[flag.flag_reason];
               const on = picked === flag.transaction_id;
+              const readout = fill(n.markLabel, { date: formatDate(flag.date, locale), reason: labels.enums.flag_reason[flag.flag_reason] });
               return (
                 <button
                   key={flag.transaction_id}
                   type="button"
                   className="tick"
                   aria-pressed={on}
-                  aria-label={fill(n.markLabel, { date: formatDate(flag.date, locale), reason: labels.enums.flag_reason[flag.flag_reason] })}
-                  onClick={() => pick(flag.transaction_id)}
+                  aria-label={readout}
+                  data-open={shown === flag.transaction_id}
+                  onClick={() => {
+                    pick(flag.transaction_id);
+                    setShown(flag.transaction_id);
+                  }}
+                  onFocus={() => setShown(flag.transaction_id)}
+                  onBlur={() => setShown(null)}
+                  onMouseEnter={() => setShown(flag.transaction_id)}
+                  onMouseLeave={() => setShown(null)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") setShown(null);
+                  }}
                   style={{ left: `${(at * 100).toFixed(2)}%` }}
                 >
                   <span
                     className="tick-bar"
                     style={{ height: `${on ? Math.min(look.height + 18, 118) : look.height}%`, background: look.colour, animationDelay: `${(0.4 + at * 3).toFixed(2)}s` }}
                   />
+                  <span aria-hidden="true" className={`tip ${at > 0.6 ? "tip-end" : ""}`}>
+                    {readout}
+                  </span>
                 </button>
               );
             })}
