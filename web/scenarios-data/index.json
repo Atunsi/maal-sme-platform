@@ -8,43 +8,43 @@
       "name": "baseline",
       "label": "Baseline — business 10001 exactly as configured",
       "story": "The control: a 30% inflow drop from week 18, one large transfer and one odd-hours sale.",
-      "output_sha256": "73738c1695f1325ca01f1c0028cc7483868a27eca0350e26b4976cd0e64f8a34"
+      "output_sha256": "06c57d0c89b1fa417cb10af3284397c4650d0c19dd79e6ffe78be55947d3ad0a"
     },
     {
       "name": "calm_counterfactual",
       "label": "Calm half-year — no shock, no anomalies",
       "story": "The same business if nothing had gone wrong.",
-      "output_sha256": "f63e6732296f72ee792a4d6efae7d3d7b08430421593c1d86bf16fbdc94ba226"
+      "output_sha256": "eb11ec3f3b76dd0ce3586cf0e351c54cf4da574c153f14453c8b148ef99c2d22"
     },
     {
       "name": "mild_slowdown",
       "label": "Mild slowdown — inflows down 15% from week 18",
       "story": "A soft market: customers spend a little less for the last two months.",
-      "output_sha256": "00a2817868021f339216c94c05f9e9819423e92b221702e45a11ebaf87d39fd1"
+      "output_sha256": "dbe0afd6a24915b919b721cb40949e01d011dce2bd52c268417df27d4210db3d"
     },
     {
       "name": "severe_collapse",
       "label": "Severe revenue collapse — inflows down 60% from week 14",
       "story": "A major customer segment disappears three months before the decision date.",
-      "output_sha256": "1c6b3b02b8f62cde649dbfa07aee73cb7457e0ca4032ca019657e55326b3dd23"
+      "output_sha256": "93806d12b6d70a1c2cf7fcd5cad5b1136b9f3a0019759467b9ef524635dc751d"
     },
     {
       "name": "late_sudden_shock",
       "label": "Late sudden shock — inflows down 70% in the final three weeks",
       "story": "The shock lands just before the decision date: can anything see it yet?",
-      "output_sha256": "8be9351ca8607f6380b00be50708edc59b2e38a22ff740494be830d2a65122cd"
+      "output_sha256": "96c559efc5da3d2d63cb61d98587e8275184b9f1d72a010280b04aab956966f1"
     },
     {
       "name": "fraud_pattern",
       "label": "Suspicious activity — repeated large transfers and night-time sales",
       "story": "Revenue is normal, but money moves in ways the business never did before.",
-      "output_sha256": "5368073f7caf0ad2bea7370a5f56468aeb6716abd62c83ee39efcf7285b4e3e8"
+      "output_sha256": "299f27c3ab6d1dcc57e6687e864bd54bc35b470c64d0b18a5907c4e540ef9e0e"
     },
     {
       "name": "combined_crisis",
       "label": "Combined crisis — 60% revenue collapse from week 12 plus large transfers out",
       "story": "Revenue collapses and cash is moved out of the business at the same time.",
-      "output_sha256": "94ffb9f15ee68f6babf0e523431745abe9b105b7e92ea653e72cccfff562474e"
+      "output_sha256": "5dbee83f12685c82a5b8955700ac1c7587619bdf006506dd72f64ae92559063a"
     },
     {
       "name": "thin_file_newcomer",
@@ -53,5 +53,5 @@
       "output_sha256": "904b1c5b458d459bc2f37e08a17f4196274e7940766c66eb768a2cfdd58f6674"
     }
   ],
-  "code_commit": "c5711859f4067b175602b9bbdb787c182c9878e1"
+  "code_commit": "d9e69435901fc4ba429e15ae03d4ea448fa5befd"
 }
