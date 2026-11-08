@@ -128,7 +128,7 @@ export function CardLoading({ title, m }: { title: string; m: Messages }) {
 /** A table that may be wider than the card scrolls inside a keyboard-focusable region. */
 export function TableScroll({ label, tall, children }: { label: string; tall?: boolean; children: ReactNode }) {
   return (
-    <div role="region" aria-label={label} tabIndex={0} className={`overflow-auto ${tall ? "max-h-96" : ""}`}>
+    <div role="region" aria-label={label} tabIndex={0} className={`relative overflow-auto ${tall ? "max-h-96" : ""}`}>
       {children}
     </div>
   );

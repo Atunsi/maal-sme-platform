@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useRef, useState } from "react";
 import { ArabicLogo, EnglishWordmark, LogoBand } from "@/components/brand/Logos";
 import { DigitsToggle } from "@/components/DigitsToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -40,6 +41,10 @@ function navItems(rest: string, base: string, query: string, nav: Messages["nav"
 export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "nav" | "app"> }) {
   const pathname = usePathname();
   const role = useSearchParams().get("as");
+  // The phone menu is open on the page it was opened on, so moving to another page closes it.
+  const [openOn, setOpenOn] = useState<string | null>(null);
+  const open = openOn === pathname;
+  const menuButton = useRef<HTMLButtonElement>(null);
   const rest = pathname.replace(/^\/(en|ar)/, "").replace(/\/$/, "");
   if (rest === "/sign-in") return null; // the sign-in page carries its own brand panel
 
@@ -50,44 +55,70 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
   const id = /^\/business\/(\d+)/.exec(rest)?.[1];
   const signedIn = role === "admin" ? nav.roleAdmin : role === "owner" ? fill(nav.roleOwner, { id: id ?? DEMO_BUSINESS }) : null;
 
+  const items = navItems(rest, base, query, nav, admin);
+  const close = () => setOpenOn(null);
   return (
     <>
       <header className="bleed border-b border-line bg-card">
-        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 py-3">
+        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3.5">
-            <Link href={base} aria-label={nav.home} className="flex items-center gap-3.5 text-accent no-underline">
-              <ArabicLogo height={46} animate />
-              <EnglishWordmark height={20} animate />
+            <Link href={base} aria-label={nav.home} className="flex min-h-11 min-w-11 items-center gap-3.5 text-accent no-underline">
+              {/* E7: below 390 px the Arabic logo stands alone at 32 px, as the design rule allows. */}
+              <ArabicLogo height={46} animate className="h-8 w-auto min-[390px]:h-[46px]" />
+              <span className="hidden min-[390px]:inline-flex">
+                <EnglishWordmark height={20} animate />
+              </span>
             </Link>
             {/* Beside the link, not in it: visible text must be part of a link's accessible name. */}
-            {!signedIn && <span className="max-w-[120px] border-s border-line ps-3.5 text-xs leading-tight text-muted">{m.app.tagline}</span>}
+            {!signedIn && <span className="hidden max-w-[120px] border-s border-line ps-3.5 text-xs leading-tight text-muted lg:block">{m.app.tagline}</span>}
           </div>
-          <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-wrap gap-x-4 text-[15px]">
-            {navItems(rest, base, query, nav, admin).map((item) => (
-              <Link key={item.href} href={item.href} aria-current={item.current ? "page" : undefined} className="navlink">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex flex-wrap items-center gap-3">
-            {signedIn && (
-              <span className="flex flex-col leading-tight">
-                <span className="text-xs text-muted">{nav.signedInAs}</span>
-                <span className="text-sm font-semibold">{signedIn}</span>
-              </span>
-            )}
-            <LanguageToggle locale={locale} label={nav.language} />
-            <ThemeToggle labels={{ dark: nav.themeDark, light: nav.themeLight }} />
-            {locale === "ar" && <DigitsToggle labels={{ arab: nav.digitsArab, latn: nav.digitsLatn }} />}
-            {signedIn ? (
-              <Link href={`${base}/sign-in`} prefetch={false} className="textlink">
-                {nav.signOut}
-              </Link>
-            ) : (
-              <Link href={`${base}/sign-in`} prefetch={false} className="solid-btn min-h-11">
-                {nav.signIn}
-              </Link>
-            )}
+          {/* E7: below 768 px the page links and the buttons fold into this menu. */}
+          <button
+            ref={menuButton}
+            type="button"
+            className="themebtn md:hidden"
+            aria-expanded={open}
+            aria-controls="site-menu"
+            onClick={() => setOpenOn(open ? null : pathname)}
+          >
+            {nav.menu}
+          </button>
+          <div
+            id="site-menu"
+            className={`${open ? "flex" : "hidden"} w-full flex-col gap-3 border-t border-line pt-3 md:contents`}
+            onKeyDown={(event) => {
+              if (event.key !== "Escape") return;
+              close();
+              menuButton.current?.focus();
+            }}
+          >
+            <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-4 text-[15px] md:flex-row md:flex-wrap">
+              {items.map((item) => (
+                <Link key={item.href} href={item.href} aria-current={item.current ? "page" : undefined} className="navlink" onClick={close}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="flex flex-wrap items-center gap-3">
+              {signedIn && (
+                <span className="flex flex-col leading-tight">
+                  <span className="text-xs text-muted">{nav.signedInAs}</span>
+                  <span className="text-sm font-semibold">{signedIn}</span>
+                </span>
+              )}
+              <LanguageToggle locale={locale} label={nav.language} />
+              <ThemeToggle labels={{ dark: nav.themeDark, light: nav.themeLight }} />
+              {locale === "ar" && <DigitsToggle labels={{ arab: nav.digitsArab, latn: nav.digitsLatn }} />}
+              {signedIn ? (
+                <Link href={`${base}/sign-in`} prefetch={false} className="textlink">
+                  {nav.signOut}
+                </Link>
+              ) : (
+                <Link href={`${base}/sign-in`} prefetch={false} className="solid-btn min-h-11">
+                  {nav.signIn}
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </header>

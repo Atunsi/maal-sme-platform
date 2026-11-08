@@ -64,9 +64,15 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
           <Step label={n.base} value={sar(base)} strong>
             <div className="fill-bar fill-from-start start-0 bg-ink" style={{ width: pct(base, scale), animationDelay: "1.8s" }} />
             <div aria-hidden="true" className="drop absolute -inset-y-3.5 w-[3px] bg-ochre" style={{ insetInlineStart: nisabAt, animationDelay: "2.6s" }} />
+            {/* The label sits on the side of the marker with more room and wraps within it, so it never runs off
+                a phone screen. */}
             <div
-              className="drop absolute top-[34px] whitespace-nowrap font-mono text-xs text-warn"
-              style={{ insetInlineStart: `calc(${nisabAt} + 10px)`, animationDelay: "2.7s" }}
+              className="drop absolute top-[34px] w-max font-mono text-xs text-warn"
+              style={
+                z.nisab_value_sar / scale > 0.5
+                  ? { insetInlineEnd: `calc(100% - ${nisabAt} + 10px)`, maxWidth: `calc(${nisabAt} - 10px)`, animationDelay: "2.7s" }
+                  : { insetInlineStart: `calc(${nisabAt} + 10px)`, maxWidth: `calc(100% - ${nisabAt} - 10px)`, animationDelay: "2.7s" }
+              }
             >
               {fill(n.nisabLine, { value: sar(z.nisab_value_sar), basis: z.nisab_basis })}
             </div>
@@ -183,7 +189,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
       <div className="flex items-center gap-3">
         <Plate variant={STATUS_VARIANT[z.status]}>{m.enums.zakat_status[z.status]}</Plate>
         {z.status !== "not_computed" && z.liability_sar !== null && (
-          <span className="font-mono text-[34px]">
+          <span className="font-mono text-[26px] sm:text-[34px]">
             <Num>{formatSar(z.liability_sar, locale)}</Num>
           </span>
         )}

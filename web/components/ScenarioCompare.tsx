@@ -128,7 +128,7 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
       {chosen.status === "insufficient_data" && <Refusal reason={chosen.lenses_not_run_reason} m={m} />}
       <div className="border border-line bg-card">
         <TableScroll label={s.compareLabel}>
-          <table className="w-full min-w-[640px] border-collapse">
+          <table className="diff-table w-full border-collapse md:min-w-[640px]">
             <thead>
               <tr className="border-b-2 border-ink">
                 <th scope="col" className={`${TH} !py-5`}>
@@ -156,8 +156,11 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
                         <span>{label}</span>
                       </span>
                     </th>
-                    <td className="border-s border-line px-5 py-3 font-mono text-sm">{left[key]!.shown}</td>
+                    <td data-label={scenarioName(baseline.scenario.label).name} className="border-s border-line px-5 py-3 font-mono text-sm">
+                      {left[key]!.shown}
+                    </td>
                     <td
+                      data-label={scenarioName(chosen.scenario.label).name}
                       className={`border-s border-line px-5 py-3 font-mono text-sm ${changed ? "flash bg-accent-soft font-semibold" : ""}`}
                       style={changed ? { animationDelay: delay } : undefined}
                     >

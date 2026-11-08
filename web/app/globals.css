@@ -170,6 +170,8 @@ html[lang="ar"] {
 
 summary {
   cursor: pointer;
+  min-height: 44px; /* E7: every control is at least 44 px */
+  padding-block: 10px;
 }
 
 /* A dark surface inside either theme: everything in it reads the panel's own colours. */
@@ -255,6 +257,7 @@ summary {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  min-width: 44px;
   padding: 0 2px;
   color: var(--ink);
   text-decoration: none;
@@ -278,6 +281,7 @@ summary {
 
 .textlink {
   min-height: 44px;
+  min-width: 44px;
   display: inline-flex;
   align-items: center;
   padding: 0 4px;
@@ -562,8 +566,8 @@ summary {
   position: absolute;
   bottom: 0;
   top: 0;
-  width: 20px;
-  margin-left: -10px;
+  width: 44px; /* E7: a 44 px target; the bar inside stays 6 px and centred */
+  margin-left: -22px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -572,13 +576,13 @@ summary {
 .tick-bar {
   position: absolute;
   bottom: 0;
-  left: 7px;
+  left: 19px;
   width: 6px;
   transform-origin: bottom;
   animation: growy 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .tick[aria-pressed="true"] .tick-bar {
-  left: 5px;
+  left: 17px;
   width: 10px;
   box-shadow: 0 0 0 4px var(--accentSoft2);
 }
@@ -858,6 +862,36 @@ details.faq summary::-webkit-details-marker {
   }
 }
 
+/* E7: below 768 px the diff sheet stacks each row: the Changed or Same plate and the label across the top,
+   then the baseline and the scenario, each naming its column. */
+@media (max-width: 767.98px) {
+  .diff-table thead {
+    display: none;
+  }
+  .diff-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .diff-table th[scope="row"] {
+    grid-column: 1 / -1;
+    padding-bottom: 4px;
+  }
+  .diff-table td {
+    padding-top: 4px;
+    border-inline-start: 0;
+    word-break: break-word;
+  }
+  .diff-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+}
+
 /* E1: the guided tour. The panel sits at the bottom of the screen; the page keeps room for it, and the
    step's target gets a thick outline (the caption also names it). */
 body {
@@ -941,6 +975,9 @@ body {
   }
   .sheet-table tr {
     break-inside: avoid;
+  }
+  .sheet [role="region"] {
+    overflow: visible;
   }
 }
 

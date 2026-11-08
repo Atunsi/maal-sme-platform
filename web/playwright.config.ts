@@ -10,6 +10,14 @@ export default defineConfig({
   reporter: "list",
   globalSetup: "./e2e/global-setup.ts",
   use: { baseURL: "http://127.0.0.1:3000", channel: "msedge" },
+  // E7: the whole suite runs at desktop width; the four viewports the SOP names run mobile.spec.ts.
+  projects: [
+    { name: "desktop", testIgnore: /mobile\.spec\.ts/ },
+    { name: "phone-360", testMatch: /mobile\.spec\.ts/, use: { viewport: { width: 360, height: 740 }, isMobile: true, hasTouch: true } },
+    { name: "phone-390", testMatch: /mobile\.spec\.ts/, use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: "tablet-768", testMatch: /mobile\.spec\.ts/, use: { viewport: { width: 768, height: 1024 }, hasTouch: true } },
+    { name: "laptop-1280", testMatch: /mobile\.spec\.ts/, use: { viewport: { width: 1280, height: 800 } } },
+  ],
   webServer: [
     { command: "npx next start --port 3000", url: "http://127.0.0.1:3000/en", reuseExistingServer: false },
     // The 401 test: the same build started with a key the API will reject.

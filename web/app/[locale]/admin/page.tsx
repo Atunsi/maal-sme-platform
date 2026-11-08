@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { SectionMark } from "@/components/brand/Logos";
 import { BusinessPicker } from "@/components/BusinessPicker";
-import { Num, Page, Plate, type PlateVariant } from "@/components/ui";
+import { Num, Page, Plate, TableScroll, type PlateVariant } from "@/components/ui";
 import { getCredit, getHealth } from "@/lib/api";
 import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
 import { formatInt } from "@/lib/format";
@@ -105,7 +105,8 @@ export default async function AdminPage({ params, searchParams }: Props) {
         />
       </div>
 
-      <section aria-label={a.tableLabel} className="rise overflow-x-auto border border-line bg-card" style={{ animationDelay: "0.2s" }}>
+      <div className="rise border border-line bg-card" style={{ animationDelay: "0.2s" }}>
+        <TableScroll label={a.tableLabel}>
         <table className="w-full min-w-[820px] border-collapse">
           <thead>
             <tr className="text-start text-[13px] text-muted">
@@ -143,7 +144,8 @@ export default async function AdminPage({ params, searchParams }: Props) {
             ))}
           </tbody>
         </table>
-      </section>
+        </TableScroll>
+      </div>
       <p className="text-[13px] text-muted">
         {health.ok ? fill(a.note, { n: formatInt(health.data.serving_businesses, locale) }) : p.unavailable}
       </p>

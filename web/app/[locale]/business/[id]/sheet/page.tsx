@@ -4,7 +4,7 @@ import { ArabicLogo, EnglishWordmark } from "@/components/brand/Logos";
 import { NotServing } from "@/components/LensPage";
 import { PrintButton } from "@/components/PrintButton";
 import { ShariaLabel } from "@/components/ShariaPanel";
-import { ApiError, BackendText, Code, Num, Plate, ProvenanceLine, Refusal, TD, TH } from "@/components/ui";
+import { ApiError, BackendText, Code, Num, Plate, ProvenanceLine, Refusal, TableScroll, TD, TH } from "@/components/ui";
 import { getAnomaly, getCredit, getForecast, getZakat } from "@/lib/api";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
@@ -118,7 +118,8 @@ function Forecast({ data, locale, m }: { data: ForecastResponse; locale: Locale;
           <Plate variant={f.crunch_alert.level === "none" ? "ok" : f.crunch_alert.level === "watch" ? "warn" : "bad"}>{m.enums.level[f.crunch_alert.level]}</Plate>
         </Row>
       </dl>
-      <table className="sheet-table w-full text-sm">
+      <TableScroll label={n.tableLabel}>
+      <table className="sheet-table w-full min-w-[560px] text-sm">
         <thead>
           <tr>
             {[n.series, n.horizon, n.projected, n.minimum, n.netFlow].map((label) => (
@@ -148,6 +149,7 @@ function Forecast({ data, locale, m }: { data: ForecastResponse; locale: Locale;
           )}
         </tbody>
       </table>
+      </TableScroll>
     </>
   );
 }

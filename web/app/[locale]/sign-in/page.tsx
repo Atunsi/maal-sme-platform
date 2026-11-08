@@ -24,7 +24,7 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
         <div aria-hidden="true" className="absolute -bottom-40 -end-[120px] opacity-[0.08]">
           <ArabicLogo height={700} color="#ffffff" />
         </div>
-        <Link href={`/${locale}`} aria-label={m.nav.home} className="rise relative self-start text-white">
+        <Link href={`/${locale}`} aria-label={m.nav.home} className="rise relative inline-flex min-h-11 min-w-11 items-center self-start text-white">
           <EnglishWordmark height={20} />
         </Link>
         <div className="relative flex flex-col gap-6">

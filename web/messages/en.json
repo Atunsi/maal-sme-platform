@@ -30,7 +30,8 @@
     "themeDark": "Dark theme",
     "themeLight": "Light theme",
     "digitsArab": "Arabic-Indic digits",
-    "digitsLatn": "Western digits"
+    "digitsLatn": "Western digits",
+    "menu": "Menu"
   },
   "footer": {
     "scope": "Synthetic data only. Population: serving. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent.",
