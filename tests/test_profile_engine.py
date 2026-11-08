@@ -180,22 +180,24 @@ def test_same_input_gives_byte_identical_output():
 # --- DECISIONS entry 13: thinned POS rows carry sample_weight ---------------------------------
 
 
-@pytest.mark.xfail(
-    reason="engine ignores transactions.sample_weight in feature 21 (it mixes inflow and outflow value); "
-    "entry 13's no-bias claim is false for features 20–22, see DECISIONS entry 30",
-    strict=True,
-)
-def test_sample_weight_counts_a_thinned_row_at_its_weight():
-    """Entry 13: a thinned POS row with sample_weight = 5 stands for five receipts in value-based features."""
+def test_thinned_business_reads_its_full_stream_totals():
+    """Entry 30: a thinned business's counterparty features come from counterparty_windows, not its sampled rows."""
     tx = pd.DataFrame([
         {"business_id": 1, "date": AS_OF - pd.Timedelta(days=5), "direction": "in", "counterparty_type": "customer",
          "category": "sales", "subfamily": "OTHR", "counterparty_id": "C1", "amount": 100.0, "sample_weight": 5.0},
         {"business_id": 1, "date": AS_OF - pd.Timedelta(days=5), "direction": "out", "counterparty_type": "supplier",
          "category": "inventory", "subfamily": "OTHR", "counterparty_id": "S1", "amount": 500.0, "sample_weight": 1.0},
     ])
-    out = run(make_tables(200, tx=tx))
-    # weighted: C1 = 500, S1 = 500 → HHI = 0.5²+0.5² = 0.5 (unweighted would give 0.722)
-    assert value(out, 21) == pytest.approx(0.5)
+    t = make_tables(200, tx=tx)
+    with pytest.raises(ValueError, match="counterparty_windows"):
+        run(t)  # sampled rows alone are refused, never silently used
+    zeros = {"in_d30_89": 0.0, "in_d90_179": 0.0, "out_d30_89": 0.0, "out_d90_179": 0.0, "data_source": "synthetic", "evidence_class": "C"}
+    t["counterparty_windows"] = pd.DataFrame([
+        {"business_id": 1, "counterparty_id": "C1", "in_d0_29": 500.0, "out_d0_29": 0.0, **zeros},
+        {"business_id": 1, "counterparty_id": "S1", "in_d0_29": 0.0, "out_d0_29": 500.0, **zeros},
+    ])
+    # C1 = 500, S1 = 500 → HHI = 0.5²+0.5² = 0.5 (the sampled rows alone would give 0.722)
+    assert value(run(t), 21) == pytest.approx(0.5)
 
 
 def test_daily_inflow_features_do_not_depend_on_transactions():

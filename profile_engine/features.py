@@ -21,6 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from generator.schemas import COUNTERPARTY_WINDOW_COLUMNS
 from profile_engine.registry import (
     COUNTERPARTY_FEATURE_IDS,
     COVERAGE_MIN_DAYS,
@@ -39,8 +40,18 @@ HAZARD_SIMS, HAZARD_BLOCK = 500, 7  # §34 features 52–54 (block bootstrap pre
 CIRCULAR_VALUE_SHARE = 0.005  # feature 46: fixed documented threshold = 0.5% of trailing-90d total value, floored at EPS_MONTHLY
 WEEKEND_BY_SOURCE = {"synthetic": (4, 5), "sandbox": (4, 5), "external_real": (5, 6)}  # feature 33: Fri/Sat vs Sat/Sun
 MONTHLY_EQUIVALENT = {"monthly": 1.0, "weekly": 52.0 / 12.0, "quarterly": 1.0 / 3.0, "one_off": 0.0}  # `unknown` excluded
-REFERENCE_STATS_PATH = Path(__file__).with_name("sector_reference_stats_v1.json")
+# §35 pinned sector reference statistics (DECISIONS entry 35). v2 is the file in use; v1 is kept
+# byte-identical so receipts made before entry 35 can still be reproduced. Neither is ever rebuilt
+# at serving time.
+REFERENCE_STATS_V1_PATH = Path(__file__).with_name("sector_reference_stats_v1.json")
+REFERENCE_STATS_V2_PATH = Path(__file__).with_name("sector_reference_stats_v2.json")
+REFERENCE_STATS_PATH = REFERENCE_STATS_V2_PATH
+REFERENCE_STATS_VERSION = "v2"
 Z_FEATURES = {55: 3, 56: 11, 57: 13, 58: 16, 59: 21}  # §35 z-score → base feature
+# DECISIONS 38: each §35 z is clipped to [-Z_CLIP, +Z_CLIP] after it is computed against the pinned stats,
+# all sectors, all sources. The bound was fixed before any credit result on v2 existed. The stats file and
+# the base features (3, 11, 13, 16, 21) are unchanged, so the unclipped z is recomputable for audit.
+Z_CLIP = 3.0
 
 F = FEATURE_NAMES
 
@@ -296,21 +307,52 @@ def daily_features(
 # --------------------------------------------------------------------------- #
 
 
-def transaction_features(tx: pd.DataFrame, biz: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def _windows_as_rows(cp_windows: pd.DataFrame) -> pd.DataFrame:
+    """counterparty_windows as one row per non-zero total, dated at its window's lower edge (DECISIONS entry 30)."""
+    parts = []
+    for col, (side, lo) in COUNTERPARTY_WINDOW_COLUMNS.items():
+        p = cp_windows.loc[cp_windows[col] > 0, ["business_id", "counterparty_id", col]].rename(columns={col: "amount"})
+        parts.append(p.assign(direction=side, dbe=lo))
+    return pd.concat(parts, ignore_index=True)
+
+
+def transaction_features(tx: pd.DataFrame, biz: pd.DataFrame, cp_windows: pd.DataFrame | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Returns (per-business frame of features 5, 10, 20, 21, 22, 45, 46, fi_outflow, loan_outflow, cp_coverage_share), plus prior-window availability."""
     t = tx.merge(biz[["business_id", "window_end", "operating_start_date"]], on="business_id")
     t = t[(t["date"] <= t["window_end"]) & (t["date"] >= t["operating_start_date"])]
     t["dbe"] = (t["window_end"] - t["date"]).dt.days
-    cur = t[t["dbe"] < TRAILING_DAYS]
-    prior = t[(t["dbe"] >= TRAILING_DAYS) & (t["dbe"] < 2 * TRAILING_DAYS)]
     out = pd.DataFrame(index=pd.Index(biz["business_id"], name="business_id"))
 
-    is_in = cur["direction"] == "in"
-    is_out = ~is_in
-    out["fi_outflow_90"] = cur[is_out & (cur["counterparty_type"] == "financial_institution")].groupby("business_id")["amount"].sum()
-    out["loan_outflow_90"] = cur[is_out & (cur["subfamily"] == "LOAN")].groupby("business_id")["amount"].sum()
-    cat = cur[is_out].groupby(["business_id", "category"], observed=True)["amount"].sum()
+    # Outflow-only features: outflows are never thinned, so these read the rows themselves.
+    cur_rows = t[t["dbe"] < TRAILING_DAYS]
+    is_out = cur_rows["direction"] != "in"
+    out["fi_outflow_90"] = cur_rows[is_out & (cur_rows["counterparty_type"] == "financial_institution")].groupby("business_id")["amount"].sum()
+    out["loan_outflow_90"] = cur_rows[is_out & (cur_rows["subfamily"] == "LOAN")].groupby("business_id")["amount"].sum()
+    cat = cur_rows[is_out].groupby(["business_id", "category"], observed=True)["amount"].sum()
     out[F[10]] = (cat / cat.groupby(level=0).transform("sum")).groupby(level=0).max()
+    out["prior_tx_days"] = t[(t["dbe"] >= TRAILING_DAYS) & (t["dbe"] < 2 * TRAILING_DAYS)].groupby("business_id")["date"].nunique()
+
+    # Counterparty features depend on which rows exist, so a thinned business reads the totals taken
+    # before thinning (DECISIONS entry 30). Refusing beats silently computing them on a sample.
+    covered = set() if cp_windows is None else set(cp_windows["business_id"])
+    if "sample_weight" in tx.columns:
+        missing = set(tx.loc[tx["sample_weight"] > 1, "business_id"]) - covered
+        if missing:
+            raise ValueError(f"{len(missing)} business(es) have thinned rows but no counterparty_windows rows, e.g. {sorted(missing)[:3]} (DECISIONS entry 30)")
+    if covered:
+        # Assumption: counterparty_windows reach back 180 days (last window d90_179), while an unthinned
+        # business's rows reach back over its whole history. Feature 22's "seen before" set (dbe >= 30)
+        # therefore agrees between the two paths only because the generator asserts T <= 180
+        # (generator.generate.counterparty_windows). A longer window must fail here, not diverge.
+        cov_rows = t["business_id"].isin(covered)
+        assert not (cov_rows & (t["dbe"] >= 180)).any(), (
+            "thinned business has rows 180+ days before window_end; counterparty_windows covers only 180 days (DECISIONS entry 30)"
+        )
+        cols = ["business_id", "counterparty_id", "direction", "amount", "dbe"]
+        keep = cp_windows[cp_windows["business_id"].isin(set(biz["business_id"]))]
+        t = pd.concat([t.loc[~t["business_id"].isin(covered), cols], _windows_as_rows(keep)], ignore_index=True)
+    cur = t[t["dbe"] < TRAILING_DAYS]
+    prior = t[(t["dbe"] >= TRAILING_DAYS) & (t["dbe"] < 2 * TRAILING_DAYS)]
 
     has_cp = cur["counterparty_id"].notna()
     out["cp_coverage_share"] = cur[has_cp].groupby("business_id")["amount"].sum() / cur.groupby("business_id")["amount"].sum()
@@ -339,7 +381,6 @@ def transaction_features(tx: pd.DataFrame, biz: pd.DataFrame) -> tuple[pd.DataFr
     )
     out[F[45]] = cin[persist].groupby("business_id")["amount"].sum() / cin.groupby("business_id")["amount"].sum()
     out.loc[out[F[45]].isna() & cin.groupby("business_id")["amount"].sum().reindex(out.index).gt(0), F[45]] = 0.0
-    out["prior_tx_days"] = prior.groupby("business_id")["date"].nunique()
 
     total_val = cur.groupby("business_id")["amount"].sum()
     thr = np.maximum(CIRCULAR_VALUE_SHARE * total_val, EPS_MONTHLY)
@@ -402,21 +443,29 @@ def balance_sheet_row(bm: pd.DataFrame | None, b_id: int, as_of: pd.Timestamp) -
 # --------------------------------------------------------------------------- #
 
 
-def load_reference_stats(path: Path = REFERENCE_STATS_PATH) -> tuple[dict | None, str | None]:
+def reference_stats_sha256(raw: bytes) -> str:
+    """sha256 of the stats file with line endings canonicalised to LF, so a Windows CRLF checkout and an
+    LF checkout of the same committed file give the same hash (DECISIONS entry 35, correction 2026-11-05)."""
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+
+
+def load_reference_stats(path: Path | None = None) -> tuple[dict | None, str | None]:
+    """Default: the pinned file in use, REFERENCE_STATS_PATH, resolved at call time. The hash is canonical LF."""
+    path = REFERENCE_STATS_PATH if path is None else path
     if not path.exists():
         return None, None
     raw = path.read_bytes()
-    return json.loads(raw), hashlib.sha256(raw).hexdigest()
+    return json.loads(raw), reference_stats_sha256(raw)
 
 
-def build_reference_stats(features: pd.DataFrame, biz: pd.DataFrame, population: str = "research") -> dict:
+def build_reference_stats(features: pd.DataFrame, biz: pd.DataFrame, population: str = "research", version: str = REFERENCE_STATS_VERSION) -> dict:
     """§35: μ/σ per sector for features 3, 11, 13, 16, 21 on the research population, pinned once."""
     df = features.merge(biz[["business_id", "sector", "population"]], on="business_id")
     df = df[df["population"] == population]
     stats = {}
     for sector, g in df.groupby("sector"):
         stats[sector] = {F[b]: {"mean": float(g[F[b]].mean()), "std": float(g[F[b]].std(ddof=0)), "n": int(g[F[b]].notna().sum())} for b in Z_FEATURES.values()}
-    return {"version": "v1", "population": population, "n_businesses": len(df), "stats": stats}
+    return {"version": version, "population": population, "n_businesses": len(df), "stats": stats}
 
 
 def compute_profiles(
@@ -434,7 +483,7 @@ def compute_profiles(
     obl = tables.get("obligations")
     fac = tables.get("facilities")
     facf = fac.set_index("business_id") if fac is not None else None
-    txf = transaction_features(tx, biz)[0].set_index("business_id")
+    txf = transaction_features(tx, biz, tables.get("counterparty_windows"))[0].set_index("business_id")
     obf = obligation_features(obl, biz).set_index("business_id")
 
     rows, nulls, status_rows, cov_rows = [], [], [], []
@@ -615,4 +664,5 @@ def _fill_zscores(p: Profile, sector: str, stats: dict | None) -> None:
             p.null(zid, p.reasons.get(base, "insufficient_events"))
             continue
         s = stats["stats"][sector][F[base]]
-        p.set(zid, float((v - s["mean"]) / max(s["std"], 1e-9)))
+        z = (v - s["mean"]) / max(s["std"], 1e-9)
+        p.set(zid, float(np.clip(z, -Z_CLIP, Z_CLIP)))

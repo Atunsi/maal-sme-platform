@@ -490,7 +490,12 @@ synthetic median 2.3). **Proposed:** `installment_capacity_sar` (42) becomes
 and the rule stays `monthly_installment ≤ 0.40 × capacity`. Not yet changed in
 code — §9 process first.
 
-**Sign-off:** ☐ credit lens owner (41, 42, 61) ☐ profile engine owner ☐ team
+**Profile engine owner position (2026-11-05).** Agreed on the profile engine side. Entry 34's formula
+for feature 42, `max(0, avg_monthly_inflow − committed_monthly_outflow) × (1 − min(k ×
+flow_asymmetry_ratio, 0.5))` with k = 0.15, is the one that counts and supersedes the formula text
+above, which omits the 0.5 cap.
+
+**Sign-off:** ☐ credit lens owner (41, 42, 61) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -767,8 +772,8 @@ at `output.pos_sales_transaction_sample_rate` (0.10)**, each carrying a new colu
 stays authoritative (computed from the full stream); outflows and injected anomaly rows are never
 thinned; the thinning uses its own RNG stream `[seed, id, 3]`. The gate now checks outflows exactly,
 inflows exactly on un-thinned businesses, and Σ amount × sample_weight against inflow_total within
-±2% on thinned ones. Transaction-derived features (5, 10, 20–22, 41, 45, 46) are ratios and
-counts of counterparties, unbiased under thinning; anything that sums `transactions.amount` on
+±2% on thinned ones. ~~Transaction-derived features (5, 10, 20–22, 41, 45, 46) are ratios and
+counts of counterparties, unbiased under thinning~~ **(withdrawn 2026-11-04: false for 5, 20, 21, 22, 45; see entry 30)**; anything that sums `transactions.amount` on
 the inflow side must multiply by `sample_weight`. `base_monthly_inflow_sar` is **not** lowered
 (SOP §10.6: it stays judgement). Schema change: one column, both producers, Pandera-enforced —
 raised here for §9 sign-off.
@@ -876,7 +881,18 @@ runs (13.11).
 class-C dimension.
 
 **Recorded by:** generator owner, 2026-09-16.
-**Sign-off:** ☑ generator owner (13.3–13.8; Ahmed Altunusi, 2026-10-31) ☐ profile engine owner (`sample_weight` column, feature 2 now at POS frequency) ☐ team (13.2 blocked status, 13.6 schema change)
+
+**Profile engine owner position (2026-11-05).** Agreed: the `sample_weight` column, and feature 2 at
+POS frequency (it reads `daily_aggregates.inflow_count`, computed from the full stream;
+`profile_engine/features.py:183`). The engine reads `sample_weight` only to refuse a thinned business
+that has no `counterparty_windows` rows (`features.py:334–337`, entry 30). Proposed clarification to
+13.6, not applied here: "In the profile engine, inflow-side counterparty sums for thinned businesses
+read counterparty_windows (entry 30); the weighting rule applies to other readers of
+transactions.csv." Features 41 and 46, listed in the struck sentence, are unaffected: 41 reads
+outflows only, which are never thinned, and 46's true value was 0 on all 376 thinned businesses in
+entry 30's measurement.
+
+**Sign-off:** ☑ generator owner (13.3–13.8; Ahmed Altunusi, 2026-10-31) ☑ profile engine owner (`sample_weight` column, feature 2 now at POS frequency; Faris Alsharifi, 2026-11-05) ☐ team (13.2 blocked status, 13.6 schema change)
 
 ---
 
@@ -2021,7 +2037,68 @@ consistency, 5, 10, 45, 46 and `cp_coverage_share`, where it changes nothing in 
    the profile engine and generator owners.
 4. Any change re-runs the profile engine, the reference statistics (entry 35) and the credit model.
 
-**Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
+**Generator owner's decision (Ahmed Altunusi, 2026-11-04), recorded before any fixed result existed:**
+the engine reads counterparty features from an unthinned source, the first option in item 2. The
+generator writes `counterparty_windows`, per-customer totals from the full stream by window, for
+thinned businesses only, the way `daily_aggregates` is already computed from the full stream. Item 3
+becomes moot: feature 20 keeps its definition and its true value. The engine raises an error if a
+thinned business has no totals, so the bias cannot return silently. A read-only probe on 51 thinned
+businesses (research IDs 1–80) showed keep-first-receipt leaves 20 and 5 biased, because 20 counts
+customers in the trailing 90 days and a first receipt can be older. Stopping thinning is about 7× the
+rows. Marking the features unavailable would make missingness a sector signal.
+
+**Rule fixed now:** the credit AUC after the fix is reported whichever way it moves, and this decision
+is not revisited because of it. Engine code is the profile engine owner's; this change stays PROPOSED
+until that line is ticked.
+
+**Result (2026-11-04).** `python -m eval.thinning_bias`, quick mode, 376 thinned businesses of 600:
+
+| Feature | Median true | Sampled rows ÷ true | `counterparty_windows` ÷ true |
+|---|---|---|---|
+| 20 | 138 | 0.82 | 1.00 |
+| 21 | 0.0335 | 3.24 | 1.00 |
+| 22 | 0.0000 | 3.92 | 1.00 |
+| 5 | 0.0385 | 1.14 | 1.00 |
+| 45 | 0.9992 | 0.94 | 1.00 |
+
+The largest absolute error on any of the 376 businesses is 2.2e-16 on these ratio features and 0 on
+feature 20. `cp_coverage_share` also matches the truth, per `tests/test_thinning.py` (25 businesses).
+
+Full scale (10,000 research + 1,000 serving): `transactions`, `daily_aggregates`, `balances_monthly`,
+`labels`, `businesses`, `obligations` and `facilities` are byte-identical to the previous generation
+(sha256). The new table has 943,756 rows, 60 MB. Week 3 gate: PASS, same one loud SKIP, with three new
+checks that the table covers exactly the thinned businesses and reconciles with `daily_aggregates`
+(worst relative gap 8.5e-06).
+
+Only features 5, 20, 21, 22, 45 and 59 moved, on retail and F&B only; 0 of 4,122 other scorable
+businesses moved. Feature 59 is now mean/SD −0.12 / 0.96 (retail, N = 4,204) and −0.10 / 0.94 (F&B,
+N = 1,555), from 6.63 / 2.79 and 7.32 / 2.46: most of its entry 35 drift was this bias. Features
+55–58 are unchanged, so entry 35 still stands for them.
+
+**Consequence, open: `model_v1.json` no longer matches the engine.** It was trained on the biased
+values. Scored unchanged, not retrained, its median PD on POS businesses falls from 0.0390 to 0.0308
+(N = 6,316), and the risk tier changes for 16.4% of serving (N = 943) and 18.4% of research
+(N = 9,495). CV AUC 0.591 therefore does not describe this combination. Next, in order: entry 35
+rebuild, credit retrain, then re-run everything that reads the profile and update `docs/NUMBERS.md`.
+
+**Profile engine owner review (2026-11-05).** Agreed with the engine change. Reproduced on quick
+data (`python -m generator.generate --quick`, then `python -m eval.thinning_bias`, 376 thinned
+businesses of 600): in the `counterparty_windows (shipped)` column, features 20, 21, 22, 5 and 45 have
+median ratio 1.00 to the full-stream truth on all 376, largest absolute error 2.2e-16 on the ratio
+features and 0 on feature 20, matching the result above. `python -m pytest tests`: 97 passed,
+14 skipped (API tests skip without the serving store); `ruff check .` clean. Two follow-ups, in the
+same commit as this paragraph (no computed value changes; the quick re-run above was made with them):
+1. `profile_engine/compute.py` `load_tables` reads `counterparty_windows.csv` with
+   `dtype={"counterparty_id": object}`, as `pipeline/data.py` and `eval/gate_week3.py` already do.
+   Harmless before (every ID has a text prefix), now consistent.
+2. `profile_engine/features.py` `transaction_features`: feature 22's "seen before" set reads all
+   history at least 30 days back for unthinned businesses, but only to day 179 for thinned ones
+   (last window `d90_179`). The two agree only because `generator.generate.counterparty_windows`
+   asserts `T <= 180`. A comment now names that assumption, and an assert refuses a thinned business
+   with any transaction row 180 or more days before `window_end`, so a longer window fails loudly
+   instead of making the two paths disagree.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner ☐ team
 
 ---
 
@@ -2050,7 +2127,13 @@ null always has a reason and a value never has one. No test catches it today.
 
 The choice depends on entry 32 (where feature 24 is computed). No fix today.
 
-**Sign-off:** ☐ compliance owner ☐ profile engine owner
+**Profile engine owner position (2026-11-05).** Fix (b): feature 24 is not written into the profile
+for `insufficient_data` businesses; the screen still runs and stays in the Sharia section. This keeps
+§15 intact (a refused business has every feature except 32 null with reason `insufficient_data`) and
+follows the option (b) position on entry 32. Add a test that no business has both a value and a null
+reason for any feature. Implementation after the compliance owner signs.
+
+**Sign-off:** ☐ compliance owner ☑ profile engine owner (Faris Alsharifi, 2026-11-05)
 
 ---
 
@@ -2082,7 +2165,13 @@ The choice depends on entry 32 (where feature 24 is computed). No fix today.
 Either way, entry 31 must be fixed at the same time. After the owners agree: update
 `profile_engine/README.md` with the rule and run `python -m eval.week8_check`.
 
-**Sign-off:** ☐ profile engine owner ☐ compliance owner ☐ team
+**Profile engine owner position (2026-11-05).** Option (b). The engine keeps `not_implemented` for
+24–26, 34 and 35 (`profile_engine/features.py:508–510`); the pipeline (`pipeline/week8.py`
+`prepare()`) is the only place that fills 24; `profile_engine/README.md` will say so. Reason: it keeps
+rule tables out of the engine and out of its receipts, so a Sharia rule-table change never changes
+`profiles.csv`. The README change and a seam test happen after the compliance owner signs.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ compliance owner ☐ team
 
 ---
 
@@ -2127,7 +2216,19 @@ Proposed: **§38 Existing-Obligation Features (60–65, 62b)** and **§39 Credit
    Flow asymmetry is feature 49 (`flow_asymmetry_ratio`); 45 is counterparty persistence.
 2. §36: "all 59 features" → "all 71 features (1–69, 18b, 62b)".
 
-**Sign-off:** ☐ profile engine owner ☐ generator owner (60–69 are produced from the generator's tables) ☐ team
+**Profile engine owner position (2026-11-05).** Agreed. The proposed rows were checked against
+`profile_engine/features.py` as of `bbbc9d7` and match it, with two wording fixes requested (the
+table above is not edited here):
+1. Feature 69 should also list `not_applicable (no facilities row)`: a synthetic business with no
+   `facilities` row gets 66, 67 and 69 null `not_applicable` (`features.py:625–628`), not False. The
+   generator writes one row per business today (11,000 of 11,000), so the case does not occur yet.
+2. The section header should say once that every feature is null `insufficient_data` for a business
+   refused under §15; today only rows 60 and 68 list it.
+
+The §35 filename change from entry 35 (`sector_reference_stats_v1.json` → `_v2.json`) goes into the
+same schema edit.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner (60–69 are produced from the generator's tables) ☐ team
 
 ---
 
@@ -2173,7 +2274,11 @@ of it.
 No value of 41 or 42 under the new formulas, and no approval rate derived from them, has been
 computed.
 
-**Sign-off:** ☐ credit lens owner ☐ profile engine owner ☐ team
+**Profile engine owner position (2026-11-05).** Agreed: pre-registration only, no code. Because of
+entries 30, 35 and 38, the "before" figures in item 2 are measured on the retrained model, not on
+`model_v1.json`.
+
+**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -2227,7 +2332,98 @@ first would pin the thinning bias in feature 21 into the reference table, and it
 second rebuild. After the rebuild the credit lens owner must retrain (`python -m lenses.credit.train`)
 and record the new credit numbers; NUMBERS.md rows that depend on 55–59 move with it.
 
-**Sign-off:** ☐ profile engine owner ☐ credit lens owner (retrain after the rebuild) ☐ team
+**Result (2026-11-05).** Rebuilt once, at full scale, after entry 30 (profile engine owner tick
+2026-11-05, follow-ups in `2ce22c7`). The code change came first and on its own (`c5de8f5`):
+`--build-reference-stats` now writes `sector_reference_stats_v2.json`, refuses to write v1, and
+refuses to replace an existing v2 without `--overwrite-reference-stats`. The v2 file, this entry and
+the regenerated `eval/out/reference_stats_drift*` are in the commit that adds this paragraph.
+
+Commands, in order, one at a time, from the repo root:
+`python -m generator.generate` (exit 0, 283 s; 11,000 businesses, 12,537,615 transactions,
+943,756 `counterparty_windows` rows), `python -m eval.gate_week3` (PASS, the same one loud SKIP:
+professional-services sector differential), `python -m profile_engine.compute --dir data
+--build-reference-stats` (exit 0, 171 s), `python -m eval.reference_stats_drift`.
+
+- `sector_reference_stats_v2.json`: sha256
+  `042aaebd7c43154f0d09d36640e0d2491c7a7d1b0dd097951b398207392a7e7a`; `"version": "v2"`,
+  `"population": "research"`, `"n_businesses": 10000`.
+- v1 is byte-identical: sha256 `14026c000b3507ac1f92fa8fbf0c8f11c1d3816060468083eb80896c8ee6fae4`
+  before the build and after it (a test now asserts the full hash).
+- Only 55–59 changed: the engine compares its first pass (no stats) with the re-scored pass, and all
+  68 other columns were identical on all 11,000 businesses. The engine's 55–59 equal z recomputed
+  from the base features against v2 to 9.1e-15.
+
+Features 55–59 per sector, research population, scored + partial_profile (from
+`eval/out/reference_stats_drift_z_moments.csv`, this run; the v1 column is v1's μ/σ applied to the
+same current base features):
+
+| Sector (N) | Feature | v1 mean / SD | v2 mean / SD |
+|---|---|---|---|
+| retail_trade (4,204) | 55 `sector_relative_regularity_z` | 1.28 / 0.15 | 0.00 / 1.00 |
+| retail_trade (4,204) | 56 `sector_relative_volatility_z` | 0.05 / 0.98 | −0.00 / 1.00 |
+| retail_trade (4,204) | 57 `sector_relative_days_negative_z` | −0.08 / 0.86 | 0.00 / 1.00 |
+| retail_trade (4,204) | 58 `sector_relative_balance_z` | 0.13 / 1.08 | −0.00 / 1.00 |
+| retail_trade (4,204) | 59 `sector_relative_concentration_z` | −0.12 / 0.96 | −0.00 / 1.00 |
+| food_beverage (1,555) | 55 | 1.16 / 0.07 | 0.00 / 1.00 |
+| food_beverage (1,555) | 56 | 0.24 / 1.34 | −0.00 / 1.00 |
+| food_beverage (1,555) | 57 | −0.05 / 0.91 | −0.00 / 1.00 |
+| food_beverage (1,555) | 58 | 0.21 / 1.30 | 0.00 / 1.00 |
+| food_beverage (1,555) | 59 | −0.10 / 0.94 | −0.00 / 1.00 |
+| construction (3,486) | 55 | −0.00 / 1.02 | −0.00 / 1.00 |
+| construction (3,486) | 56 | −0.44 / 0.52 | −0.00 / 1.00 |
+| construction (3,486) | 57 | −0.06 / 0.95 | 0.00 / 1.00 |
+| construction (3,486) | 58 | −0.25 / 0.46 | 0.00 / 1.00 |
+| construction (3,486) | 59 | −0.01 / 0.99 | −0.00 / 1.00 |
+| professional_services (250) | 55 | −0.01 / 1.00 | −0.00 / 1.00 |
+| professional_services (250) | 56 | 0.01 / 0.85 | 0.00 / 1.00 |
+| professional_services (250) | 57 | −0.06 / 0.62 | 0.00 / 1.00 |
+| professional_services (250) | 58 | 0.03 / 0.86 | −0.00 / 1.00 |
+| professional_services (250) | 59 | −0.06 / 0.99 | −0.00 / 1.00 |
+
+The v1 column reproduces the figures above and in entry 30 (55 at 1.28 retail / 1.16 F&B; 59 at
+−0.12 / 0.96 retail, −0.10 / 0.94 F&B). Under v2 every sector is at 0 / 1 to two decimals, as it
+must be: the stats and the table are built from the same research businesses with a value.
+
+**Finding (2026-11-05, reported, nothing changed): feature 55 is near-degenerate in the POS
+sectors.** Two v2 base-feature SDs are below 0.05 and could blow small differences up: feature 3
+`inflow_regularity_score` in F&B (mean 0.999367, SD 0.009149) and retail (0.997474, 0.019639).
+On the research population, 1,547 of 1,555 F&B businesses (99.5%) and 98.1% of 4,204 retail
+businesses have feature 3 exactly 1.0 (daily POS receipts), so 55 is +0.07 (F&B) / +0.13 (retail)
+for almost everyone and very negative for the rest: research z min −22.71 (F&B, N = 1,555; 4 distinct
+values of feature 3) and −17.60 (retail, N = 4,204; 15 distinct values); serving z min −11.39 (F&B,
+N = 148) and −7.33 (retail, N = 409). Mean 0 / SD 1 holds by construction and says nothing about
+this shape: 55 behaves as a rare binary flag with very large magnitude in these two sectors. Feature
+21 is also below 0.05 in absolute SD (F&B 0.0111, retail 0.0111, professional 0.0456), but that is the
+scale of a concentration index, not degeneracy: 21 has one distinct value per business and its z
+stays in −1.94 to 7.52 (research, retail N = 4,204), −1.94 to 5.75 (F&B N = 1,555), −1.40 to 5.12
+(professional N = 250). No SD is exactly 0 at full scale. The z formula and its 1e-9 SD floor are
+unchanged; whether 55 needs a different definition, a floor or exclusion in POS sectors is a decision
+for the profile engine and credit lens owners, not made here.
+
+**Filename.** The schema's §35 section names `sector_reference_stats_v1.json`. From this entry on, the
+pinned file in use is v2; the schema text is updated at the next team-approved schema edit (see entry
+33). v1 is kept so receipts made before this entry can still be reproduced.
+
+**Consequence, stated plainly.** `model_v1.json` was trained on v1 z-features and the pre-entry-30
+counterparty features, so credit CV AUC 0.591 and every `docs/NUMBERS.md` row that depends on the
+credit model or on 55–59 is stale until the credit lens owner retrains (`python -m
+lenses.credit.train`) and records the new numbers. That retrain is the next step. `python -m
+eval.check_numbers` still passes (70 numbers) because it compares the register with the committed
+artifacts, which this entry did not regenerate. `python -m scenarios.run --check` passes, and the
+outcomes it prints for business 10001 already differ from NUMBERS §5b (e.g. `mild_slowdown`,
+`late_sudden_shock` and `fraud_pattern` now declined by the risk model; baseline tier C instead of B),
+as expected for an unretrained model reading corrected features; §5b is left for the retrain.
+
+**Correction (2026-11-05).** The hashes recorded in entries 35 and 38 (`14026c00…6fae4` for v1,
+`042aaebd…7e7a` for v2) were taken from a Windows checkout with `core.autocrlf = true`, which writes
+the files with CRLF line endings; `load_reference_stats` hashed the bytes on disk, so the hash depended
+on the machine. The canonical, OS-independent hashes, equal to the committed git blobs, are
+`7816e2ce3d7afa3612fe34f5c5fac71b2e39106ff4ddd7a6b8632d6199b27a7f` (v1) and
+`e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60` (v2). The engine now hashes the file
+with CRLF replaced by LF and reports these everywhere, and `.gitattributes` checks both files out with
+LF line endings. File contents are unchanged.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ credit lens owner (retrain after the rebuild) ☐ team
 
 ---
 
@@ -2601,6 +2797,208 @@ them depend on invoice numbers and vendor records that a bank-transaction lens d
 with the gate alone), still under the 2 s target. The credit route maximum was 626 ms. As in 36.9,
 `eval/out/latency_week7.md` and NUMBERS §6b are left for the owner to re-time on the team machine;
 timings across machines are not comparable.
+
+---
+
+## 38. Features 55-59: z-scores clipped at ±3 before the credit retrain — PROPOSED (profile engine owner), credit lens owner to sign (2026-11-05)
+
+**Touches:** features 55–59 (§35), `profile_engine/features.py` `_fill_zscores` (line 657 computes
+`(v − mean) / max(std, 1e-9)`), the credit lens (55–59 are inputs to a logistic model). Not the v2
+stats file, not the null reasons.
+
+**Finding (entry 35's result, re-checked against `data/profiles.csv` and
+`sector_reference_stats_v2.json`, sha256 `042aaebd…7e7a`, on 2026-11-05).** Feature 3
+`inflow_regularity_score` is exactly 1.0 for 1,547 of 1,555 F&B research businesses (99.5%) and 4,123
+of 4,204 retail research businesses (98.1%): daily POS receipts make the gaps between inflow days
+constant. So v2's feature 3 SD is 0.009149 in F&B (mean 0.999367) and 0.019639 in retail (mean
+0.997474), as `eval/out/reference_stats_drift_pinned_vs_current.csv` records, and feature 55 is
+about +0.07 (F&B) / +0.13 (retail) for almost everyone and very large and negative for the few
+below 1.0:
+
+| Sector | Population (N) | Lowest feature 3 | Lowest z (55) |
+|---|---|---|---|
+| food_beverage | research (1,555) | 0.791604 (business 528) | −22.71 |
+| food_beverage | serving (148) | 0.895198 (business 10507) | −11.39 |
+| retail_trade | research (4,204) | 0.651827 (business 188) | −17.60 |
+| retail_trade | serving (409) | 0.853501 (business 10993) | −7.33 |
+
+N is the businesses with a value (scored + partial_profile). The engine's 55 equals z recomputed from
+feature 3 against v2 to 8.9e-16. Construction and professional services are not affected (feature 3
+SD 0.133 and 0.130; lowest z −1.08 and −1.52).
+
+**Why it matters.** `lenses/credit/model_v1.json` is a logistic regression (L2, C = 1.0) on
+median-imputed, standardised features: contribution = `coef × (x − mean) / scale`, in log-odds
+(`lenses/credit/model.py` `score`). For feature 55 it stores `coef` −0.399718, `mean` 0.753078,
+`scale` 0.890708, no log transform. Computed with that standardisation (and checked with `score()`
+itself), the contribution of feature 55 alone for the business with the most negative z in each sector:
+
+| Sector | Research: business, z → log-odds | Serving: business, z → log-odds |
+|---|---|---|
+| food_beverage | 528, −22.71 → **+10.53** | 10507, −11.39 → **+5.45** |
+| retail_trade | 188, −17.60 → **+8.24** | 10993, −7.33 → **+3.63** |
+| construction | 4, −1.08 → +0.82 | 10009, −1.08 → +0.82 |
+| professional_services | 174, −1.52 → +1.02 | 10255, −1.52 → +1.02 |
+
+For comparison, the typical POS business (z +0.07 F&B, +0.13 retail) gets +0.31 / +0.28, and z = −3
+would give +1.68. A logistic model is linear in z, so one slightly irregular POS business can carry a
+contribution several times the whole spread of the other features. `model_v1.json` was trained on v1,
+where 55 in these sectors had mean 1.16–1.28 and SD 0.07–0.15 (entry 35), so these values are outside
+anything it saw; a retrain on v2 as it stands would fit 55's coefficient on these few extreme values.
+Nothing was retrained.
+
+**Decision proposed by the profile engine owner.** Clip each of 55–59 to [−3, +3] in the engine, all
+sectors, all sources, after the z is computed against the pinned stats. The v2 stats file is unchanged.
+Null reasons are unchanged. 3 is a conventional bound, chosen now from the distribution above, before
+any credit result on v2 exists.
+
+**Rule fixed now:** the credit AUC after the retrain is reported whichever way it moves, and this bound
+is not revisited because of it.
+
+**Alternatives considered:**
+- Keep as is: leaves a few POS businesses with a single-feature contribution of +3.6 to +10.5 log-odds.
+- Null 55 in retail and F&B: missingness would become a sector signal, the problem entry 30 avoided.
+- A different definition of feature 3: a schema change, too late for this retrain.
+
+**To be reported after implementation, stated now:** per sector and per feature 55–59, how many
+research and how many serving businesses are clipped, with N.
+
+**Status: PROPOSED.** Implementation waits for the credit lens owner's line. The retrain must not run
+before this entry is settled. The schema §35 text is updated at the next team-approved schema edit
+(entry 33).
+
+**Hash correction (2026-11-05):** `042aaebd…7e7a` above is the Windows CRLF hash of v2; the canonical hash is `e7d4beb0…7f60` (entry 35, correction 2026-11-05).
+
+**Credit lens owner's decision (Abdulrahman Alharbi, 2026-11-07), recorded before any credit result
+on v2 exists:** accepted as proposed, subject to the schema edit and the team sign-off below. Features
+55–59 are clipped to [−3, +3] in the engine (`profile_engine/features.py`, `Z_CLIP = 3.0`), all sectors,
+all sources, after the z is computed against the pinned v2 stats. Checked before signing:
+1. §35 defines 55–59 as `(feature − μ) / max(σ, ε)` with no bound, so this is a definition change, not
+   something the schema already permits. The §35 text follows at the next team-approved schema edit
+   (entry 33). §35 also says the layer must not be retrofitted after Week 8; the clip changes the range
+   of the §35 layer, not its existence, and the team box below is where that reading is accepted.
+2. The bound was committed in `823ff74` (2026-11-05 22:24 +0300); `lenses/credit/model_v1.json` was last
+   changed on 2026-10-11, and no credit AUC on v2 is recorded in this file or in `eval/out/`.
+3. `_fill_zscores` is the only place 55–59 are computed. Training (`profile_engine.compute`), Week 8 and
+   the API store (`pipeline/data.py`) and the scenarios all reach it through `compute_profiles`, and the
+   credit scorer only standardises what the engine returns, so training and serving clip identically.
+4. The anomaly lens does not read feature 59 in code, despite §35's "Used by: Credit, Anomaly", so the
+   anomaly owner bears no consequence. `eval/reference_stats_drift.py` now compares the engine with the
+   clipped recomputation (its z moments stay unclipped, describing the reference fit). Week 8 objects,
+   receipts, NUMBERS §5b and the API store move with the retrain, as they already do for entry 30.
+5. The v2 file (canonical sha256 `e7d4beb0…7f60`) and base features 3, 11, 13, 16, 21 in `profiles.csv`
+   are unchanged, so the unclipped z stays recomputable for audit.
+
+On quick data (`data/quick`, 300 + 300 businesses) the bound also binds on the upper tails of 56–59 in
+every sector, construction included, not only on the lower tail of 55 in retail and F&B. These are
+small-sample counts and are not reported as results. The full-scale counts per sector and feature,
+research and serving, with N, are written by `python -m eval.reference_stats_drift` to
+`eval/out/reference_stats_clip_counts.csv` and are reported here after the full-scale profile run.
+
+**Implemented (2026-11-07):** `profile_engine/features.py` (`Z_CLIP`, clip in `_fill_zscores`),
+`eval/reference_stats_drift.py` (clipped engine check, clip-count CSV),
+`tests/test_reference_stats.py` (new clip test). `python -m pytest tests`: 105 passed, 14 skipped (API
+tests skip without the serving store); `ruff check .` clean. On quick data the engine's 55–59 equal the
+clipped recomputation against v2 to 8.8e-15. Nothing retrained.
+
+**Rule restated:** the credit AUC after the retrain is reported whichever way it moves, and the bound is
+not revisited because of it. The retrain waits for the team box.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☑ team (approval confirmed 2026-11-07)
+
+---
+
+## 39. Two counts of "insufficient_data": the Week 3 gate and the profile engine use different windows — FINDING (2026-11-05)
+
+**Touches:** `eval/gate_week3.py`, `profile_engine/features.py`, `docs/NUMBERS.md` §2 and §6. No change.
+
+**The two counts** (full-scale data generated 2026-11-05, 11,000 businesses): the Week 3 gate prints
+"9914 scorable businesses; 1086 excluded as insufficient_data" (as NUMBERS §6 records); the engine's
+`profile_status.csv` has 562 `insufficient_data` (research 505, serving 57), so research scorable is
+9,495, A1's N.
+
+**What each one measures.** Both count "active days" (a day with any inflow or outflow) in a trailing
+90-day window and require at least 60. They differ in where the window ends:
+- **Gate** (`eval/gate_week3.py` `profile_features`, lines 74–110): the 90 days ending at the
+  business's **last month-end** in `balances_monthly` (lines 82–83); active days at line 97; the
+  60-day threshold `MIN_COVERAGE` (line 49) applied at line 169 (criterion 1, research + serving) and
+  line 205 (criterion 2, research only).
+- **Engine** (`profile_engine/features.py` `daily_features`, lines 158–167): the 90 days ending at the
+  business's **as-of date** `businesses.window_end`, never before `operating_start_date` (line 158);
+  threshold `coverage_min_days_by_source` from `config.yaml` (60 for synthetic, entry 9).
+
+The last month-end is 27 to 30 days (median 30) before `window_end`, so the gate looks at a window about
+a month earlier. Recomputed on the same data: the gate's window gives 1,086 businesses below 60 days,
+the engine's gives 562; the operating-start filter changes neither count. The engine's definition is
+the §15 rule as the lenses apply it; the gate's is its own reimplementation.
+
+**Which numbers in `docs/NUMBERS.md` use which:**
+- Gate definition: §6 "Scorable / excluded" (9,914 / 1,086); §6 construction `implied_dso_days`
+  (n = 3,679) and professional `implied_dio_days` (n = 261) (criterion 1); §6 Week 3 gate SKIP
+  (professional services 237 businesses / 3 defaults, criterion 2); A9 (0.610).
+- Engine definition: A1, A2, A6, A7 (9,495 / 449); A5 (943 / 45, serving); the oracle ceiling
+  (9,495); the scorable base default rate (449 / 9,495); the §5 forecast rows (research 9,495, serving
+  943, and their subsets 7,525 and 1,164).
+- Neither: the Sharia rows (all 10,000 research), the anomaly rows (50 serving businesses per type), the
+  §5c holdout shock (N = 751, its own filter).
+
+**A9's N.** NUMBERS gives A9 as "research + serving, scorable, 9,914". The AUC is computed in criterion 2
+on research only (line 205): 9,016 businesses by the gate's definition on this data (984 of 10,000
+research below 60 days). This generation is byte-identical to the one behind
+`eval/out/gate_week3_after_monshaat.txt` except for the entry 30 table, and the gate prints the same
+0.610. Recorded here; NUMBERS is not edited in this entry.
+
+**Consequence.** "Scorable" means two different sets in the register: 9,914 of 11,000 (gate) and 9,495
+research + 943 serving (engine). The gate's criterion 1 checks run on a set the lenses never score
+exactly. Nothing is changed; aligning the gate's window with the engine's, or labelling the two counts
+in NUMBERS, is for the owners to decide.
+
+**Profile engine owner position (2026-11-05).** Agreed. The engine's definition (90 days ending at the as-of date) is the one every credit and forecast number uses; A9's population and N should be corrected by its owner.
+
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner
+
+---
+
+## 40. Receipt hashes depend on the machine's line endings — FINDING + PROPOSED, team to decide (2026-11-05)
+
+**Touches:** `pipeline/week8.py` `_sha()` (line 50) and `data_sha256` (lines 60–69); the other raw-byte
+hashers `compliance/sharia.py` `load_rules` (line 38), `scenarios/run.py` (line 53),
+`lenses/credit/train.py` (line 46), `eval/compare_real.py` (line 62), `calibration/check_config.py`
+(line 44), `eval/reference_stats_drift.py` (line 95); `pipeline/verify.py`, which compares receipt
+fields (lines 31–32); a repo-wide `.gitattributes`.
+
+**Finding.** On a Windows checkout with `core.autocrlf = true`, a file stored in git with LF line endings
+is written to disk with CRLF, and these functions hash the bytes on disk. So the receipt hash of the
+same committed file differs between a Windows checkout and a Linux or Mac checkout. Entry 35's
+correction (2026-11-05) fixed this for `reference_stats_sha256` only. In the Week 8 receipt
+(`make_context`):
+- `lens_config_sha256` (`lenses/lens_config.yaml`, stored LF; `_sha`), `sharia_rules_sha256`
+  (`compliance/sharia_rules.yaml`, stored LF; `load_rules`, not `_sha`) and the scenario
+  `scenario_library_sha256` (`scenarios/library.yaml`, stored LF) depend on the machine.
+- `config_sha256` does not, today, but only by accident: `config.yaml` is stored in git **with CRLF**
+  (`git ls-files --eol` shows `i/crlf`), so every checkout hashes CRLF bytes.
+- `data_sha256` depends on the machine for a different reason: it hashes `DataFrame.to_csv()`, whose
+  line terminator is `os.linesep` (`'\r\n'` on Windows, `'\n'` elsewhere; checked on pandas 2.3.3), so
+  `.gitattributes` cannot fix it.
+- `output_sha256` (`json.dumps`) and `credit_model_sha256` (read from the model JSON) do not depend on
+  the machine.
+
+**Consequence.** `pipeline.verify` compares these fields, so a receipt made on Windows fails verification
+on Linux or Mac, and the other way round, although nothing in the decision differs. Reports under
+`eval/out/` record Windows hashes (for example `reference_stats_drift.md` shows `14026c00…` and
+`042aaebd…`).
+
+**Proposed (team decision, not implemented):**
+1. Canonical-LF hashing in `_sha()` (CRLF → LF before hashing), and a repo-wide `.gitattributes` with
+   `* text=auto eol=lf` (binary files are detected and left alone).
+2. For the team to note: `load_rules` and `scenarios/run.py` do not go through `_sha()` and need the
+   same rule; `data_sha256` needs `to_csv(..., lineterminator="\n")`.
+3. With `* text=auto eol=lf`, `config.yaml` is renormalised from CRLF to LF in git once, which changes
+   `config_sha256` on every machine.
+4. Existing Windows-made receipts change hash once (lens config, Sharia rules, scenario library and
+   data, as the reference stats already did), so they no longer verify against new runs. The commit that
+   makes the switch should be recorded here.
+
+**Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
 
 ---
 

@@ -109,7 +109,7 @@ NULL_REASONS = (
     "no_break_detected",  # feature 43 by definition
     "not_available_in_source",  # SOP_Data_Grounding §6.2: the source has no such field/table
     "not_implemented",  # module owner has not built it yet (24–26, 34, 35)
-    "reference_stats_missing",  # §35: pinned sector_reference_stats_v1.json absent
+    "reference_stats_missing",  # §35: pinned file in use (sector_reference_stats_v2.json, DECISIONS entry 35) absent
 )
 
 # Features whose computation needs a counterparty identity; they carry a coverage share (SOP §6.1).

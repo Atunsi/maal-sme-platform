@@ -117,8 +117,9 @@ def build_frame(tables: dict[str, pd.DataFrame], cfg: dict) -> pd.DataFrame:
     Uses `profile_engine.features.compute_profiles` — the same code path
     `python -m profile_engine.compute` runs — so the sweep measures what the
     lenses will actually read, not a stand-in. §35 z-features are scored
-    against the **pinned** `sector_reference_stats_v1.json`, never recomputed
-    per ρ, which is the §35 rule.
+    against the **pinned** file in use (`fe.REFERENCE_STATS_PATH`,
+    `sector_reference_stats_v2.json` from DECISIONS entry 35 on; v1 before),
+    never recomputed per ρ, which is the §35 rule.
 
     Businesses in the §15 `insufficient_data` state are dropped: the engine
     refuses to score them, so they cannot appear in a model's training set.
