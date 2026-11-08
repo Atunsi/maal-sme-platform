@@ -410,6 +410,14 @@
     "queueNote": "A queue for a person, not an alarm",
     "scanned": "{n} scanned"
   },
+  "sheet": {
+    "title": "Decision sheet",
+    "heading": "Decision sheet for business {id}",
+    "print": "Print or save as PDF",
+    "verdict": "Verdict",
+    "receipt": "Receipt",
+    "open": "Decision sheet"
+  },
   "landing": {
     "eyebrow": "SME financial health, Sharia-aware",
     "title": "Know where your business is heading, and why.",

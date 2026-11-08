@@ -858,6 +858,71 @@ details.faq summary::-webkit-details-marker {
   }
 }
 
+/* E2: the decision sheet on paper. Light tokens whatever the theme, nothing interactive, no motion, each
+   section kept whole and table headers repeated across pages. */
+@page {
+  size: A4;
+  margin: 16mm;
+}
+@media print {
+  html.th-dark,
+  html.th-light {
+    --bg: #f3f4f1;
+    --surface: #ffffff;
+    --ink: #101418;
+    --muted: #5a6470;
+    --rule: #d9dde0;
+    --rule2: #eef0f1;
+    --accent: #2e3192;
+    --accentSoft: #eeeffb;
+    --accentSoft2: #cfd3f2;
+    --ok: #0b6e63;
+    --bad: #b0361f;
+    --badSoft: #fbf3f1;
+    --warnText: #7a4f00;
+    --warnBg: #fbefd6;
+    --warnBg2: #f6e0b0;
+    --ochre: #8a5a00;
+    --panel: #101418;
+    --panelText: #f3f4f1;
+    --panelMuted: #b8c0c8;
+    --panelRule: #2a3038;
+    --grey: #fafaf8;
+    --field: #ffffff;
+    --fieldLine: #9aa3ac;
+    --hero: #2e3192;
+    --stripe: #f4d8d2;
+    --tile: url("/brand/maal-logo-tile-light.svg");
+    color-scheme: light;
+  }
+  body {
+    background: #ffffff;
+  }
+  header,
+  .weave,
+  nav,
+  button,
+  [data-print-hide],
+  [data-tour-panel] {
+    display: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .sheet-block {
+    break-inside: avoid;
+  }
+  .sheet-table thead {
+    display: table-header-group;
+  }
+  .sheet-table tr {
+    break-inside: avoid;
+  }
+}
+
 /* Motion never carries meaning here: with it off, everything sits in its final state at once. */
 @media (prefers-reduced-motion: reduce) {
   *,

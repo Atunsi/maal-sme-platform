@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Lens, NotServing } from "@/components/LensPage";
+import { PrintButton } from "@/components/PrintButton";
 import { ProfilePanel } from "@/components/ProfilePanel";
 import { creditReadout, forecastReadout, ReadoutCard, reviewReadout, shariaReadout, zakatReadout } from "@/components/Readouts";
 import { ApiError, Card, Page } from "@/components/ui";
@@ -45,11 +47,17 @@ export default async function OverviewPage({ params, searchParams }: Props) {
     <Page>
       <div className="rise flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="heading text-[30px]">{fill(m.overview.welcome, { id })}</h1>
-        {locale === "en" && (
-          <span lang="ar" className="text-[22px] text-accent">
-            {m.overview.greeting}
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          {locale === "en" && (
+            <span lang="ar" className="text-[22px] text-accent">
+              {m.overview.greeting}
+            </span>
+          )}
+          <Link href={`${root}/sheet${query}`} className="textlink font-semibold" data-print-hide>
+            {m.sheet.open}
+          </Link>
+          <PrintButton label={m.sheet.print} />
+        </div>
       </div>
       {first.ok ? (
         <VerdictSheet data={first.data} locale={locale} m={m} />
