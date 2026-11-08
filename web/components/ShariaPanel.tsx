@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
+import { Term } from "@/components/Term";
 import { BackendText, Code, Plate, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import type { Locale, Messages } from "@/lib/i18n";
 import type { CreditResponse } from "@/lib/types";
@@ -24,7 +25,7 @@ function PendingFrame({ m }: { m: Messages }) {
   );
 }
 
-function Checked({ label, value, result, index }: { label: string; value: ReactNode; result: ReactNode; index: number }) {
+function Checked({ label, value, result, index }: { label: ReactNode; value: ReactNode; result: ReactNode; index: number }) {
   return (
     <div
       className="rise grid grid-cols-1 items-center gap-x-4 gap-y-1 border-t border-line2 px-7 py-4 sm:grid-cols-3"
@@ -58,7 +59,7 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
           index={1}
         />
         <Checked label={m.sharia.ruleTableVersion} value={<Code>{s.rule_table_version}</Code>} result={m.sharia.recorded} index={2} />
-        <Checked label={m.sharia.ruleTableStatus} value={<Code>{s.rule_table_status}</Code>} result={m.sharia.notConfirmed} index={3} />
+        <Checked label={<Term id="rule-table-status" locale={locale}>{m.sharia.ruleTableStatus}</Term>} value={<Code>{s.rule_table_status}</Code>} result={m.sharia.notConfirmed} index={3} />
       </section>
 
       {s.rules_triggered.length > 0 && (

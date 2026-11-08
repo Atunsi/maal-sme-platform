@@ -1,5 +1,6 @@
 import { BusinessHeader } from "@/components/BusinessHeader";
 import { CopyButton } from "@/components/CopyButton";
+import { Term } from "@/components/Term";
 import { copyLabels, ReceiptPanel } from "@/components/ReceiptPanel";
 import { Num, Refusal } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
@@ -8,7 +9,7 @@ import type { CreditResponse, Receipt } from "@/lib/types";
 
 const SHORT = 12;
 
-function Term({ label, children, first }: { label: string; children: React.ReactNode; first?: boolean }) {
+function Cell({ label, children, first }: { label: React.ReactNode; children: React.ReactNode; first?: boolean }) {
   return (
     <div className={`pt-3.5 ${first ? "pe-4" : "border-s border-line px-4"}`}>
       <div className="text-[13px] text-muted">{label}</div>
@@ -81,20 +82,20 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
             )}
             <div className="rise grid grid-cols-1 border-t border-line sm:grid-cols-3" style={{ animationDelay: "1s" }}>
               {credit.repayment_months !== null && (
-                <Term label={o.repayment} first>
+                <Cell label={o.repayment} first>
                   <div className="font-mono text-xl">{fill(o.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</div>
-                </Term>
+                </Cell>
               )}
               {credit.base_markup_pct !== null && (
-                <Term label={o.markupLabel}>
+                <Cell label={<Term id="markup-fixed" locale={locale}>{o.markupLabel}</Term>}>
                   <div className="font-mono text-xl">
                     <Num>{formatRaw(credit.base_markup_pct, locale)}%</Num>
                   </div>
-                </Term>
+                </Cell>
               )}
-              <Term label={o.late} first={credit.repayment_months === null && credit.base_markup_pct === null}>
+              <Cell label={<Term id="charity-late" locale={locale}>{o.late}</Term>} first={credit.repayment_months === null && credit.base_markup_pct === null}>
                 <div className="text-lg">{o.lateValue}</div>
-              </Term>
+              </Cell>
             </div>
             <p className="rise text-sm text-muted" style={{ animationDelay: "1.1s" }}>
               {m.credit.note} {detail.offer_status ? m.enums.offer_status[detail.offer_status] : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Term } from "@/components/Term";
 import { Code, Num, TableScroll, TD, TH } from "@/components/ui";
 import { formatDate, formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -112,7 +113,13 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
               <tr>
                 {[n.date, n.hour, n.direction, n.amount, n.counterparty, n.category, n.reason].map((label) => (
                   <th key={label} scope="col" className={TH}>
-                    {label}
+                    {label === n.reason ? (
+                      <Term id="flag-reason" locale={locale}>
+                        {label}
+                      </Term>
+                    ) : (
+                      label
+                    )}
                   </th>
                 ))}
               </tr>

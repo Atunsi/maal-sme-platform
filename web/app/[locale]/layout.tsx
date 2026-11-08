@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Arabic, IBM_Plex_Sans_Condensed } from "next/font/google";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
-import { SiteHeader } from "@/components/SiteHeader";
-import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
 import { DigitsSync } from "@/components/DigitsToggle";
+import { SiteHeader } from "@/components/SiteHeader";
 import { DIGITS_BOOT } from "@/lib/digits";
+import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
 import { THEME_BOOT } from "@/lib/theme";
 import "../globals.css";
 
@@ -53,7 +54,14 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           {children}
         </main>
         <footer className="border-t border-line">
-          <p className="mx-auto max-w-[1240px] px-6 py-4 text-[13px] text-muted">{m.footer.scope}</p>
+          <div className="mx-auto flex max-w-[1240px] flex-col gap-1 px-6 py-4">
+            <nav aria-label={m.footer.links} className="flex flex-wrap gap-x-5 text-sm">
+              <Link href={`/${locale}/glossary`} prefetch={false} className="textlink">
+                {m.footer.glossary}
+              </Link>
+            </nav>
+            <p className="text-[13px] text-muted">{m.footer.scope}</p>
+          </div>
         </footer>
         {locale === "ar" && <DigitsSync />}
       </body>

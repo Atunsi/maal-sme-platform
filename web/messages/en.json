@@ -33,7 +33,14 @@
     "digitsLatn": "Western digits"
   },
   "footer": {
-    "scope": "Synthetic data only. Population: serving. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent."
+    "scope": "Synthetic data only. Population: serving. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent.",
+    "links": "More about Ma'al",
+    "glossary": "Glossary"
+  },
+  "glossary": {
+    "eyebrow": "Terms used on these pages",
+    "title": "Glossary",
+    "intro": "Each term as this demo uses it, defined from the project's own documents. Tap or focus a dotted term on any page to see its definition there."
   },
   "common": {
     "population": "Population",

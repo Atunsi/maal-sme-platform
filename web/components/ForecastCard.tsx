@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
 import { ForecastChart, type ForecastPoint } from "@/components/ForecastChart";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
+import { Term } from "@/components/Term";
 import { BackendText, Num, Plate, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -157,7 +158,11 @@ export function ForecastCard({ data, locale, m }: { data: ForecastResponse; loca
   const lastDay = computed?.model.at(-1)?.horizon_days;
   const aside = computed && (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted">{n.alert}</span>
+      <span className="text-sm text-muted">
+        <Term id="crunch-alert" locale={locale}>
+          {n.alert}
+        </Term>
+      </span>
       <Plate variant={LEVEL_VARIANT[computed.crunch_alert.level]}>{m.enums.level[computed.crunch_alert.level]}</Plate>
     </div>
   );

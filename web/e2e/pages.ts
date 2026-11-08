@@ -12,6 +12,7 @@ export const PAGES = [
   "",
   "/sign-in",
   "/admin",
+  "/glossary",
   ...BUSINESSES.flatMap((id) => [`/business/${id}`, ...LENS_ROUTES.map((route) => `/business/${id}/${route}`)]),
   ...SCENARIO_PAGES,
 ];

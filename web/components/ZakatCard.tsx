@@ -1,6 +1,7 @@
 import { Fragment, type ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
+import { Term } from "@/components/Term";
 import { TipButton } from "@/components/TipButton";
 import { BackendText, Code, Field, Fields, Num, Plate, Refusal } from "@/components/ui";
 import { formatDate, formatRaw, formatSar } from "@/lib/format";
@@ -108,7 +109,9 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
   return (
     <section aria-labelledby="hawl" className="rise flex min-w-0 flex-[999_1_560px] flex-col gap-5 border border-line bg-card p-5 sm:p-9" style={{ animationDelay: "0.4s" }}>
       <h2 id="hawl" className="heading text-2xl">
-        {n.hawlTitle}
+        <Term id="hawl" locale={locale}>
+          {n.hawlTitle}
+        </Term>
       </h2>
       <div role="img" aria-label={alt} dir="ltr" className="relative h-[90px]">
         <div className="absolute inset-x-0 top-9 h-2.5 bg-line2" />
@@ -214,7 +217,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
           </div>
           <Fields>
             <Field label={n.thresholdMet}>{z.nisab_threshold_met === undefined ? m.common.dash : z.nisab_threshold_met ? m.common.yes : m.common.no}</Field>
-            <Field label={n.nisabBasis}>
+            <Field label={<Term id="nisab" locale={locale}>{n.nisabBasis}</Term>}>
               <Code>{z.nisab_basis}</Code>
             </Field>
             <Field label={n.method}>
