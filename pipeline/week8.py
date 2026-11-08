@@ -36,6 +36,11 @@ from lenses import LENS_CONFIG_PATH, load_lens_config
 from lenses.anomaly.anomaly import detect
 from lenses.credit.model import apply_sharia_gate, decide, load_artifact
 from lenses.forecast.forecast import forecast
+from lenses.zakat.gold_price import (
+    gold_quote_sha256,
+    load_gold_price,
+    zakat_config_from_quote,
+)
 from lenses.zakat.zakat import compute_zakat
 from pipeline.data import load_tables, run_profiles
 from profile_engine import features as fe
@@ -98,9 +103,28 @@ class Context:
     receipt_base: dict
 
 
-def make_context(generated_by: str = "pipeline.week8") -> Context:
+def make_context(
+    generated_by: str = "pipeline.week8",
+    gold_quote_path: str | None = None,
+) -> Context:
     cfg = load_config()
     lc = load_lens_config()
+    gold_quote_receipt = None
+    
+    
+    if gold_quote_path is not None:
+        quote = load_gold_price(gold_quote_path)
+        lc["zakat"] = zakat_config_from_quote(lc["zakat"], quote)
+        gold_quote_receipt = {
+            "provider": quote["provider"],
+            "quoted_at": quote["quoted_at"],
+            "price_sar_per_gram": quote["price_sar_per_gram"],
+            "currency": quote["currency"],
+            "purity": quote["purity"],
+            "quote_sha256": gold_quote_sha256(quote),
+        }
+
+
     art = load_artifact(str(lc["credit"]["model_artifact"]))
     _, ref_hash = fe.load_reference_stats()
     receipt_base = {
@@ -116,6 +140,8 @@ def make_context(generated_by: str = "pipeline.week8") -> Context:
         "code_commit": code_commit(),
         "generated_by": generated_by,
     }
+    if gold_quote_receipt is not None:
+        receipt_base["gold_quote"] = gold_quote_receipt
     return Context(cfg, lc, art, ref_hash, {x["id"]: x for x in cfg.get("demo_businesses", [])}, receipt_base)
 
 
@@ -204,6 +230,16 @@ def anomaly_section(ctx: Context, p: Prepared, b_id: int) -> dict:
 def zakat_section(ctx: Context, p: Prepared, b_id: int) -> dict:
     b = p.biz(b_id)
     seed = ctx.demo.get(b_id, {}).get("zakat_seed")
+    quote = ctx.receipt_base.get("gold_quote")
+
+    if quote is not None:
+        quoted_at = pd.Timestamp(quote["quoted_at"])
+        calculation_date = pd.Timestamp(b.window_end)
+
+        if quoted_at.date() > calculation_date.date():
+            raise ValueError(
+                "Gold quotation is newer than the Zakat calculation date"
+            )
     return compute_zakat(
         p.rows("balances_monthly", b_id), pd.Timestamp(b.window_end), ctx.lc["zakat"],
         pd.Timestamp(seed["hawl_start_date"]) if seed else None,
@@ -235,10 +271,17 @@ def decision_object(ctx: Context, p: Prepared, b_id: int) -> dict:
     return obj
 
 
-def build_objects(d: str | Path, business_ids: list[int]) -> list[dict]:
-    ctx = make_context()
+def build_objects(
+    d: str | Path,
+    business_ids: list[int],
+    gold_quote_path: str | None = None,
+) -> list[dict]:
+    ctx = make_context(gold_quote_path=gold_quote_path)
     p = prepare(ctx, load_tables(d, business_ids))
-    return [decision_object(ctx, p, int(b)) for b in sorted(p.tables["businesses"]["business_id"])]
+    return [
+        decision_object(ctx, p, int(b))
+        for b in sorted(p.tables["businesses"]["business_id"])
+    ]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -247,11 +290,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--business-id", type=int, nargs="+", default=None)
     ap.add_argument("--demo", action="store_true", help=f"the demo businesses {DEMO_IDS}")
     ap.add_argument("--out", default=None, help="write JSON here instead of stdout")
+    ap.add_argument(
+    "--gold-quote",
+    default=None,
+    help="Path to a saved GoldAPI quotation JSON file",
+)
     args = ap.parse_args(argv)
     ids = args.business_id or (DEMO_IDS if args.demo else None)
     if not ids:
         ap.error("give --business-id ... or --demo")
-    objs = build_objects(args.dir, ids)
+    objs = build_objects(
+    args.dir,
+    ids,
+    gold_quote_path=args.gold_quote,
+)
     text = json.dumps(objs[0] if len(objs) == 1 else objs, indent=2, ensure_ascii=False, default=str)
     if args.out:
         Path(args.out).write_text(text, encoding="utf-8")
