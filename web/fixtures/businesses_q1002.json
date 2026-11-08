@@ -1,0 +1,49 @@
+{
+  "population": "serving",
+  "data_source": "synthetic",
+  "total": 10,
+  "offset": 0,
+  "limit": 25,
+  "businesses": [
+    {
+      "business_id": 10020,
+      "sector": "construction"
+    },
+    {
+      "business_id": 10021,
+      "sector": "retail_trade"
+    },
+    {
+      "business_id": 10022,
+      "sector": "construction"
+    },
+    {
+      "business_id": 10023,
+      "sector": "construction"
+    },
+    {
+      "business_id": 10024,
+      "sector": "retail_trade"
+    },
+    {
+      "business_id": 10025,
+      "sector": "construction"
+    },
+    {
+      "business_id": 10026,
+      "sector": "retail_trade"
+    },
+    {
+      "business_id": 10027,
+      "sector": "retail_trade"
+    },
+    {
+      "business_id": 10028,
+      "sector": "construction"
+    },
+    {
+      "business_id": 10029,
+      "sector": "retail_trade"
+    }
+  ]
+}

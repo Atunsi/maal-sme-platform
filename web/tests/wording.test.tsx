@@ -73,8 +73,17 @@ describe("credit contract guards", () => {
       .filter((file) => /<(input|select|textarea)\b/.test(readFileSync(join(webRoot, "components", file), "utf8")));
     // Named allowlist, never a general relaxation. The sign-in is U15 as amended; its fields feed nothing.
     // CopyButton's only input is a read-only fallback holding a hash; HashCheck compares a pasted hash in the
-    // browser (E4, DECISIONS 43). None of them can reach a term.
-    expect(withInput.sort()).toEqual(["BusinessPicker.tsx", "CopyButton.tsx", "HashCheck.tsx", "SignInForm.tsx"]);
+    // browser (E4, DECISIONS 43). BusinessSearch searches the admin list (E10). CustomScenarioForm takes only
+    // the API's shock parameters, each bounded; tests/custom.test.tsx checks its input names (E12). None of
+    // them can reach a term.
+    expect(withInput.sort()).toEqual([
+      "BusinessPicker.tsx",
+      "BusinessSearch.tsx",
+      "CopyButton.tsx",
+      "CustomScenarioForm.tsx",
+      "HashCheck.tsx",
+      "SignInForm.tsx",
+    ]);
   });
 });
 

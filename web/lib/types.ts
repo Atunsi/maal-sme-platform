@@ -1,5 +1,7 @@
 import type { z } from "zod";
 import type {
+  BusinessesResponse,
+  ScenarioCatalog,
   AnomalyResponse,
   CreditDetail,
   CreditExplanation,
@@ -28,6 +30,8 @@ export type ProfileResponse = z.infer<typeof ProfileResponse>;
 export type HealthResponse = z.infer<typeof HealthResponse>;
 export type ScenarioObject = z.infer<typeof ScenarioObject>;
 export type ScenarioIndex = z.infer<typeof ScenarioIndex>;
+export type BusinessesResponse = z.infer<typeof BusinessesResponse>;
+export type ScenarioCatalog = z.infer<typeof ScenarioCatalog>;
 
 export type ApiErrorKind =
   | "config"
@@ -36,7 +40,9 @@ export type ApiErrorKind =
   | "rate_limited"
   | "server"
   | "network"
-  | "contract";
+  | "contract"
+  | "invalid"
+  | "unavailable";
 
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; kind: ApiErrorKind; detail?: string };
 

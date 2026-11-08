@@ -3,10 +3,11 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { SectionMark } from "@/components/brand/Logos";
 import { BusinessPicker } from "@/components/BusinessPicker";
+import { AllBusinesses, PAGE_SIZE } from "@/components/AllBusinesses";
+import { BusinessSearch } from "@/components/BusinessSearch";
 import { Num, Page, Plate, TableScroll, type PlateVariant } from "@/components/ui";
-import { getCredit, getHealth } from "@/lib/api";
+import { getBusinesses, getCredit } from "@/lib/api";
 import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
-import { formatInt } from "@/lib/format";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { SERVING_ID_MAX, SERVING_ID_MIN } from "@/lib/population";
 import type { ApiResult, CreditResponse } from "@/lib/types";
@@ -68,9 +69,11 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
   );
 }
 
+const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ as?: string | string[] }>;
+  searchParams: Promise<{ as?: string | string[]; q?: string | string[]; sector?: string | string[]; page?: string | string[] }>;
 };
 
 export default async function AdminPage({ params, searchParams }: Props) {
@@ -79,12 +82,28 @@ export default async function AdminPage({ params, searchParams }: Props) {
   const m = getMessages(locale);
   const a = m.admin;
   const p = m.picker;
-  const query = roleQuery((await searchParams).as);
-  // The queue runs in call order, so the quick health check goes first and the page need not wait
-  // for the rows. Each row's status and decision come from the API, never from this file.
-  const healthResult = getHealth();
+  const search = await searchParams;
+  const query = roleQuery(search.as);
+  const role = query ? query.replace("?as=", "") : null;
+  // E10: search, sector and page live in the URL and are handled here, so the list works without JS.
+  const q = /^[0-9]{1,9}$/.test(one(search.q)) ? one(search.q) : "";
+  const sector = one(search.sector) in m.enums.sector ? one(search.sector) : "";
+  const page = Math.max(1, Number.parseInt(one(search.page), 10) || 1);
+  const links = (n: number) => {
+    const params = new URLSearchParams();
+    if (role) params.set("as", role);
+    if (q) params.set("q", q);
+    if (sector) params.set("sector", sector);
+    if (n > 1) params.set("page", String(n));
+    const s = params.toString();
+    return `/${locale}/admin${s ? `?${s}` : ""}`;
+  };
+  // The queue runs in call order. The list goes first and is awaited: it is a quick store read, and a
+  // streamed boundary would stay hidden without JavaScript. The five demo rows then stream in. Each row's
+  // status and decision come from the API, never from this file.
+  const list = getBusinesses({ offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE, sector: sector || undefined, q: q || undefined });
   const rows = DEMO_BUSINESSES.map((id) => ({ id, result: getCredit(id) }));
-  const health = await healthResult;
+  const listView = await AllBusinesses({ result: list, locale, m, query, links, page });
   const range = { min: String(SERVING_ID_MIN), max: String(SERVING_ID_MAX) };
   const th = "px-6 py-4 font-medium";
   return (
@@ -146,9 +165,21 @@ export default async function AdminPage({ params, searchParams }: Props) {
         </table>
         </TableScroll>
       </div>
-      <p className="text-[13px] text-muted">
-        {health.ok ? fill(a.note, { n: formatInt(health.data.serving_businesses, locale) }) : p.unavailable}
-      </p>
+
+      <section aria-labelledby="all" className="flex flex-col gap-4">
+        <h2 id="all" className="heading text-[28px]">
+          {a.allTitle}
+        </h2>
+        <BusinessSearch
+          locale={locale}
+          role={role}
+          q={q}
+          sector={sector}
+          sectors={Object.entries(m.enums.sector).map(([value, label]) => ({ value, label }))}
+          labels={{ search: a.search, searchLabel: a.searchLabel, searchHelp: a.searchHelp, sectorLabel: a.sectorLabel, anySector: a.anySector, clear: a.clear }}
+        />
+        {listView}
+      </section>
     </Page>
   );
 }

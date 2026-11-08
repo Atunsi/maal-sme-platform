@@ -50,6 +50,9 @@ export default async function ScenariosPage({ params, searchParams }: Props) {
         </div>
         <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{sc.title}</h1>
         <p className="mt-2 max-w-3xl text-sm text-muted">{sc.intro}</p>
+        <Link href={`/${locale}/scenarios/custom${roleQuery(as)}`} className="textlink font-semibold">
+          {m.custom.link}
+        </Link>
       </div>
       <ScenarioPlayer
         names={menu.map((entry) => entry.name)}

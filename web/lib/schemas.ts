@@ -198,8 +198,12 @@ const AnomalyBody = z.discriminatedUnion("status", [
   }),
 ]);
 
+// E11 (DECISIONS 43, 44): the review cap would ride here. It stopped at S9 (adding it changes the response's
+// output_sha256), so the field is optional and the UI falls back to the count alone when it is absent.
+const Limits = z.strictObject({ max_flags: z.number().int().positive() });
+
 export const AnomalyResponse = z
-  .object({ ...lensHeader, anomaly: AnomalyBody.nullable() })
+  .object({ ...lensHeader, anomaly: AnomalyBody.nullable(), limits: Limits.optional() })
   .refine((r) => refusalIsExplicit(r.anomaly, r), { message: "anomaly body and status disagree (§15)" });
 
 const ZakatBody = z.object({
@@ -254,6 +258,9 @@ export const ScenarioObject = z
       library_version: z.string(),
       library_status: z.string(),
       overrides: z.record(z.string(), z.unknown()),
+      // POST /scenarios/run (E12): a custom scenario says so and echoes its shocks.
+      source: z.literal("custom").optional(),
+      shocks: z.array(z.strictObject({ type: z.string(), params: z.record(z.string(), z.number().int()) })).optional(),
     }),
     receipt: Receipt.required({ scope: true }).extend({ scenario_library_sha256: sha256 }),
   })
@@ -274,4 +281,26 @@ export const HealthResponse = z.object({
   status: z.string(),
   serving_businesses: z.number().int(),
   credit_model_version: z.string(),
+});
+
+// GET /businesses (E10, DECISIONS 44): serving businesses only, paged.
+export const BusinessesResponse = z.strictObject({
+  population: z.literal("serving"),
+  data_source: header.data_source,
+  total: z.number().int().nonnegative(),
+  offset: z.number().int().nonnegative(),
+  limit: z.number().int().min(1).max(50),
+  businesses: z.array(z.strictObject({ business_id: z.number().int(), sector: header.sector })),
+});
+
+// GET /scenarios (E12, DECISIONS 44): the library and the bounds of each shock parameter.
+const Bound = z.strictObject({ min: z.number(), max: z.number(), step: z.number().positive(), unit: z.string() });
+export const ScenarioCatalog = z.strictObject({
+  library_version: z.string(),
+  library_status: z.string(),
+  base_business: z.number().int(),
+  scenario_library_sha256: sha256,
+  scenarios: z.array(z.strictObject({ name: z.string(), label: z.string(), story: z.string() })),
+  max_shocks: z.number().int().min(1),
+  shock_types: z.record(z.string(), z.strictObject({ params: z.record(z.string(), Bound), fixed: z.record(z.string(), z.unknown()) })),
 });

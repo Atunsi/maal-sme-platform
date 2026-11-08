@@ -16,8 +16,10 @@ const SHORT = 12;
 /** Words U8 keeps off the screen. A scenario whose own name holds one gets no command (DECISIONS 43, S5). */
 const U8_WORDS = /fraud|score/i;
 
-/** The command that re-runs a library scenario, built from the object's own scenario name (E4). */
+/** The command that re-runs a library scenario, built from the object's own scenario name (E4). A custom
+ *  scenario (E12) is not in the library, so no library command re-runs it: it shows none. */
 export function scenarioCommand(o: ScenarioObject): string | null {
+  if (o.scenario.source === "custom") return null;
   return U8_WORDS.test(o.scenario.id) ? null : `python -m scenarios.run --scenario ${o.scenario.id}`;
 }
 

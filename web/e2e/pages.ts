@@ -16,6 +16,9 @@ export const PAGES = [
   "/how-it-works",
   "/business/10001/sheet",
   "/business/10003/sheet",
+  "/scenarios/custom",
+  "/scenarios/custom?shock=cash_crunch.16.40&shock=large_transfer.10",
+  "/admin?q=1002&sector=retail_trade",
   ...BUSINESSES.flatMap((id) => [`/business/${id}`, ...LENS_ROUTES.map((route) => `/business/${id}/${route}`)]),
   ...SCENARIO_PAGES,
 ];

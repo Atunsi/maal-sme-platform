@@ -69,7 +69,9 @@
     "rate_limited": "The API's per-business request limit was reached. Wait a moment and try again.",
     "server": "The API returned an error.",
     "network": "The API could not be reached.",
-    "contract": "The API response did not match what this page expects, so nothing from it is shown."
+    "contract": "The API response did not match what this page expects, so nothing from it is shown.",
+    "invalid": "The API refused the request:",
+    "unavailable": "The API could not finish in time. Try again in a moment."
   },
   "refusal": {
     "title": "Not scored",
@@ -220,7 +222,9 @@
     "listedOf": "listed, from {n} transactions scanned",
     "timeline": "Timeline of queued transactions",
     "markLabel": "{date}, {reason}",
-    "timelineAlt": "{n} transactions placed by date between {from} and {to}. The table gives the same list."
+    "timelineAlt": "{n} transactions placed by date between {from} and {to}. The table gives the same list.",
+    "slots": "{n} of {cap} review slots used",
+    "slotsShort": "{n} of {cap}"
   },
   "zakat": {
     "title": "Zakat",
@@ -298,6 +302,37 @@
     "pause": "Pause",
     "position": "Scenario {x} of {y}",
     "playerGroup": "Play the scenarios in turn"
+  },
+  "custom": {
+    "eyebrow": "Business {id}, built from the library's own shocks",
+    "title": "Build a custom scenario",
+    "intro": "Pick up to three shocks. Every value must stay inside the range the scenario library itself uses, and nothing here can change a term of an offer. Nothing is saved.",
+    "link": "Build a custom scenario",
+    "include": "Include this shock",
+    "run": "Run scenario",
+    "running": "Running the scenario. This rebuilds the business and runs every lens, so it takes a few seconds.",
+    "tooMany": "Pick at most {n} shocks.",
+    "noneChosen": "Pick at least one shock.",
+    "retry": "Run again",
+    "plate": "Custom scenario, not part of the library",
+    "shocksTitle": "Shocks",
+    "fixed": "Fixed at the library value:",
+    "range": "{min} to {max} {unit}",
+    "back": "Back to the scenario library",
+    "types": {
+      "cash_crunch": "Revenue drop",
+      "large_transfer": "Large transfer out",
+      "odd_hours_transaction": "Night-time sale",
+      "newcomer": "Newcomer, trading for a short time"
+    },
+    "params": {
+      "week": "Week",
+      "severity_pct": "Drop"
+    },
+    "units": {
+      "week": "weeks",
+      "percent": "percent"
+    }
   },
   "enums": {
     "status": {
@@ -569,6 +604,23 @@
     "showsDeclined": "Declined on {reason}",
     "showsRefused": "Refusal shown, lens not run",
     "showsPartial": "Some features unavailable",
-    "note": "Five businesses chosen to show each state the API returns (serving population, N = {n}, synthetic data). A full list needs GET /businesses, a proposed API change."
+    "note": "Five businesses chosen to show each state the API returns (serving population, N = {n}, synthetic data). A full list needs GET /businesses, a proposed API change.",
+    "demoStates": "Demo states",
+    "allTitle": "Search every serving business",
+    "allTable": "Serving business list",
+    "total": "{n} serving businesses",
+    "matches": "{n} match",
+    "searchLabel": "Business ID starts with",
+    "searchHelp": "Digits only.",
+    "sectorLabel": "Sector",
+    "anySector": "Any sector",
+    "search": "Search",
+    "clear": "Clear",
+    "prev": "Previous page",
+    "next": "Next page",
+    "page": "Page {x} of {y}",
+    "none": "No serving business matches.",
+    "sector": "Sector",
+    "openRow": "Open business {id}"
   }
 }

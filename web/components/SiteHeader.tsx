@@ -94,7 +94,9 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
           >
             <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-4 text-[15px] md:flex-row md:flex-wrap">
               {items.map((item) => (
-                <Link key={item.href} href={item.href} aria-current={item.current ? "page" : undefined} className="navlink" onClick={close}>
+                // No prefetch: a prefetch renders the page on the server, and its API calls would join the queue
+                // (lib/api.ts) ahead of the page the visitor actually opens next.
+                <Link key={item.href} href={item.href} prefetch={false} aria-current={item.current ? "page" : undefined} className="navlink" onClick={close}>
                   {item.label}
                 </Link>
               ))}

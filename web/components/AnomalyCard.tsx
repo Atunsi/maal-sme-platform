@@ -11,12 +11,29 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
   const a = data.anomaly;
   const n = m.anomaly;
   const computed = a?.status === "computed" ? a : null;
-  // "N of cap" needs the cap, and no response carries it, so only the count is shown (DECISIONS 42).
+  // E11: "N of cap" when the response carries the cap (limits.max_flags). E11 stopped at S9 (DECISIONS 44),
+  // so no response carries it yet, and the count alone is shown, as before.
+  const cap = data.limits?.max_flags;
   const aside = computed && (
     <div className="sm:text-end">
       <div className="font-mono text-[40px] leading-tight">
-        <Num>{formatInt(computed.flags.length, locale)}</Num>
+        {cap ? (
+          <span role="img" aria-label={fill(n.slots, { n: formatInt(computed.flags.length, locale), cap: formatInt(cap, locale) })} data-slots>
+            <span aria-hidden="true">
+              <Num>{fill(n.slotsShort, { n: formatInt(computed.flags.length, locale), cap: formatInt(cap, locale) })}</Num>
+            </span>
+          </span>
+        ) : (
+          <Num>{formatInt(computed.flags.length, locale)}</Num>
+        )}
       </div>
+      {cap ? (
+        <div aria-hidden="true" className="mt-1 flex flex-wrap gap-1 sm:justify-end" data-slot-row>
+          {Array.from({ length: cap }, (_, i) => (
+            <span key={i} data-filled={i < computed.flags.length} className={`h-3 w-3 rounded-[3px] border border-ink ${i < computed.flags.length ? "bg-ink" : ""}`} />
+          ))}
+        </div>
+      ) : null}
       <div className="text-[13px] text-muted">{fill(n.listedOf, { n: formatInt(computed.transactions_scanned, locale) })}</div>
       <div aria-hidden="true" className="ms-auto mt-2 h-1.5 w-[220px] max-w-full bg-line">
         <div className="scan-fill" />
