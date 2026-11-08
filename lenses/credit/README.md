@@ -151,6 +151,9 @@ threshold-based templates. They do not expose raw feature names.
 ### Remaining limitations
 
 - No temporal or forward-in-time validation.
-- Section 25 within-sector fairness acceptance criterion remains
-  unverified despite completion of the audit.
+- **Section 25 within-sector fairness audit did not pass (DECISIONS 43, a finding).** In
+  construction, 1 of the top 10 attributed features is in §25's liquidity/working-capital set
+  (11–19), 2 under entry 1b's wider reading (adds 37–40). The top feature, inflow regularity (3),
+  shifts nearly every construction business by the same amount — a sector-level effect. No claim is
+  made that the model rewards disciplined operators within a volatile sector.
 - Customer-facing explanation wording requires teammate review.

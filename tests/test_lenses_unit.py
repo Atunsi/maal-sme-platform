@@ -144,6 +144,8 @@ def test_all_credit_features_have_customer_facing_labels():
     )
 
 
+@pytest.mark.skipif(not __import__("pathlib").Path("data/profiles.csv").exists(),
+                    reason="needs full-scale data/profiles.csv (python -m profile_engine.compute --dir data)")
 def test_credit_contributions_reconstruct_logit():
     from lenses.credit.model import load_artifact, score
 

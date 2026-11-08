@@ -41,6 +41,8 @@ def main() -> None:
     art = load_artifact("lenses/credit/model_v1.json")
 
     profiles = pd.read_csv(DATA / "profiles.csv")
+    z_cols = [c for c in profiles.columns if c.startswith("sector_relative_")]
+    z_max = float(profiles[z_cols].abs().max().max()) if z_cols else float("nan")
 
     businesses = pd.read_csv(
         DATA / "businesses.csv",
@@ -220,6 +222,16 @@ def main() -> None:
         f"- Eligible research businesses: **{len(df):,}**",
         f"- Sectors: **{df['sector'].nunique()}**",
         f"- Trained model features: **{len(art['features'])}**",
+        # Which model and which profiles the audit ran on (DECISIONS 43): the artifact's own sha256 and
+        # training date, and whether profiles.csv carries the entry 38 clip (stale profiles would not).
+        (
+            f"- Model: `lenses/credit/model_v1.json`, artifact sha256 `{art.get('sha256', 'n/a')}`, "
+            f"trained {art.get('trained', 'n/a')}"
+        ),
+        (
+            f"- Largest |z| over features 55–59 in profiles.csv: **{z_max:.3f}** "
+            f"({'consistent with' if z_max <= 3.0 + 1e-9 else 'NOT consistent with'} the entry 38 clip at ±3)"
+        ),
         "- Population: research, scored or partial_profile.",
         "- Attribution: coefficient × standardized feature value.",
         "- Mean absolute contribution measures feature impact.",

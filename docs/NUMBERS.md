@@ -56,6 +56,7 @@ Use these as written. Each carries the caveat that must travel with it.
 | p_default decile risk ratio (p90 / p10) | 5.07× | research, all | `eval.latent_ceiling` |
 | Logit variance from the latents | 90.4% (shock 63.3%, management 27.1%; label noise 9.6%; intercept 0%) | research, all | `eval.latent_ceiling` |
 | Within-sector share of the shock term | 73.4% | research, all | `eval.latent_ceiling` |
+| §25 fairness audit: construction's top-10 attributed features inside §25's liquidity / working-capital set | **not met** — 1 of 10 (schema 11–19); 2 of 10 (entry 1b, adds 37–40) | research, scored or partial_profile, construction 3,486; retrained model `79160cb` | `eval/out/within_sector_fairness.csv`; DECISIONS 43 (a finding, not a fairness claim) |
 | Scale-up needed for a 0.85 ceiling | latent coefficients × 2.36 | — | `eval.latent_ceiling` |
 
 The analytic form is **an approximation, not an identity**. It agreed to 0.0010 before calibration and to 0.0118 after, because the calibrated sector mixture is more lopsided.
