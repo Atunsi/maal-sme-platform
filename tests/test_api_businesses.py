@@ -46,6 +46,8 @@ def store_rows():
 @pytest.mark.parametrize("headers", [{}, {"X-API-Key": "wrong"}])
 def test_new_routes_require_the_api_key(client, headers):
     assert client.get("/businesses", headers=headers).status_code == 401
+    assert client.get("/scenarios", headers=headers).status_code == 401
+    assert client.post("/scenarios/run", json={"shocks": []}, headers=headers).status_code == 401
 
 
 def test_businesses_route_returns_serving_ids_only(client, store_rows):
