@@ -292,7 +292,11 @@
     "changed": "Changed",
     "same": "Same",
     "notDeclined": "Not declined",
-    "notOffered": "Not offered"
+    "notOffered": "Not offered",
+    "play": "Play all",
+    "pause": "Pause",
+    "position": "Scenario {x} of {y}",
+    "playerGroup": "Play the scenarios in turn"
   },
   "enums": {
     "status": {

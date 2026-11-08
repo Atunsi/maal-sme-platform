@@ -1,0 +1,76 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { fill } from "@/lib/i18n";
+
+/** E6: one scenario every this many milliseconds. */
+export const PLAY_STEP_MS = 8000;
+
+type Props = {
+  names: string[];
+  labels: string[];
+  current: string;
+  /** Builds the scenario page URL for a name, keeping the locale and the demo role. */
+  hrefBase: string;
+  text: { play: string; pause: string; position: string; group: string };
+};
+
+/**
+ * E6: steps through the library in order. It stops at the last scenario, on Pause, when the visitor picks
+ * a scenario themselves, and when the page is hidden (WCAG 2.2.2). The URL follows with replace, so a
+ * pause leaves a link to the scenario on screen. Under reduced motion the steps still change on the timer;
+ * the page's own CSS already stops the row and plate animations.
+ */
+export function ScenarioPlayer({ names, labels, current, hrefBase, text }: Props) {
+  const router = useRouter();
+  const [on, setOn] = useState(false);
+  const [expected, setExpected] = useState<string | null>(null); // the scenario this player last asked for
+  const index = Math.max(0, names.indexOf(current));
+  const last = names.length - 1;
+  // Playing only while the page shows what the player asked for (a visitor's own pick stops it) and the
+  // last scenario has not been reached.
+  const playing = on && expected === current && index < last;
+
+  useEffect(() => {
+    if (!playing) return;
+    const timer = setTimeout(() => {
+      const next = names[index + 1]!;
+      setExpected(next);
+      router.replace(`${hrefBase}${next}`, { scroll: false });
+    }, PLAY_STEP_MS);
+    return () => clearTimeout(timer);
+  }, [playing, index, names, hrefBase, router]);
+
+  useEffect(() => {
+    const hidden = () => {
+      if (document.hidden) setOn(false);
+    };
+    document.addEventListener("visibilitychange", hidden);
+    return () => document.removeEventListener("visibilitychange", hidden);
+  }, []);
+
+  function toggle() {
+    if (playing) return setOn(false);
+    if (index >= last) {
+      // Played to the end before: start again from the first scenario.
+      setExpected(names[0]!);
+      router.replace(`${hrefBase}${names[0]}`, { scroll: false });
+    } else setExpected(current);
+    setOn(true);
+  }
+
+  return (
+    <div role="group" aria-label={text.group} className="flex flex-wrap items-center gap-3" data-player>
+      <button type="button" className="solid-btn min-h-11" aria-pressed={playing} onClick={toggle}>
+        {playing ? text.pause : text.play}
+      </button>
+      <span className="text-sm text-muted" data-position>
+        {fill(text.position, { x: String(index + 1), y: String(names.length) })}
+      </span>
+      <span role="status" aria-live="polite" className="sr-only">
+        {playing ? labels[index] : ""}
+      </span>
+    </div>
+  );
+}

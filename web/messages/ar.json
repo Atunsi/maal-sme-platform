@@ -292,7 +292,11 @@
     "changed": "تغيّر",
     "same": "لم يتغيّر",
     "notDeclined": "لم يُرفض",
-    "notOffered": "لا عرض"
+    "notOffered": "لا عرض",
+    "play": "شغّل الكل",
+    "pause": "إيقاف مؤقت",
+    "position": "السيناريو {x} من {y}",
+    "playerGroup": "تشغيل السيناريوهات بالتتابع"
   },
   "enums": {
     "status": {
