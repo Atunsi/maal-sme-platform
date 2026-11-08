@@ -26,14 +26,14 @@
         "direction": "against"
       },
       {
-        "feature_id": 14,
-        "text": "Your overdraft events 90d strongly supported approval.",
+        "feature_id": 6,
+        "text": "Your avg monthly outflow was the main factor working against approval.",
         "magnitude": "strongly",
-        "direction": "supports"
+        "direction": "against"
       },
       {
-        "feature_id": 56,
-        "text": "Your sector relative volatility z strongly supported approval.",
+        "feature_id": 14,
+        "text": "Your overdraft events 90d strongly supported approval.",
         "magnitude": "strongly",
         "direction": "supports"
       }
@@ -56,349 +56,349 @@
         {
           "feature_id": 3,
           "feature": "inflow_regularity_score",
-          "contribution_logodds": 1.165183,
-          "imputed": false
-        },
-        {
-          "feature_id": 14,
-          "feature": "overdraft_events_90d",
-          "contribution_logodds": -0.386669,
-          "imputed": false
-        },
-        {
-          "feature_id": 56,
-          "feature": "sector_relative_volatility_z",
-          "contribution_logodds": -0.365499,
+          "contribution_logodds": 1.027583,
           "imputed": false
         },
         {
           "feature_id": 6,
           "feature": "avg_monthly_outflow",
-          "contribution_logodds": 0.353081,
+          "contribution_logodds": 0.407065,
+          "imputed": false
+        },
+        {
+          "feature_id": 14,
+          "feature": "overdraft_events_90d",
+          "contribution_logodds": -0.365295,
           "imputed": false
         },
         {
           "feature_id": 41,
           "feature": "financing_outflow_ratio",
-          "contribution_logodds": -0.336619,
+          "contribution_logodds": -0.359601,
           "imputed": false
         },
         {
           "feature_id": 49,
           "feature": "flow_asymmetry_ratio",
-          "contribution_logodds": -0.330467,
+          "contribution_logodds": -0.35488,
           "imputed": false
         },
         {
           "feature_id": 9,
           "feature": "expense_growth_rate_90d",
-          "contribution_logodds": -0.282229,
-          "imputed": false
-        },
-        {
-          "feature_id": 38,
-          "feature": "implied_dio_days",
-          "contribution_logodds": 0.27937,
+          "contribution_logodds": -0.29194,
           "imputed": false
         },
         {
           "feature_id": 15,
           "feature": "volatility_index",
-          "contribution_logodds": 0.269763,
+          "contribution_logodds": 0.261973,
           "imputed": false
         },
         {
-          "feature_id": 2,
-          "feature": "inflow_count_per_month",
-          "contribution_logodds": 0.252614,
-          "imputed": false
-        },
-        {
-          "feature_id": 55,
-          "feature": "sector_relative_regularity_z",
-          "contribution_logodds": -0.243094,
+          "feature_id": 56,
+          "feature": "sector_relative_volatility_z",
+          "contribution_logodds": -0.197381,
           "imputed": false
         },
         {
           "feature_id": 53,
           "feature": "liquidity_hazard_60d",
-          "contribution_logodds": 0.183724,
-          "imputed": false
-        },
-        {
-          "feature_id": 17,
-          "feature": "min_daily_balance_90d",
-          "contribution_logodds": 0.170308,
+          "contribution_logodds": 0.191639,
           "imputed": false
         },
         {
           "feature_id": 52,
           "feature": "liquidity_hazard_30d",
-          "contribution_logodds": -0.166459,
+          "contribution_logodds": -0.172475,
           "imputed": false
         },
         {
-          "feature_id": 60,
-          "feature": "committed_monthly_outflow",
-          "contribution_logodds": -0.151736,
+          "feature_id": 38,
+          "feature": "implied_dio_days",
+          "contribution_logodds": 0.170554,
+          "imputed": false
+        },
+        {
+          "feature_id": 17,
+          "feature": "min_daily_balance_90d",
+          "contribution_logodds": 0.159392,
           "imputed": false
         },
         {
           "feature_id": 50,
           "feature": "revenue_shock_absorption_pct",
-          "contribution_logodds": -0.131143,
+          "contribution_logodds": -0.143631,
+          "imputed": false
+        },
+        {
+          "feature_id": 60,
+          "feature": "committed_monthly_outflow",
+          "contribution_logodds": -0.126064,
           "imputed": false
         },
         {
           "feature_id": 51,
           "feature": "fixed_obligation_coverage_months",
-          "contribution_logodds": 0.104776,
+          "contribution_logodds": 0.121711,
           "imputed": false
         },
         {
           "feature_id": 20,
           "feature": "unique_counterparties_count",
-          "contribution_logodds": -0.09095,
-          "imputed": false
-        },
-        {
-          "feature_id": 21,
-          "feature": "counterparty_concentration_index",
-          "contribution_logodds": -0.090553,
+          "contribution_logodds": -0.08201,
           "imputed": false
         },
         {
           "feature_id": 58,
           "feature": "sector_relative_balance_z",
-          "contribution_logodds": 0.07383,
-          "imputed": false
-        },
-        {
-          "feature_id": 12,
-          "feature": "inflow_outflow_ratio",
-          "contribution_logodds": 0.054861,
+          "contribution_logodds": 0.07814,
           "imputed": false
         },
         {
           "feature_id": "18b",
           "feature": "runway_days_avg_balance",
-          "contribution_logodds": -0.053884,
-          "imputed": false
-        },
-        {
-          "feature_id": 69,
-          "feature": "emergency_line_present",
-          "contribution_logodds": 0.049876,
-          "imputed": false
-        },
-        {
-          "feature_id": 10,
-          "feature": "top_expense_category_share",
-          "contribution_logodds": -0.037638,
-          "imputed": false
-        },
-        {
-          "feature_id": 11,
-          "feature": "cash_flow_volatility",
-          "contribution_logodds": -0.037179,
-          "imputed": false
-        },
-        {
-          "feature_id": 32,
-          "feature": "coverage_days_90d",
-          "contribution_logodds": 0.035394,
-          "imputed": false
-        },
-        {
-          "feature_id": 37,
-          "feature": "implied_dso_days",
-          "contribution_logodds": -0.030179,
-          "imputed": false
-        },
-        {
-          "feature_id": 68,
-          "feature": "max_consecutive_overdraft_days",
-          "contribution_logodds": 0.030168,
-          "imputed": false
-        },
-        {
-          "feature_id": 43,
-          "feature": "inflow_break_recency_days",
-          "contribution_logodds": 0.029902,
-          "imputed": false
-        },
-        {
-          "feature_id": 47,
-          "feature": "downside_semideviation_90d",
-          "contribution_logodds": 0.028352,
-          "imputed": false
-        },
-        {
-          "feature_id": 5,
-          "feature": "largest_single_source_ratio",
-          "contribution_logodds": -0.027975,
-          "imputed": false
-        },
-        {
-          "feature_id": 45,
-          "feature": "counterparty_persistence_ratio",
-          "contribution_logodds": 0.02741,
-          "imputed": false
-        },
-        {
-          "feature_id": "62b",
-          "feature": "ocr_forward_6m",
-          "contribution_logodds": -0.023808,
-          "imputed": false
-        },
-        {
-          "feature_id": 1,
-          "feature": "avg_monthly_inflow",
-          "contribution_logodds": -0.022072,
-          "imputed": false
-        },
-        {
-          "feature_id": 13,
-          "feature": "days_negative_balance_90d",
-          "contribution_logodds": 0.020763,
-          "imputed": false
-        },
-        {
-          "feature_id": 4,
-          "feature": "revenue_growth_rate_90d",
-          "contribution_logodds": -0.016776,
-          "imputed": false
-        },
-        {
-          "feature_id": 39,
-          "feature": "implied_dpo_days",
-          "contribution_logodds": -0.016263,
-          "imputed": false
-        },
-        {
-          "feature_id": 7,
-          "feature": "outflow_count_per_month",
-          "contribution_logodds": 0.013293,
-          "imputed": false
-        },
-        {
-          "feature_id": 18,
-          "feature": "current_runway_days",
-          "contribution_logodds": 0.011556,
-          "imputed": false
-        },
-        {
-          "feature_id": 54,
-          "feature": "liquidity_hazard_90d",
-          "contribution_logodds": 0.011447,
-          "imputed": false
-        },
-        {
-          "feature_id": 65,
-          "feature": "balloon_exposure_sar",
-          "contribution_logodds": -0.010136,
-          "imputed": false
-        },
-        {
-          "feature_id": 33,
-          "feature": "data_gap_ratio",
-          "contribution_logodds": 0.008661,
+          "contribution_logodds": -0.063867,
           "imputed": false
         },
         {
           "feature_id": 59,
           "feature": "sector_relative_concentration_z",
-          "contribution_logodds": -0.008607,
+          "contribution_logodds": -0.057391,
           "imputed": false
         },
         {
-          "feature_id": 22,
-          "feature": "new_counterparty_ratio_30d",
-          "contribution_logodds": 0.007801,
+          "feature_id": 32,
+          "feature": "coverage_days_90d",
+          "contribution_logodds": 0.050893,
           "imputed": false
         },
         {
-          "feature_id": 8,
-          "feature": "recurring_expense_ratio",
-          "contribution_logodds": -0.007475,
+          "feature_id": 21,
+          "feature": "counterparty_concentration_index",
+          "contribution_logodds": -0.049916,
           "imputed": false
         },
         {
-          "feature_id": 57,
-          "feature": "sector_relative_days_negative_z",
-          "contribution_logodds": 0.007309,
+          "feature_id": 69,
+          "feature": "emergency_line_present",
+          "contribution_logodds": 0.0499,
           "imputed": false
         },
         {
-          "feature_id": 62,
-          "feature": "ocr_forward_3m",
-          "contribution_logodds": 0.006831,
+          "feature_id": 12,
+          "feature": "inflow_outflow_ratio",
+          "contribution_logodds": 0.046291,
           "imputed": false
         },
         {
-          "feature_id": 40,
-          "feature": "cash_conversion_cycle_days",
-          "contribution_logodds": -0.005385,
+          "feature_id": 10,
+          "feature": "top_expense_category_share",
+          "contribution_logodds": -0.04556,
           "imputed": false
         },
         {
-          "feature_id": 19,
-          "feature": "liquidity_trend_slope",
-          "contribution_logodds": -0.005166,
+          "feature_id": 37,
+          "feature": "implied_dso_days",
+          "contribution_logodds": -0.041366,
+          "imputed": false
+        },
+        {
+          "feature_id": 47,
+          "feature": "downside_semideviation_90d",
+          "contribution_logodds": 0.032791,
+          "imputed": false
+        },
+        {
+          "feature_id": 43,
+          "feature": "inflow_break_recency_days",
+          "contribution_logodds": 0.032743,
+          "imputed": false
+        },
+        {
+          "feature_id": 55,
+          "feature": "sector_relative_regularity_z",
+          "contribution_logodds": -0.032473,
+          "imputed": false
+        },
+        {
+          "feature_id": 68,
+          "feature": "max_consecutive_overdraft_days",
+          "contribution_logodds": 0.025845,
+          "imputed": false
+        },
+        {
+          "feature_id": "62b",
+          "feature": "ocr_forward_6m",
+          "contribution_logodds": -0.021903,
+          "imputed": false
+        },
+        {
+          "feature_id": 11,
+          "feature": "cash_flow_volatility",
+          "contribution_logodds": -0.019518,
+          "imputed": false
+        },
+        {
+          "feature_id": 1,
+          "feature": "avg_monthly_inflow",
+          "contribution_logodds": 0.018475,
+          "imputed": false
+        },
+        {
+          "feature_id": 54,
+          "feature": "liquidity_hazard_90d",
+          "contribution_logodds": 0.018358,
+          "imputed": false
+        },
+        {
+          "feature_id": 5,
+          "feature": "largest_single_source_ratio",
+          "contribution_logodds": -0.017117,
+          "imputed": false
+        },
+        {
+          "feature_id": 33,
+          "feature": "data_gap_ratio",
+          "contribution_logodds": 0.016192,
+          "imputed": false
+        },
+        {
+          "feature_id": 39,
+          "feature": "implied_dpo_days",
+          "contribution_logodds": -0.015354,
+          "imputed": false
+        },
+        {
+          "feature_id": 18,
+          "feature": "current_runway_days",
+          "contribution_logodds": 0.013632,
+          "imputed": false
+        },
+        {
+          "feature_id": 13,
+          "feature": "days_negative_balance_90d",
+          "contribution_logodds": 0.013135,
+          "imputed": false
+        },
+        {
+          "feature_id": 4,
+          "feature": "revenue_growth_rate_90d",
+          "contribution_logodds": -0.010047,
           "imputed": false
         },
         {
           "feature_id": 42,
           "feature": "installment_capacity_sar",
-          "contribution_logodds": 0.00506,
+          "contribution_logodds": 0.009729,
+          "imputed": false
+        },
+        {
+          "feature_id": 65,
+          "feature": "balloon_exposure_sar",
+          "contribution_logodds": -0.009629,
+          "imputed": false
+        },
+        {
+          "feature_id": 57,
+          "feature": "sector_relative_days_negative_z",
+          "contribution_logodds": -0.009318,
+          "imputed": false
+        },
+        {
+          "feature_id": 40,
+          "feature": "cash_conversion_cycle_days",
+          "contribution_logodds": -0.007176,
+          "imputed": false
+        },
+        {
+          "feature_id": 7,
+          "feature": "outflow_count_per_month",
+          "contribution_logodds": 0.006541,
           "imputed": false
         },
         {
           "feature_id": 64,
           "feature": "mandate_cancellation_count_90d",
-          "contribution_logodds": -0.005028,
+          "contribution_logodds": -0.005944,
+          "imputed": false
+        },
+        {
+          "feature_id": 2,
+          "feature": "inflow_count_per_month",
+          "contribution_logodds": -0.005392,
+          "imputed": false
+        },
+        {
+          "feature_id": 62,
+          "feature": "ocr_forward_3m",
+          "contribution_logodds": 0.005005,
+          "imputed": false
+        },
+        {
+          "feature_id": 22,
+          "feature": "new_counterparty_ratio_30d",
+          "contribution_logodds": 0.004779,
+          "imputed": false
+        },
+        {
+          "feature_id": 19,
+          "feature": "liquidity_trend_slope",
+          "contribution_logodds": -0.004624,
+          "imputed": false
+        },
+        {
+          "feature_id": 61,
+          "feature": "obligation_coverage_ratio",
+          "contribution_logodds": -0.003781,
           "imputed": false
         },
         {
           "feature_id": 66,
           "feature": "facility_utilisation",
-          "contribution_logodds": 0.002715,
+          "contribution_logodds": 0.002708,
           "imputed": true
         },
         {
           "feature_id": 16,
           "feature": "avg_daily_balance",
-          "contribution_logodds": 0.002453,
-          "imputed": false
-        },
-        {
-          "feature_id": 67,
-          "feature": "headroom_days_of_burn",
-          "contribution_logodds": -0.002046,
-          "imputed": true
-        },
-        {
-          "feature_id": 61,
-          "feature": "obligation_coverage_ratio",
-          "contribution_logodds": 0.001609,
-          "imputed": false
-        },
-        {
-          "feature_id": 44,
-          "feature": "net_flow_autocorr_lag7",
-          "contribution_logodds": -0.001377,
+          "contribution_logodds": 0.002458,
           "imputed": false
         },
         {
           "feature_id": 63,
           "feature": "obligation_horizon_months",
-          "contribution_logodds": -0.000529,
+          "contribution_logodds": 0.002229,
+          "imputed": false
+        },
+        {
+          "feature_id": 67,
+          "feature": "headroom_days_of_burn",
+          "contribution_logodds": -0.002064,
+          "imputed": true
+        },
+        {
+          "feature_id": 44,
+          "feature": "net_flow_autocorr_lag7",
+          "contribution_logodds": -0.001285,
+          "imputed": false
+        },
+        {
+          "feature_id": 45,
+          "feature": "counterparty_persistence_ratio",
+          "contribution_logodds": -0.000614,
+          "imputed": false
+        },
+        {
+          "feature_id": 8,
+          "feature": "recurring_expense_ratio",
+          "contribution_logodds": -0.000555,
           "imputed": false
         },
         {
           "feature_id": 48,
           "feature": "upside_semideviation_90d",
-          "contribution_logodds": -0.000081,
+          "contribution_logodds": -0.000237,
           "imputed": false
         }
       ]
@@ -406,11 +406,11 @@
   },
   "credit_decision_detail": {
     "decline_reason": null,
-    "pd": 0.055732,
-    "logit": -2.829859,
+    "pd": 0.052612,
+    "logit": -2.890765,
     "risk_tier": "B",
     "model_version": "v1",
-    "model_sha256": "c7b6f7332476823dd2912c74e29c9c79f3c7566c278809bc7dbf6fc64a2cf982",
+    "model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
     "sharia_screen_status": "compliant",
     "decline_origin": null,
     "offer_status": "unconditional",
@@ -440,15 +440,15 @@
     "config_sha256": "9d60db774d169931054cb48fd3f492557488ae413716b908913b367bd5479137",
     "lens_config_sha256": "b084a52af106f5c062c94bfb41d64999bd98fb437561b954de5ce7f661246f76",
     "credit_model_version": "v1",
-    "credit_model_sha256": "c7b6f7332476823dd2912c74e29c9c79f3c7566c278809bc7dbf6fc64a2cf982",
-    "credit_model_cv_auc": 0.5912,
+    "credit_model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
+    "credit_model_cv_auc": 0.5911,
     "credit_model_oracle_ceiling_auc": 0.666,
-    "reference_stats_sha256": "14026c000b3507ac1f92fa8fbf0c8f11c1d3816060468083eb80896c8ee6fae4",
+    "reference_stats_sha256": "e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60",
     "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
-    "code_commit": "0a26c550830933b4affe3aabbdd8e75559968ac9",
+    "code_commit": "83383bb0080bcce7e88a952c09ff3038a4b5b7b4",
     "generated_by": "api",
-    "data_sha256": "b314e847b985b831aa2745171731b055257b9e4821ae826b790a27776d51355c",
-    "output_sha256": "554734fed068d4db5bbaa8c1e8e8511e6ed6a372ee721b938490be96e00b8eb0",
+    "data_sha256": "30ed213ed44f087e9b8f739cf36267f4eb63c07365f332a658094a8fe3bd8c3a",
+    "output_sha256": "35946445cb82497f69a84818453a2475cba436d7b98e00045ae4033bb36c2e15",
     "scope": "Covers the deterministic core only: re-running with these inputs reproduces this object byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is outside its scope and cannot affect the decision (§36)."
   }
 }
