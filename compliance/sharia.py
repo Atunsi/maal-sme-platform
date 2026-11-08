@@ -39,13 +39,25 @@ def load_rules(path: str = str(RULES_PATH)) -> tuple[dict, str]:
     return yaml.safe_load(raw), hashlib.sha256(raw).hexdigest()
 
 
+
+
 def _mcc(v) -> int | None:
-    if v is None or (isinstance(v, float) and pd.isna(v)) or v is pd.NA:
+    """Normalize a four-digit MCC without truncating malformed values."""
+    if v is None or pd.isna(v):
         return None
-    try:
-        return int(v)
-    except (TypeError, ValueError):
+
+    if isinstance(v, float):
+        if not v.is_integer():
+            return None
+        v = int(v)
+
+    text = str(v).strip()
+    if len(text) != 4 or not text.isascii() or not text.isdigit():
         return None
+
+    return int(text)
+
+
 
 
 def screen(sector: str, declared_mcc, tx: pd.DataFrame | None, rules: dict | None = None, rules_sha: str | None = None) -> dict:

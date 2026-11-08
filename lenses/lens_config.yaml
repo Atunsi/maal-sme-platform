@@ -48,11 +48,12 @@ zakat:
   nisab:
     basis: gold
     grams: 85
-    # PLACEHOLDER — not a sourced price. The output carries source_status so
-    # this can never be mistaken for a validated figure. Compliance owner must
-    # replace it with a dated, archived gold price (§21 source discipline).
-    price_sar_per_gram: 400.0
-    source_status: placeholder_unverified
+    # Commercial 24K gold quotation from LivePriceOfGold.
+    # Quoted 8 November 2026 at 19:06 UTC.
+    # Source evidence: sources/zakat_nisab_gold_price.md
+    # Pending independent verification and Sharia advisor review.
+    price_sar_per_gram: 491.291
+    source_status: commercial_quote_documented_pending_independent_verification
   # Hawl rule applied: nisab must be met at the START and the END of the lunar
   # year (the Hanafi position). Intermediate dips are not tracked — the data has
   # no balance history before the generated window. PROPOSED for the Sharia

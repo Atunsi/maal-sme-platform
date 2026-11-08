@@ -1660,12 +1660,26 @@ the engine's liquidity hazard (features 52–54, read from the profile, not reco
 — preserves §8/§34). No Prophet/statsmodels dependency added.
 
 **Zakat (compliance owner + Sharia advisor):** NWC method; rate 2.5% per lunar year
-(354 days); **nisab = 85 g gold at a PLACEHOLDER SAR 400/g**, carried in every output
-as `nisab_source_status: placeholder_unverified` so it cannot pass for a validated
-figure; **hawl rule = nisab at start and end of the year** (the Hanafi position) —
+(354 days); **nisab = 85 g gold at a SAR 491.291/g (commercial quotation dated 2026-11-08; pending independent verification), carried in every output
+as `nisab_source_status: commercial_quote_documented_pending_independent_verification`
+so it cannot pass for a fully validated figure; **hawl rule = nisab at start and end of the year** (the Hanafi position) —
 intermediate dips untracked because no pre-window balance history exists. On
 `insufficient_data` Zakat does not run, following §15 literally ("before any lens
 runs"); arguably Zakat, not being a score, could run — the compliance owner decides.
+
+**Zakat Hawl Rule Review — Compliance Owner (M2):**
+
+- **Status:** PROPOSED — pending Sharia advisor confirmation.
+- **Implemented rule:** `nisab_at_start_and_end`.
+- **Hawl duration:** 354 days (simplified lunar year).
+- **Starting condition:** Opening net zakatable assets must meet the Nisab threshold.
+- **Ending condition:** Net zakatable assets must meet the Nisab threshold.
+- **Intermediate balances:** Not continuously monitored because historical balance data is unavailable.
+- **Calculation:** 2.5% of net zakatable wealth when both Nisab and Hawl conditions are satisfied.
+- **Technical verification:** Five Zakat unit tests passed.
+- **Sharia review required:** Confirm whether the current Hawl rule is acceptable or should be replaced.
+- **Compliance owner sign-off:** Pending.
+- **Sharia advisor sign-off:** Pending.
 
 **Week 8 CLI:** lens parameters live in `lenses/lens_config.yaml`, not `config.yaml`,
 so the generator config's hash — cited by the calibration and compare_real receipts

@@ -104,7 +104,7 @@ Source: `eval/out/section14_noise_sweep.txt` (`python -m eval.sweep_rho --param 
 | Sharia screen (feature 24) — research | **85.1% compliant / 14.9% soft_flag_review / 0.0% hard_flag** (soft flags all retail: MCC 5999 or no MCC) | research, 10,000 | `eval/out/sharia_screen.md` |
 | Sharia screen — evidence basis / financing disclosure | declared MCC 60.3% · registered sector 39.7% · disclosure asked of 34.8% | research, 10,000 | same |
 | Zakat — demo 10001 liability | SAR 5,963.26 (base 238,530.46 × 2.5%) | demo | `python -m pipeline.week8 --demo` |
-| Zakat — nisab | 85 g gold × **placeholder** SAR 400/g | — | `lenses/lens_config.yaml` — **not a sourced figure** |
+| Zakat – nisab | 85 g gold × SAR 491.291/g = **SAR 41,759.74** (8 November 2026, 19:06 UTC) | – | `sources/zakat_nisab_gold_price.md`; LivePriceOfGold commercial quotation, pending independent verification and Sharia advisor review |
 
 ---
 
