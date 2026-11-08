@@ -49,11 +49,6 @@ export default async function OverviewPage({ params, searchParams }: Props) {
       <div className="rise flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="heading text-[30px]">{fill(m.overview.welcome, { id })}</h1>
         <div className="flex flex-wrap items-center gap-3">
-          {locale === "en" && (
-            <span lang="ar" className="text-[22px] text-accent">
-              {m.overview.greeting}
-            </span>
-          )}
           <Link href={`${root}?tour=${TOUR_STEPS[0]!.id}${query.replace("?", "&")}`} className="textlink font-semibold" data-tour-start data-print-hide>
             {m.tour.start}
           </Link>

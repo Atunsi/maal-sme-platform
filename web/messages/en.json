@@ -427,7 +427,6 @@
   },
   "overview": {
     "welcome": "Welcome back. Here is where business {id} is heading.",
-    "greeting": "أهلًا بعودتك",
     "repayment": "Repayment",
     "monthsValue": "{n} months",
     "markupLabel": "Base markup, fixed at signing",
