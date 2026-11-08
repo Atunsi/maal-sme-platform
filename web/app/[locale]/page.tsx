@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { ArabicLogo, EnglishWordmark, LogoBand, SectionMark } from "@/components/brand/Logos";
+import { Flow } from "@/components/Flow";
 import { Num, Plate } from "@/components/ui";
 import { DEMO_BUSINESS } from "@/lib/businesses";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
@@ -160,22 +161,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
       <section id="how" aria-labelledby="howh" className="mx-auto flex max-w-[1240px] flex-col gap-10 px-6 py-[72px] sm:py-[88px]">
         <SectionHead eyebrow={l.howEyebrow} title={l.howTitle} id="howh" />
-        <div className="flex flex-wrap items-stretch">
-          {l.steps.map((step, i) => (
-            <div key={step.title} className="contents">
-              <div className="rise flex min-w-0 flex-[1_1_200px] flex-col gap-2 border border-line bg-card p-5" style={{ animationDelay: `${(0.2 + i * 0.2).toFixed(1)}s` }}>
-                <span className="font-mono text-xs text-muted">{pad(i)}</span>
-                <span className="heading text-[22px]">{step.title}</span>
-                <span className="text-sm text-muted">{step.text}</span>
-              </div>
-              {i < l.steps.length - 1 && (
-                <div aria-hidden="true" className="flowline">
-                  <span className="dot" style={{ animationDelay: `${(i * 0.6).toFixed(1)}s` }} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        <Flow steps={l.steps} />
       </section>
 
       <section id="lenses" aria-labelledby="lensh" className="bleed border-y border-line bg-card">
@@ -247,6 +233,9 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
             <p className="mt-2.5 text-base leading-relaxed text-muted">{item.a}</p>
           </details>
         ))}
+        <Link href={`/${locale}/how-it-works`} className="textlink self-start text-base font-semibold">
+          {l.howLink}
+        </Link>
       </section>
 
       <section aria-label={l.closeLabel} className="on-hero bg-hero text-white">

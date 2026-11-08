@@ -35,7 +35,8 @@
   "footer": {
     "scope": "Synthetic data only. Population: serving. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent.",
     "links": "More about Ma'al",
-    "glossary": "Glossary"
+    "glossary": "Glossary",
+    "how": "How Ma'al decides"
   },
   "glossary": {
     "eyebrow": "Terms used on these pages",
@@ -513,7 +514,8 @@
     "closeTitle": "See where a business is heading.",
     "closeCta": "Sign in as owner or admin",
     "project": "Ma'al, a senior graduation project. Demo on synthetic data only.",
-    "notOffer": "No figure here is an offer from a bank, and markup is not an APR."
+    "notOffer": "No figure here is an offer from a bank, and markup is not an APR.",
+    "howLink": "Read how Ma'al decides"
   },
   "signIn": {
     "about": "About Ma'al",

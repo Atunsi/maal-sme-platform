@@ -5,6 +5,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Term } from "@/components/Term";
 import { GLOSSARY, glossaryFor } from "@/lib/glossary";
+import { HOW_INTRO, HOW_SECTIONS, plainText } from "@/lib/howItWorks";
 import GlossaryPage from "@/app/[locale]/glossary/page";
 import { en, webRoot } from "./helpers";
 
@@ -15,6 +16,13 @@ const repo = join(webRoot, "..");
 /** Every fixed-text catalogue N1 covers: glossary now, the tour and how-it-works as they are added. */
 export const FIXED_TEXT: { name: string; texts: string[] }[] = [
   { name: "glossary", texts: GLOSSARY.flatMap((g) => [g.en.term, g.en.definition, g.ar.term, g.ar.definition]) },
+  {
+    name: "how it works",
+    texts: [
+      ...Object.values(HOW_INTRO).flatMap((i) => [i.eyebrow, i.title, i.intro]),
+      ...HOW_SECTIONS.flatMap((s) => [s.en.title, s.en.linkLabel, s.ar.title, s.ar.linkLabel, ...[...s.en.body, ...s.ar.body].map(plainText)]),
+    ],
+  },
 ];
 
 describe("glossary catalogue", () => {

@@ -13,6 +13,7 @@ export const PAGES = [
   "/sign-in",
   "/admin",
   "/glossary",
+  "/how-it-works",
   "/business/10001/sheet",
   "/business/10003/sheet",
   ...BUSINESSES.flatMap((id) => [`/business/${id}`, ...LENS_ROUTES.map((route) => `/business/${id}/${route}`)]),

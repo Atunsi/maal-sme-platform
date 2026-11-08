@@ -56,6 +56,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <footer className="border-t border-line">
           <div className="mx-auto flex max-w-[1240px] flex-col gap-1 px-6 py-4">
             <nav aria-label={m.footer.links} className="flex flex-wrap gap-x-5 text-sm">
+              <Link href={`/${locale}/how-it-works`} prefetch={false} className="textlink">
+                {m.footer.how}
+              </Link>
               <Link href={`/${locale}/glossary`} prefetch={false} className="textlink">
                 {m.footer.glossary}
               </Link>
