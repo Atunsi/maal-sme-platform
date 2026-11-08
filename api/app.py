@@ -10,6 +10,7 @@
     GET /lenses/forecast?business_id=...         30/60/90-day projection + crunch alert
     GET /lenses/anomaly?business_id=...          flags with flag_reason only — never scores (§29)
     GET /lenses/zakat?business_id=...            Zakat liability from the balance-sheet snapshot (§7)
+    GET /businesses?offset=&limit=&sector=&q=   the serving businesses, paged; no lens runs (DECISIONS 44)
 
 Every request computes from inputs — the profile engine and the lens run each time; the
 serving store holds input rows only (api/store.py). The lenses read the same profile and
@@ -26,6 +27,7 @@ from __future__ import annotations
 
 import math
 import os
+import re
 import secrets
 import threading
 import time
@@ -181,3 +183,51 @@ def anomaly(business_id: BusinessId, s: Authorised) -> dict:
 @app.get("/lenses/zakat")
 def zakat(business_id: BusinessId, s: Authorised) -> dict:
     return _lens_response(s, business_id, zakat_section, "zakat")
+
+
+# --- DECISIONS 44: the business list (Faris Alsharifi acted for the API owner) ------
+
+# The rate limiter counts per business; a route not about one business counts against this bucket.
+LIST_BUCKET = -1
+LIST_PARAMS = {"offset", "limit", "sector", "q"}
+LIST_LIMIT_MAX, LIST_LIMIT_DEFAULT = 50, 25
+
+
+def _int_param(params, name: str, default: int, lo: int, hi: int | None) -> int:
+    raw = params.get(name)
+    if raw is None:
+        return default
+    if not re.fullmatch(r"\d{1,6}", raw) or int(raw) < lo or (hi is not None and int(raw) > hi):
+        upper = f" to {hi}" if hi is not None else " up"
+        raise HTTPException(status_code=422, detail=f"{name} must be a whole number from {lo}{upper}")
+    return int(raw)
+
+
+@app.get("/businesses")
+def businesses(request: Request, s: Authorised) -> dict:
+    """The serving businesses, by ID, paged. Reads the store only; no lens runs on this route."""
+    unknown = set(request.query_params) - LIST_PARAMS
+    if unknown:
+        raise HTTPException(status_code=422, detail=f"unknown query parameter(s): {sorted(unknown)}")
+    params = request.query_params
+    offset = _int_param(params, "offset", 0, 0, None)
+    limit = _int_param(params, "limit", LIST_LIMIT_DEFAULT, 1, LIST_LIMIT_MAX)
+    lo, hi = s.ctx.cfg["populations"]["serving"]["id_range"]
+    rows = [r for r in s.store.business_list() if lo <= r[0] <= hi and r[2] == "serving"]  # serving only, twice over
+    sector, q = params.get("sector"), params.get("q")
+    if sector is not None and sector not in {r[1] for r in rows}:
+        raise HTTPException(status_code=422, detail=f"sector must be one of {sorted({r[1] for r in rows})}")
+    if q is not None and not re.fullmatch(r"\d{1,9}", q):
+        raise HTTPException(status_code=422, detail="q must be digits only (the start of a business ID)")
+    s.limiter.check(LIST_BUCKET)
+    rows = [r for r in rows if (sector is None or r[1] == sector) and (q is None or str(r[0]).startswith(q))]
+    sources = {r[3] for r in rows} or {"synthetic"}
+    return {
+        "population": "serving",
+        "data_source": sources.pop() if len(sources) == 1 else "mixed",
+        "total": len(rows),
+        "offset": offset,
+        "limit": limit,
+        "businesses": [{"business_id": r[0], "sector": r[1]} for r in rows[offset : offset + limit]],
+    }
+
