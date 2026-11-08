@@ -3167,4 +3167,10 @@ visitor. That is fine for synthetic data and would not be for real data.
 **The request queue stays** (entry 41). The overview makes the five requests of the first-pass dashboard, and
 each lens page makes one.
 
+**Follow-up (2026-11-08).** One rule-test change from the `788bcef` follow-ups was not listed above. The
+reduced-motion test `U6 the Sharia frame and its outline stand without animation` used to check four
+separate edge pieces; the frame is now one rounded outline drawn as an SVG rectangle, so the test checks that
+outline is visible with its stroke fully drawn (`stroke-dashoffset` 0) under reduced motion. U6 is unchanged:
+the fixed label and its frame still stand on the page with every animation off.
+
 **Sign-off:** ☐ team (redesign, U11 and U15 amendments) ☐ compliance owner (Sharia and Zakat pages, Arabic copy) ☐ credit lens owner (Credit and Compliance views)
