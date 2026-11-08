@@ -71,7 +71,10 @@ describe("credit contract guards", () => {
     const withInput = readdirSync(join(webRoot, "components"), { recursive: true, encoding: "utf8" })
       .filter((file) => file.endsWith(".tsx"))
       .filter((file) => /<(input|select|textarea)\b/.test(readFileSync(join(webRoot, "components", file), "utf8")));
-    expect(withInput.sort()).toEqual(["BusinessPicker.tsx", "SignInForm.tsx"]); // the sign-in is U15 as amended; its fields feed nothing
+    // Named allowlist, never a general relaxation. The sign-in is U15 as amended; its fields feed nothing.
+    // CopyButton's only input is a read-only fallback holding a hash; HashCheck compares a pasted hash in the
+    // browser (E4, DECISIONS 43). None of them can reach a term.
+    expect(withInput.sort()).toEqual(["BusinessPicker.tsx", "CopyButton.tsx", "HashCheck.tsx", "SignInForm.tsx"]);
   });
 });
 

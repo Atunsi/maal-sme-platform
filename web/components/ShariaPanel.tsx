@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
-import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { BackendText, Code, Plate, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import type { Locale, Messages } from "@/lib/i18n";
 import type { CreditResponse } from "@/lib/types";
@@ -125,7 +124,6 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
         </section>
       )}
 
-      <ReceiptPanel receipt={data.receipt} lens={m.sharia.title} m={m} />
     </>
   );
 }

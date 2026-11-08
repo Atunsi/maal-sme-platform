@@ -13,6 +13,14 @@ const SHARIA_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "
 
 const SHORT = 12;
 
+/** Words U8 keeps off the screen. A scenario whose own name holds one gets no command (DECISIONS 43, S5). */
+const U8_WORDS = /fraud|score/i;
+
+/** The command that re-runs a library scenario, built from the object's own scenario name (E4). */
+export function scenarioCommand(o: ScenarioObject): string | null {
+  return U8_WORDS.test(o.scenario.id) ? null : `python -m scenarios.run --scenario ${o.scenario.id}`;
+}
+
 type FlagReason = NonNullable<Extract<ScenarioObject["anomaly"], { status: "computed" }>>["flags"][number]["flag_reason"];
 
 function flagReasons(o: ScenarioObject): Partial<Record<FlagReason, number>> {
@@ -168,8 +176,9 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
       </div>
       <p className="text-sm">{m.anomaly.queue}</p>
       <SubHeading>{s.receipts}</SubHeading>
-      <ReceiptPanel receipt={baseline.receipt} lens={s.baseline} m={m} note={note} />
-      <ReceiptPanel receipt={chosen.receipt} lens={s.chosen} m={m} note={note} />
+      {/* The scope's verify line does not apply to an overlay (DECISIONS 41): show the scenario's own command. */}
+      <ReceiptPanel receipt={baseline.receipt} lens={s.baseline} m={m} note={note} rerun={scenarioCommand(baseline)} />
+      <ReceiptPanel receipt={chosen.receipt} lens={s.chosen} m={m} note={note} rerun={scenarioCommand(chosen)} />
     </div>
   );
 }

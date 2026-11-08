@@ -242,7 +242,17 @@
     "title": "Receipt: {lens}",
     "scope": "Scope",
     "noScope": "No scope field on this receipt.",
-    "profile": "profile"
+    "profile": "profile",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFallback": "Press Ctrl+C to copy",
+    "copiedAnnounce": "Copied to the clipboard",
+    "rerun": "Re-run command",
+    "hashCheck": "Check a hash",
+    "hashCheckHelp": "Paste an output hash to compare it with this receipt. Nothing is sent anywhere.",
+    "check": "Check",
+    "match": "Match",
+    "noMatch": "No match"
   },
   "scenarios": {
     "title": "What breaks when the business does",

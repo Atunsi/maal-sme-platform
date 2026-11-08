@@ -284,6 +284,27 @@ summary {
   color: var(--accent);
 }
 
+/* A small outlined button for Copy and Check. Still 44 px tall, the touch-target minimum. */
+.copy-btn {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: 1px solid var(--fieldLine);
+  border-radius: var(--r-ctl);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.copy-btn:hover {
+  border-color: var(--ink);
+}
+
 .field {
   min-height: 48px;
   padding: 0 14px;

@@ -1,5 +1,6 @@
 import { BusinessHeader } from "@/components/BusinessHeader";
-import { ReceiptPanel } from "@/components/ReceiptPanel";
+import { CopyButton } from "@/components/CopyButton";
+import { copyLabels, ReceiptPanel } from "@/components/ReceiptPanel";
 import { Num, Refusal } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -35,8 +36,9 @@ function ReceiptAside({ receipt, lens, m }: { receipt: Receipt; lens: string; m:
         {rows.map(([key, value]) => (
           <div key={key} className="contents">
             <dt className="text-muted">{key}</dt>
-            <dd dir="ltr" className="break-all text-start">
+            <dd dir="ltr" className="flex flex-wrap items-center gap-x-3 break-all text-start">
               {value}
+              {key === o.output && <CopyButton value={receipt.output_sha256} name="output_sha256" labels={copyLabels(m)} />}
             </dd>
           </div>
         ))}

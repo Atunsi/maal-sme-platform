@@ -2,7 +2,6 @@ import type { CSSProperties, ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
 import { ComplianceView } from "@/components/ComplianceView";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
-import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { BackendText, Code, Num, Plate, Refusal, SubHeading } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -98,7 +97,6 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
       <>
         <LensHead data={data} title={m.credit.title} locale={locale} m={m} />
         <Refusal reason={data.lens_not_run_reason} m={m} />
-        <ReceiptPanel receipt={data.receipt} lens={m.credit.title} m={m} />
       </>
     );
   }
@@ -173,7 +171,6 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
         </section>
       )}
       <p className="text-[13px] text-muted">{m.credit.note}</p>
-      <ReceiptPanel receipt={data.receipt} lens={m.credit.title} m={m} />
     </>
   );
 }
