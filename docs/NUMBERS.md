@@ -21,7 +21,7 @@ Use these as written. Each carries the caveat that must travel with it.
 | **On real bank outcomes the engine reaches AUC 0.721 [0.681, 0.770]**, against 0.570 on deliberately harder synthetic labels under the same protocol and features. | **Do not add "inside the published SME range" until a published benchmark is archived in `sources/` and cited** — the often-quoted 0.70–0.80 is not yet sourced (§21 source discipline; the same gap blocks entry 22 Path B).  Berka is Czech retail bank accounts from the 1990s, not Saudi SMEs, so it tests whether the engine extracts real signal, not Saudi calibration. n = 209 with 22 defaults. The eligibility rule removes riskier accounts (risk ratio 3.42), so this is measured on the eligible population and is optimistic. |
 | **The credit lens reaches 88.8% of the best AUC any model could achieve on our synthetic data** (0.5911 of a 0.6660 ceiling). | The ceiling exists because the synthetic labels deliberately contain noise that nothing observable can predict (§14). That design is what makes the labels non-circular. |
 | **AUC ≥ 0.85 on the synthetic data is impossible by construction**, so a result that high would indicate leakage, not skill. | Applies to the *synthetic* labels only. Real-data AUCs (e.g. Berka secondary 0.859) are not subject to it. |
-| **22 of 43 engine features predict real defaults** with a 95% interval excluding 0.5. | Univariate, on Berka; the other 21 are computed on real data but not claimed to predict. |
+| **14 of 43 real-computed features separate confirmed defaults on Berka** (univariate AUC, 95% interval excluding 0.5 on the primary label); 22 of 43 do so on at least one of the two label sets. | Univariate, on Berka, with no correction for testing 43 features on two label sets. 8 of the 22 hold only on the secondary label, which is censored. 5 of the 43 are constant or have no rows on Berka, so 38 carry a value that varies there (entry 50). Do not say "22 features predict real defaults" without the label. |
 | **Every decision is reproducible byte for byte**, and a saved decision can be verified: `python -m pipeline.verify`. | Covers the deterministic core only. Generated advisory text (if ever added, §36) is outside the receipt. |
 
 ---
@@ -165,6 +165,7 @@ Source: `eval/out/holdout_shock.md` (`python -m eval.holdout_shock`). Serving, d
 | Seasonality held-out years 2024–2025 | 12 PASS / 8 BOUNDED / 0 FAIL / 16 NOT_APPLIED | `calibration/out/saudi_calibration_report.md` |
 | §15 exclusion selectivity on Berka | excluded accounts default at 3.42× (primary) / 2.64× (secondary) the retained rate; 29.0% / 22.4% of defaults excluded | `eval/out/exclusion_selectivity.md` |
 | Evidence classes | A2 22, A1 21, B 3, C 25 of 71 registry entries | `eval/out/evidence_table.md` |
+| A2 by label set | 14 of 43 on the primary label, 19 on the secondary, 11 on both; 5 of 43 constant or empty on Berka | `eval/out/feature_transfer.md` (entry 50) |
 
 ---
 

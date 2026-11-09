@@ -356,7 +356,9 @@ Added by the real-data grounding SOP (§16):
 - **43 of 69 features are computed on Berka** — but only **22 are A2** (univariate AUC
   CI excludes 0.50 on at least one label set); the other 21 are **A1**: computed on
   real data, performance reported, not claimed to predict. The counterparty family
-  and the growth features are A1 (entry 16).
+  and the growth features are A1 (entry 16). Of the 22, **14 hold on the confirmed-default
+  label**; 8 hold only on the censored one. Of the 43, five are constant or empty on Berka
+  (entry 50).
 - Berka's `C` status is **censored**, not a confirmed non-default. Both label
   treatments are reported and the censoring is named.
 - The real-versus-synthetic AUC gap (0.29, real side higher) is **reported as a
