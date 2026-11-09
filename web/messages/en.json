@@ -529,6 +529,9 @@
     "cardBusiness": "Business {id}, {sector}",
     "illustrative": "Illustrative, synthetic data",
     "cardTerms": "{months} months, {markup} markup fixed at signing",
+    "tryTitle": "Try a business",
+    "tryIntro": "Five synthetic businesses, one for each state the API returns. Each card reads its decision and profile status from the API.",
+    "tryOpen": "Open the overview",
     "builtFor": "Built for",
     "audiences": [
       "Business owners",

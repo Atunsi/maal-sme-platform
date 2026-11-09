@@ -216,3 +216,31 @@ test("overview greeting follows the demo role", async ({ page }) => {
   await page.goto("/en/business/10014", { waitUntil: "networkidle" });
   await expect(page.locator("main h1")).toHaveText("Business 10014: where it is heading");
 });
+
+test("landing strip shows a live plate for each demo business", async ({ page }) => {
+  // I9: each card's decision and profile status come from the API, never typed in.
+  const { MAAL_API_URL, MAAL_API_KEY } = apiEnv();
+  await page.goto("/en", { waitUntil: "networkidle" });
+  const strip = page.locator("[data-try-strip]");
+  await expect(strip.locator("[data-try]")).toHaveCount(5);
+  for (const id of [10001, 10004, 10037, 10040, 10003]) {
+    const res = await fetch(`${MAAL_API_URL}/lenses/credit?business_id=${id}`, { headers: { "X-API-Key": MAAL_API_KEY } });
+    const body = (await res.json()) as { status: string; credit: { decision: string } | null; credit_decision_detail: { offer_status: string | null } | null };
+    const card = strip.locator(`[data-try="${id}"]`);
+    const word = !body.credit ? "Not run" : body.credit.decision === "declined" ? "Declined" : body.credit_decision_detail?.offer_status === "unconditional" ? "Approved" : "Approved, conditional";
+    await expect(card.locator(".plate").first()).toHaveText(word);
+    await expect(card).toContainText({ scored: "Scored", partial_profile: "Partial profile", insufficient_data: "Insufficient data" }[body.status]!);
+    await expect(card).toHaveAttribute("href", `/en/business/${id}`);
+  }
+});
+
+test("landing strip loads after the hero", async ({ request }) => {
+  // I9: the hero is in the stream before any card has its answer; each card waits in its own boundary.
+  const html = await (await request.get("/en")).text();
+  const hero = html.indexOf('id="hero"');
+  const firstCard = html.search(/data-try="\d+"/);
+  const firstFallback = html.search(/data-try-loading="\d+"/);
+  expect(hero).toBeGreaterThan(-1);
+  expect(firstFallback).toBeGreaterThan(hero);
+  expect(firstCard).toBeGreaterThan(firstFallback);
+});

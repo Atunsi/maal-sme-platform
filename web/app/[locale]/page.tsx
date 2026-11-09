@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { ArabicLogo, EnglishWordmark, LogoBand, SectionMark } from "@/components/brand/Logos";
 import { Flow } from "@/components/Flow";
+import { TryBusinesses } from "@/components/TryBusinesses";
 import { Num, Plate } from "@/components/ui";
 import { DEMO_BUSINESS } from "@/lib/businesses";
 import { decisionWord } from "@/lib/decision";
@@ -156,6 +157,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
       </section>
       <LogoBand />
+      <TryBusinesses locale={locale} m={m} />
 
       <section aria-label={l.builtFor} className="bleed border-b border-line bg-card">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-12 gap-y-4 px-6 py-6">
