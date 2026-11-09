@@ -46,7 +46,7 @@ describe("arabic digits never touch hashes or commands", () => {
       <code lang="en" id="hash">554734fed068d4db5bbaa8c1e8e8511e6ed6a372ee721b938490be96e00b8eb0</code>
       <pre lang="en" id="command"><code>python -m pipeline.verify &lt;file&gt;</code></pre>
       <dl data-latin id="short"><dd>v1 7ed936b6ee7e</dd></dl>
-      <a href="/ar/business/10004" id="link">Open 10004</a>
+      <a href="/ar/business/10004" data-latin id="link">Open 10004</a>
       <p lang="en" id="backend">Inflows down 15% from week 18</p>
       <input id="field" value="10001" />
     </main>`;

@@ -7,7 +7,7 @@ import { ShariaLabel } from "@/components/ShariaPanel";
 import { ApiError, BackendText, Code, NisabPlate, Num, Plate, ProvenanceLine, Refusal, TableScroll, TD, TH } from "@/components/ui";
 import { getAnomaly, getCredit, getForecast, getZakat } from "@/lib/api";
 import { decisionPlate } from "@/lib/decision";
-import { formatInt, formatRaw, formatSar } from "@/lib/format";
+import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import type { AnomalyResponse, ApiResult, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
@@ -57,7 +57,7 @@ function Verdict({ data, locale, m }: { data: CreditResponse; locale: Locale; m:
         {credit.repayment_months !== null && <Row label={o.repayment}>{fill(o.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</Row>}
         {credit.base_markup_pct !== null && (
           <Row label={o.markupLabel}>
-            <Num>{formatRaw(credit.base_markup_pct, locale)}%</Num>
+            <Num>{formatPct(credit.base_markup_pct, locale)}</Num>
           </Row>
         )}
         <Row label={o.late}>{o.lateValue}</Row>

@@ -484,7 +484,7 @@
     "ctaScenarios": "See the {n} scenarios",
     "cardBusiness": "Business {id}, {sector}",
     "illustrative": "Illustrative, synthetic data",
-    "cardTerms": "{months} months, {markup}% markup fixed at signing",
+    "cardTerms": "{months} months, {markup} markup fixed at signing",
     "builtFor": "Built for",
     "audiences": [
       "Business owners",

@@ -484,7 +484,7 @@
     "ctaScenarios": "شاهد السيناريوهات الـ{n}",
     "cardBusiness": "المنشأة {id}، {sector}",
     "illustrative": "توضيحي، بيانات اصطناعية",
-    "cardTerms": "{months} شهرًا، هامش ربح {markup}% ثابت عند التوقيع",
+    "cardTerms": "{months} شهرًا، هامش ربح {markup} ثابت عند التوقيع",
     "builtFor": "صُمم لـ",
     "audiences": [
       "أصحاب المنشآت",

@@ -5,7 +5,7 @@ import { CreditViewSwitch } from "@/components/CreditViewSwitch";
 import { Term as GlossaryTerm } from "@/components/Term";
 import { BackendText, Code, Num, Plate, Refusal, SubHeading } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
-import { formatInt, formatRaw, formatSar } from "@/lib/format";
+import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { CreditExplanation, CreditResponse } from "@/lib/types";
 
@@ -142,7 +142,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
                 </GlossaryTerm>
               }
             >
-              <Num>{formatRaw(credit.base_markup_pct, locale)}%</Num>{" "}
+              <Num>{formatPct(credit.base_markup_pct, locale)}</Num>{" "}
               <Plate variant="ink" className="align-middle">
                 {m.credit.markupFixed}
               </Plate>
@@ -150,7 +150,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
           )}
           {credit.adjusted_markup_pct !== null && (
             <Term label={m.credit.adjustedMarkup}>
-              <Num>{formatRaw(credit.adjusted_markup_pct, locale)}%</Num>
+              <Num>{formatPct(credit.adjusted_markup_pct, locale)}</Num>
             </Term>
           )}
           <Term label={m.credit.latePolicy}>

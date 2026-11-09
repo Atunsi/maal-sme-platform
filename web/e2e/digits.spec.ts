@@ -51,6 +51,25 @@ test("digits switch changes amounts and persists without cookies", async ({ page
   expect(await context.cookies()).toEqual([]);
 });
 
+for (const lens of ["", "/credit", "/zakat", "/review"]) {
+  test(`arabic digits convert every eligible number: 10001${lens}`, async ({ page }) => {
+    // R2: no Western digit is left in <main> outside N3's elements, links and percent signs included.
+    await chooseArab(page);
+    await page.goto(`/ar/business/10001${lens}`, { waitUntil: "networkidle" });
+    await expect(page.locator("main")).toHaveText(ARAB);
+    const left = await page.locator("main").evaluate((main) => {
+      const found: string[] = [];
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (node.parentElement?.closest("[data-latin], code, pre, [lang=en], input, textarea, select, script, style")) continue;
+        if (/[0-9]/.test(node.nodeValue ?? "")) found.push(node.nodeValue!);
+      }
+      return found;
+    });
+    expect(left).toEqual([]);
+  });
+}
+
 test("arabic digits never touch hashes or commands", async ({ page }) => {
   await chooseArab(page);
   await page.goto("/ar/business/10037", { waitUntil: "networkidle" });

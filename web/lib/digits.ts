@@ -5,15 +5,17 @@
 // hydration, the client rewrites the digits in the page's text (and keeps doing so as the page changes).
 // The rewrite gives exactly what Intl produces with the `arab` numbering system (tests/digits.test.ts).
 //
-// N3: hashes, commands, URLs, receipt fields, links and backend text are never touched. They are skipped
-// by NEVER below: code and pre (Code, commands), a (business IDs inside links), [lang=en] (BackendText,
-// the scope, scenario labels, Code), form fields, and anything marked [data-latin] (shortened hashes).
+// N3: hashes, commands, URLs, receipt fields, business IDs inside links and backend text are never touched.
+// They are skipped by NEVER below: code and pre (Code, commands), [lang=en] (BackendText, the scope,
+// scenario labels, Code), form fields, and anything marked [data-latin] (shortened hashes, and every link
+// whose text shows a business ID). B3 (DECISIONS 45): links are no longer skipped as a whole, so the
+// amounts on a readout card and the counts in a link convert like any other number.
 
 export const DIGITS_KEY = "maal-digits";
 export type Digits = "latn" | "arab";
 
 const ARAB_ZERO = 0x0660;
-const NEVER = "code, pre, kbd, samp, script, style, a, input, textarea, select, [lang=en], [data-latin]";
+const NEVER = "code, pre, kbd, samp, script, style, input, textarea, select, [lang=en], [data-latin]";
 
 /** Western digits, and the separators and percent sign around them, in their Arabic-Indic form. */
 export function toArabDigits(text: string): string {

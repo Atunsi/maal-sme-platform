@@ -4,7 +4,7 @@ import { Term } from "@/components/Term";
 import { copyLabels, ReceiptPanel } from "@/components/ReceiptPanel";
 import { Num, Plate, Refusal } from "@/components/ui";
 import { decisionPlate, decisionWord } from "@/lib/decision";
-import { formatInt, formatRaw, formatSar } from "@/lib/format";
+import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { CreditResponse, Receipt } from "@/lib/types";
 
@@ -98,7 +98,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
               {credit.base_markup_pct !== null && (
                 <Cell label={<Term id="markup-fixed" locale={locale}>{o.markupLabel}</Term>}>
                   <div className="font-mono text-xl">
-                    <Num>{formatRaw(credit.base_markup_pct, locale)}%</Num>
+                    <Num>{formatPct(credit.base_markup_pct, locale)}</Num>
                   </div>
                 </Cell>
               )}

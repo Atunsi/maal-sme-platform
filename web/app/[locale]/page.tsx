@@ -6,7 +6,7 @@ import { Flow } from "@/components/Flow";
 import { Num, Plate } from "@/components/ui";
 import { DEMO_BUSINESS } from "@/lib/businesses";
 import { decisionWord } from "@/lib/decision";
-import { formatInt, formatRaw, formatSar } from "@/lib/format";
+import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, getMessages, isLocale, LOCALES, type Locale, type Messages } from "@/lib/i18n";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
 import { TOUR_STEPS, tourHref } from "@/lib/tour";
@@ -67,7 +67,7 @@ function IllustrativeCard({ o, locale, m }: { o: ScenarioObject; locale: Locale;
           )}
           {credit.repayment_months !== null && credit.base_markup_pct !== null && (
             <div className="text-[13px] text-muted">
-              {fill(l.cardTerms, { months: formatInt(credit.repayment_months, locale), markup: formatRaw(credit.base_markup_pct, locale) })}
+              {fill(l.cardTerms, { months: formatInt(credit.repayment_months, locale), markup: formatPct(credit.base_markup_pct, locale) })}
             </div>
           )}
         </div>

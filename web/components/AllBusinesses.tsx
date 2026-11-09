@@ -49,7 +49,7 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
                     </th>
                     <td className="px-6 py-2 text-sm">{m.enums.sector[b.sector]}</td>
                     <td className="px-6 py-2 text-end">
-                      <Link href={`/${locale}/business/${b.business_id}${query}`} className="textlink font-semibold">
+                      <Link href={`/${locale}/business/${b.business_id}${query}`} data-latin className="textlink font-semibold">
                         {fill(a.openRow, { id: b.business_id })}
                       </Link>
                     </td>

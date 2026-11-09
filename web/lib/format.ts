@@ -36,6 +36,21 @@ export function formatRaw(value: number, locale: Locale, digits: Digits = "latn"
   return plain(new Intl.NumberFormat(TAGS[locale][digits], { maximumFractionDigits: 20, useGrouping: false }).format(value));
 }
 
+/**
+ * B4: a percentage as one string with its sign, so the digits switch converts the sign with the number.
+ * `value` is already in percent (6.5 means 6.5%). Without `decimals` every digit the API sent is kept, as
+ * formatRaw does. With Western digits the sign is "%" in both languages, as the app has always shown it;
+ * Arabic-Indic digits take Intl's "٪", which is exactly what the page rewrite writes, both ways.
+ */
+export function formatPct(value: number, locale: Locale, digits: Digits = "latn", decimals?: number): string {
+  const options: Intl.NumberFormatOptions =
+    decimals === undefined
+      ? { style: "unit", unit: "percent", maximumFractionDigits: 20, useGrouping: false }
+      : { style: "unit", unit: "percent", minimumFractionDigits: decimals, maximumFractionDigits: decimals };
+  const text = plain(new Intl.NumberFormat(TAGS[locale][digits], options).format(value));
+  return digits === "latn" ? text.replace("٪", "%") : text;
+}
+
 /** Month names, not digits: the Arabic numeric form carries bidi marks that scramble inside LTR text. */
 export function formatDate(iso: string, locale: Locale, digits: Digits = "latn"): string {
   return new Intl.DateTimeFormat(TAGS[locale][digits], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(

@@ -55,7 +55,7 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
         </td>
       )}
       <td className={`${cell} text-end`}>
-        <Link href={`/${locale}/business/${id}${query}`} className="textlink font-semibold">
+        <Link href={`/${locale}/business/${id}${query}`} data-latin className="textlink font-semibold">
           {fill(a.open, { id })}
         </Link>
       </td>
