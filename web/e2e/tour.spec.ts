@@ -18,7 +18,7 @@ for (const locale of ["en", "ar"] as const) {
       await expect(page.locator(`[data-tour="${step.target}"]`)).toHaveClass(/tour-target/);
       if (i < TOUR_STEPS.length - 1) await panel.getByRole("button", { name: next }).click();
     }
-    await expect(panel.getByRole("link")).toHaveCount(2); // the print sheet and How Ma'al decides
+    await expect(panel.locator("a:not(.tour-dot)")).toHaveCount(2); // the print sheet and How Ma'al decides (the step dots, I10, are links too)
   });
 }
 
@@ -74,4 +74,51 @@ test("tour title shows a thin focus mark after a step change", async ({ page }) 
   // Once focus leaves, the mark goes: any later focus gets the full box.
   await page.keyboard.press("Tab");
   expect(await title.evaluate((el) => el.hasAttribute("data-step-focus"))).toBe(false);
+});
+
+test("tour dots jump to their step", async ({ page }) => {
+  // I10: one dot per step, each a link to that step; the current one is aria-current="step".
+  await page.goto("/en/business/10001?tour=verdict", { waitUntil: "networkidle" });
+  const dots = page.locator("[data-tour-dots] a");
+  await expect(dots).toHaveCount(TOUR_STEPS.length);
+  await expect(dots.nth(0)).toHaveAttribute("aria-current", "step");
+  await dots.nth(4).click();
+  await expect(page).toHaveURL(new RegExp(`tour=${TOUR_STEPS[4]!.id}`));
+  await expect(page.locator("[data-tour-dots] a").nth(4)).toHaveAttribute("aria-current", "step");
+  await expect(page.locator("[data-tour-panel] h2")).toHaveText(TOUR_STEPS[4]!.en.title);
+});
+
+test("tour collapses and expands", async ({ page }) => {
+  // I10: Collapse shrinks the panel to one line (title and Next), kept in ?tourMin=1, never in storage.
+  await page.goto("/en/business/10001?tour=verdict", { waitUntil: "networkidle" });
+  const panel = page.locator("[data-tour-panel]");
+  const full = (await panel.boundingBox())!.height;
+  await panel.getByRole("button", { name: "Collapse" }).click();
+  await expect(page).toHaveURL(/tourMin=1/);
+  await expect(panel.locator("[data-tour-dots]")).toHaveCount(0);
+  await expect(panel.locator("h2")).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Next" })).toBeVisible();
+  expect((await panel.boundingBox())!.height).toBeLessThan(full);
+  await panel.getByRole("button", { name: "Next" }).click();
+  await expect(page).toHaveURL(/tour=factors.*tourMin=1|tourMin=1.*tour=factors/);
+  await panel.getByRole("button", { name: "Expand" }).click();
+  await expect(page).not.toHaveURL(/tourMin/);
+  await expect(panel.locator("[data-tour-dots]")).toBeVisible();
+  expect(await page.evaluate(() => [Object.keys(localStorage).filter((k) => k.includes("tour")), Object.keys(sessionStorage).filter((k) => k.includes("tour"))])).toEqual([[], []]);
+});
+
+test("tour resume returns to the step it ended on", async ({ page }) => {
+  // I10: after End tour, a Resume tour link stays in the header for the visit (in the URL, ?tourEnded=).
+  await page.goto("/en/business/10001/zakat?tour=waterfall&as=owner", { waitUntil: "networkidle" });
+  await page.locator("[data-tour-panel]").getByRole("button", { name: "End tour" }).click();
+  await expect(page.locator("[data-tour-panel]")).toHaveCount(0);
+  await expect(page).toHaveURL(/tourEnded=waterfall/);
+  const resume = page.locator("[data-tour-resume]");
+  await expect(resume).toBeVisible();
+  // Moving to another page keeps it.
+  await page.getByRole("navigation", { name: "Pages" }).getByRole("link", { name: "Overview" }).click();
+  await expect(page).toHaveURL(/\/business\/10001\?as=owner&tourEnded=waterfall/);
+  await page.locator("[data-tour-resume]").click();
+  await expect(page).toHaveURL(/\/business\/10001\/zakat\?.*tour=waterfall/);
+  await expect(page.locator("[data-tour-panel] h2")).toHaveText("Zakat, step by step");
 });

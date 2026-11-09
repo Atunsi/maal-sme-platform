@@ -15,6 +15,9 @@ export type TourLabels = {
   missing: string;
   sheet: string;
   how: string;
+  collapse: string;
+  expand: string;
+  steps: string;
 };
 
 /** Elements whose own Escape key must not also end the tour. */
@@ -33,6 +36,7 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
   const found = tourStep(params.get("tour"));
   const role = params.get("as");
   const titleId = useId();
+  const bodyId = useId();
   const title = useRef<HTMLHeadingElement>(null);
   const panel = useRef<HTMLElement>(null);
   const [missingStep, setMissingStep] = useState<string | null>(null);
@@ -82,6 +86,9 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
   const end = () => {
     const rest = new URLSearchParams(params.toString());
     rest.delete("tour");
+    rest.delete("tourMin");
+    // I10: the step the visitor ended on rides along in the URL, so a Resume link can bring them back.
+    if (stepId) rest.set("tourEnded", stepId);
     const query = rest.toString();
     router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
     // Focus returns to where a tour starts, or to the page heading.
@@ -103,15 +110,29 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
   const { step, index } = found;
   const text = step[locale];
   const last = index === TOUR_STEPS.length - 1;
-  const go = (i: number) => router.push(tourHref(locale, TOUR_STEPS[i]!, role), { scroll: false });
+  const collapsed = params.get("tourMin") === "1";
+  // I10: collapsing is kept in ?tourMin=1, never in storage, and every step link keeps it.
+  const href = (i: number) => `${tourHref(locale, TOUR_STEPS[i]!, role)}${collapsed ? "&tourMin=1" : ""}`;
+  const go = (i: number) => router.push(href(i), { scroll: false });
+  const setCollapsed = (next: boolean) => {
+    const query = new URLSearchParams(params.toString());
+    if (next) query.set("tourMin", "1");
+    else query.delete("tourMin");
+    router.replace(`${pathname}?${query.toString()}`, { scroll: false });
+  };
 
   return (
-    <section ref={panel} role="region" aria-label={labels.region} data-tour-panel className="tour-panel">
-      <div className="mx-auto flex max-w-[1240px] flex-col gap-2 px-5 py-4 sm:px-6">
+    <section ref={panel} role="region" aria-label={labels.region} data-tour-panel data-collapsed={collapsed} className="tour-panel">
+      <div id={bodyId} className={`mx-auto flex max-w-[1240px] flex-col px-5 sm:px-6 ${collapsed ? "gap-1 py-2" : "gap-2 py-4"}`}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="eyebrow text-accent">{labels.region}</span>
-          <span className="text-sm text-muted" data-tour-position>
-            {fill(labels.position, { x: String(index + 1), y: String(TOUR_STEPS.length) })}
+          <span className="flex items-center gap-3">
+            <span className="text-sm text-muted" data-tour-position>
+              {fill(labels.position, { x: String(index + 1), y: String(TOUR_STEPS.length) })}
+            </span>
+            <button type="button" className="textlink font-semibold" aria-expanded={!collapsed} aria-controls={bodyId} data-tour-collapse onClick={() => setCollapsed(!collapsed)}>
+              {collapsed ? labels.expand : labels.collapse}
+            </button>
           </span>
         </div>
         <h2
@@ -123,13 +144,31 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
         >
           {text.title}
         </h2>
-        <p className="max-w-3xl text-[15px]">{text.caption}</p>
+        {!collapsed && <p className="max-w-3xl text-[15px]">{text.caption}</p>}
+        {!collapsed && (
+          // I10: one dot per step under the caption, each a link to that step.
+          <ol aria-label={labels.steps} className="flex flex-wrap items-center" data-tour-dots>
+            {TOUR_STEPS.map((s, i) => (
+              <li key={s.id}>
+                <Link
+                  href={href(i)}
+                  scroll={false}
+                  aria-current={i === index ? "step" : undefined}
+                  aria-label={`${fill(labels.position, { x: String(i + 1), y: String(TOUR_STEPS.length) })}: ${s[locale].title}`}
+                  className="tour-dot"
+                >
+                  <span aria-hidden="true" />
+                </Link>
+              </li>
+            ))}
+          </ol>
+        )}
         {missingStep === step.id && (
           <p role="status" className="text-sm font-medium text-warn">
             {labels.missing}
           </p>
         )}
-        {last && (
+        {last && !collapsed && (
           <div className="flex flex-wrap gap-x-5">
             <Link href={`/${locale}/business/${TOUR.business}/sheet${role ? `?as=${role}` : ""}`} className="textlink font-semibold">
               {labels.sheet}
@@ -140,7 +179,7 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
           </div>
         )}
         <div className="flex flex-wrap items-center gap-3">
-          {index > 0 && (
+          {index > 0 && !collapsed && (
             <button type="button" className="themebtn" onClick={() => go(index - 1)}>
               {labels.back}
             </button>

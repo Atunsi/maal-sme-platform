@@ -93,6 +93,12 @@ export function tourHref(locale: Locale, step: TourStep, role: string | null): s
   return `/${locale}${step.path}?${query}`;
 }
 
+/** I10: carries the step a finished tour ended on, as ?tourEnded=, on a page link's query. */
+export function withTourEnded(query: string, stepId: string | null): string {
+  if (!stepId) return query;
+  return `${query}${query ? "&" : "?"}tourEnded=${stepId}`;
+}
+
 export function tourStep(id: string | null): { step: TourStep; index: number } | null {
   const index = TOUR_STEPS.findIndex((s) => s.id === id);
   return index < 0 ? null : { step: TOUR_STEPS[index]!, index };

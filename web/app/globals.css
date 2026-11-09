@@ -1190,3 +1190,23 @@ body {
   border-radius: var(--r-bar);
   background: var(--rule2);
 }
+
+/* I10: tour step dots, each a 44 px link around a small dot. */
+.tour-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+.tour-dot > span {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+}
+.tour-dot[aria-current="step"] > span {
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+}

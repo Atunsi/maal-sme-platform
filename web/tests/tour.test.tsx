@@ -78,7 +78,8 @@ describe("tour panel", () => {
     nav.params = new URLSearchParams("tour=runway&as=owner");
     render(<TourPanel locale="en" labels={labels(en)} />);
     fireEvent.keyDown(document.body, { key: "Escape" });
-    expect(nav.replace).toHaveBeenCalledWith("/en/business/10001?as=owner", { scroll: false });
+    // I10: the tour ends, the role stays, and the step it ended on rides along for Resume tour.
+    expect(nav.replace).toHaveBeenCalledWith("/en/business/10001?as=owner&tourEnded=runway", { scroll: false });
   });
 
   it("an Escape that closes a glossary term does not end the tour", () => {

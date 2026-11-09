@@ -518,7 +518,11 @@
     "next": "Next",
     "end": "End tour",
     "position": "Step {x} of {y}",
-    "missing": "This part didn't load. You can go to the next step."
+    "missing": "This part didn't load. You can go to the next step.",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "steps": "Tour steps",
+    "resume": "Resume tour"
   },
   "landing": {
     "eyebrow": "SME financial health, Sharia-aware",
