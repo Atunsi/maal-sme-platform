@@ -51,6 +51,16 @@ export function formatPct(value: number, locale: Locale, digits: Digits = "latn"
   return digits === "latn" ? text.replace("٪", "%") : text;
 }
 
+/**
+ * C3: a probability or rate in [0, 1] as a percentage with one decimal, then the exact value as returned,
+ * in brackets. The Compliance View and receipts show the exact value alone (formatRaw).
+ */
+export function formatProbability(value: number, locale: Locale, digits: Digits = "latn"): { pct: string; exact: string; text: string } {
+  const pct = formatPct(value * 100, locale, digits, 1);
+  const exact = formatRaw(value, locale, digits);
+  return { pct, exact, text: `${pct} (${exact})` };
+}
+
 /** Month names, not digits: the Arabic numeric form carries bidi marks that scramble inside LTR text. */
 export function formatDate(iso: string, locale: Locale, digits: Digits = "latn"): string {
   return new Intl.DateTimeFormat(TAGS[locale][digits], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(

@@ -3,8 +3,8 @@ import { LensHead } from "@/components/BusinessHeader";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
 import { TipButton } from "@/components/TipButton";
-import { BackendText, Code, Field, Fields, NisabPlate, Num, Plate, Refusal } from "@/components/ui";
-import { formatDate, formatRaw, formatSar } from "@/lib/format";
+import { BackendText, Code, Field, Fields, NisabPlate, Num, Plate, Probability, Refusal } from "@/components/ui";
+import { formatDate, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import { label } from "@/lib/labels";
 import type { ZakatResponse } from "@/lib/types";
@@ -167,7 +167,7 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
           </div>
         )}
         <div>
-          {n.rate} <Num>{formatRaw(z.rate, locale)}</Num>
+          {n.rate} <Probability value={z.rate} locale={locale} />
         </div>
         {/* U10: a calculation that did not run shows no amount, never a zero. */}
         {z.status !== "not_computed" && z.liability_sar !== null && (

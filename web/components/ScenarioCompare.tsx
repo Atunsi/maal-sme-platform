@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ShariaLabel } from "@/components/ShariaPanel";
-import { NisabPlate, Num, Plate, ProvenanceLine, Refusal, SubHeading, TableScroll, TH } from "@/components/ui";
+import { NisabPlate, Num, Plate, Probability, ProvenanceLine, Refusal, SubHeading, TableScroll, TH } from "@/components/ui";
 import { decisionPlate, decisionState, decisionWord } from "@/lib/decision";
-import { formatInt, formatRaw, formatSar } from "@/lib/format";
+import { formatInt, formatSar } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import { scenarioName } from "@/lib/scenario-label";
 import type { ScenarioObject } from "@/lib/types";
@@ -59,7 +59,7 @@ function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, 
       raw: o.credit ? o.credit.amount_sar : "not_run",
       shown: !o.credit ? notRun : o.credit.amount_sar === null ? s.notOffered : <Num>{formatSar(o.credit.amount_sar, locale)}</Num>,
     },
-    pd: { raw: detail?.pd ?? null, shown: detail ? <Num>{formatRaw(detail.pd, locale)}</Num> : notRun },
+    pd: { raw: detail?.pd ?? null, shown: detail ? <Probability value={detail.pd} locale={locale} /> : notRun },
     alert: { raw: alert?.level ?? null, shown: alert ? <Plate variant={LEVEL_VARIANT[alert.level]}>{m.enums.level[alert.level]}</Plate> : notRun },
     days: {
       raw: alert ? alert.days_to_projected_negative_balance : "not_run",

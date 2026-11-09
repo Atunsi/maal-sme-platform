@@ -3,12 +3,13 @@ import { LensHead } from "@/components/BusinessHeader";
 import { ForecastChart, type ForecastPoint } from "@/components/ForecastChart";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
-import { BackendText, Num, Plate, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
-import { formatInt, formatRaw, formatSar } from "@/lib/format";
+import { BackendText, Num, Plate, Probability, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
+import { formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ForecastResponse } from "@/lib/types";
 
 const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
+const HORIZONS = ["30d", "60d", "90d"] as const;
 
 type Computed = Extract<NonNullable<ForecastResponse["forecast"]>, { status: "computed" }>;
 
@@ -39,10 +40,8 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
     { label: n.model, rows: f.model },
     { label: n.baseline, rows: f.naive_baseline },
   ];
-  const hazard = (["30d", "60d", "90d"] as const).map((key) => {
-    const value = alert.liquidity_hazard[key];
-    return `${key}: ${value === null ? m.common.dash : formatRaw(value, locale)}`;
-  });
+  // C3: each horizon in catalogue words ("30 days"), the number filled in by the formatter.
+  const hazard = HORIZONS.map((key) => ({ key, days: fill(n.horizonDays, { n: formatInt(Number.parseInt(key, 10), locale) }), value: alert.liquidity_hazard[key] }));
   return (
     <>
       <dl aria-label={n.keyFigures} className="rise grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border border-line bg-card" style={{ animationDelay: "0.1s" }}>
@@ -50,9 +49,13 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
           <Num>{formatSar(f.balance_today_sar, locale)}</Num>
         </Figure>
         <Figure label={n.hazard}>
-          <span className="text-base">
-            <Num>{hazard.join(", ")}</Num>
-          </span>
+          <ul className="text-base">
+            {hazard.map(({ key, days, value }) => (
+              <li key={key}>
+                <span className="font-sans text-[13px] text-muted">{days}</span> {value === null ? m.common.dash : <Probability value={value} locale={locale} />}
+              </li>
+            ))}
+          </ul>
         </Figure>
         <Figure label={n.daysToNegative}>
           {alert.days_to_projected_negative_balance === null ? (

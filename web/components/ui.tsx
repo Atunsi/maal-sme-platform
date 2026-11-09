@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { RetryButton } from "@/components/RetryButton";
 import type { Locale, Messages } from "@/lib/i18n";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatProbability } from "@/lib/format";
 import { nisabPlate } from "@/lib/nisab";
 import type { ApiErrorKind, Provenance } from "@/lib/types";
 
@@ -62,6 +62,16 @@ export function Field({ label, children }: { label: ReactNode; children: ReactNo
 /** Numbers and identifiers stay left-to-right inside Arabic text. */
 export function Num({ children }: { children: ReactNode }) {
   return <bdi dir="ltr">{children}</bdi>;
+}
+
+/** C3: a percentage with one decimal, then the exact value in brackets in a smaller mono span. Not used in the Compliance View or receipts. */
+export function Probability({ value, locale }: { value: number; locale: Locale }) {
+  const { pct, exact } = formatProbability(value, locale);
+  return (
+    <bdi dir="ltr" data-probability>
+      {pct} <span className="font-mono text-[0.8em] text-muted">({exact})</span>
+    </bdi>
+  );
 }
 
 /**

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Num, Plate, type PlateVariant } from "@/components/ui";
+import { Num, Plate, Probability, type PlateVariant } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
-import { formatInt, formatRaw, formatSar } from "@/lib/format";
+import { formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import { nisabPlate } from "@/lib/nisab";
 import type { AnomalyResponse, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
@@ -58,12 +58,21 @@ export const forecastReadout: Fn<ForecastResponse> = (data, locale, m) => {
   if (!f) return refused(m);
   if (f.status === "not_computed") return { variant: "warn", state: m.enums.zakat_status.not_computed, figure: m.common.dash, note: m.enums.lens_status[f.reason] };
   const alert = f.crunch_alert;
-  const hazard = alert.liquidity_hazard["30d"];
+  const horizon = "30d";
+  const hazard = alert.liquidity_hazard[horizon];
   const days = alert.days_to_projected_negative_balance;
   return {
     variant: LEVEL_VARIANT[alert.level],
     state: m.enums.level[alert.level],
-    figure: hazard === null ? m.common.dash : <Num>{fill(m.overview.hazard30, { v: formatRaw(hazard, locale) })}</Num>,
+    figure:
+      hazard === null ? (
+        m.common.dash
+      ) : (
+        <>
+          <span className="font-sans text-[13px]">{fill(m.overview.hazardOver, { days: fill(m.forecast.horizonDays, { n: formatInt(Number.parseInt(horizon, 10), locale) }) })}</span>{" "}
+          <Probability value={hazard} locale={locale} />
+        </>
+      ),
     note: days === null ? m.overview.noNegative : fill(m.overview.negativeIn, { n: formatInt(days, locale) }),
   };
 };
