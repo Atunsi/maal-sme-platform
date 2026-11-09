@@ -15,7 +15,8 @@ export const DIGITS_KEY = "maal-digits";
 export type Digits = "latn" | "arab";
 
 const ARAB_ZERO = 0x0660;
-const NEVER = "code, pre, kbd, samp, script, style, input, textarea, select, [lang=en], [data-latin]";
+// B20: [aria-live] regions are left alone too, so a screen reader never hears a number twice as it is rewritten.
+const NEVER = "code, pre, kbd, samp, script, style, input, textarea, select, [lang=en], [data-latin], [aria-live]";
 
 /** Western digits, and the separators and percent sign around them, in their Arabic-Indic form. */
 export function toArabDigits(text: string): string {
@@ -61,18 +62,43 @@ export function applyDigits(root: Node, digits: Digits) {
 const CHANGE = "maal-digits-change";
 let observer: MutationObserver | null = null;
 
+/**
+ * B20: what the rewrite watches. The header and <main>, and any region mounted straight into <body> later
+ * (the tour panel), not every node in the document.
+ */
+function roots(): Element[] {
+  const top = [...document.body.children].filter((el) => !el.matches("main, script, style, footer, a[href='#main']"));
+  return [...new Set([document.querySelector("header"), document.querySelector("main"), ...top.filter((el) => el.matches("section, [data-tour-panel]"))])].filter(
+    (el): el is Element => el !== null,
+  );
+}
+
 /** Keeps converting text React or the router adds later, while Arabic-Indic digits are on. */
 export function startDigits() {
   stopDigits();
   if (digitsChosen() !== "arab") return;
-  applyDigits(document.body, "arab");
-  observer = new MutationObserver((records) => {
-    for (const record of records) {
-      if (record.type === "characterData") applyDigits(record.target, "arab");
-      else record.addedNodes.forEach((node) => applyDigits(node, "arab"));
+  const watched = new Set<Element>();
+  const record = (records: MutationRecord[]) => {
+    for (const r of records) {
+      if (r.type === "characterData") applyDigits(r.target, "arab");
+      else r.addedNodes.forEach((node) => applyDigits(node, "arab"));
     }
+  };
+  observer = new MutationObserver((records) => {
+    record(records.filter((r) => r.target !== document.body));
+    // A region newly mounted into <body>: convert it and start watching it.
+    if (records.some((r) => r.target === document.body)) watch();
   });
-  observer.observe(document.body, { subtree: true, childList: true, characterData: true });
+  const watch = () => {
+    for (const root of roots()) {
+      if (watched.has(root)) continue;
+      watched.add(root);
+      applyDigits(root, "arab");
+      observer!.observe(root, { subtree: true, childList: true, characterData: true });
+    }
+  };
+  observer.observe(document.body, { childList: true });
+  watch();
 }
 
 export function stopDigits() {
@@ -92,7 +118,7 @@ export function setDigits(digits: Digits) {
   if (digits === "arab") startDigits();
   else {
     stopDigits();
-    applyDigits(document.body, "latn");
+    for (const root of roots()) applyDigits(root, "latn");
   }
   window.dispatchEvent(new Event(CHANGE));
 }

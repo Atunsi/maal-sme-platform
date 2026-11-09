@@ -14,18 +14,15 @@ export function DigitsToggle({ label }: { label: string }) {
 }
 
 /**
- * Starts the rewrite once the page has loaded and hydrated, so React never meets a rewritten node while
- * hydrating (no hydration warnings). Until then the page shows the Western digits the server sent.
+ * Starts the rewrite right after hydration: an effect runs once React has hydrated this tree, and the next
+ * animation frame comes after the commit, so React never meets a rewritten node while hydrating (no
+ * hydration warnings). B20: it no longer waits for window load, so Arabic-Indic digits appear at once.
  */
 export function DigitsSync() {
   useEffect(() => {
-    let cancelled = false;
-    const go = () => requestAnimationFrame(() => setTimeout(() => !cancelled && startDigits(), 0));
-    if (document.readyState === "complete") go();
-    else window.addEventListener("load", go, { once: true });
+    const frame = requestAnimationFrame(() => startDigits());
     return () => {
-      cancelled = true;
-      window.removeEventListener("load", go);
+      cancelAnimationFrame(frame);
       stopDigits();
     };
   }, []);

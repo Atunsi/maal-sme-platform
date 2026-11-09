@@ -147,7 +147,7 @@ export function CustomScenarioForm({
           </fieldset>
         ))}
       </div>
-      <p className="text-sm" data-custom-summary aria-live="polite">
+      <p className="text-sm" data-custom-summary>
         {summary.length ? fill(c.summary, { list: summary.join("; ") }) : c.noneChosen}
       </p>
       <button type="submit" className="solid-btn min-h-12 self-start">

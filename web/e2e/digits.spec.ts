@@ -101,3 +101,20 @@ for (const path of ["/ar/business/10001", "/ar/admin?as=admin", "/ar/scenarios",
     expect(messages.filter((m) => /hydrat|did not match|mismatch/i.test(m))).toEqual([]);
   });
 }
+
+test("arabic digits appear without waiting for load", async ({ page }) => {
+  // B20: the rewrite starts right after hydration. The fonts are held back here, so window load comes late;
+  // the digits must already be Arabic-Indic before it does.
+  await chooseArab(page);
+  await page.addInitScript(() => {
+    (window as unknown as { __loaded: boolean }).__loaded = false;
+    window.addEventListener("load", () => ((window as unknown as { __loaded: boolean }).__loaded = true));
+  });
+  await page.route(/\.woff2$/, async (route) => {
+    await new Promise((r) => setTimeout(r, 4000));
+    await route.continue();
+  });
+  await page.goto("/ar/business/10001/zakat", { waitUntil: "commit" });
+  await expect(page.locator("main").getByText(/ر\.س\./).first()).toHaveText(ARAB, { timeout: 3500 });
+  expect(await page.evaluate(() => (window as unknown as { __loaded: boolean }).__loaded)).toBe(false);
+});
