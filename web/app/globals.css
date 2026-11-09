@@ -316,9 +316,16 @@ summary {
   cursor: pointer;
 }
 /* R3: the label never changes, so the pressed look comes from aria-pressed alone. */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 0;
+}
 .themebtn[aria-pressed="true"] {
   background: var(--ink);
-  color: var(--page);
+  color: var(--bg);
   font-weight: 600;
 }
 
@@ -629,7 +636,6 @@ summary {
   bottom: 0;
   left: 19px;
   width: 6px;
-  height: 70%; /* B11: one height for every mark; the lane carries the reason */
   transform-origin: bottom;
   animation: growy 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
@@ -637,34 +643,6 @@ summary {
   left: 17px;
   width: 10px;
   box-shadow: 0 0 0 4px var(--accentSoft2);
-}
-/* B10: a cluster of marks too close to tell apart at this width, shown as its count. */
-.tick-count {
-  position: absolute;
-  inset: 6px 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid;
-  border-radius: var(--r-plate);
-  background: var(--surface);
-  color: var(--ink);
-  font-family: var(--font-plex-mono), monospace;
-  font-size: 13px;
-  font-weight: 600;
-  transform-origin: bottom;
-  animation: growy 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-.tick[aria-pressed="true"] .tick-count,
-.tick[aria-pressed="mixed"] .tick-count {
-  background: var(--accentSoft);
-  box-shadow: 0 0 0 4px var(--accentSoft2);
-}
-.lane + .lane {
-  margin-top: 6px;
-}
-.lane-label {
-  padding-bottom: 2px;
 }
 .scan-fill {
   height: 6px;

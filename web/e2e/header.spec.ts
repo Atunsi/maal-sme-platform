@@ -33,18 +33,39 @@ test("display menu opens, closes with escape and returns focus", async ({ page }
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/ar${PATH}`, { waitUntil: "networkidle" });
   const display = page.getByRole("button", { name: "العرض" });
-  const theme = page.getByRole("button", { name: "الوضع الداكن" });
+  const digits = page.locator("[data-digits-toggle]");
   await expect(display).toHaveAttribute("aria-expanded", "false");
-  await expect(theme).toBeHidden();
+  await expect(digits).toBeHidden();
   await display.click();
   await expect(display).toHaveAttribute("aria-expanded", "true");
-  await expect(theme).toBeVisible();
-  await expect(page.locator("[data-digits-toggle]")).toBeVisible();
-  // The toggles inside keep aria-pressed and their fixed labels (B7).
+  await expect(digits).toBeVisible();
+  // The toggle inside keeps aria-pressed and its fixed label (B7).
+  const before = await digits.getAttribute("aria-pressed");
+  const words = await digits.textContent();
+  await digits.click();
+  await expect(digits).not.toHaveAttribute("aria-pressed", before!);
+  await expect(digits).toHaveText(words!);
+  await page.keyboard.press("Escape");
+  await expect(digits).toBeHidden();
+  await expect(display).toBeFocused();
+});
+
+test("theme and language icons are in the header on every page", async ({ page }) => {
+  // In both locales, on laptops and phones, outside any menu.
+  for (const width of [1280, 390])
+    for (const path of ["/en", "/en/sign-in", "/en/business/10001/review", "/ar/scenarios", "/ar/glossary", "/ar/how-it-works"]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(path, { waitUntil: "networkidle" });
+      const theme = page.locator("[data-theme-toggle]");
+      const language = page.locator("[data-language-toggle]");
+      await expect(theme, `${path} at ${width}`).toBeVisible();
+      await expect(language, `${path} at ${width}`).toBeVisible();
+      await expect(theme.locator("svg")).toBeVisible();
+      await expect(language.locator("svg")).toBeVisible();
+    }
+  // The theme icon keeps its fixed name; pressing it flips aria-pressed only (R3).
+  const theme = page.getByRole("button", { name: "الوضع الداكن" });
   await theme.click();
   await expect(theme).toHaveAttribute("aria-pressed", "true");
   await expect(theme).toHaveText("الوضع الداكن");
-  await page.keyboard.press("Escape");
-  await expect(theme).toBeHidden();
-  await expect(display).toBeFocused();
 });

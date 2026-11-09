@@ -143,8 +143,7 @@ describe("review board", () => {
   type Computed = Extract<NonNullable<typeof anomaly.anomaly>, { status: "computed" }>;
   const body = anomaly.anomaly as Computed;
 
-  // B10: marks sit in one lane per reason, so a mark is matched to its flag by transaction ID, not by order.
-  // Unmeasured (as here) nothing clusters, so there is still one mark per queued transaction.
+  // A mark is matched to its flag by transaction ID, since the table may sort rows differently.
   const markOf = (container: HTMLElement, id: number) => container.querySelector<HTMLElement>(`button.tick[data-ids="${id}"]`)!;
   const rowOf = (container: HTMLElement, id: number) => container.querySelector<HTMLElement>(`tbody tr[data-id="${id}"]`)!;
 
@@ -157,8 +156,6 @@ describe("review board", () => {
     for (const flag of body.flags) {
       const mark = markOf(container, flag.transaction_id);
       expect(percent(mark.style.left)).toBeCloseTo(((day(flag.date) - day(body.scan_window.from)) / span) * 100, 2);
-      // The mark sits in its reason's lane.
-      expect(mark.closest("[data-lane]")!.getAttribute("data-lane")).toBe(flag.flag_reason);
     }
   });
 

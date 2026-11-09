@@ -99,7 +99,7 @@ test("zakat bars show values on focus", async ({ page }) => {
 
 test("review mark readout shows flag reason only", async ({ page }) => {
   await page.goto("/en/business/10004/review", { waitUntil: "networkidle" });
-  const mark = page.locator('.tick[data-count="1"]').first(); // a single mark; a cluster lists several (B10)
+  const mark = page.locator(".tick").first();
   await mark.hover();
   const tip = mark.locator(".tip");
   await expect(tip).toBeVisible();

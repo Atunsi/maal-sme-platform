@@ -3427,6 +3427,10 @@ page now says so in one fixed sentence, shown only for compliant, registered-sec
 **Items left out.**
 - **I6 (compare two businesses): skipped under 1a.10.** `origin/main` holds no fix for the shared DuckDB connection
   in `api/store.py`. It can be built once the API owner's fix is merged.
+- **B10 and B11 (review lanes and clusters): built, then reverted at Faris's request (2026-11-09).** The review
+  timeline is back to one track with one mark per transaction, colour and height both marking the reason, as
+  before this work. Marks that sit close together can still overlap; the table lists the same transactions. The
+  legend filters, table sort, row buttons and mark-to-row scrolling stay.
 - No S2, S3, S4, S5, S6, S8 or S9 stop was hit. I3's feature mapping (`compliance_tier.contributions`), I5's
   "Start from" shocks (`scenario.overrides` in the exported objects) and C6's sentence were all buildable from what
   the API returns or what is under `web/`.

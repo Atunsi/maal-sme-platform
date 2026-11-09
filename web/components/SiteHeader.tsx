@@ -67,7 +67,7 @@ export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<M
   return (
     <>
       <header className="bleed border-b border-line bg-card">
-        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-2 gap-y-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3.5">
             <Link href={base} aria-label={nav.home} className="flex min-h-11 min-w-11 items-center gap-3.5 text-accent no-underline">
               {/* E7: below 390 px the Arabic logo stands alone at 32 px, as the design rule allows. */}
@@ -79,17 +79,22 @@ export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<M
             {/* Beside the link, not in it: visible text must be part of a link's accessible name. */}
             {!signedIn && <span className="hidden max-w-[120px] border-s border-line ps-3.5 text-xs leading-tight text-muted lg:block">{m.app.tagline}</span>}
           </div>
-          {/* E7: below 768 px the page links and the buttons fold into this menu. */}
-          <button
-            ref={menuButton}
-            type="button"
-            className="themebtn md:hidden"
-            aria-expanded={open}
-            aria-controls="site-menu"
-            onClick={() => setOpenOn(open ? null : pathname)}
-          >
-            {nav.menu}
-          </button>
+          {/* The language and theme icons stay in the header row at every width, last on laptops. E7: below
+              768 px the page links and the other buttons fold into the menu. */}
+          <div className="flex items-center gap-1.5 md:order-last">
+            <LanguageToggle locale={locale} label={nav.language} />
+            <ThemeToggle label={nav.themeDark} />
+            <button
+              ref={menuButton}
+              type="button"
+              className="themebtn md:hidden"
+              aria-expanded={open}
+              aria-controls="site-menu"
+              onClick={() => setOpenOn(open ? null : pathname)}
+            >
+              {nav.menu}
+            </button>
+          </div>
           <div
             id="site-menu"
             className={`${open ? "flex" : "hidden"} w-full flex-col gap-3 border-t border-line pt-3 md:contents`}
@@ -99,7 +104,7 @@ export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<M
               menuButton.current?.focus();
             }}
           >
-            <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-1.5 text-[15px] md:flex-row md:flex-wrap md:text-sm">
+            <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-1.5 text-[15px] md:ms-auto md:flex-row md:flex-wrap md:text-sm">
               {items.map((item) => (
                 // No prefetch: a prefetch renders the page on the server, and its API calls would join the queue
                 // (lib/api.ts) ahead of the page the visitor actually opens next.
@@ -108,7 +113,7 @@ export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<M
                 </Link>
               ))}
             </nav>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5 md:ms-auto">
               {signedIn && (
                 <span className="max-w-[6.5rem] text-xs font-semibold leading-tight" data-demo-role>
                   {signedIn}
@@ -121,11 +126,11 @@ export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<M
                   {m.tour.resume}
                 </Link>
               )}
-              <LanguageToggle locale={locale} label={nav.language} />
-              <DisplayMenu label={nav.display}>
-                <ThemeToggle label={nav.themeDark} />
-                {locale === "ar" && <DigitsToggle label={nav.digitsArab} />}
-              </DisplayMenu>
+              {locale === "ar" && (
+                <DisplayMenu label={nav.display}>
+                  <DigitsToggle label={nav.digitsArab} />
+                </DisplayMenu>
+              )}
               {signedIn ? (
                 <Link href={`${base}/sign-in`} prefetch={false} className="textlink">
                   {nav.signOut}

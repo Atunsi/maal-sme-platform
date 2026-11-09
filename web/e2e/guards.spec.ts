@@ -28,7 +28,6 @@ test("the dark theme follows the system and the choice survives a reload, with n
   const html = page.locator("html");
   await expect(html).toHaveClass(/th-dark/);
 
-  await page.getByRole("button", { name: "Display" }).click(); // B12: the toggles sit under Display on laptops
   const toggle = page.getByRole("button", { name: "Dark theme" });
   await expect(toggle).toHaveAttribute("aria-pressed", "true");
   await toggle.click();

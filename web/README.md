@@ -43,8 +43,9 @@ Review fixes (DECISIONS 45):
   Choosing keeps the lens page and `?as=`. Its calls are server actions in `app/actions.ts`, through the queue.
 - **Search.** A "Search" button, or Ctrl+K / Cmd+K, opens a dialog over fixed lists: this business's pages, the
   scenarios, the glossary terms, and "Open business <ID>" for a serving ID. No API call.
-- **Review queue.** One lane per flag reason, equal marks, clusters where marks sit closer than 44 px; legend
-  items filter lanes and rows (`?reason=`); the table sorts by any column (`?sort=&dir=`), oldest first by default.
+- **Review queue.** One timeline track, one mark per listed transaction, with colour and height marking the reason;
+  legend items filter marks and rows (`?reason=`); the table sorts by any column (`?sort=&dir=`), oldest first by
+  default.
 - **Tour.** Step dots, a Collapse button (`?tourMin=1`) and, after End tour, a "Resume tour" link in the header
   (`?tourEnded=<step>`). Nothing is stored.
 - **Scenarios.** "Changed rows only" (`?changed=1`), arrow keys in the menu, a native select below 768 px, and a

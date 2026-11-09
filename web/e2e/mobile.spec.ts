@@ -113,30 +113,6 @@ test("chart readouts stay inside the screen", async ({ page }) => {
   }
 });
 
-test("review marks never overlap at any width", async ({ page }) => {
-  // B10: one lane per reason, and marks closer than one 44 px target merge into a cluster at this width.
-  for (const locale of LOCALES) {
-    await page.goto(`/${locale}/business/10001/review`, { waitUntil: "networkidle" });
-    const boxes = await page.locator("button.tick").evaluateAll((els) =>
-      els.map((el) => {
-        const r = el.getBoundingClientRect();
-        return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
-      }),
-    );
-    expect(boxes.length).toBeGreaterThan(0);
-    const overlaps: string[] = [];
-    for (let i = 0; i < boxes.length; i++)
-      for (let j = i + 1; j < boxes.length; j++) {
-        const a = boxes[i]!;
-        const b = boxes[j]!;
-        const x = Math.min(a.right, b.right) - Math.max(a.left, b.left);
-        const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
-        if (x > 0.5 && y > 0.5) overlaps.push(`${i} and ${j} at ${width(page)} px`);
-      }
-    expect(overlaps).toEqual([]);
-  }
-});
-
 test("hawl labels never overlap", async ({ page }) => {
   // B18: at every width, and in particular 360 px, the start, end and snapshot labels keep apart.
   await page.goto("/en/business/10001/zakat", { waitUntil: "networkidle" });

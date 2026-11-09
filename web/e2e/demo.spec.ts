@@ -138,15 +138,13 @@ test("review row picks its mark from the keyboard", async ({ page }) => {
   await expect(page.locator('tbody tr[data-picked="true"]')).toHaveCount(1);
   await expect(button).toHaveAttribute("aria-pressed", "true");
   const id = await page.locator("tbody tr").first().getAttribute("data-id");
-  // Its mark is pressed, or its cluster is partly pressed (B10).
-  await expect(page.locator(`button.tick[data-ids~="${id}"]`)).toHaveAttribute("aria-pressed", /^(true|mixed)$/);
+  await expect(page.locator(`button.tick[data-ids="${id}"]`)).toHaveAttribute("aria-pressed", "true");
   expect(await button.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("solid");
 });
 
 test("clicking a timeline mark highlights its table row", async ({ page }) => {
   await page.goto("/en/business/10001/review", { waitUntil: "networkidle" });
-  // A single mark: a cluster (B10) picks every row in it.
-  await page.locator('button.tick[data-count="1"]').first().click();
+  await page.locator("button.tick").nth(3).click();
   await expect(page.locator('tbody tr[data-picked="true"]')).toHaveCount(1);
 });
 

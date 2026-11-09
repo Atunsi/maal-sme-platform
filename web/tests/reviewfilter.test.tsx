@@ -11,7 +11,7 @@ const a = body;
 const reasons = [...new Set(a.flags.map((f) => f.flag_reason))];
 
 describe("review filters", () => {
-  it("review reason filters hide lanes and rows", () => {
+  it("review reason filters hide marks and rows", () => {
     const { container } = render(<ReviewBoard a={a} locale="en" labels={en} />);
     const off = reasons[0]!;
     const toggle = container.querySelector<HTMLButtonElement>(`button[data-reason="${off}"]`)!;
@@ -20,8 +20,8 @@ describe("review filters", () => {
     expect(toggle.textContent).not.toMatch(/fraud|score/i);
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-pressed")).toBe("false");
-    expect(container.querySelector(`[data-lane="${off}"]`)).toBeNull();
     const ids = new Set(a.flags.filter((f) => f.flag_reason === off).map((f) => String(f.transaction_id)));
+    for (const mark of container.querySelectorAll("button.tick")) expect(ids.has(mark.getAttribute("data-ids")!)).toBe(false);
     for (const row of container.querySelectorAll("tbody tr")) expect(ids.has(row.getAttribute("data-id")!)).toBe(false);
     expect(new URL(window.location.href).searchParams.get("reason")).toBe(reasons.slice(1).join(","));
     fireEvent.click(toggle);

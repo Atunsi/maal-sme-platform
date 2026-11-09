@@ -3,10 +3,10 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 /**
- * B12, R8 (DECISIONS 45): from 768 px up, the theme and digits toggles sit under one "Display" button so the
- * header fits one row in Arabic. Escape or a press outside closes it and focus returns to the button. Below
- * 768 px the button is hidden and the toggles show inline in the phone menu, as before. The toggles keep
- * aria-pressed and their fixed labels (B7).
+ * B12, R8 (DECISIONS 45): from 768 px up, the Arabic digits toggle sits under one "Display" button so the
+ * header fits one row. (The theme toggle is an icon in the header row.) Escape or a press outside closes it and
+ * focus returns to the button. Below 768 px the button is hidden and the toggle shows inline in the phone menu,
+ * as before. The toggle keeps aria-pressed and its fixed label (B7).
  */
 export function DisplayMenu({ label, children }: { label: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
