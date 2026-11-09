@@ -2,8 +2,8 @@ import { BusinessHeader } from "@/components/BusinessHeader";
 import { CopyButton } from "@/components/CopyButton";
 import { Term } from "@/components/Term";
 import { copyLabels, ReceiptPanel } from "@/components/ReceiptPanel";
-import { Num, Refusal } from "@/components/ui";
-import { decisionWord } from "@/lib/decision";
+import { Num, Plate, Refusal } from "@/components/ui";
+import { decisionPlate, decisionWord } from "@/lib/decision";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { CreditResponse, Receipt } from "@/lib/types";
@@ -68,7 +68,15 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
         ) : (
           <>
             <h2 id="verdict" className={`flex flex-col gap-2.5 ${approved ? "text-ok" : "text-bad"}`}>
-              <span className="heading stamp self-start text-[60px] leading-none sm:text-[76px]">{decisionWord(credit, detail, m)}</span>
+              <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span className="heading stamp text-[60px] leading-none sm:text-[76px]">{decisionWord(credit, detail, m)}</span>
+                {/* B6: the offer status is its own plate, never glued to the disclaimer. */}
+                {detail.offer_status && (
+                  <Plate variant={decisionPlate(credit, detail, m).variant} className="text-base">
+                    {m.enums.offer_status[detail.offer_status]}
+                  </Plate>
+                )}
+              </span>
               <span className="verdict-rule" aria-hidden="true" />
               {credit.amount_sar !== null && (
                 <span className="rise font-mono text-[34px] font-medium text-ink sm:text-[52px]" style={{ animationDelay: "0.8s" }}>
@@ -99,7 +107,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
               </Cell>
             </div>
             <p className="rise text-sm text-muted" style={{ animationDelay: "1.1s" }}>
-              {m.credit.note} {detail.offer_status ? m.enums.offer_status[detail.offer_status] : null}
+              {m.credit.note}
             </p>
           </>
         )}

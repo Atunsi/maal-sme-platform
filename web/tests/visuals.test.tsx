@@ -216,6 +216,18 @@ describe("overview", () => {
     expect(screen.getByText(en.overview.lateValue)).toBeTruthy();
   });
 
+  it("verdict disclaimer is one sentence with nothing appended", () => {
+    for (const name of ["credit_10001", "credit_10037"]) {
+      const data = fixture(name, CreditResponse);
+      const { unmount } = render(<VerdictSheet data={data} locale="en" m={en} />);
+      // B6: the paragraph holds the disclaimer and nothing else; the offer status is its own plate.
+      expect(screen.getByText(en.credit.note).textContent).toBe(en.credit.note);
+      const offer = en.enums.offer_status[data.credit_decision_detail!.offer_status!];
+      expect(screen.getByText(offer).classList.contains("plate")).toBe(true);
+      unmount();
+    }
+  });
+
   it("U13 the receipt panel is plain text with the scope verbatim", () => {
     const { container } = render(<VerdictSheet data={credit} locale="en" m={en} />);
     expect(screen.getByText(en.overview.receiptTitle)).toBeTruthy();
