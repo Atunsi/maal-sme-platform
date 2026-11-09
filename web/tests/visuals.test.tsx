@@ -143,27 +143,34 @@ describe("review board", () => {
   type Computed = Extract<NonNullable<typeof anomaly.anomaly>, { status: "computed" }>;
   const body = anomaly.anomaly as Computed;
 
+  // B10: marks sit in one lane per reason, so a mark is matched to its flag by transaction ID, not by order.
+  // Unmeasured (as here) nothing clusters, so there is still one mark per queued transaction.
+  const markOf = (container: HTMLElement, id: number) => container.querySelector<HTMLElement>(`button.tick[data-ids="${id}"]`)!;
+  const rowOf = (container: HTMLElement, id: number) => container.querySelector<HTMLElement>(`tbody tr[data-id="${id}"]`)!;
+
   it("one mark per queued transaction, placed by date in the scan window", () => {
     const { container } = render(<AnomalyCard data={anomaly} locale="en" m={en} />);
     const marks = [...container.querySelectorAll<HTMLElement>(".tick")];
     expect(marks).toHaveLength(body.flags.length);
     const day = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
     const span = day(body.scan_window.to) - day(body.scan_window.from);
-    marks.forEach((mark, i) => {
-      expect(percent(mark.style.left)).toBeCloseTo(((day(body.flags[i]!.date) - day(body.scan_window.from)) / span) * 100, 2);
-    });
+    for (const flag of body.flags) {
+      const mark = markOf(container, flag.transaction_id);
+      expect(percent(mark.style.left)).toBeCloseTo(((day(flag.date) - day(body.scan_window.from)) / span) * 100, 2);
+      // The mark sits in its reason's lane.
+      expect(mark.closest("[data-lane]")!.getAttribute("data-lane")).toBe(flag.flag_reason);
+    }
   });
 
   it("clicking a mark highlights its row, and clicking a row highlights its mark", () => {
     const { container } = render(<AnomalyCard data={anomaly} locale="en" m={en} />);
-    const marks = [...container.querySelectorAll("button.tick")];
-    const rows = [...container.querySelectorAll("tbody tr")];
-    fireEvent.click(marks[2]!);
-    expect(rows[2]!.getAttribute("data-picked")).toBe("true");
-    expect(marks[2]!.getAttribute("aria-pressed")).toBe("true");
-    fireEvent.click(rows[4]!);
-    expect(marks[4]!.getAttribute("aria-pressed")).toBe("true");
-    expect(rows[2]!.getAttribute("data-picked")).toBe("false");
+    const [, , second, , fourth] = body.flags.map((f) => f.transaction_id);
+    fireEvent.click(markOf(container, second!));
+    expect(rowOf(container, second!).getAttribute("data-picked")).toBe("true");
+    expect(markOf(container, second!).getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(rowOf(container, fourth!));
+    expect(markOf(container, fourth!).getAttribute("aria-pressed")).toBe("true");
+    expect(rowOf(container, second!).getAttribute("data-picked")).toBe("false");
   });
 
   it("U8 a mark names its reason and carries no score", () => {

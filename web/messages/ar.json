@@ -224,7 +224,9 @@
     "markLabel": "{date}، {reason}",
     "timelineAlt": "{n} معاملات موزعة بالتاريخ بين {from} و{to}. يعرض الجدول القائمة نفسها.",
     "slots": "استُخدمت {n} من {cap} خانات المراجعة",
-    "slotsShort": "{n} من {cap}"
+    "slotsShort": "{n} من {cap}",
+    "clusterLabel": "{n} معاملات متقاربة: {list}",
+    "lanes": "مسار لكل سبب إدراج"
   },
   "zakat": {
     "title": "الزكاة",

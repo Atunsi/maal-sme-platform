@@ -224,7 +224,9 @@
     "markLabel": "{date}, {reason}",
     "timelineAlt": "{n} transactions placed by date between {from} and {to}. The table gives the same list.",
     "slots": "{n} of {cap} review slots used",
-    "slotsShort": "{n} of {cap}"
+    "slotsShort": "{n} of {cap}",
+    "clusterLabel": "{n} transactions close together: {list}",
+    "lanes": "One lane per flag reason"
   },
   "zakat": {
     "title": "Zakat",
