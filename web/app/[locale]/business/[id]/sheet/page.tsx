@@ -121,7 +121,7 @@ function Forecast({ data, locale, m }: { data: ForecastResponse; locale: Locale;
         </Row>
       </dl>
       <TableScroll label={n.tableLabel}>
-      <table className="sheet-table w-full min-w-[560px] text-sm">
+      <table data-phone="forecast-list" className="stack-sm sheet-table w-full text-sm md:min-w-[560px]">
         <thead>
           <tr>
             {[n.series, n.horizon, n.projected, n.minimum, n.netFlow].map((label) => (
@@ -135,15 +135,19 @@ function Forecast({ data, locale, m }: { data: ForecastResponse; locale: Locale;
           {rows.flatMap(({ label, series }) =>
             series.map((row) => (
               <tr key={`${label}${row.horizon_days}`}>
-                <td className={TD}>{label}</td>
-                <td className={TD}>{fill(n.dayN, { n: formatInt(row.horizon_days, locale) })}</td>
-                <td className={TD}>
+                <td className={TD} data-label={n.series} data-col="series">
+                  {label}
+                </td>
+                <td className={TD} data-label={n.horizon} data-col="horizon">
+                  {fill(n.dayN, { n: formatInt(row.horizon_days, locale) })}
+                </td>
+                <td className={TD} data-label={n.projected} data-col="projected">
                   <Num>{formatSar(row.projected_balance_sar, locale)}</Num>
                 </td>
-                <td className={TD}>
+                <td className={TD} data-label={n.minimum} data-col="minimum">
                   <Num>{formatSar(row.min_projected_balance_sar, locale)}</Num>
                 </td>
-                <td className={TD}>
+                <td className={TD} data-label={n.netFlow} data-col="net">
                   <Num>{formatSar(row.projected_net_flow_sar, locale)}</Num>
                 </td>
               </tr>

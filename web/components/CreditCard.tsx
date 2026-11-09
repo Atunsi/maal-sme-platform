@@ -149,7 +149,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
       />
       <section aria-label={m.credit.terms} className="rise" style={{ animationDelay: delay(3) }}>
         {/* U1: display only. Nothing on this page can change the markup. */}
-        <dl className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] border border-line bg-card">
+        <dl data-phone="terms" className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] border border-line bg-card">
           {credit.amount_sar !== null && (
             <Term label={m.credit.amount}>
               <Num>{formatSar(credit.amount_sar, locale)}</Num>

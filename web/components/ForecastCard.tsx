@@ -45,7 +45,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
   const hazard = HORIZONS.map((key) => ({ key, days: fill(n.horizonDays, { n: formatInt(Number.parseInt(key, 10), locale) }), value: alert.liquidity_hazard[key] }));
   return (
     <>
-      <dl aria-label={n.keyFigures} className="rise grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border border-line bg-card" style={{ animationDelay: delay(1) }}>
+      <dl aria-label={n.keyFigures} data-phone="terms" className="rise grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border border-line bg-card" style={{ animationDelay: delay(1) }}>
         <Figure label={n.balanceToday}>
           <Num>{formatSar(f.balance_today_sar, locale)}</Num>
         </Figure>
@@ -114,7 +114,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
       </section>
       <section aria-label={n.tableLabel} className="rise border border-line bg-card" style={{ animationDelay: delay(3) }}>
         <TableScroll label={n.chartTitle}>
-          <table className="stack-sm w-full md:min-w-[720px]">
+          <table data-phone="forecast-list" className="stack-sm w-full md:min-w-[720px]">
             <thead>
               <tr>
                 {[n.series, n.horizon, n.projected, n.minimum, n.netFlow].map((label) => (
@@ -128,19 +128,19 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
               {series.flatMap(({ label, rows }) =>
                 rows.map((row) => (
                   <tr key={`${label}-${row.horizon_days}`}>
-                    <td className={`${TD} font-sans`} data-label={n.series}>
+                    <td className={`${TD} font-sans`} data-label={n.series} data-col="series">
                       {label}
                     </td>
-                    <td className={TD} data-label={n.horizon}>
+                    <td className={TD} data-label={n.horizon} data-col="horizon">
                       <Num>{fill(n.dayN, { n: row.horizon_days })}</Num>
                     </td>
-                    <td className={TD} data-label={n.projected}>
+                    <td className={TD} data-label={n.projected} data-col="projected">
                       <Num>{formatSar(row.projected_balance_sar, locale)}</Num>
                     </td>
-                    <td className={TD} data-label={n.minimum}>
+                    <td className={TD} data-label={n.minimum} data-col="minimum">
                       <Num>{formatSar(row.min_projected_balance_sar, locale)}</Num>
                     </td>
-                    <td className={TD} data-label={n.netFlow}>
+                    <td className={TD} data-label={n.netFlow} data-col="net">
                       <Num>{formatSar(row.projected_net_flow_sar, locale)}</Num>
                     </td>
                   </tr>

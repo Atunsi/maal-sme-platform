@@ -48,7 +48,7 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
       <LensHead data={data} title={m.sharia.title} aside={status} locale={locale} m={m} />
       <PendingFrame m={m} />
 
-      <section aria-labelledby="checked" className="border border-line bg-card">
+      <section aria-labelledby="checked" data-phone="checked" className="border border-line bg-card">
         <h2 id="checked" className="heading border-b-2 border-ink px-7 py-5 text-[22px]">
           {m.sharia.checked}
         </h2>
@@ -74,7 +74,7 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
         <section aria-label={m.sharia.rules} className="border border-line bg-card p-6">
           <SubHeading>{m.sharia.rules}</SubHeading>
           <TableScroll label={m.sharia.rules}>
-            <table className="w-full">
+            <table className="stack-sm w-full">
               <thead>
                 <tr>
                   {[m.sharia.ruleId, m.sharia.severity, m.sharia.detail].map((label) => (
@@ -87,10 +87,10 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
               <tbody>
                 {s.rules_triggered.map((rule) => (
                   <tr key={rule.rule_id}>
-                    <td className={TD}>
+                    <td className={TD} data-label={m.sharia.ruleId}>
                       <Code>{rule.rule_id}</Code>
                     </td>
-                    <td className={TD}>
+                    <td className={TD} data-label={m.sharia.severity}>
                       <Code>{rule.severity}</Code>
                     </td>
                     <td className={TD}>
@@ -107,7 +107,7 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
       )}
 
       {questions.length > 0 && (
-        <section aria-labelledby="ask" className="panel rise flex flex-col gap-3 p-8" style={{ animationDelay: delay(4) }}>
+        <section aria-labelledby="ask" data-phone="ask" className="panel rise flex flex-col gap-3 p-8" style={{ animationDelay: delay(4) }}>
           <h2 id="ask" className="heading caps text-sm text-muted">
             {m.sharia.questions}
           </h2>

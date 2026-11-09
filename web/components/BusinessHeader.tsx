@@ -68,7 +68,7 @@ export function BusinessHeader({ data, locale, m }: Base) {
 /** The top of a lens page. A scored business needs no status plate; any other state shows its own. */
 export function LensHead({ data, title, aside, locale, m }: Base & { title: string; aside?: ReactNode }) {
   return (
-    <div className="rise flex flex-col gap-3">
+    <div data-phone="lens-head" className="rise flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <MetaRow data={data} locale={locale} m={m} />

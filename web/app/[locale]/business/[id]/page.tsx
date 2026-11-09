@@ -55,7 +55,7 @@ export default async function OverviewPage({ params, searchParams }: Props) {
           owner={fill(m.overview.welcome, { id, name: nameOf(id, locale) })}
           other={fill(m.overview.heading, { id, name: nameOf(id, locale) })}
         />
-        <div className="flex flex-wrap items-center gap-3">
+        <div data-phone="actions" className="flex flex-wrap items-center gap-3">
           <Link href={`${root}?tour=${TOUR_STEPS[0]!.id}${query.replace("?", "&")}`} className="textlink font-semibold" data-tour-start data-print-hide>
             {m.tour.start}
           </Link>

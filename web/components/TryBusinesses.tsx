@@ -28,7 +28,7 @@ export async function TryCard({ id, locale, m }: { id: number; locale: Locale; m
   }
   const plate = creditPlate(r.data, m);
   return (
-    <Link href={`/${locale}/business/${id}`} prefetch={false} data-try={id} className="lift flex min-h-[150px] flex-col gap-2.5 border border-line bg-card p-5 text-ink no-underline">
+    <Link href={`/${locale}/business/${id}`} prefetch={false} data-try={id} data-phone="try" className="lift flex min-h-[150px] flex-col gap-2.5 border border-line bg-card p-5 text-ink no-underline">
       <span className="heading text-lg">
         {fill(m.dashboard.title, { id, name: nameOf(id, locale) })}
       </span>

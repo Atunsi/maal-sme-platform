@@ -2,6 +2,7 @@ import { BusinessHeader } from "@/components/BusinessHeader";
 import { CopyButton } from "@/components/CopyButton";
 import { Term } from "@/components/Term";
 import { copyLabels, ReceiptPanel } from "@/components/ReceiptPanel";
+import { PhoneFold } from "@/components/PhoneFold";
 import { Num, Plate, Refusal } from "@/components/ui";
 import { decisionPlate, decisionWord } from "@/lib/decision";
 import { formatInt, formatPct, formatSar } from "@/lib/format";
@@ -13,7 +14,7 @@ const SHORT = 12;
 
 function Cell({ label, children, first }: { label: React.ReactNode; children: React.ReactNode; first?: boolean }) {
   return (
-    <div className={`pt-3.5 ${first ? "pe-4" : "border-s border-line px-4"}`}>
+    <div data-phone="term" className={`pt-3.5 ${first ? "pe-4" : "border-s border-line px-4"}`}>
       <div className="text-[13px] text-muted">{label}</div>
       {children}
     </div>
@@ -29,24 +30,31 @@ function ReceiptAside({ receipt, lens, m }: { receipt: Receipt; lens: string; m:
     [o.commit, receipt.code_commit.replace(/^([0-9a-f]{7})[0-9a-f]*/, "$1")],
   ];
   return (
-    <aside aria-label={o.receiptEyebrow} data-tour="receipt" className="panel square flex min-w-0 flex-[1_1_320px] flex-col gap-4 p-8">
-      <div className="rise" style={{ animationDelay: delay(2) }}>
-        <div className="eyebrow text-gold">{o.receiptEyebrow}</div>
-        <div className="heading mt-1.5 text-[26px]">{o.receiptTitle}</div>
-        <p className="mt-1.5 text-sm text-muted">{o.receiptBody}</p>
-      </div>
-      <dl data-latin className="rise grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: delay(3) }}>
-        {rows.map(([key, value]) => (
-          <div key={key} className="contents">
-            <dt className="text-muted">{key}</dt>
-            <dd dir="ltr" className="flex flex-wrap items-center gap-x-3 break-all text-start">
-              {value}
-              {key === o.output && <CopyButton value={receipt.output_sha256} name="output_sha256" labels={copyLabels(m)} />}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <ReceiptPanel receipt={receipt} lens={lens} m={m} />
+    <aside aria-label={o.receiptEyebrow} data-tour="receipt" data-phone="receipt" className="panel square flex min-w-0 flex-[1_1_320px] flex-col gap-4 p-8">
+      {/* Phones show the receipt folded under the verdict (app/phone.css); larger screens show it in full. */}
+      <PhoneFold
+        className="flex flex-col gap-4"
+        summary={
+          <span className="rise block" style={{ animationDelay: delay(2) }}>
+            <span className="eyebrow block text-gold">{o.receiptEyebrow}</span>
+            <span className="heading mt-1.5 block text-[26px]">{o.receiptTitle}</span>
+          </span>
+        }
+      >
+        <p className="-mt-2.5 text-sm text-muted">{o.receiptBody}</p>
+        <dl data-latin className="rise grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: delay(3) }}>
+          {rows.map(([key, value]) => (
+            <div key={key} className="contents">
+              <dt className="text-muted">{key}</dt>
+              <dd dir="ltr" className="flex flex-wrap items-center gap-x-3 break-all text-start">
+                {value}
+                {key === o.output && <CopyButton value={receipt.output_sha256} name="output_sha256" labels={copyLabels(m)} />}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <ReceiptPanel receipt={receipt} lens={lens} m={m} />
+      </PhoneFold>
     </aside>
   );
 }
@@ -56,7 +64,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
   const o = m.overview;
   const approved = credit?.decision === "approved";
   return (
-    <section aria-labelledby="verdict" data-tour="verdict" className="clip-box flex flex-wrap border border-ink bg-card">
+    <section aria-labelledby="verdict" data-tour="verdict" data-phone="verdict" className="clip-box flex flex-wrap border border-ink bg-card">
       <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4 p-6 sm:p-9">
         <BusinessHeader data={data} locale={locale} m={m} />
         {!credit || !detail ? (

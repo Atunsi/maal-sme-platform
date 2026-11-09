@@ -49,7 +49,11 @@ export function SubHeading({ children }: { children: ReactNode }) {
 }
 
 export function Fields({ children }: { children: ReactNode }) {
-  return <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">{children}</dl>;
+  return (
+    <dl data-phone="fields" className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+      {children}
+    </dl>
+  );
 }
 
 export function Field({ label, children }: { label: ReactNode; children: ReactNode }) {

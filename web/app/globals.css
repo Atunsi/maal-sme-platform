@@ -1054,99 +1054,6 @@ body {
   background: var(--surface);
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
 }
-/* Phones: one system for every page. Cards share one padding and one radius and never frame a second card
-   inside them; titles share one size; wide tables become a list of labelled rows; credit factors stack. */
-@media (max-width: 767.98px) {
-  main .border.bg-card,
-  main .panel,
-  main .frame {
-    border-radius: var(--r-box);
-    padding: 16px !important;
-  }
-  /* A table card keeps its own cell spacing. */
-  main .border.bg-card:has(> [role="region"] > table),
-  main .border.bg-card:has(> table) {
-    padding: 0 !important;
-  }
-  /* A card inside a card loses its frame, so borders never stack two deep. */
-  main :is(.border.bg-card, .panel) :is(.border.bg-card, .panel) {
-    border: 0;
-    border-radius: 0;
-    padding: 0 !important;
-    background: transparent;
-    box-shadow: none;
-  }
-  main h1.heading:not(.on-hero *) {
-    font-size: 30px !important;
-    line-height: 1.15 !important;
-  }
-
-  table.stack-sm thead {
-    display: none;
-  }
-  table.stack-sm,
-  table.stack-sm tbody,
-  table.stack-sm tr {
-    display: block;
-    width: 100%;
-  }
-  table.stack-sm tr {
-    padding: 12px 16px;
-    border-top: 1px solid var(--rule2);
-  }
-  table.stack-sm tr:first-child {
-    border-top: 0;
-  }
-  table.stack-sm :is(td, th) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 4px 0 !important;
-    border: 0 !important;
-    text-align: start;
-  }
-  table.stack-sm :is(td, th)[data-label]::before {
-    content: attr(data-label);
-    flex: none;
-    max-width: 45%;
-    color: var(--muted);
-    font-family: var(--font-sans);
-    font-size: 13px;
-  }
-  table.stack-sm :is(td, th):not([data-label]) {
-    display: block;
-  }
-
-  /* Credit factors (components/CreditCard.tsx): the reason across the full width, its bar on the axis below. */
-  .axis-row {
-    min-height: 0 !important;
-    grid-template-rows: auto 22px;
-    row-gap: 10px;
-    padding: 14px 0;
-    background: linear-gradient(var(--ink), var(--ink)) 50% 100% / 3px 22px no-repeat;
-  }
-  .axis-row .axis-half {
-    display: contents;
-  }
-  .axis-row .axis-words {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-  .axis-row .axis-left > .bar-grow {
-    grid-column: 1;
-    grid-row: 2;
-    justify-self: end;
-    align-self: center;
-  }
-  .axis-row .axis-right > .bar-grow {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: start;
-    align-self: center;
-  }
-}
-
 /* From a tablet up, every page title (the landing hero aside) has one size too. */
 @media (min-width: 768px) {
   main h1.heading:not(.on-hero *) {
@@ -1155,13 +1062,7 @@ body {
   }
 }
 
-/* The phone menu drops in from the Menu button: short, decelerating, nothing after it waits on it. */
-@media (max-width: 767.98px) {
-  .menu-drop {
-    transform-origin: top;
-    animation: menudrop 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-}
+/* The phone menu's drop-in (app/phone.css). */
 @keyframes menudrop {
   from {
     opacity: 0;
@@ -1169,37 +1070,19 @@ body {
   }
 }
 
-/* The app variant (lib/app-mode.ts): on a phone running Ma'al as an installed app, a bottom tab bar. Hidden
-   everywhere else, so the website keeps its own navigation. */
-.app-tabbar {
+/* PhoneFold (components/PhoneFold.tsx): above phone width the fold is always open and its summary is a plain
+   heading, not a toggle. app/phone.css makes it one on phones. */
+details.phone-fold > summary {
+  list-style: none;
+  pointer-events: none;
+}
+details.phone-fold > summary::-webkit-details-marker {
   display: none;
 }
-@media (max-width: 767.98px) {
-  html.app-mode {
-    --tabbar-h: calc(58px + env(safe-area-inset-bottom, 0px));
-    /* No rubber-band bounce or pull-to-refresh on the page itself, as in a native app. */
-    overscroll-behavior-y: none;
-  }
-  html.app-mode body:has([data-app-tabbar]) {
-    padding-bottom: calc(var(--tour-h, 0px) + var(--tabbar-h));
-  }
-  html.app-mode .app-tabbar {
-    display: block;
-    position: fixed;
-    inset-inline: 0;
-    bottom: 0;
-    z-index: 45;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    background: color-mix(in srgb, var(--surface) 88%, transparent);
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
-    border-top: 1px solid var(--rule);
-  }
-  /* The tour panel sits on the tab bar, not under it. */
-  html.app-mode body:has([data-app-tabbar]) .tour-panel {
-    bottom: var(--tabbar-h);
-    padding-bottom: 0;
-  }
+
+/* The bottom tab bar is for phones only (app/phone.css shows it there). */
+.app-tabbar {
+  display: none;
 }
 .app-tabs {
   display: grid;
@@ -1295,7 +1178,7 @@ body {
   .term-tip,
   .tour-panel,
   .app-more,
-  html.app-mode .app-tabbar {
+  .app-tabbar {
     background: var(--glass);
     border-color: var(--glass-edge);
     -webkit-backdrop-filter: var(--glass-blur);
@@ -1324,7 +1207,7 @@ body {
   .term-tip,
   .tour-panel,
   .app-more,
-  html.app-mode .app-tabbar {
+  .app-tabbar {
     background: var(--surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;

@@ -14,6 +14,8 @@ import { scenarioName } from "@/lib/scenario-label";
 import { getScenarioIndex } from "@/lib/scenarios";
 import { BAR_COLOUR, THEME_BOOT } from "@/lib/theme";
 import "../globals.css";
+// Phone-only rules, after the shared ones: every rule in it sits inside the phone media query.
+import "../phone.css";
 
 // B19 (DECISIONS 45): the four IBM Plex families are self-hosted from app/fonts (woff2 files from the
 // Fontsource 5.3.0 packages, SIL Open Font License, licences beside them), so neither the build nor the page

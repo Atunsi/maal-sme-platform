@@ -128,7 +128,7 @@ export default async function AdminPage({ params, searchParams }: Props) {
 
       <div className="rise border border-line bg-card" style={{ animationDelay: delay(2) }}>
         <TableScroll label={a.tableLabel}>
-        <table className="stack-sm w-full border-collapse md:min-w-[820px]">
+        <table data-phone="link-rows" className="stack-sm w-full border-collapse md:min-w-[820px]">
           <thead>
             <tr className="text-start text-[13px] text-muted">
               <th scope="col" className={`${th} text-start`}>

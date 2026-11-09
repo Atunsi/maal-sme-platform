@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BackendText, Num, Plate, Probability, type PlateVariant } from "@/components/ui";
+import { BackendText, figureFont, Num, Plate, Probability, type PlateVariant } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -106,17 +106,20 @@ export function ReadoutCard({ lens, href, readout, partial, index, m }: CardProp
   return (
     <Link
       href={href}
+      data-phone="readout"
       className="lift rise flex min-h-[200px] flex-col gap-2.5 border border-line bg-card p-5 text-ink no-underline"
       style={{ animationDelay: delay(2 + index) }}
     >
-      <span className="text-[13px] text-muted">{lens}</span>
-      <span>
+      <span data-r="lens" className="text-[13px] text-muted">{lens}</span>
+      <span data-r="plate">
         <Plate variant={readout.variant}>{readout.state}</Plate>
       </span>
-      <span className="font-mono text-[17px]">{readout.figure}</span>
-      <span className="text-[13px] text-muted">{readout.note}</span>
-      {partial && <span className="text-[13px] text-warn">{partial}</span>}
-      <span className="mt-auto text-sm font-semibold text-accent">{fill(m.overview.open, { lens })}</span>
+      <span data-r="figure" className={`${figureFont(readout.figure)} text-[17px]`}>
+        {readout.figure}
+      </span>
+      <span data-r="note" className="text-[13px] text-muted">{readout.note}</span>
+      {partial && <span data-r="note" className="text-[13px] text-warn">{partial}</span>}
+      <span data-r="open" className="mt-auto text-sm font-semibold text-accent">{fill(m.overview.open, { lens })}</span>
     </Link>
   );
 }

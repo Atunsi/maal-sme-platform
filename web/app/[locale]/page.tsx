@@ -170,7 +170,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      <section id="how" aria-labelledby="howh" className="mx-auto flex max-w-[1240px] flex-col gap-10 px-6 py-[72px] sm:py-[88px]">
+      <section id="how" aria-labelledby="howh" data-phone="band" className="mx-auto flex max-w-[1240px] flex-col gap-10 px-6 py-[72px] sm:py-[88px]">
         <SectionHead eyebrow={l.howEyebrow} title={l.howTitle} id="howh" />
         <Flow steps={l.steps} full />
       </section>
@@ -183,6 +183,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
               <Link
                 key={lens}
                 href={`${demo}/${lens}`}
+                data-phone="lens-card"
                 className="lift rise flex min-h-[300px] flex-col gap-2.5 border border-line bg-page p-6 text-ink no-underline"
                 style={{ animationDelay: `${(0.1 + i * 0.12).toFixed(2)}s` }}
               >
@@ -201,8 +202,8 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      <section aria-label={l.countsLabel} className="mx-auto w-full max-w-[1240px] px-6 py-[72px]">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-px bg-line">
+      <section aria-label={l.countsLabel} data-phone="band" className="mx-auto w-full max-w-[1240px] px-6 py-[72px]">
+        <div data-phone="counts" className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-px bg-line">
           {facts.map((fact, i) => (
             <div key={fact.label} className="rise flex flex-col gap-2.5 bg-page px-6 py-8" style={{ animationDelay: `${(0.1 + i * 0.12).toFixed(2)}s` }}>
               <span className="heading text-[96px] leading-none text-accent">{formatInt(fact.n, locale)}</span>
@@ -231,7 +232,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      <section id="faq" aria-labelledby="faqh" className="mx-auto flex max-w-[900px] flex-col gap-5 px-6 py-[72px] sm:py-[88px]">
+      <section id="faq" aria-labelledby="faqh" data-phone="band" className="mx-auto flex max-w-[900px] flex-col gap-5 px-6 py-[72px] sm:py-[88px]">
         <h2 id="faqh" className="heading mb-3 text-[48px]">
           {l.faqTitle}
         </h2>

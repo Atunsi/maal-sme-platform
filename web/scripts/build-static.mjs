@@ -10,7 +10,7 @@ import { copyFileSync, cpSync, existsSync, readdirSync, readFileSync, rmSync, st
 import { join, relative, sep } from "node:path";
 
 const base = process.argv[2] ?? "";
-if (base && !/^\/[A-Za-z0-9._-]+$/.test(base)) throw new Error(`Pages path must look like /repo-name, got "${base}"`);
+if (base && !/^(\/[A-Za-z0-9._-]+)+$/.test(base)) throw new Error(`Pages path must look like /repo-name (or /repo-name/preview), got "${base}"`);
 if (!existsSync("static-data/businesses_snapshot.json")) throw new Error("No snapshot: run scripts/capture-static.mjs first.");
 
 // The business pages' param list exists only for this build (scripts/static-only/business-id-layout.tsx).

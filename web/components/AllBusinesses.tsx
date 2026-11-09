@@ -28,7 +28,7 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
       ) : (
         <div className="border border-line bg-card">
           <TableScroll label={a.allTable}>
-            <table className="stack-sm w-full border-collapse md:min-w-[480px]">
+            <table data-phone="link-rows" className="stack-sm w-full border-collapse md:min-w-[480px]">
               <thead>
                 <tr>
                   <th scope="col" className={th}>
