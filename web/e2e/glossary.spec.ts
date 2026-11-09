@@ -14,6 +14,22 @@ test("term popover opens on focus and closes on escape", async ({ page }) => {
   await expect(tip).toBeHidden();
 });
 
+test("glossary tip stays open while the pointer moves onto it", async ({ page }) => {
+  // B9 (WCAG 1.4.13): the pointer can travel from the term onto its definition, across the gap.
+  await page.goto("/en/business/10037/zakat", { waitUntil: "networkidle" });
+  const term = page.locator('[data-term="hawl"] button');
+  const tip = page.locator('[data-term="hawl"] [role=tooltip]');
+  await term.hover();
+  await expect(tip).toBeVisible();
+  const from = (await term.boundingBox())!;
+  const to = (await tip.boundingBox())!;
+  await page.mouse.move(from.x + 4, from.y + from.height / 2);
+  await page.mouse.move(to.x + 6, to.y + to.height / 2, { steps: 12 });
+  await expect(tip).toBeVisible();
+  await page.mouse.move(to.x + to.width + 200, to.y + to.height + 200, { steps: 4 });
+  await expect(tip).toBeHidden();
+});
+
 test("on a phone a tap opens the definition below the term, inside the screen", async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true });
   const page = await context.newPage();

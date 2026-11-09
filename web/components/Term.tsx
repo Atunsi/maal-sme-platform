@@ -41,7 +41,9 @@ export function Term({ id, locale, children }: { id: GlossaryId; locale: Locale;
   }, [open]);
 
   return (
-    <span ref={ref} className="term-wrap" data-term={id}>
+    // B9 (WCAG 1.4.13): hover is tracked on the wrapper, which holds the term and its definition, so the
+    // pointer can move onto the definition without closing it.
+    <span ref={ref} className="term-wrap" data-term={id} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
       <button
         type="button"
         className="term"
@@ -53,8 +55,6 @@ export function Term({ id, locale, children }: { id: GlossaryId; locale: Locale;
         onClick={(event) => (event.detail === 0 ? setOpen((current) => !current) : setOpen(!openAtPointerDown.current))}
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
         onKeyDown={(event) => {
           if (event.key === "Escape") setOpen(false);
         }}

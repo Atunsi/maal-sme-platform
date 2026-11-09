@@ -404,6 +404,14 @@ summary {
 .term-tip[data-open="true"] {
   display: block;
 }
+/* B9: a transparent bridge over the 6 px gap, so the pointer stays inside the wrapper on its way to the tip. */
+.term-tip::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 8px;
+}
 
 .field {
   min-height: 48px;
