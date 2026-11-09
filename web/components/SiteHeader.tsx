@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 import { ArabicLogo, EnglishWordmark, LogoBand } from "@/components/brand/Logos";
 import { DigitsToggle } from "@/components/DigitsToggle";
+import { DisplayMenu } from "@/components/DisplayMenu";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
@@ -109,8 +110,10 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
                 </span>
               )}
               <LanguageToggle locale={locale} label={nav.language} />
-              <ThemeToggle label={nav.themeDark} />
-              {locale === "ar" && <DigitsToggle label={nav.digitsArab} />}
+              <DisplayMenu label={nav.display}>
+                <ThemeToggle label={nav.themeDark} />
+                {locale === "ar" && <DigitsToggle label={nav.digitsArab} />}
+              </DisplayMenu>
               {signedIn ? (
                 <Link href={`${base}/sign-in`} prefetch={false} className="textlink">
                   {nav.signOut}

@@ -29,7 +29,8 @@
     "roleAdmin": "Admin",
     "themeDark": "Dark theme",
     "digitsArab": "Arabic-Indic digits",
-    "menu": "Menu"
+    "menu": "Menu",
+    "display": "Display"
   },
   "footer": {
     "scope": "Synthetic data only. Population: serving. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent.",

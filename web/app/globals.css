@@ -1076,3 +1076,18 @@ body {
     transition: none !important;
   }
 }
+
+/* B12: from 768 px up the Display toggles open in a small panel under their button. */
+@media (min-width: 768px) {
+  .display-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    inset-inline-end: 0;
+    z-index: 40;
+    padding: 10px;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-box);
+    background: var(--surface);
+    box-shadow: 0 8px 24px rgba(16, 20, 24, 0.12);
+  }
+}
