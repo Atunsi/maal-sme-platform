@@ -56,6 +56,14 @@ export function readSort(params: URLSearchParams | null): Sort {
   return { column: column && SORT_COLUMNS.includes(column) ? column : "date", dir: params?.get("dir") === "desc" ? "desc" : "asc" };
 }
 
+/** I2: the reasons a ?reason=a,b list keeps on show, limited to those present; none named means all. */
+export function readReasons<R extends string>(params: URLSearchParams | null, present: readonly R[]): ReadonlySet<R> {
+  const asked = params?.get("reason");
+  if (!asked) return new Set(present);
+  const names = asked.split(",");
+  return new Set(present.filter((r) => names.includes(r)));
+}
+
 /** "03:00" from the hour the API returns. */
 export const hourText = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
 
@@ -68,6 +76,9 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
   const [trackRef, width] = useTrackWidth();
   const params = useSearchParams();
   const [sort, setSort] = useState<Sort>(() => readSort(params));
+  // I2: the reasons on show, from ?reason=a,b (every reason present when the URL names none).
+  const present = [...new Set(a.flags.map((f) => f.flag_reason))];
+  const [shownReasons, setShownReasons] = useState<ReadonlySet<Reason>>(() => readReasons(params, present));
   useEffect(() => {
     if (shown === null) return;
     const away = (event: PointerEvent) => {
@@ -79,12 +90,25 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
   const n = labels.anomaly;
   const { from, to } = a.scan_window;
   const middle = new Date((dayOf(from) + dayOf(to)) / 2).toISOString().slice(0, 10);
-  const lanes = buildLanes(a.flags, from, to, width);
+  const visible = a.flags.filter((f) => shownReasons.has(f.flag_reason));
+  const lanes = buildLanes(visible, from, to, width);
+  const toggleReason = (reason: Reason) => {
+    const next = new Set(shownReasons);
+    if (next.has(reason)) next.delete(reason);
+    else next.add(reason);
+    setShownReasons(next);
+    const url = new URL(window.location.href);
+    if (next.size === present.length) url.searchParams.delete("reason");
+    else url.searchParams.set("reason", present.filter((r) => next.has(r)).join(","));
+    window.history.replaceState(null, "", url);
+  };
   const counts = new Map<Reason, number>();
   for (const flag of a.flags) counts.set(flag.flag_reason, (counts.get(flag.flag_reason) ?? 0) + 1);
   const isPicked = (ids: readonly number[]) => ids.length > 0 && ids.every((id) => picked.has(id));
   // Picking exactly what is already picked clears it; anything else replaces the pick.
   const pick = (ids: readonly number[]) => setPicked(isPicked(ids) && picked.size === ids.length ? new Set() : new Set(ids));
+  // I2: a mark brings its first row into view, and a row brings its mark into view.
+  const scrollTo = (selector: string) => document.querySelector(selector)?.scrollIntoView({ block: "nearest", inline: "nearest" });
   const markText = (flag: Flag) => fill(n.markLabel, { date: formatDate(flag.date, locale), reason: labels.enums.flag_reason[flag.flag_reason] });
   const word = (flag: Flag, column: SortColumn): string | number => {
     switch (column) {
@@ -106,7 +130,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
   };
   const compare = (x: string | number, y: string | number) => (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), locale));
   // Ties fall back to date, then hour, then the transaction, so the order is always the same.
-  const rows = [...a.flags].sort((p, q) => {
+  const rows = [...visible].sort((p, q) => {
     const first = compare(word(p, sort.column), word(q, sort.column)) * (sort.dir === "asc" ? 1 : -1);
     return first || p.date.localeCompare(q.date) || p.hour - q.hour || p.transaction_id - q.transaction_id;
   });
@@ -159,6 +183,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                         onClick={() => {
                           pick(c.ids);
                           setShown(key);
+                          scrollTo(`tbody tr[data-id="${c.ids[0]}"]`);
                         }}
                         onFocus={() => setShown(key)}
                         onBlur={() => setShown(null)}
@@ -198,14 +223,23 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
             {n.reason}
           </Term>
         </span>
-        <ul aria-label={n.lanes} className="flex flex-wrap gap-5 text-[13px]">
+        {/* I2: each legend item turns its reason's lane and rows on and off. U8: reasons only. R3: fixed labels. */}
+        <ul aria-label={n.lanes} className="flex flex-wrap gap-2 text-[13px]">
           {[...counts].map(([reason, count]) => (
-            <li key={reason} className="flex items-center gap-2">
-              <span aria-hidden="true" className="h-3 w-1.5" style={{ background: COLOUR[reason] }} />
-              {labels.enums.flag_reason[reason]}, <Num>{formatInt(count, locale)}</Num>
+            <li key={reason}>
+              <button type="button" className="reason-toggle" aria-pressed={shownReasons.has(reason)} data-reason={reason} onClick={() => toggleReason(reason)}>
+                <span aria-hidden="true" className="h-3 w-1.5" style={{ background: COLOUR[reason] }} />
+                {labels.enums.flag_reason[reason]}, <Num>{formatInt(count, locale)}</Num>
+              </button>
             </li>
           ))}
         </ul>
+        {/* The cap's count (E11) is of every flag; with a filter on, the page says how many it shows. */}
+        {visible.length !== a.flags.length && (
+          <p role="status" className="text-sm text-muted" data-showing>
+            {fill(n.showing, { x: formatInt(visible.length, locale), y: formatInt(a.flags.length, locale) })}
+          </p>
+        )}
       </section>
 
       <section aria-label={n.title} className="rise border border-line bg-card" style={{ animationDelay: delay(4) }}>
@@ -233,7 +267,10 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                   data-id={flag.transaction_id}
                   data-picked={picked.has(flag.transaction_id)}
                   className="row-pick cursor-pointer"
-                  onClick={() => pick([flag.transaction_id])}
+                  onClick={() => {
+                    pick([flag.transaction_id]);
+                    scrollTo(`button.tick[data-ids~="${flag.transaction_id}"]`);
+                  }}
                 >
                   <td className={TD}>
                     {/* B8, R4: the row's click has a keyboard path. The button's name is the date and the reason. */}
@@ -245,6 +282,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                       onClick={(event) => {
                         event.stopPropagation();
                         pick([flag.transaction_id]);
+                        scrollTo(`button.tick[data-ids~="${flag.transaction_id}"]`);
                       }}
                     >
                       <bdi>{formatDate(flag.date, locale)}</bdi>

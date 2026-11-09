@@ -1240,3 +1240,22 @@ body {
 .switcher-option:hover {
   background: var(--accentSoft);
 }
+
+/* I2: legend items toggle their reason. Off reads struck through as well as faded. */
+.reason-toggle {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-ctl);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.reason-toggle[aria-pressed="false"] {
+  color: var(--muted);
+  text-decoration: line-through;
+}

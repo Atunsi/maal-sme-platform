@@ -237,7 +237,8 @@
     "slots": "{n} of {cap} review slots used",
     "slotsShort": "{n} of {cap}",
     "clusterLabel": "{n} transactions close together: {list}",
-    "lanes": "One lane per flag reason"
+    "lanes": "One lane per flag reason",
+    "showing": "showing {x} of {y}"
   },
   "zakat": {
     "title": "Zakat",

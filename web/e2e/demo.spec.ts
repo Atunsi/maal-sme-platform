@@ -244,3 +244,20 @@ test("landing strip loads after the hero", async ({ request }) => {
   expect(firstFallback).toBeGreaterThan(hero);
   expect(firstCard).toBeGreaterThan(firstFallback);
 });
+
+test("review mark scrolls to its row and back", async ({ page }) => {
+  // I2: a mark brings its first row into view; a row brings its mark into view.
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await page.goto("/en/business/10015/review", { waitUntil: "networkidle" });
+  const mark = page.locator("button.tick").last();
+  const first = (await mark.getAttribute("data-ids"))!.split(" ")[0];
+  await mark.click();
+  await expect(page.locator(`tbody tr[data-id="${first}"]`)).toBeInViewport();
+  await expect(page.locator(`tbody tr[data-id="${first}"]`)).toHaveAttribute("data-picked", "true");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.mouse.wheel(0, 2000);
+  const row = page.locator("tbody tr").first();
+  const id = await row.getAttribute("data-id");
+  await row.getByRole("button").click();
+  await expect(page.locator(`button.tick[data-ids~="${id}"]`)).toBeInViewport();
+});
