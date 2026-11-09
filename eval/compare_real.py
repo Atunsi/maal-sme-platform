@@ -361,8 +361,9 @@ def main(argv: list[str] | None = None) -> int:
             f"({unified['synthetic']['median']:.3f} vs {unified['primary']['median']:.3f}; repeat bands {'overlap' if overlap else 'do not overlap'}) and {gap_sec:.3f} on the secondary "
             f"({unified['secondary']['median']:.3f}), vs tolerance {tol}. Per §8.3 a miss is reported as a finding; nothing is retuned."),
             "",
-            (f"**What the protocol changed.** The v1.0 headline compared a cross-validated synthetic AUC ({s_auc[0]:.3f}) with a single Berka temporal split "
-            f"({ci(sec['auc'])}, {sec['defaults_test']} test defaults) and reported a gap of {v1_gap:.3f}. Under the same repeated stratified group k-fold on both sides the Berka "
+            # 0.578 and 0.32 are what v1.0 reported (docs/NUMBERS.md §7, retired); the bracketed values are the same comparison on today's data.
+            (f"**What the protocol changed.** The v1.0 headline compared a cross-validated synthetic AUC (0.578 then; {s_auc[0]:.3f} on the current data) with a single Berka temporal split "
+            f"({ci(sec['auc'])}, {sec['defaults_test']} test defaults) and reported a gap of 0.32 ({v1_gap:.3f} on the current data). Under the same repeated stratified group k-fold on both sides the Berka "
             f"primary estimate is {unified['primary']['median']:.3f} [{unified['primary']['lo']:.3f}, {unified['primary']['hi']:.3f}] and the secondary {unified['secondary']['median']:.3f} "
             f"[{unified['secondary']['lo']:.3f}, {unified['secondary']['hi']:.3f}]; the synthetic side is {unified['synthetic']['median']:.3f}. "
             "The part of the v1.0 gap that was protocol rather than signal is the difference between the temporal-split row and the unified row on the Berka columns."),

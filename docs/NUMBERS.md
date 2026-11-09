@@ -18,11 +18,11 @@ Use these as written. Each carries the caveat that must travel with it.
 
 | Claim | Caveat that must be said with it |
 |---|---|
-| **On real bank outcomes the engine reaches AUC 0.721 [0.681, 0.770]**, against 0.574 on deliberately harder synthetic labels under the same protocol and features. | **Do not add "inside the published SME range" until a published benchmark is archived in `sources/` and cited** — the often-quoted 0.70–0.80 is not yet sourced (§21 source discipline; the same gap blocks entry 22 Path B).  Berka is Czech retail bank accounts from the 1990s, not Saudi SMEs, so it tests whether the engine extracts real signal, not Saudi calibration. n = 209 with 22 defaults. The eligibility rule removes riskier accounts (risk ratio 3.42), so this is measured on the eligible population and is optimistic. |
+| **On real bank outcomes the engine reaches AUC 0.721 [0.681, 0.770]**, against 0.570 on deliberately harder synthetic labels under the same protocol and features. | **Do not add "inside the published SME range" until a published benchmark is archived in `sources/` and cited** — the often-quoted 0.70–0.80 is not yet sourced (§21 source discipline; the same gap blocks entry 22 Path B).  Berka is Czech retail bank accounts from the 1990s, not Saudi SMEs, so it tests whether the engine extracts real signal, not Saudi calibration. n = 209 with 22 defaults. The eligibility rule removes riskier accounts (risk ratio 3.42), so this is measured on the eligible population and is optimistic. |
 | **The credit lens reaches 88.8% of the best AUC any model could achieve on our synthetic data** (0.5911 of a 0.6660 ceiling). | The ceiling exists because the synthetic labels deliberately contain noise that nothing observable can predict (§14). That design is what makes the labels non-circular. |
 | **AUC ≥ 0.85 on the synthetic data is impossible by construction**, so a result that high would indicate leakage, not skill. | Applies to the *synthetic* labels only. Real-data AUCs (e.g. Berka secondary 0.859) are not subject to it. |
-| **22 of 43 engine features predict real defaults** with a 95% interval excluding 0.5. | Univariate, on Berka; the other 21 are computed on real data but not claimed to predict. |
-| **Every decision is reproducible byte for byte**, and a saved decision can be verified: `python -m pipeline.verify`. | Covers the deterministic core only. Generated advisory text (if ever added, §36) is outside the receipt. |
+| **14 of 43 real-computed features separate confirmed defaults on Berka** (univariate AUC, 95% interval excluding 0.5 on the primary label); 22 of 43 do so on at least one of the two label sets. | Univariate, on Berka, with no correction for testing 43 features on two label sets. 8 of the 22 hold only on the secondary label, which is censored. 5 of the 43 are constant or have no rows on Berka, so 38 carry a value that varies there (entry 50). Do not say "22 features predict real defaults" without the label. |
+| **Every decision is reproducible byte for byte**, and a saved decision can be verified: `python -m pipeline.verify`. | **On one operating system.** The receipt's lens-config, Sharia-rule, scenario-library and input-data hashes are taken from bytes whose line endings differ between a Windows and a Linux or Mac checkout, so a receipt made on one fails `pipeline.verify` on the other although the decision is identical (entry 40, open). Covers the deterministic core only. Generated advisory text (if ever added, §36) is outside the receipt. |
 
 ---
 
@@ -31,16 +31,16 @@ Use these as written. Each carries the caveat that must travel with it.
 | ID | AUC [95%] | Population | N / defaults | Features | Protocol | Source | Quote it for | Never quote it for |
 |---|---|---|---|---|---|---|---|---|
 | **A1** | **0.5911 [0.5842, 0.5996]** | research, scorable | 9,495 / 449 | 58 — the §8 `/profile` list minus 23–26 | repeated stratified group 5-fold × 20 (`unified_cv`) | `lenses/credit/model_v1.json` | **The credit lens's performance** | comparing with Berka (different features) |
-| **A2** | **0.574 [0.568, 0.585]** | research, scorable | 9,495 / 449 | 25 scale-free real-computed features | same as A1 | `eval/out/real_vs_synthetic.md` | **Synthetic side of the real-vs-synthetic comparison** | the credit lens's performance |
+| **A2** | **0.570 [0.563, 0.580]** | research, scorable | 9,495 / 449 | 25 scale-free real-computed features | same as A1 | `eval/out/real_vs_synthetic.md` | **Synthetic side of the real-vs-synthetic comparison** | the credit lens's performance |
 | **A3** | **0.721 [0.681, 0.770]** | Berka primary label | 209 / 22 | same 25 as A2 | same as A1 | `eval/out/real_vs_synthetic.md` | **Real-data performance (headline)** | Saudi calibration |
 | A4 | 0.859 [0.841, 0.880] | Berka secondary label (censored) | 615 / 59 | same 25 as A2 | same as A1 | `eval/out/real_vs_synthetic.md` | real-data performance, secondary label | the headline (label is censored) |
 | A5 | 0.628 [0.536, 0.710] | serving (never trained on) | 943 / 45 | same 58 as A1 | A1 model scored once out of sample | `lenses/credit/model_v1.json` | out-of-sample sanity check on the disjoint demo population | a precise estimate (45 defaults) |
 | A6 | 0.5959 | research, scorable | 9,495 / 449 | all 71 engine features incl. Zakat-only 27–31, + dummies | single stratified 5-fold | `eval/out/section14_rho_sweep.md` | the §14 sensitivity measurement at ρ = 0.6 | the credit lens (includes non-contract features) |
-| A7 | 0.578 [0.550, 0.607] | research, scorable | 9,495 / 449 | same 25 as A2 | contiguous-ID entity 5-fold | `eval/out/real_vs_synthetic.md` | secondary protocol check | the headline |
+| A7 | 0.576 [0.550, 0.605] | research, scorable | 9,495 / 449 | same 25 as A2 | contiguous-ID entity 5-fold | `eval/out/real_vs_synthetic.md` | secondary protocol check | the headline |
 | A8 | 0.901 [0.835, 0.955] | Berka secondary, temporal test | test 328 / 25 | same 25 as A2 | single temporal split at 1997-01-01 | `eval/out/real_vs_synthetic.md` | **leakage check only** | performance (single split; mixing it with A2 created a spurious 0.32 gap) |
-| A9 | 0.610 | research + serving, scorable | 9,914 | 6 observables + sector | **in-sample** | `eval/out/gate_week3_after_monshaat.txt` | Week 3 gate criterion 2 (signal exists, labels not recoverable) | any performance claim |
+| A9 | 0.610 | research only, scorable by the gate's own 60-day window (entry 39) | 9,016 | 6 observables + sector | **in-sample** | `eval/out/gate_week3_after_monshaat.txt` | Week 3 gate criterion 2 (signal exists, labels not recoverable) | any performance claim |
 
-**Why A1, A2 and A6 differ (0.591 / 0.574 / 0.596):** the same population, but 58 vs 25 vs 71 features. A2 drops absolute-currency features so the comparison with Berka is scale-free. A6 includes the balance-sheet features that §8 keeps out of the credit lens. The protocols are repeated vs single. None of the three is wrong; they answer different questions.
+**Why A1, A2 and A6 differ (0.591 / 0.570 / 0.596):** the same population, but 58 vs 25 vs 71 features. A2 drops absolute-currency features so the comparison with Berka is scale-free. A6 includes the balance-sheet features that §8 keeps out of the credit lens. The protocols are repeated vs single. None of the three is wrong; they answer different questions.
 
 ---
 
@@ -66,6 +66,8 @@ The analytic form is **an approximation, not an identity**. It agreed to 0.0010 
 ## 4. §14 sensitivity — AUC as a function of ρ
 
 Source: `eval/out/section14_rho_sweep.md` (`python -m eval.run_section14`). Protocol and features as A6. Labels identical at every ρ.
+
+> **Measured on 2026-10-11, before entries 30, 35 and 38 changed ten of the 71 features (5, 20–22, 45, 55–59). Not re-run since.** §4, §4b and row A6 are the pre-fix measurement. The one comparison that was re-run after the fix moved by 0.004 (A2, 0.574 → 0.570), so a small move is expected here too, but it has not been measured. Re-running needs eight full-scale generations (`python -m eval.run_section14`, then the noise sweep).
 
 | ρ | 0.6 | 0.7 | 0.8 | 0.9 |
 |---|---|---|---|---|
@@ -111,20 +113,32 @@ Source: `eval/out/section14_noise_sweep.txt` (`python -m eval.sweep_rho --param 
 
 ## 5b. Demo scenario library (DECISIONS entry 29)
 
-Source: `eval/out/scenario_library_check.txt` (`python -m scenarios.run --check`). Business 10001 (serving) regenerated under each scenario in `scenarios/library.yaml`, with severities fixed before the first run. N = 1 business per scenario: these are demonstrations, not estimates. Every regenerate-and-run took under 0.5 s.
+Source: `eval/out/scenario_library_check.txt` (`python -m scenarios.run --check`). Business 10001 (serving) regenerated under each scenario in `scenarios/library.yaml`, with severities fixed before the first run. N = 1 business per scenario: these are demonstrations, not estimates. Every regenerate-and-run took under 0.5 s. Re-run on 2026-11-09 with the retrained model (`79160cb`); only the PD column moved (DECISIONS entry 46).
 
-| scenario | credit decision | PD | cash alert | injected anomalies flagged | Zakat (SAR, placeholder nisab) |
+| scenario | credit decision | PD | cash alert | injected anomalies flagged | Zakat (SAR) |
 |---|---|---|---|---|---|
-| `baseline` | approved | 0.0557 | watch | 2 of 2 | 5963.26 |
-| `calm_counterfactual` | approved | 0.0690 | none | 0 of 0 | 9031.05 |
-| `mild_slowdown` | approved | 0.0849 | none | 2 of 2 | 6890.63 |
-| `severe_collapse` | declined (affordability) | 0.0483 | crunch | 2 of 2 | 1327.52 |
-| `late_sudden_shock` | approved | 0.0999 | none | 2 of 2 | 6568.57 |
-| `fraud_pattern` | approved | 0.0953 | none | 5 of 5 | 4978.57 |
-| `combined_crisis` | declined (affordability) | 0.0561 | crunch | 2 of 2 | 2651.45 |
+| `baseline` | approved | 0.0526 | watch | 2 of 2 | 5963.26 |
+| `calm_counterfactual` | approved | 0.0663 | none | 0 of 0 | 9031.05 |
+| `mild_slowdown` | approved | 0.0743 | none | 2 of 2 | 6890.63 |
+| `severe_collapse` | declined (affordability) | 0.0390 | crunch | 2 of 2 | 1327.52 |
+| `late_sudden_shock` | approved | 0.0873 | none | 2 of 2 | 6568.57 |
+| `fraud_pattern` | approved | 0.0960 | none | 5 of 5 | 4978.57 |
+| `combined_crisis` | declined (affordability) | 0.0656 | crunch | 2 of 2 | 2651.45 |
 | `thin_file_newcomer` | not decided (insufficient_data) | — | — | — | — |
 
-Read with entry 29: the declines come from the §31 affordability gate, not from the risk model; PD does not rise with the disaster; the late three-week shock is not seen by any lens; and the anomaly lens returns its 10-flag cap in every scenario, including the calm one.
+Read with entries 29 and 46: the declines come from the §31 affordability gate, not from the risk model; **PD does not follow the severity of the disaster** (the severe collapse has the lowest PD, 0.0390, and the calm half-year, 0.0663, scores above the baseline, 0.0526); the late three-week shock is not seen by any lens; and the anomaly lens returns its 10-flag cap in every scenario, including the calm one.
+
+---
+
+## 5d. What the whole serving population shows in a demo (DECISIONS entries 29, 43, 47)
+
+Source: `eval/out/demo_exposure.md` (`python -m eval.demo_exposure`). Serving, all 1,000 businesses through the shipped Week 8 code path; 943 scored or partial_profile, 57 `insufficient_data`. Counts of what the shipped lenses return; nothing is fitted or chosen.
+
+| Number | Value | N | Caveat that must be said with it |
+|---|---|---|---|
+| First sentence of the customer explanation is about feature 3, `inflow_regularity_score` | **834 of 943**; feature 3 or its z-score 55 is among the three reasons for 943 of 943 | 943 | Within a sector the direction never varies: against the business for all 138 food and beverage and 373 retail cases, in its favour for all 298 construction and 25 professional services cases. The sentence describes the sector, not the business (entries 43, 47) |
+| Declined | **281 of 943 declined**: 243 by the affordability gate, 38 by the risk model | 943 | The risk model decides few declines; say so before a judge finds it (entry 29) |
+| Anomaly flags per business | **584 of 943 return the cap of 10 flags; the fewest is 4** | 943 | No business returns no flags. Flags are a review queue, not alarms |
 
 ---
 
@@ -147,18 +161,19 @@ Source: `eval/out/holdout_shock.md` (`python -m eval.holdout_shock`). Serving, d
 | Week 3 gate | PASS with one loud SKIP (professional services, 237 businesses / 3 defaults, below the §23 minimum cell) | `eval/out/gate_week3_after_monshaat.txt` |
 | Construction `implied_dso_days` (gate criterion 1) | 65.9 / 94.2 / 118.2 min/median/max, n = 3,679 — all inside [60, 120] | same |
 | Professional `implied_dio_days` | max 3.39, n = 261 — all < 5 | same |
-| Scorable / excluded | 9,914 scorable; 1,086 `insufficient_data` | same |
+| Scorable / excluded, **by the gate's window** (90 days ending at the last month-end) | 9,914 scorable; 1,086 `insufficient_data`, of 11,000. The lenses use the engine's window (ending at the as-of date): 562 `insufficient_data`, research scorable 9,495 (entry 39) | same; `data/profile_status.csv` |
 | §21 | 0 emergent findings; 6 input-consistency misses (medium-tier revenue share 19.7% vs GASTAT 34.3%; sector TV distance 0.384) | `eval/out/emergent_validation.md`, entry 12 |
 | SAMA POS ticket (calibration input) | retail 61.5 SAR, restaurants 29.0 SAR | `config.yaml`, `calibration/out/` |
 | Seasonality held-out years 2024–2025 | 12 PASS / 8 BOUNDED / 0 FAIL / 16 NOT_APPLIED | `calibration/out/saudi_calibration_report.md` |
 | §15 exclusion selectivity on Berka | excluded accounts default at 3.42× (primary) / 2.64× (secondary) the retained rate; 29.0% / 22.4% of defaults excluded | `eval/out/exclusion_selectivity.md` |
 | Evidence classes | A2 22, A1 21, B 3, C 25 of 71 registry entries | `eval/out/evidence_table.md` |
+| A2 by label set | 14 of 43 on the primary label, 19 on the secondary, 11 on both; 5 of 43 constant or empty on Berka | `eval/out/feature_transfer.md` (entry 50) |
 
 ---
 
 ## 6b. Serving path — Week 7 latency (§19)
 
-Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`), re-run after Sharia screening and the forecast change (entries 26–27). Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
+Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`), re-run after Sharia screening and the forecast change (entries 26–27). **Not re-timed since 2026-10-11:** the anomaly route now also runs the seasonal gate and the exact repeat check (entries 36.7, 37.5), and the credit model was retrained. On a slower 2-core machine with both anomaly changes the anomaly route's maximum was 1,271 ms and the credit route's 626 ms (entry 37.6), under the 2 s target; the figures below are the older run on the original machine. Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
 
 | Path | Value | n |
 |---|---|---|
@@ -182,8 +197,10 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | Within-sector share 56.8% | pre-calibration sector weights | 73.4% (§3) |
 | Medium-tier revenue share 43.9% / 44.0% vs 34.3% | before the Monsha'at register | 19.7% vs 34.3% (§6) |
 | "Synthetic 0.578 vs Berka 0.901, gap 0.32" | compared a CV estimate with a single temporal split | A2 vs A3 under one protocol |
-| "§21 signal-strength tolerance missed by 0.30" (gap 0.307) | pre-calibration run, Berka side from the single temporal split | gap 0.147 primary / 0.285 secondary vs tolerance 0.10 (`eval/out/real_vs_synthetic.md`) |
+| "§21 signal-strength tolerance missed by 0.30" (gap 0.307) | pre-calibration run, Berka side from the single temporal split | gap 0.152 primary / 0.289 secondary vs tolerance 0.10 (`eval/out/real_vs_synthetic.md`) |
+| A2 0.574 [0.568, 0.585]; A7 0.578 [0.550, 0.607]; gap 0.147 primary / 0.285 secondary | measured on 2026-09-17 with counterparty features 20–22 computed from thinned POS rows, which entry 30 showed to be biased; re-run on 2026-11-09 after entries 30, 35 and 38. The Berka side reproduced exactly | A2 0.570, A7 0.576, gap 0.152 / 0.289 (§2) |
 | "The model beats any single observable channel" | true pre-calibration; false after (withdrawn, entry 21) | — |
+| Scenario PDs 0.0557 / 0.0690 / 0.0849 / 0.0483 / 0.0999 / 0.0953 / 0.0561, and "the collapses' PDs are no higher than the baseline's" | the model before the retrain of 2026-11-07; with the retrained model the combined crisis (0.0656) is above the baseline (0.0526) | §5b, entry 46 |
 | Held-out round-trip recall 0.92 (precision 0.2135 of 0.2297) | true before the seasonal gate was switched on (entry 36.7); with it, 0.93 | §5 anomaly rows |
 | Held-out duplicate payment recall 0.06 | true with no repeat detector; with the exact check (entry 37.5) the same-day type is designed-for and scores 0.66 | §5 anomaly rows |
 | "The forecast model loses to the naive baseline" (median error 0.455 vs 0.376; MAPE 18.1% vs 15.0%) | true of the v1 OLS-trend model, which was replaced (entry 27) | §5 forecast rows |

@@ -20,7 +20,7 @@ and `insufficient_data` as a distinct state. No UI required to pass.
 
 | Document | Role |
 |---|---|
-| [`docs/Behavioral_Profile_Feature_Schema.md`](docs/Behavioral_Profile_Feature_Schema.md) | **v2.9 — the source of truth.** Feature contract (1–59), API read-paths, generator design, gate criteria. |
+| [`docs/Behavioral_Profile_Feature_Schema.md`](docs/Behavioral_Profile_Feature_Schema.md) | **v2.9 — the source of truth.** Feature contract, API read-paths, generator design, gate criteria. Its text defines features 1–59; the engine also computes 60–69, 18b and 62b (71 registry entries), and the credit lens reads 58. The schema edit that adds them is entry 33, still PROPOSED. |
 | [`docs/SME_Platform_SOP.md`](docs/SME_Platform_SOP.md) | Working rules, roles, gates, build/cut order. **Defers to the schema wherever the two disagree.** |
 | `SOP_Data_Grounding_And_Dimensions.md` (v2.0, team copy) | Real-data grounding (Berka) and honest completion of the ungrounded dimensions. Executed 2026-09-15/16; every phase's evidence is in `DECISIONS.md` entries 7–11 and `eval/out/`. |
 | [`DECISIONS.md`](DECISIONS.md) | Change-control log (SOP §9). Every decision the schema doesn't pin down, plus every open question, with rationale and sign-off lines. |
@@ -53,16 +53,16 @@ write code that breaks one, stop and raise it.
 |---|---|---|---|
 | Synthetic data generator | [`generator/`](generator/) | generator owner | **BUILT** — Week 3 gate PASSED, re-run unchanged after Phase 5 dimensions (obligations, facilities, transaction sub-fields, MCC coverage) |
 | Berka real-data adapter | [`berka_adapter/`](berka_adapter/) | generator owner | **BUILT** — Phases 0–4 of the grounding SOP accepted/run |
-| Eval harnesses (gate, §21 validation, held-out anomalies, real-vs-synthetic, sensitivity, evidence) | [`eval/`](eval/) | generator owner | **BUILT** (credit-lens CV curves, fairness audit pending Week 6–7) |
-| Profile engine — features 1–69 | [`profile_engine/`](profile_engine/) | profile engine owner | **BUILT** — source-agnostic; 24–26, 34–35 `not_implemented` (module owners); unit tests in `tests/test_profile_engine.py`. **The pinned §35 reference stats predate the Saudi calibration, so 55–59 are off-centre for retail and F&B (feature 59 mean 6.63 / 7.32 instead of 0): entry 35, rebuild planned once, after entry 30** |
-| Credit lens (Base Murabaha + SHAP) | [`lenses/credit/`](lenses/credit/) | credit lens owner | **v1 built** — CV AUC 0.591 (88.8% of ceiling), exact log-odds SHAP; params PROPOSED (entry 23) |
-| Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v2 built** — `naive90` chosen on validation, **beats the naive baseline** on an untouched test (0.323 vs 0.376; entry 27); holdout shock: warns later than the baseline (median 15 vs 27 days) with half the false alarms (entry 36) |
+| Eval harnesses (gate, §21 validation, held-out anomalies, real-vs-synthetic, sensitivity, evidence) | [`eval/`](eval/) | generator owner | **BUILT** — the §25 within-sector fairness audit has run and is **not met** (entry 43) |
+| Profile engine — features 1–69 | [`profile_engine/`](profile_engine/) | profile engine owner | **BUILT** — source-agnostic; 24–26, 34–35 `not_implemented` (module owners); unit tests in `tests/test_profile_engine.py`. Since 2026-11-04: counterparty features read full-stream totals, not thinned rows (entry 30); §35 reference stats rebuilt and pinned as v2 (entry 35); 55–59 clipped at ±3 (entry 38) |
+| Credit lens (Base Murabaha + SHAP) | [`lenses/credit/`](lenses/credit/) | credit lens owner | **v1, retrained 2026-11-07** — an L2 logistic regression (XGBoost was measured and lost, entry 49); CV AUC 0.591 (88.8% of ceiling); exact log-odds contributions. **§25 fairness audit not met** (entry 43). The customer explanation's first sentence is a sector effect for 834 of 943 serving businesses (entry 47, open) |
+| Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v2 built** — `naive90` chosen on validation, **beats the naive baseline** on an untouched test (0.323 vs 0.376; entry 27); holdout shock: warns later than the baseline (median 15 vs 27 days) with half the false alarms (entry 36). Prophet and ARIMA, named in the SOP, were never evaluated (entry 49) |
 | Anomaly lens | [`lenses/anomaly/`](lenses/anomaly/) | forecast + anomaly owner | **v1 + seasonal gate + exact repeat check** — held-out round-trip recall 0.93; same-day exact duplicates caught (0.66, designed-for); re-sent and vendor-record duplicates missed (entries 23, 36, 37) |
-| Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; **nisab price is a placeholder** (entry 23) |
+| Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; nisab at one commercial gold quotation (SAR 491.291/g, 8 Nov 2026), **unverified and dated after the calculation dates** (entry 48); no Sharia advisor review yet |
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | **Screening v1 built** — feature 24, deterministic rule table (PROPOSED, not certified); 85.1% compliant / 14.9% soft (entry 26) |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
 | API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 252 ms on all 1,000; entries 25–27) |
-| Next.js UI | — | — | Post-Week-8, own Week 10 gate. Not in this repo yet. |
+| Next.js UI | — | — | Post-Week-8, own Week 10 gate. On the unmerged branch `origin/faris/web-ui`; not on `main`. |
 
 Each component directory has a README stating its contract, the schema sections
 that govern it, and the constraints it must not implement around. **Read the
@@ -97,6 +97,7 @@ uvicorn api.app:app --port 8000                           # needs MAAL_API_KEY i
 python -m eval.latency_test                               # §19 Week 7 test → eval/out/latency_week7.md
 python -m pytest tests                                    # unit tests
 python -m scenarios.run --list                            # hostile-demo menu (DECISIONS 29); --scenario NAME, --check
+python -m eval.demo_exposure                  # serving-population counts behind the demo findings → eval/out/demo_exposure.md (~5 min)
 python -m eval.anomaly_eval                   # §12 injected vs held-out → eval/out/anomaly_eval.md
 python -m eval.forecast_backtest              # §10 model vs naive → eval/out/forecast_backtest.md
 python -m eval.holdout_shock                  # §10/§16 shock lead time, neutral + Ramadan windows → eval/out/holdout_shock.{md,png} (entry 36, ~8 min)
@@ -158,9 +159,9 @@ eval/                 Gates, validation, comparison, sensitivity harnesses; repo
 calibration/          Saudi national source calibration: SAMA POS seasonality, ticket sizes, credit,
                       Monsha'at register pull; measurements in calibration/out/. [BUILT]
 profile_engine/       Features 1–69, evidence registry, /profile membership lists. [BUILT]
-lenses/               credit · forecast · anomaly · zakat.      [stubs + contracts]
-compliance/           Sharia screening, PDPL note.              [stub + contract]
-api/                  The five read-paths (§8).                 [stub + contract]
+lenses/               credit · forecast · anomaly · zakat.      [v1 built, owners to take over]
+compliance/           Sharia screening, PDPL note.              [screening v1 built]
+api/                  The five read-paths (§8).                 [v1 built]
 data/                 Generated tables (+ data/berka/, data/berka_raw/). Git-ignored.
 docs/                 The schema and the SOP.
 sources/gastat/       Archived GASTAT publications (§21 source discipline).
@@ -217,10 +218,11 @@ portfolio amounts) until entry 6's step 3 lands.
 **`transactions.csv` carries `sample_weight`.** POS receipts are generated at the measured
 ticket (~33/day for a micro shop) and the `sales` rows of POS sectors are a 10% random
 thinning (weight 10.0); `daily_aggregates` keeps the full counts and is authoritative.
-Anything that sums inflow amounts from `transactions.csv` must weight by it. **The thinning is
-not unbiased for the counterparty features** (DECISIONS entry 30, `python -m eval.thinning_bias`):
-against the true full stream, features 20, 21, 22, 5 and 45 are all biased on thinned businesses,
-and weighting fixes only 21. Feature 1 and the other daily-table features are unaffected.
+Anything that sums inflow amounts from `transactions.csv` must weight by it. **Counterparty
+features cannot be computed from the thinned rows**: features 20, 21, 22, 5 and 45 were biased
+(DECISIONS entry 30). Since 2026-11-04 the generator also writes `counterparty_windows`,
+per-customer totals taken before thinning; the engine reads those features from it and refuses
+a thinned business that has none. `python -m eval.thinning_bias` shows the values before and after.
 
 ## Real-data grounding (2026-09-16) — what is measured and what is judged
 
@@ -231,7 +233,7 @@ and weighting fixes only 21. Feature 1 and the other daily-table features are un
 | Completeness gate | 4,500 / 4,500 accounts chain (0.21 CZK month-end tolerance) | `data/berka/build_summary.json` |
 | §15 rule on real data | **excludes 100%** of accounts as written; scored under `external_real: 10` (3,947 / 4,500) | [entry 9](DECISIONS.md) |
 | Evidence classes | **A2 22, A1 21, B 3, C 25** of 71 registry entries (69 numbered features + 18b, 62b). A2 = computed on Berka *and* univariate AUC CI excludes 0.50 on ≥ 1 label set; A1 = computed on Berka, performance reported, not assumed | [`eval/out/evidence_table.md`](eval/out/evidence_table.md), [`eval/out/feature_transfer.md`](eval/out/feature_transfer.md), [entry 16](DECISIONS.md) |
-| Real vs synthetic AUC | **one protocol on all three sources** (repeated stratified group 5-fold × 20): synthetic **0.574 [0.568, 0.585]** vs Berka primary **0.721 [0.681, 0.770]** / secondary **0.859 [0.841, 0.880]** — gap 0.15 (primary) / 0.29 (secondary), **FINDING**, not retuned. The v1.0 headline (0.578 vs a single temporal split 0.901, gap 0.32) mixed protocols and is kept as a labelled leakage check. The §15 exclusion is **selective**: excluded accounts default at 2.6–3.4× the retained rate | [`eval/out/real_vs_synthetic.md`](eval/out/real_vs_synthetic.md), [`eval/out/exclusion_selectivity.md`](eval/out/exclusion_selectivity.md), [entry 19](DECISIONS.md) |
+| Real vs synthetic AUC | **one protocol on all three sources** (repeated stratified group 5-fold × 20): synthetic **0.570 [0.563, 0.580]** vs Berka primary **0.721 [0.681, 0.770]** / secondary **0.859 [0.841, 0.880]** — gap 0.15 (primary) / 0.29 (secondary), **FINDING**, not retuned. The v1.0 headline (0.578 vs a single temporal split 0.901, gap 0.32) mixed protocols and is kept as a labelled leakage check. The §15 exclusion is **selective**: excluded accounts default at 2.6–3.4× the retained rate | [`eval/out/real_vs_synthetic.md`](eval/out/real_vs_synthetic.md), [`eval/out/exclusion_selectivity.md`](eval/out/exclusion_selectivity.md), [entry 19](DECISIONS.md) |
 | Class-C features | sensitivity ranges only, never a single number | `eval/out/sensitivity_*.md` |
 
 The three-column evidence table is the honest answer to "you have no real
@@ -245,7 +247,7 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
    near-zero signal *within construction* by an understood mechanism. The §25
    fairness audit should expect the signal through features 13, 16–19, 37–40.
    Profile engine owner signed 2026-11-01 (re-measured: `python -m eval.entry1b_check`);
-   credit lens owner still to sign.
+   credit lens owner signed 2026-11-07. The audit has since run and is not met (entry 43).
 2. ~~Sector scope~~ (entry 2) — **decided 2026-10-31: option A**, four sectors;
    logistics is a named cut in the report.
 3. **`daily_aggregates` row count** (entry 5) — proposed schema edit. §7 says
@@ -262,7 +264,8 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
    account; `external_real: 10` is the proposed source-labelled threshold. Profile
    engine owner signed 2026-11-01; team still to sign.
 7. **Feature 41 re-specification on the transaction code; feature 61 in the §31
-   underwriting rule** (entry 10) — credit lens + profile engine owners.
+   underwriting rule** (entry 10) — credit lens and profile engine owners signed
+   (2026-11-07, 2026-11-05); team still to sign.
 8. **Phase 5 ungrounded dimensions** (entry 11) — obligations not reconciled with
    the transaction stream by design; generator owner signed 2026-10-31, profile
    engine owner signed 2026-11-01 (66–69); team still to sign.
@@ -270,9 +273,9 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
    12-Sep-2026 edition this term**; re-pin deferred to next term.
 10. **A1 / A2 evidence split** (entry 16) — profile engine owner signed 2026-11-01;
     team still to sign the claim wording.
-11. **POS thinning biases the counterparty features** (entry 30, PROPOSED) — 20, 21, 22,
-    5 and 45 are biased on thinned businesses; only 21 is fixed by weighting. Profile
-    engine owner, generator owner and team.
+11. ~~POS thinning biases the counterparty features~~ (entry 30) — **fixed 2026-11-04** with
+    `counterparty_windows`. Profile engine owner signed 2026-11-05; the generator owner and
+    team boxes are still unticked.
 12. **Feature 24 has a value and a null reason at once for `insufficient_data` businesses**
     (entry 31, PROPOSED) — 57 of 57 refused serving businesses through `/profile`.
     Compliance owner and profile engine owner.
@@ -284,13 +287,35 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
 15. **Entry 10 pre-registration** (entry 34, PROPOSED, implementation blocked) — features 41
     and 42 with k = 0.15; nothing implemented and no number computed until the credit lens
     owner agrees.
-16. **Stale §35 reference statistics** (entry 35, PROPOSED) — rebuild once, after entry 30;
-    the credit lens owner retrains afterwards.
+16. ~~Stale §35 reference statistics~~ (entry 35) — **rebuilt and pinned as v2**; the credit
+    model was retrained on 2026-11-07 (entry 38, fully signed). The credit lens owner and team
+    boxes on entry 35 itself are still unticked.
+17. **Two counts of `insufficient_data`** (entry 39) — generator owner to sign.
+18. **Receipt hashes depend on the operating system** (entry 40, PROPOSED) — not implemented;
+    profile engine owner, generator owner and team.
+19. **§25 fairness audit not met** (entry 43, FINDING) — team to accept the finding and the
+    limitations wording.
+20. **Scenario findings restated for the retrained model** (entry 46) — generator owner,
+    credit lens owner, team.
+21. **Customer explanation states a sector effect** (entry 47, PROPOSED, options only) —
+    credit lens owner, team.
+22. **Zakat nisab price changed outside change control; price dated after every calculation
+    date** (entry 48, PROPOSED, options only) — compliance owner, Sharia advisor, team.
+23. **SOP and schema name XGBoost and Prophet/ARIMA** (entry 49, PROPOSED) — credit lens
+    owner, forecast + anomaly owner, team.
+24. **Five class-A1 features have no usable value on Berka** (entry 50, PROPOSED) — profile
+    engine owner, team.
+
+Entry number 43 is used twice: on `main` for the fairness finding and on the unmerged
+`origin/faris/web-ui` branch for a web UI entry (that branch also holds 41, 42, 44 and 45).
+One of the two has to be renumbered when the branch is merged.
 
 Entry 22 (latent spread) is settled: Path A, confirmed 2026-10-31. Generator-owner
 lines on entries 13, 14, 15, 17, 18 and 20 are signed. Profile engine owner lines on
-entries 1b, 5, 8, 9, 11 and 16 are signed (2026-11-01); 10 and 13 are not. The other
-owners' lines are not signed.
+entries 1b, 5, 8, 9, 10, 11, 13, 16, 30–35, 38 and 39 are signed. Credit lens owner lines
+on 1b, 10, 15, 19, 23, 26, 34, 38 and 43 are signed (2026-11-07 and 2026-11-08). **No line
+has been signed by the forecast + anomaly owner, the compliance owner or a Sharia advisor,
+and the API has no named owner.**
 
 ## Known gaps
 
@@ -298,14 +323,14 @@ owners' lines are not signed.
   profile engine** (`python -m pytest tests`; engine: `tests/test_profile_engine.py` —
   the §15 states, §16 rules, no bare nulls, determinism, registry, no latent leak). They do
   not test each of the 71 feature formulas one by one; most are still exercised only
-  through the integration harnesses. One engine test is a strict `xfail` documenting
-  entry 30.
+  through the integration harnesses. (The entry 30 `xfail` was replaced by passing tests
+  when the bias was fixed, `tests/test_thinning.py`.)
 - **Obligation rows are not reconciled with the transaction stream.** A synthetic
   direct-debit or scheduled row does not add collections to `transactions.csv`,
   because that would move gate numbers (§9.3). Committed outflow can therefore
   exceed observed outflow for some businesses.
-- **The 0.1 tolerance on `real_vs_synthetic_signal_strength` was missed**: gap 0.147 on the
-  Berka primary label (0.574 vs 0.721) and 0.285 on the secondary, one protocol on both sides
+- **The 0.1 tolerance on `real_vs_synthetic_signal_strength` was missed**: gap 0.152 on the
+  Berka primary label (0.570 vs 0.721) and 0.289 on the secondary, one protocol on both sides
   (`eval/out/real_vs_synthetic.md`; the old "missed by 0.30" was the retired single-split comparison)
   in the direction of *more* real signal. The generator's ρ = 0.6 / σ = 0.2 is
   untouched; revisit only through a recorded §21 decision.
@@ -355,11 +380,13 @@ Added by the real-data grounding SOP (§16):
 - **43 of 69 features are computed on Berka** — but only **22 are A2** (univariate AUC
   CI excludes 0.50 on at least one label set); the other 21 are **A1**: computed on
   real data, performance reported, not claimed to predict. The counterparty family
-  and the growth features are A1 (entry 16).
+  and the growth features are A1 (entry 16). Of the 22, **14 hold on the confirmed-default
+  label**; 8 hold only on the censored one. Of the 43, five are constant or empty on Berka
+  (entry 50).
 - Berka's `C` status is **censored**, not a confirmed non-default. Both label
   treatments are reported and the censoring is named.
-- The real-versus-synthetic AUC gap (0.29, real side higher) is **reported as a
-  finding**.
+- The real-versus-synthetic AUC gap (0.152 on the primary label, 0.289 on the censored
+  secondary; real side higher) is **reported as a finding**.
 
 Added by the Saudi source calibration (2026-09-16):
 
@@ -418,5 +445,7 @@ on this data would be evidence of leakage, not skill; treat it as a tripwire.
 Labels are identical at every ρ (asserted), so the sweep isolates observable
 cleanliness against fixed ground truth. Detail in
 [`DECISIONS.md`](DECISIONS.md) entry 21; the calibration decision it raises is
-entry 22, which must be settled **before the credit lens starts training**.
+entry 22, which was settled before the credit lens trained (Path A, 2026-10-31). These
+figures were measured before entries 30, 35 and 38 changed ten of the 71 features and have
+not been re-run; see `docs/NUMBERS.md` §4.
 

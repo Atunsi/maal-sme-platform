@@ -3121,3 +3121,219 @@ within volatile sectors."
 
 **Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; finding recorded — not fairness
 approval) ☐ team (the finding and the limitations wording)
+
+---
+
+## 46. Scenario library re-run on the retrained credit model; entry 29's findings 1–2 restated — RECORDED (measurement, 2026-11-09)
+
+**Touches:** `eval/out/scenario_library_check.txt`, `docs/NUMBERS.md` §5b and §7. `config.yaml`,
+`lenses/lens_config.yaml`, `lenses/credit/model_v1.json` and `scenarios/library.yaml` are unchanged.
+
+**Numbering.** Numbers 41, 42, 44 and 45 are used on the unmerged branch `origin/faris/web-ui`, which
+also carries a different entry 43 (web UI enhancements) from the one on `main` (§25 fairness). This
+entry takes 46 so a third collision is not added. The two entries numbered 43 have to be renumbered
+when that branch is merged.
+
+**Why.** NUMBERS §5b and the report behind it were last produced on 2026-10-31, before entries 30, 35
+and 38 changed ten features and before the credit model was retrained (`79160cb`, 2026-11-07). Entry
+38 said §5b "moves with the retrain"; it was not re-run. `eval.check_numbers` compares the register
+with the committed report, and both were stale, so the check passed.
+
+**Result** (`python -m scenarios.run --check`, exit 0; business 10001, N = 1 per scenario, severities
+unchanged since 2026-10-31). Decisions, amounts, tiers, cash alerts, anomaly flags and Zakat are the
+same as on 2026-10-31. Only the PD moved:
+
+| scenario | decision | PD on 2026-10-31 | PD now |
+|---|---|---|---|
+| `baseline` | approved, 47,000 SAR, tier B | 0.0557 | 0.0526 |
+| `calm_counterfactual` | approved, 242,000 SAR, tier C | 0.0690 | 0.0663 |
+| `mild_slowdown` | approved, 173,000 SAR, tier C | 0.0849 | 0.0743 |
+| `severe_collapse` | declined (affordability) | 0.0483 | 0.0390 |
+| `late_sudden_shock` | approved, 104,000 SAR, tier C | 0.0999 | 0.0873 |
+| `fraud_pattern` | approved, 159,000 SAR, tier C | 0.0953 | 0.0960 |
+| `combined_crisis` | declined (affordability) | 0.0561 | 0.0656 |
+
+**Entry 29's findings, restated for the shipped model:**
+1. Collapses are still declined by the §31 affordability gate, not by the risk model. Entry 29's
+   sentence "Their PDs (0.0483, 0.0561) are no higher than the baseline's (0.0557)" no longer holds for
+   `combined_crisis`: 0.0656 against 0.0526. It still holds for `severe_collapse` (0.0390), which has the
+   lowest PD of the seven scored scenarios.
+2. PD does not follow the severity of the disaster. The calm half-year with no shock and no anomalies
+   (0.0663) scores above the baseline (0.0526) and above the combined crisis (0.0656); the severe
+   collapse scores lowest. Say "the risk score does not track how bad the scenario is", not "PD does
+   not rise": five of the six other scored scenarios now have a higher PD than the baseline, the calm
+   one included.
+3. Findings 3 to 5 are unchanged: the late three-week shock is approved for 104,000 SAR against the
+   baseline's 47,000 with no cash alert, and the anomaly lens returns 10 flags in every scenario.
+
+Nothing was retuned, and one business per scenario is a demonstration, not an estimate.
+
+**Sign-off:** ☐ generator owner (scenario library re-run) ☐ credit lens owner (findings 1–2 as restated) ☐ team (the wording used in the demo)
+
+---
+
+## 47. The customer explanation states a sector-level effect as the business's own trait — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** `lenses/credit/model.py` (`explain`, `FEATURE_LABELS`, `PHRASES`), §13 (public tier), §25,
+the demo, entry 23.3's sentence "the model cannot shortcut to the sector code", and the same comment in
+`lenses/lens_config.yaml`. Nothing is changed by this entry.
+
+**Finding** (`python -m eval.demo_exposure` → `eval/out/demo_exposure.md`, NUMBERS §5d; serving, all
+1,000 businesses through the shipped code path, 943 scored or partial_profile):
+- Feature 3 `inflow_regularity_score` is the **first** public reason for **834 of 943** businesses, and
+  feature 3 or its z-score 55 is among the three public reasons for **943 of 943**.
+- Where it is first, its direction is fixed by sector: against the business for all 138 food and
+  beverage and all 373 retail cases, in its favour for all 298 construction and all 25 professional
+  services cases.
+- Demo business 10001, the first one shown, reads: "Your consistency of incoming payments was a major
+  factor increasing the estimated credit risk." Its feature 3 contribution is +1.027583 log-odds
+  (`python -m pipeline.week8 --demo`). It is a daily-POS retail shop, so its inflows are as regular as
+  the feature can measure (entry 38: feature 3 is exactly 1.0 for 98.1% of retail research businesses).
+  Its third sentence is "Your recent overdraft occurrences was a major factor supporting the credit
+  assessment."
+
+**Why it happens** is already recorded in entry 43: with features 3 and 55 both in the model, the pair
+acts as a per-sector constant. Entry 43 drew the consequence for the §25 audit. It did not draw the
+consequence for the customer text, which was written on 2026-11-08 and shows the largest contributions
+first. The text is a fixed template (no generated text, SOP §2 holds). What it says is the problem: a
+retail owner is told that being consistent raises their risk, and every owner in a sector is told the
+same thing.
+
+**A second sentence this contradicts.** Entry 23.3 and the comment in `lenses/lens_config.yaml` say
+sector "enters only through the §35 z-scores, so the model cannot shortcut to the sector code (§25)".
+Entry 43 measured summed sector-level offsets of +0.242 (construction) to −1.431 (professional services)
+log-odds. The sentence should be withdrawn by the credit lens owner. Editing the comment changes
+`lens_config_sha256` in every receipt, so it is left for the owner to do with the next lens-config change.
+
+**Options (not chosen here; each is the credit lens owner's to pick):**
+- **A. Keep the model and the text, and say it first.** State in the demo that the first reason is a
+  sector effect for 834 of 943 businesses. Costs nothing; the sentence still misleads a real owner.
+- **B. Change only what the public tier shows.** For example, leave out of the customer text any feature
+  whose direction is the same for a whole sector, by a rule written before looking at which features it
+  removes. The model, the PD and the compliance tier (all contributions) stay as they are.
+- **C. Change the feature set** (for example, do not give the model both members of a pair such as 3
+  and 55). This is a new model: entry 43 already requires the selection rule to be fixed and committed
+  before it is evaluated, and A1 and every number downstream move.
+- **D. Hold the public tier back from the demo** until one of the above is decided, and show the
+  compliance tier with entry 43's wording.
+
+**Not done, deliberately:** no label, phrase, threshold, feature or model file was changed. Choosing
+B or C after seeing which sentences look bad is the retuning this project rules out, so the rule has
+to be written first.
+
+**Sign-off:** ☐ credit lens owner (choose A–D; withdraw the "cannot shortcut" sentence) ☐ team (what is said in the demo)
+
+---
+
+## 48. Zakat nisab price changed without a numbered entry; the price is dated after every calculation date — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** `lenses/lens_config.yaml` (`zakat.nisab`), `lenses/zakat/gold_price.py`,
+`lenses/zakat/refresh_gold_price.py`, `pipeline/week8.py` (`--gold-quote`),
+`.github/workflows/update-gold-price.yml`, `sources/zakat_nisab_gold_price.md`, entry 23.3, SOP §9.
+Nothing is changed by this entry. The Zakat arithmetic itself is deterministic and unchanged (SOP §2
+holds: no model and no LLM is involved).
+
+**What happened.** On 2026-11-08 (`55c3547`, `82f86d6`) `price_sar_per_gram` went from the placeholder
+400 to 491.291, from a LivePriceOfGold quotation of 2026-11-08 19:06 UTC, archived as a screenshot. The
+nisab went from SAR 34,000.00 to SAR 41,759.74 (NUMBERS §5). Replacing the placeholder with a dated,
+archived quotation is an improvement. Three things about how it was done are open:
+
+1. **No numbered entry.** The change was written into entry 23.3's text in place. Entry 23 carries a
+   signed line, and SOP §9 asks for a recorded change before code. The compliance owner's own line on
+   entry 23 is still unticked.
+2. **The price is later than every date it is applied to.** Every business's Zakat is calculated as of
+   its `window_end`, and those run from 2026-01-27 to 2026-07-30 (`data/businesses.csv`, all 11,000). The
+   nisab for all of them is valued at a price from 2026-11-08. The new code already treats this as an
+   error on its other path: `pipeline/week8.py` raises "Gold quotation is newer than the Zakat
+   calculation date" for a `--gold-quote` file. The default price in the lens config is not checked.
+3. **The live-quote path cannot run on this project's data.** Any quotation GoldAPI returns today is
+   dated after 2026-07-30, so it is refused for every generated business. Checked on 2026-11-09:
+   `python -m pipeline.week8 --demo --gold-quote <a quote dated 2026-11-09>` stops with that error. The
+   daily workflow fetches a quotation and publishes it to GitHub Pages; nothing on `main` reads it, and
+   the quotations are written under `data/`, which is git-ignored, so they are not archived in
+   `sources/` as the source rule requires. The pinned price and the fetched price also come from two
+   different providers (LivePriceOfGold and GoldAPI.io).
+
+**What it changes in results.** Demo business 10001's liability is unchanged at SAR 5,963.26 (its base
+is far above either nisab). How many businesses cross the nisab threshold between 34,000 and 41,759.74
+has not been measured.
+
+**Options (not chosen here):**
+- **A. Keep 491.291 as one pinned reference price** and state plainly, in the output and the report,
+  that the nisab is valued at a single documented quotation and not at the price on the calculation
+  date. Then either remove the date check on `--gold-quote` or apply the same check to the default.
+- **B. Pin a price dated on or before the calculation dates**, from a source that can be archived in
+  `sources/` with its edition (one price for the window, or one per month-end).
+- **C. Keep the live path for a future real deployment only**, where the calculation date is today, and
+  say that it is not exercised on the synthetic population. Decide whether the daily workflow and its
+  public page belong in the capstone repository.
+- In every case: the hawl rule and the gold basis still wait for the Sharia advisor (entry 23.3).
+
+**Sign-off:** ☐ compliance owner (choose; record the 2026-11-08 change) ☐ Sharia advisor (basis, valuation date) ☐ team
+
+---
+
+## 50. Five class-A1 features have no usable value on Berka, and "22 predict real defaults" rests partly on the censored label — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** the evidence registry (entry 16's A1 / A2 rule), `eval/out/feature_transfer.md`,
+`eval/out/evidence_table.md`, NUMBERS §1 and §6, the README honesty rules. No code and no class is
+changed by this entry; the claim wording in NUMBERS §1 and the README was narrowed in the same pass.
+
+**Finding** (counted from `eval/out/feature_transfer.md`, 43 class-A rows; Berka, primary label n = 209
+with 22 defaults, secondary label n = 615 with 59, censored):
+- **Five of the 43 "computed on real data" features carry no information there.** Features 5, 41, 45
+  and 46 are constant on Berka on both label sets. Feature 26 has no rows at all (n = 0); it is
+  `not_implemented` in the engine and is classed A1 because it "reuses features 3 and 11". So 38
+  features have a value that varies on real data, not 43.
+- **Of the 22 A2 features, 14 have an interval that excludes 0.50 on the primary label.** 19 do on the
+  secondary label, 11 on both, and 8 only on the secondary label, which is censored
+  (loans still running are counted as non-defaults). One of the 14, feature 22, is the "hair-thin" case the report already names (folded AUC
+  0.530 on a near-constant feature).
+- The rule tests 43 features on two label sets at 95% with no correction for the number of tests, so
+  a few of the 22 are expected by chance alone.
+
+**Options (not chosen here):**
+- **A. Keep the classes; keep only the narrower wording** now in NUMBERS §1 ("14 of 43 on the
+  confirmed-default label; 22 on at least one of two label sets").
+- **B. Add a rule to entry 16**: a feature that is constant or has no rows on the real source is not
+  A1 (it would be class C, or a new "real_degenerate" label). The counts in NUMBERS §6 and the evidence
+  table then change by a rule, not by hand.
+- **C. Require the primary label for A2**, so the headline count is 14.
+
+**Sign-off:** ☐ profile engine owner (registry rule) ☐ team (claim wording)
+
+---
+
+## 49. The governing documents name XGBoost and Prophet/ARIMA; the shipped lenses are a logistic regression and a 90-day moving average — PROPOSED wording change, options only (2026-11-09)
+
+**Touches:** `docs/SME_Platform_SOP.md` §3 and §5 (Week 7), `docs/Behavioral_Profile_Feature_Schema.md`
+§13 and §19, the component READMEs, the proposal and the final report. No code.
+
+**Finding.**
+- SOP §3 gives the credit lens owner "XGBoost, SHAP" and the forecast owner "Prophet/ARIMA"; SOP §5's
+  Week 7 test names "XGBoost inference"; schema §13 calls log-odds the "native XGBoost output scale".
+- The shipped credit model is an L2 logistic regression (entry 23). XGBoost was measured and lost:
+  logistic 0.5959 against early-stopped XGBoost 0.5865 and untuned XGBoost 0.5568, on the §14 feature
+  set, research, N = 9,495 (NUMBERS §4, entry 21). The "SHAP" value is coefficient × standardised
+  value, which is exact for a linear model (entry 43).
+- The shipped forecast is `naive90`, a trailing 90-day mean (entry 27). The six candidates fixed in
+  advance were `naive90`, `ewma`, `blend`, `naive30`, `structural` and `ols_damped`
+  (`eval/out/forecast_selection.md`). **Prophet and ARIMA were never candidates**, so the project has
+  no measurement of either.
+- The same documents still say 59 features. The engine computes 69 numbered features plus 18b and 62b
+  (71 registry entries), and the credit lens reads 58. That part is already entry 33 (PROPOSED schema
+  edit v2.9 → v2.10) and is not re-opened here.
+
+**Why it needs a decision.** A reader who compares the proposal with the repository finds a different
+model in two of three lenses. For credit, the team has a measured reason. For forecasting it has none:
+the promised methods were not tried.
+
+**Options (not chosen here):**
+- **A. Amend the wording** in the SOP, the schema (with entry 33's edit) and the report to what was
+  built, with the reasons above, and say outright that Prophet and ARIMA were not evaluated.
+- **B. Evaluate Prophet and ARIMA.** The test window (days 151–180) has been used once (entry 27), so a
+  fair comparison needs the protocol and a new untouched window written down first; otherwise the test
+  becomes a second validation.
+- **C. Leave the documents and state the difference in the report's limitations only.**
+
+**Sign-off:** ☐ credit lens owner ☐ forecast + anomaly owner ☐ team (SOP and schema wording)

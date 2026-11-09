@@ -4,7 +4,8 @@
 
 **Owner:** credit lens owner · **Schema:** §11, §13, §14, §17, §25, §26, §31 · **Due:** Week 5, SHAP Week 7
 
-XGBoost PD model + SHAP explanation, trained on `data/labels.csv` against the
+PD model + explanation (v1 is an L2 logistic regression: XGBoost was measured and
+lost, see below and DECISIONS entry 49), trained on `data/labels.csv` against the
 profile engine's feature vector.
 
 ## Output contract (§11) — fields present even when null
@@ -45,7 +46,7 @@ Reproduce with `python -m eval.latent_ceiling` (seconds) and
 **1. The achievable ceiling is AUC 0.665, and you will be at ~90% of it.**
 Default labels come from hidden latents plus idiosyncratic noise (§14), so no
 feature set can exceed the AUC of the latent itself. Measured: oracle 0.6660;
-**this lens (v1) 0.5912 = 88.8% of ceiling** ([`docs/NUMBERS.md`](../../docs/NUMBERS.md) row A1).
+**this lens (v1, retrained 2026-11-07) 0.5911 = 88.8% of ceiling** ([`docs/NUMBERS.md`](../../docs/NUMBERS.md) row A1).
 SME credit models are commonly said to reach 0.70–0.80 (**not yet sourced** — cite an
 archived benchmark before saying it on a slide), so a bare 0.59 will read as
 underperformance when it is near-optimal here. On real Berka outcomes the same engine

@@ -1,6 +1,6 @@
 # Zakat lens — v1 BUILT, owner to take over
 
-**v1 (2026-10-11, DECISIONS entry 23):** `zakat.py` — NWC method, nisab + hawl gates, explicit reasons. Demo 10001 → SAR 5,963.26; 10002 → `hawl_incomplete`. **The nisab gold price (SAR 400/g) is a PLACEHOLDER** — every output says `nisab_source_status: placeholder_unverified` until you replace it with a dated, archived price. Hawl rule (nisab at start and end of the year) awaits Sharia-advisor confirmation.
+**v1 (2026-10-11, DECISIONS entry 23):** `zakat.py` — NWC method, nisab + hawl gates, explicit reasons. Demo 10001 → SAR 5,963.26; 10002 → `hawl_incomplete`. **The nisab gold price is one commercial quotation** (SAR 491.291/g, 8 November 2026, `sources/zakat_nisab_gold_price.md`; it replaced the SAR 400/g placeholder on 2026-11-08) — every output says `nisab_source_status: commercial_quote_documented_pending_independent_verification`. It is dated after every calculation date in the generated data; DECISIONS entry 48 holds the open choices. Hawl rule (nisab at start and end of the year) awaits Sharia-advisor confirmation.
 
 **Owner:** compliance owner · **Schema:** §7, §8, §17 · **Due:** Week 7
 
