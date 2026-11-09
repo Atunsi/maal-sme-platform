@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
+import type { ReactNode } from "react";
 
 type View = "public" | "compliance";
 
 type Props = {
+  /** The server's reading of ?view, used only where no router supplies the URL. */
   initialView: View;
   labels: { group: string; public: string; compliance: string };
   publicSlot: ReactNode;
@@ -13,18 +15,20 @@ type Props = {
 
 /**
  * Both tiers arrive in one API response, so toggling needs no new request. A live demo can flip it
- * freely without touching the API's per-business rate limit. State sits in ?view=compliance, so the
- * view can be shared; pushState keeps Next's router in step without a server round trip.
+ * freely without touching the API's per-business rate limit. B5: the view is read from ?view=compliance
+ * on every render, so the URL and the view can never disagree. A toggle replaces the history entry
+ * rather than adding one, so Back leaves the page instead of flipping the view; Next's router picks up
+ * the replaced URL without a server round trip.
  */
 export function CreditViewSwitch({ initialView, labels, publicSlot, complianceSlot }: Props) {
-  const [view, setView] = useState<View>(initialView);
+  const params = useSearchParams();
+  const view: View = params ? (params.get("view") === "compliance" ? "compliance" : "public") : initialView;
 
   function choose(next: View) {
-    setView(next);
     const url = new URL(window.location.href);
     if (next === "compliance") url.searchParams.set("view", "compliance");
     else url.searchParams.delete("view");
-    window.history.pushState(null, "", url);
+    window.history.replaceState(null, "", url);
   }
 
   const button = (value: View, label: string) => (

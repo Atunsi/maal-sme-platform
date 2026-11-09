@@ -33,6 +33,25 @@ test("compliance toggle works from the keyboard and shows a focus ring", async (
   expect(outline).toBe("solid");
 });
 
+test("credit view and URL never disagree after back", async ({ page }) => {
+  // B5: the toggle replaces the history entry, so Back leaves the credit page instead of flipping the view.
+  await page.goto("/en/business/10009", { waitUntil: "networkidle" });
+  await page.goto("/en/business/10009/credit", { waitUntil: "networkidle" });
+  const view = page.getByTestId("compliance-view");
+  await page.getByRole("button", { name: "Compliance View" }).click();
+  await expect(page).toHaveURL(/\/credit\?view=compliance$/);
+  await expect(view).toBeVisible();
+  await page.getByRole("button", { name: "Public view" }).click();
+  await expect(page).toHaveURL(/\/credit$/);
+  await expect(view).toBeHidden();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/en\/business\/10009$/);
+  await page.goForward();
+  await expect(page).toHaveURL(/\/credit$/);
+  await expect(view).toBeHidden();
+  await expect(page.getByRole("button", { name: "Public view" })).toHaveAttribute("aria-pressed", "true");
+});
+
 test("a shared ?view=compliance link opens the Compliance View", async ({ page }) => {
   await page.goto("/en/business/10007/credit?view=compliance", { waitUntil: "networkidle" });
   await expect(page.getByTestId("compliance-view")).toBeVisible();
