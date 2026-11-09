@@ -3273,37 +3273,6 @@ has not been measured.
 
 ---
 
-## 50. Five class-A1 features have no usable value on Berka, and "22 predict real defaults" rests partly on the censored label — FINDING + PROPOSED, options only (2026-11-09)
-
-**Touches:** the evidence registry (entry 16's A1 / A2 rule), `eval/out/feature_transfer.md`,
-`eval/out/evidence_table.md`, NUMBERS §1 and §6, the README honesty rules. No code and no class is
-changed by this entry; the claim wording in NUMBERS §1 and the README was narrowed in the same pass.
-
-**Finding** (counted from `eval/out/feature_transfer.md`, 43 class-A rows; Berka, primary label n = 209
-with 22 defaults, secondary label n = 615 with 59, censored):
-- **Five of the 43 "computed on real data" features carry no information there.** Features 5, 41, 45
-  and 46 are constant on Berka on both label sets. Feature 26 has no rows at all (n = 0); it is
-  `not_implemented` in the engine and is classed A1 because it "reuses features 3 and 11". So 38
-  features have a value that varies on real data, not 43.
-- **Of the 22 A2 features, 14 have an interval that excludes 0.50 on the primary label.** 19 do on the
-  secondary label, 11 on both, and 8 only on the secondary label, which is censored
-  (loans still running are counted as non-defaults). One of the 14, feature 22, is the "hair-thin" case the report already names (folded AUC
-  0.530 on a near-constant feature).
-- The rule tests 43 features on two label sets at 95% with no correction for the number of tests, so
-  a few of the 22 are expected by chance alone.
-
-**Options (not chosen here):**
-- **A. Keep the classes; keep only the narrower wording** now in NUMBERS §1 ("14 of 43 on the
-  confirmed-default label; 22 on at least one of two label sets").
-- **B. Add a rule to entry 16**: a feature that is constant or has no rows on the real source is not
-  A1 (it would be class C, or a new "real_degenerate" label). The counts in NUMBERS §6 and the evidence
-  table then change by a rule, not by hand.
-- **C. Require the primary label for A2**, so the headline count is 14.
-
-**Sign-off:** ☐ profile engine owner (registry rule) ☐ team (claim wording)
-
----
-
 ## 49. The governing documents name XGBoost and Prophet/ARIMA; the shipped lenses are a logistic regression and a 90-day moving average — PROPOSED wording change, options only (2026-11-09)
 
 **Touches:** `docs/SME_Platform_SOP.md` §3 and §5 (Week 7), `docs/Behavioral_Profile_Feature_Schema.md`
@@ -3337,3 +3306,34 @@ the promised methods were not tried.
 - **C. Leave the documents and state the difference in the report's limitations only.**
 
 **Sign-off:** ☐ credit lens owner ☐ forecast + anomaly owner ☐ team (SOP and schema wording)
+
+---
+
+## 50. Five class-A1 features have no usable value on Berka, and "22 predict real defaults" rests partly on the censored label — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** the evidence registry (entry 16's A1 / A2 rule), `eval/out/feature_transfer.md`,
+`eval/out/evidence_table.md`, NUMBERS §1 and §6, the README honesty rules. No code and no class is
+changed by this entry; the claim wording in NUMBERS §1 and the README was narrowed in the same pass.
+
+**Finding** (counted from `eval/out/feature_transfer.md`, 43 class-A rows; Berka, primary label n = 209
+with 22 defaults, secondary label n = 615 with 59, censored):
+- **Five of the 43 "computed on real data" features carry no information there.** Features 5, 41, 45
+  and 46 are constant on Berka on both label sets. Feature 26 has no rows at all (n = 0); it is
+  `not_implemented` in the engine and is classed A1 because it "reuses features 3 and 11". So 38
+  features have a value that varies on real data, not 43.
+- **Of the 22 A2 features, 14 have an interval that excludes 0.50 on the primary label.** 19 do on the
+  secondary label, 11 on both, and 8 only on the secondary label, which is censored
+  (loans still running are counted as non-defaults). One of the 14, feature 22, is the "hair-thin" case the report already names (folded AUC
+  0.530 on a near-constant feature).
+- The rule tests 43 features on two label sets at 95% with no correction for the number of tests, so
+  a few of the 22 are expected by chance alone.
+
+**Options (not chosen here):**
+- **A. Keep the classes; keep only the narrower wording** now in NUMBERS §1 ("14 of 43 on the
+  confirmed-default label; 22 on at least one of two label sets").
+- **B. Add a rule to entry 16**: a feature that is constant or has no rows on the real source is not
+  A1 (it would be class C, or a new "real_degenerate" label). The counts in NUMBERS §6 and the evidence
+  table then change by a rule, not by hand.
+- **C. Require the primary label for A2**, so the headline count is 14.
+
+**Sign-off:** ☐ profile engine owner (registry rule) ☐ team (claim wording)
