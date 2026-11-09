@@ -97,6 +97,7 @@ uvicorn api.app:app --port 8000                           # needs MAAL_API_KEY i
 python -m eval.latency_test                               # §19 Week 7 test → eval/out/latency_week7.md
 python -m pytest tests                                    # unit tests
 python -m scenarios.run --list                            # hostile-demo menu (DECISIONS 29); --scenario NAME, --check
+python -m eval.demo_exposure                  # serving-population counts behind the demo findings → eval/out/demo_exposure.md (~5 min)
 python -m eval.anomaly_eval                   # §12 injected vs held-out → eval/out/anomaly_eval.md
 python -m eval.forecast_backtest              # §10 model vs naive → eval/out/forecast_backtest.md
 python -m eval.holdout_shock                  # §10/§16 shock lead time, neutral + Ramadan windows → eval/out/holdout_shock.{md,png} (entry 36, ~8 min)

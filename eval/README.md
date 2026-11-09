@@ -20,6 +20,7 @@ deliverables.
 | `signal_decomposition.py` | §14 attribution: where signal is lost between the hidden latent and the measured features | 0 |
 | `model_baseline.py` | What the feature set supports at this sample size — logistic vs tuned/untuned XGBoost on one protocol, as % of the oracle ceiling | 0 |
 | `week8_check.py` | Week 8 contract: §11 keys, fixed markup, charity penalty, no forbidden keys / scores, Zakat arithmetic, forecast-with-baseline, byte-identical re-run — asserted on real CLI output | 0 = PASS, 1 = FAIL |
+| `demo_exposure.py` | Serving-population counts behind the demo findings: the first customer-explanation sentence by sector, declines by reason, anomaly flags per business (entries 29, 43, 47). Needs `data/serving.duckdb` | 0 |
 | `anomaly_eval.py` | §12 anomaly lens recall@K / precision@K (with its ceiling), injected and held-out types reported separately | 0 |
 | `forecast_backtest.py` | §10 model vs naive on a 30-day holdout: scale-free error, MAPE away from zero, crunch recall / false alarms | 0 |
 | `check_numbers.py` | Recomputes every checkable headline number from its source artifact and asserts `docs/NUMBERS.md` carries it — the register cannot silently go stale | 0 = current, 1 = drift |

@@ -199,6 +199,19 @@ def scenarios() -> list[tuple[str, str]]:
     return [(f"scenario {r.split('`')[1]}", r) for r in scenario_rows()]
 
 
+def demo_exposure() -> list[tuple[str, str]]:
+    """§5d: serving-population counts behind the demo findings (entries 29, 43, 47)."""
+    t = _read("eval/out/demo_exposure.md")
+    first = re.search(r"first public reason for (\d+ of \d+) businesses", t).group(1)
+    top3 = re.search(r"three public reasons for (\d+ of \d+)", t).group(1)
+    declined = re.search(r"\*\*(\d+ of \d+) are declined; (\d+) of those (\d+) by the §31 affordability gate\*\* and (\d+) by the risk model", t)
+    cap = re.search(r"\*\*(\d+ of \d+) businesses return the cap of (\d+) flags; the fewest any business returns is (\d+)", t)
+    return [("demo: feature 3 first public reason", first), ("demo: feature 3 or 55 in the three reasons", top3),
+            ("demo: declined", f"{declined.group(1)} declined"),
+            ("demo: declined by reason", f"{declined.group(2)} by the affordability gate, {declined.group(4)} by the risk model"),
+            ("demo: anomaly cap", f"{cap.group(1)} return the cap of {cap.group(2)} flags; the fewest is {cap.group(3)}")]
+
+
 def gate() -> list[tuple[str, str]]:
     t = _read("eval/out/gate_week3_after_monshaat.txt")
     d = re.search(r"construction\s+implied_dso_days: min ([0-9.]+)\s+median ([0-9.]+)\s+max ([0-9.]+)\s+\(n=(\d+)\)", t)
@@ -246,7 +259,7 @@ def forecast_selection() -> list[tuple[str, str]]:
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, fairness_s25, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, gate, selectivity, latency, sharia, forecast_selection):
+    for fn in (credit_model, fairness_s25, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, demo_exposure, gate, selectivity, latency, sharia, forecast_selection):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

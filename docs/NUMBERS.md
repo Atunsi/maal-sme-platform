@@ -128,6 +128,18 @@ Read with entries 29 and 46: the declines come from the §31 affordability gate,
 
 ---
 
+## 5d. What the whole serving population shows in a demo (DECISIONS entries 29, 43, 47)
+
+Source: `eval/out/demo_exposure.md` (`python -m eval.demo_exposure`). Serving, all 1,000 businesses through the shipped Week 8 code path; 943 scored or partial_profile, 57 `insufficient_data`. Counts of what the shipped lenses return; nothing is fitted or chosen.
+
+| Number | Value | N | Caveat that must be said with it |
+|---|---|---|---|
+| First sentence of the customer explanation is about feature 3, `inflow_regularity_score` | **834 of 943**; feature 3 or its z-score 55 is among the three reasons for 943 of 943 | 943 | Within a sector the direction never varies: against the business for all 138 food and beverage and 373 retail cases, in its favour for all 298 construction and 25 professional services cases. The sentence describes the sector, not the business (entries 43, 47) |
+| Declined | **281 of 943 declined**: 243 by the affordability gate, 38 by the risk model | 943 | The risk model decides few declines; say so before a judge finds it (entry 29) |
+| Anomaly flags per business | **584 of 943 return the cap of 10 flags; the fewest is 4** | 943 | No business returns no flags. Flags are a review queue, not alarms |
+
+---
+
 ## 5c. Forecast — §10 holdout shock and §16 Ramadan window (DECISIONS entry 36)
 
 Source: `eval/out/holdout_shock.md` (`python -m eval.holdout_shock`). Serving, demo businesses and the `<1yr` tier excluded, N = 751. Shock from day 92; only shock-caused crunches count (the control stays at or above zero). Lead time = days between the first projected-negative warning and the actual negative balance; a miss is 0. Projection only — the liquidity hazard is not part of this test.
