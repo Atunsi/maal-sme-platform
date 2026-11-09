@@ -4,6 +4,7 @@ import { Term } from "@/components/Term";
 import { BackendText, Code, Plate, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import type { Locale, Messages } from "@/lib/i18n";
 import type { CreditResponse } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 const STATUS_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
 
@@ -29,7 +30,7 @@ function Checked({ label, value, result, index }: { label: ReactNode; value: Rea
   return (
     <div
       className="rise grid grid-cols-1 items-center gap-x-4 gap-y-1 border-t border-line2 px-7 py-4 sm:grid-cols-3"
-      style={{ animationDelay: `${(0.5 + index * 0.18).toFixed(2)}s` }}
+      style={{ animationDelay: delay(1 + index) }}
     >
       <span className="text-[13px] text-muted">{label}</span>
       <span className="font-mono text-base">{value}</span>
@@ -99,7 +100,7 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
       )}
 
       {questions.length > 0 && (
-        <section aria-labelledby="ask" className="panel rise flex flex-col gap-3 p-8" style={{ animationDelay: "1.4s" }}>
+        <section aria-labelledby="ask" className="panel rise flex flex-col gap-3 p-8" style={{ animationDelay: delay(4) }}>
           <h2 id="ask" className="heading caps text-sm text-muted">
             {m.sharia.questions}
           </h2>

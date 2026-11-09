@@ -9,6 +9,7 @@ import { formatInt } from "@/lib/format";
 import { fill, getMessages, isLocale } from "@/lib/i18n";
 import { scenarioName } from "@/lib/scenario-label";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
+import { delay } from "@/lib/motion";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +76,7 @@ export default async function ScenariosPage({ params, searchParams }: Props) {
                 className={`menu-link square rise flex min-h-11 flex-col gap-0.5 px-4 py-3.5 no-underline ${i ? "border-t border-line" : ""} ${
                   current ? "bg-solid text-white" : "bg-card text-ink"
                 }`}
-                style={{ animationDelay: `${(0.1 + i * 0.06).toFixed(2)}s` }}
+                style={{ animationDelay: delay(1 + Math.floor(i / 2)) }}
               >
                 <span aria-hidden="true" className="font-mono text-xs opacity-75">
                   {String(i + 1).padStart(2, "0")}
@@ -104,7 +105,7 @@ export default async function ScenariosPage({ params, searchParams }: Props) {
             <ApiError kind="contract" detail={(!baseline.ok && baseline.detail) || (!chosen.ok && chosen.detail) || undefined} m={m} />
           )}
 
-          <div className="panel rise flex flex-col gap-4 p-7" style={{ animationDelay: "2.6s" }}>
+          <div className="panel rise flex flex-col gap-4 p-7" style={{ animationDelay: delay(4) }}>
             <h2 className="heading text-[22px]">{sc.findingsTitle}</h2>
             <ol className="grid grid-cols-1 gap-px sm:grid-cols-2" style={{ background: "var(--panelRule)" }}>
               {sc.findings.map((finding, i) => (

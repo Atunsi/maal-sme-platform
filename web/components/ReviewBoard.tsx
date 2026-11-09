@@ -7,6 +7,7 @@ import { formatDate, formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import { label } from "@/lib/labels";
 import type { AnomalyResponse } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 type Computed = Extract<NonNullable<AnomalyResponse["anomaly"]>, { status: "computed" }>;
 type Reason = Computed["flags"][number]["flag_reason"];
@@ -82,7 +83,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                 >
                   <span
                     className="tick-bar"
-                    style={{ height: `${on ? Math.min(look.height + 18, 118) : look.height}%`, background: look.colour, animationDelay: `${(0.4 + at * 3).toFixed(2)}s` }}
+                    style={{ height: `${on ? Math.min(look.height + 18, 118) : look.height}%`, background: look.colour, animationDelay: delay(at * 4) }}
                   />
                   <span aria-hidden="true" className={`tip ${at > 0.6 ? "tip-end" : ""}`}>
                     {readout}
@@ -107,7 +108,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
         </ul>
       </section>
 
-      <section aria-label={n.title} className="rise border border-line bg-card" style={{ animationDelay: "3.2s" }}>
+      <section aria-label={n.title} className="rise border border-line bg-card" style={{ animationDelay: delay(4) }}>
         <TableScroll label={n.title}>
           <table className="w-full min-w-[860px]">
             <thead>

@@ -5,6 +5,7 @@ import { byAbsoluteContribution, traceLine } from "@/lib/compliance";
 import { formatRaw } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import type { CreditDetail, CreditExplanation, Receipt } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 function KeyValueTable({ rows, keyLabel, valueLabel }: { rows: Record<string, string>; keyLabel: string; valueLabel: string }) {
   return (
@@ -133,7 +134,7 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
                   <span
                     aria-hidden="true"
                     className={`bar-grow bar-from-start mt-1 !h-2 ${row.contribution_logodds > 0 ? "bg-bad" : "bg-ok"}`}
-                    style={{ width: `${((Math.abs(row.contribution_logodds) / largest) * 100).toFixed(1)}%`, animationDelay: `${Math.min(0.2 + i * 0.1, 1.2).toFixed(2)}s` }}
+                    style={{ width: `${((Math.abs(row.contribution_logodds) / largest) * 100).toFixed(1)}%`, animationDelay: delay(2 + i) }}
                   />
                 </td>
                 <td className={TD}>{row.imputed ? m.common.yes : m.common.no}</td>

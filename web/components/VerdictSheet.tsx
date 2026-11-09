@@ -7,6 +7,7 @@ import { decisionPlate, decisionWord } from "@/lib/decision";
 import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { CreditResponse, Receipt } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 const SHORT = 12;
 
@@ -29,12 +30,12 @@ function ReceiptAside({ receipt, lens, m }: { receipt: Receipt; lens: string; m:
   ];
   return (
     <aside aria-label={o.receiptEyebrow} data-tour="receipt" className="panel square flex min-w-0 flex-[1_1_320px] flex-col gap-4 p-8">
-      <div className="rise" style={{ animationDelay: "1.2s" }}>
+      <div className="rise" style={{ animationDelay: delay(2) }}>
         <div className="eyebrow text-gold">{o.receiptEyebrow}</div>
         <div className="heading mt-1.5 text-[26px]">{o.receiptTitle}</div>
         <p className="mt-1.5 text-sm text-muted">{o.receiptBody}</p>
       </div>
-      <dl data-latin className="rise grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: "1.5s" }}>
+      <dl data-latin className="rise grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: delay(3) }}>
         {rows.map(([key, value]) => (
           <div key={key} className="contents">
             <dt className="text-muted">{key}</dt>
@@ -79,17 +80,17 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
               </span>
               <span className="verdict-rule" aria-hidden="true" />
               {credit.amount_sar !== null && (
-                <span className="rise font-mono text-[34px] font-medium text-ink sm:text-[52px]" style={{ animationDelay: "0.8s" }}>
+                <span className="rise font-mono text-[34px] font-medium text-ink sm:text-[52px]" style={{ animationDelay: delay(1) }}>
                   <Num>{formatSar(credit.amount_sar, locale)}</Num>
                 </span>
               )}
             </h2>
             {detail.decline_reason && (
-              <p className="rise" style={{ animationDelay: "0.8s" }}>
+              <p className="rise" style={{ animationDelay: delay(1) }}>
                 {m.credit.declineReason}: {m.enums.decline_reason[detail.decline_reason]}
               </p>
             )}
-            <div className="rise grid grid-cols-1 border-t border-line sm:grid-cols-3" style={{ animationDelay: "1s" }}>
+            <div className="rise grid grid-cols-1 border-t border-line sm:grid-cols-3" style={{ animationDelay: delay(2) }}>
               {credit.repayment_months !== null && (
                 <Cell label={o.repayment} first>
                   <div className="font-mono text-xl">{fill(o.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</div>
@@ -106,7 +107,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
                 <div className="text-lg">{o.lateValue}</div>
               </Cell>
             </div>
-            <p className="rise text-sm text-muted" style={{ animationDelay: "1.1s" }}>
+            <p className="rise text-sm text-muted" style={{ animationDelay: delay(2) }}>
               {m.credit.note}
             </p>
           </>

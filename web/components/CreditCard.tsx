@@ -9,6 +9,7 @@ import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import { label } from "@/lib/labels";
 import type { CreditExplanation, CreditResponse } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 type Line = CreditExplanation["public_tier"][number];
 
@@ -18,7 +19,7 @@ const DIRECTION_VARIANT = { supports: "ok", against: "bad", either: "ink" } as c
 const BAR_COLOUR = { supports: "bg-ok", against: "bg-bad", either: "bg-ink" } as const;
 
 function Bar({ line, from, index }: { line: Line; from: "start" | "end"; index: number }) {
-  const style: CSSProperties = { width: `min(${BAR_PX[line.magnitude!]}px, 45%)`, animationDelay: `${(0.35 + index * 0.18).toFixed(2)}s` };
+  const style: CSSProperties = { width: `min(${BAR_PX[line.magnitude!]}px, 45%)`, animationDelay: delay(3 + index) };
   return <span aria-hidden="true" className={`bar-grow bar-from-${from} ${BAR_COLOUR[line.direction!]}`} style={style} />;
 }
 
@@ -124,7 +125,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
         publicSlot={<PublicTier lines={explanation.public_tier} locale={locale} m={m} />}
         complianceSlot={<ComplianceView explanation={explanation} detail={detail} receipt={data.receipt} locale={locale} m={m} />}
       />
-      <section aria-label={m.credit.terms} className="rise" style={{ animationDelay: "0.3s" }}>
+      <section aria-label={m.credit.terms} className="rise" style={{ animationDelay: delay(3) }}>
         {/* U1: display only. Nothing on this page can change the markup. */}
         <dl className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] border border-line bg-card">
           {credit.amount_sar !== null && (

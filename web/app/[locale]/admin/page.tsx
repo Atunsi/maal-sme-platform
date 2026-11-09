@@ -12,6 +12,7 @@ import { creditPlate } from "@/lib/decision";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { SERVING_ID_MAX, SERVING_ID_MIN } from "@/lib/population";
 import type { ApiResult, CreditResponse } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,7 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
   const cell = "px-6 py-4.5";
   const plate = r.ok ? creditPlate(r.data, m) : null;
   return (
-    <tr className="row-pick rise border-t border-line2" style={{ animationDelay: `${(0.3 + index * 0.1).toFixed(2)}s` }}>
+    <tr className="row-pick rise border-t border-line2" style={{ animationDelay: delay(2 + index) }}>
       <th scope="row" className={`${cell} text-start font-mono text-lg font-normal`}>
         <Num>{id}</Num>
       </th>
@@ -109,7 +110,7 @@ export default async function AdminPage({ params, searchParams }: Props) {
             <span className="eyebrow">{a.eyebrow}</span>
           </div>
           <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{a.title}</h1>
-          <span aria-hidden="true" className="verdict-rule mt-3.5 w-[120px] text-gold" style={{ height: 5, animationDelay: "0.3s" }} />
+          <span aria-hidden="true" className="verdict-rule mt-3.5 w-[120px] text-gold" style={{ height: 5, animationDelay: delay(3) }} />
         </div>
         <BusinessPicker
           locale={locale}
@@ -118,7 +119,7 @@ export default async function AdminPage({ params, searchParams }: Props) {
         />
       </div>
 
-      <div className="rise border border-line bg-card" style={{ animationDelay: "0.2s" }}>
+      <div className="rise border border-line bg-card" style={{ animationDelay: delay(2) }}>
         <TableScroll label={a.tableLabel}>
         <table className="w-full min-w-[820px] border-collapse">
           <thead>

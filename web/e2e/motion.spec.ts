@@ -25,10 +25,34 @@ test("motion runs when it is allowed", async ({ page }) => {
 });
 
 test("the logo's entrance has the madda land after the body, Arabic before English", async ({ page }) => {
+  // M1: the same order inside the 0.4 s cap on every page but the landing page and sign-in.
   await page.goto("/en/business/10001/credit");
   const delays = await page.locator("header svg path").evaluateAll((paths) => paths.map((path) => getComputedStyle(path).animationDelay));
-  expect(delays).toEqual(["0.1s", "0.6s", "0.3s", "0.8s"]);
+  expect(delays).toEqual(["0.1s", "0.3s", "0.2s", "0.4s"]);
+  // The landing page keeps its full sequence.
+  await page.goto("/en");
+  const full = await page.locator("header svg path").evaluateAll((paths) => paths.map((path) => getComputedStyle(path).animationDelay));
+  expect(full).toEqual(["0.1s", "0.6s", "0.3s", "0.8s"]);
 });
+
+for (const path of ["/en/business/10001", "/en/business/10001/zakat", "/en/business/10001/review"]) {
+  test(`entrance motion stays under the cap: ${path}`, async ({ page }) => {
+    // R6: every entrance on the page ends within 1 s of starting (delay at most 0.4 s, duration at most 0.6 s),
+    // and every .rise element is fully visible 1 s after the page has loaded.
+    await page.goto(path, { waitUntil: "networkidle" });
+    const timings = await page.evaluate(() =>
+      document
+        .getAnimations()
+        .map((a) => a.effect?.getComputedTiming())
+        .filter((t): t is ComputedEffectTiming => !!t && t.iterations !== Infinity)
+        .map((t) => Number(t.delay) + Number(t.duration)),
+    );
+    expect(timings.filter((t) => t > 1000)).toEqual([]);
+    await page.waitForTimeout(1000);
+    const faded = await page.locator(".rise").evaluateAll((els) => els.filter((el) => Number(getComputedStyle(el).opacity) < 1).length);
+    expect(faded).toBe(0);
+  });
+}
 
 test("reduced motion: overview shows the verdict at its final state", async ({ page }) => {
   await settledWithoutMotion(page, "/en/business/10001");

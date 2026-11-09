@@ -71,6 +71,16 @@
   --o-start: left;
   --o-end: right;
 }
+
+/* M1, R6 (DECISIONS 45): the named entrance delays. Outside the landing page and sign-in no entrance waits
+   more than 0.4 s or runs longer than 0.6 s; lib/motion.ts delay() picks a step for inline styles. */
+:root {
+  --d-0: 0s;
+  --d-1: 0.1s;
+  --d-2: 0.2s;
+  --d-3: 0.3s;
+  --d-4: 0.4s;
+}
 [dir="rtl"] {
   --o-start: right;
   --o-end: left;
@@ -441,21 +451,21 @@ summary {
 
 /* Every element's base style is its final state, so nothing depends on an animation to appear. */
 .rise {
-  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .slidein {
   animation: slidein 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .stamp {
   transform-origin: var(--o-start) center;
-  animation: stamp 0.7s 0.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: stamp 0.6s 0.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .verdict-rule {
   display: block;
   height: 6px;
   background: currentColor;
   transform-origin: var(--o-start);
-  animation: growx 0.8s 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: growx 0.6s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .lift {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -470,13 +480,13 @@ summary {
 }
 .lg-madda {
   transform-box: fill-box;
-  animation: lgland 0.55s 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: lgland 0.55s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .lg-body.lg-late {
-  animation-delay: 0.3s;
+  animation-delay: 0.2s;
 }
 .lg-madda.lg-late {
-  animation-delay: 0.8s;
+  animation-delay: 0.4s;
 }
 
 /* Credit: bars grow out of the centre axis, in turn. */
@@ -484,7 +494,7 @@ summary {
   display: block;
   flex: none;
   height: 18px;
-  animation: growx 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: growx 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .bar-from-start {
   transform-origin: var(--o-start);
@@ -519,7 +529,7 @@ summary {
   stroke: var(--warnText);
   stroke-width: 3px;
   stroke-dasharray: 1;
-  animation: draw 1.6s 0.2s ease-in-out both;
+  animation: draw 0.6s 0.2s ease-in-out both;
 }
 
 /* Zakat: bars fill in order, the nisab marker drops, the hawl track fills. */
@@ -527,7 +537,7 @@ summary {
   position: absolute;
   top: 0;
   bottom: 0;
-  animation: growx 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: growx 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .fill-from-start {
   transform-origin: var(--o-start);
@@ -544,7 +554,7 @@ summary {
 
 /* Forecast: a clip reveals the lines left to right, so nothing is ever drawn over the chart. */
 .reveal {
-  animation: reveal 2.2s 0.4s cubic-bezier(0.45, 0.05, 0.25, 1) both;
+  animation: reveal 0.6s 0.4s cubic-bezier(0.45, 0.05, 0.25, 1) both;
 }
 .pulse-ring {
   transform-box: fill-box;
@@ -553,7 +563,7 @@ summary {
   animation: pulse 1.8s ease-out infinite;
 }
 .fade-late {
-  animation: fade 0.5s 2.5s both;
+  animation: fade 0.5s 0.4s both;
 }
 
 /* Review: the scan line sweeps once and is gone; marks rise as it passes. */
@@ -566,7 +576,7 @@ summary {
   opacity: 0;
   background: var(--accent);
   box-shadow: 0 0 0 6px rgba(46, 49, 146, 0.12);
-  animation: sweep 3s 0.4s linear both;
+  animation: sweep 0.6s 0.4s linear both;
 }
 .tick {
   position: absolute;
@@ -595,7 +605,7 @@ summary {
 .scan-fill {
   height: 6px;
   background: var(--ink);
-  animation: fillw 3s 0.4s linear both;
+  animation: fillw 0.6s 0.4s linear both;
 }
 .row-pick {
   transition: background 0.2s;
@@ -613,7 +623,26 @@ summary {
   animation: stampin 0.5s both;
 }
 .flash {
-  animation: flash 1.2s ease both;
+  animation: flash 0.6s ease both;
+}
+
+/* The landing page and sign-in keep their full entrance sequence (M1). Each marks itself data-motion="full";
+   the header's logo is outside the page, so the rule reads the whole body. */
+body:has([data-motion="full"]) .rise {
+  animation-duration: 0.7s;
+}
+body:has([data-motion="full"]) .verdict-rule {
+  animation-duration: 0.8s;
+  animation-delay: 0.6s;
+}
+body:has([data-motion="full"]) .lg-body.lg-late {
+  animation-delay: 0.3s;
+}
+body:has([data-motion="full"]) .lg-madda {
+  animation-delay: 0.6s;
+}
+body:has([data-motion="full"]) .lg-madda.lg-late {
+  animation-delay: 0.8s;
 }
 .menu-link {
   transition: background 0.2s, padding 0.2s;

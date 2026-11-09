@@ -7,6 +7,7 @@ import { BackendText, Num, Plate, Probability, Refusal, SubHeading, TableScroll,
 import { formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ForecastResponse } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
 const HORIZONS = ["30d", "60d", "90d"] as const;
@@ -44,7 +45,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
   const hazard = HORIZONS.map((key) => ({ key, days: fill(n.horizonDays, { n: formatInt(Number.parseInt(key, 10), locale) }), value: alert.liquidity_hazard[key] }));
   return (
     <>
-      <dl aria-label={n.keyFigures} className="rise grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border border-line bg-card" style={{ animationDelay: "0.1s" }}>
+      <dl aria-label={n.keyFigures} className="rise grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border border-line bg-card" style={{ animationDelay: delay(1) }}>
         <Figure label={n.balanceToday}>
           <Num>{formatSar(f.balance_today_sar, locale)}</Num>
         </Figure>
@@ -108,7 +109,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
         </div>
         <p className="text-[13px] text-muted">{n.chartNote}</p>
       </section>
-      <section aria-label={n.tableLabel} className="rise border border-line bg-card" style={{ animationDelay: "0.3s" }}>
+      <section aria-label={n.tableLabel} className="rise border border-line bg-card" style={{ animationDelay: delay(3) }}>
         <TableScroll label={n.chartTitle}>
           <table className="w-full min-w-[720px]">
             <thead>

@@ -8,6 +8,7 @@ import { formatDate, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import { label } from "@/lib/labels";
 import type { ZakatResponse } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 const STATUS_VARIANT = { computed: "ok", zero_liability: "ink", not_computed: "warn" } as const;
 
@@ -53,26 +54,26 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
       <div className="relative">
         <div role="img" aria-label={alt} className={GRID}>
           <Step label={n.assets} value={sar(assets)}>
-            <div className="fill-bar fill-from-start start-0 bg-accent" style={{ width: pct(assets, scale), animationDelay: "0.2s" }} />
+            <div className="fill-bar fill-from-start start-0 bg-accent" style={{ width: pct(assets, scale), animationDelay: delay(0) }} />
           </Step>
           <Step label={n.less} value={sar(liabilities)}>
             {/* The deduction hangs from the end of the assets bar and eats back towards the base. */}
             <div
               className="fill-bar fill-from-end stripe"
-              style={{ insetInlineStart: bars[1]!.start, width: bars[1]!.width, animationDelay: "1s" }}
+              style={{ insetInlineStart: bars[1]!.start, width: bars[1]!.width, animationDelay: delay(1) }}
             />
           </Step>
           <Step label={n.base} value={sar(base)} strong>
-            <div className="fill-bar fill-from-start start-0 bg-ink" style={{ width: pct(base, scale), animationDelay: "1.8s" }} />
-            <div aria-hidden="true" className="drop absolute -inset-y-3.5 w-[3px] bg-ochre" style={{ insetInlineStart: nisabAt, animationDelay: "2.6s" }} />
+            <div className="fill-bar fill-from-start start-0 bg-ink" style={{ width: pct(base, scale), animationDelay: delay(2) }} />
+            <div aria-hidden="true" className="drop absolute -inset-y-3.5 w-[3px] bg-ochre" style={{ insetInlineStart: nisabAt, animationDelay: delay(3) }} />
             {/* The label sits on the side of the marker with more room and wraps within it, so it never runs off
                 a phone screen. */}
             <div
               className="drop absolute top-[34px] w-max font-mono text-xs text-warn"
               style={
                 z.nisab_value_sar / scale > 0.5
-                  ? { insetInlineEnd: `calc(100% - ${nisabAt} + 10px)`, maxWidth: `calc(${nisabAt} - 10px)`, animationDelay: "2.7s" }
-                  : { insetInlineStart: `calc(${nisabAt} + 10px)`, maxWidth: `calc(100% - ${nisabAt} - 10px)`, animationDelay: "2.7s" }
+                  ? { insetInlineEnd: `calc(100% - ${nisabAt} + 10px)`, maxWidth: `calc(${nisabAt} - 10px)`, animationDelay: delay(3) }
+                  : { insetInlineStart: `calc(${nisabAt} + 10px)`, maxWidth: `calc(100% - ${nisabAt} - 10px)`, animationDelay: delay(3) }
               }
             >
               {fill(n.nisabLine, { value: sar(z.nisab_value_sar), basis: z.nisab_basis })}
@@ -114,7 +115,7 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
   const marker = snapshot ? pct(at(snapshot) - at(start), at(end) - at(start)) : null;
   const alt = fill(n.hawlAlt, { start: date(start), end: date(end), snapshot: snapshot ? date(snapshot) : m.common.dash });
   return (
-    <section aria-labelledby="hawl" className="rise flex min-w-0 flex-[999_1_560px] flex-col gap-5 border border-line bg-card p-5 sm:p-9" style={{ animationDelay: "0.4s" }}>
+    <section aria-labelledby="hawl" className="rise flex min-w-0 flex-[999_1_560px] flex-col gap-5 border border-line bg-card p-5 sm:p-9" style={{ animationDelay: delay(1) }}>
       <h2 id="hawl" className="heading text-2xl">
         <Term id="hawl" locale={locale}>
           {n.hawlTitle}
@@ -122,11 +123,11 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
       </h2>
       <div role="img" aria-label={alt} dir="ltr" className="relative h-[90px]">
         <div className="absolute inset-x-0 top-9 h-2.5 bg-line2" />
-        <div className="fill-bar fill-from-start inset-x-0 !top-9 !bottom-auto h-2.5 bg-accent" style={{ animationDuration: "2.4s", animationDelay: "0.6s" }} />
+        <div className="fill-bar fill-from-start inset-x-0 !top-9 !bottom-auto h-2.5 bg-accent" style={{ animationDelay: delay(2) }} />
         <div className="absolute left-0 top-7 h-[26px] w-[3px] bg-ink" />
         <div className="absolute right-0 top-7 h-[26px] w-[3px] bg-ink" />
         {marker && (
-          <div className="drop absolute top-7 -ml-[7px] box-border h-[26px] w-3.5 border-[3px] border-ink bg-card" style={{ left: marker, animationDelay: "2.4s" }} />
+          <div className="drop absolute top-7 -ml-[7px] box-border h-[26px] w-3.5 border-[3px] border-ink bg-card" style={{ left: marker, animationDelay: delay(3) }} />
         )}
         <div className="absolute left-0 top-[62px] font-mono text-xs">
           {n.hawlStart} {date(start)}
@@ -135,7 +136,7 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
           {n.hawlEnd} {date(end)}
         </div>
         {snapshot && (
-          <div className="drop absolute right-0 top-0 font-mono text-xs" style={{ animationDelay: "2.5s" }}>
+          <div className="drop absolute right-0 top-0 font-mono text-xs" style={{ animationDelay: delay(3) }}>
             {n.snapshot} {date(snapshot)}
           </div>
         )}
@@ -153,12 +154,12 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
 function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
   const n = m.zakat;
   return (
-    <section aria-labelledby="amount" className="panel rise flex min-w-0 flex-[1_1_420px] flex-col gap-4 p-5 sm:p-9" style={{ animationDelay: "2.8s" }}>
+    <section aria-labelledby="amount" className="panel rise flex min-w-0 flex-[1_1_420px] flex-col gap-4 p-5 sm:p-9" style={{ animationDelay: delay(2) }}>
       <h2 id="amount" className="heading text-2xl">
         {n.amountTitle}
       </h2>
       <div aria-hidden="true" className="rounded-bar relative h-11 overflow-hidden" style={{ background: "var(--panelRule)" }}>
-        <div className="fill-bar fill-from-start start-0 min-w-3" style={{ width: pct(z.rate, 1), background: "#e0b05c", animationDelay: "3.2s" }} />
+        <div className="fill-bar fill-from-start start-0 min-w-3" style={{ width: pct(z.rate, 1), background: "#e0b05c", animationDelay: delay(4) }} />
       </div>
       <div className="font-mono text-base leading-relaxed">
         {z.zakat_base_sar !== undefined && (

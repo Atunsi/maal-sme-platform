@@ -16,7 +16,7 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
   const arName = getMessages("ar").app.name;
   const lenses = [m.nav.credit, m.nav.sharia, m.nav.zakat, m.nav.forecast, m.nav.review];
   return (
-    <div className="flex min-h-[860px] flex-wrap">
+    <div data-motion="full" className="flex min-h-[860px] flex-wrap">
       <section aria-label={s.about} className="on-hero relative flex min-w-0 flex-[1_1_560px] flex-col justify-between gap-10 overflow-hidden bg-hero px-8 pb-14 pt-[76px] text-white sm:px-14">
         <div className="absolute inset-x-0 top-0">
           <LogoBand onDark />

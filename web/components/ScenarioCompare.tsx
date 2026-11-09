@@ -7,6 +7,7 @@ import { formatInt, formatSar } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import { scenarioName } from "@/lib/scenario-label";
 import type { ScenarioObject } from "@/lib/types";
+import { delay } from "@/lib/motion";
 
 const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
 const SHARIA_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
@@ -145,15 +146,15 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
             <tbody>
               {rows.map(([key, label], i) => {
                 const changed = JSON.stringify(left[key]!.raw) !== JSON.stringify(right[key]!.raw);
-                const delay = `${(0.9 + i * 0.12).toFixed(2)}s`;
+                const entrance = delay(1 + Math.floor(i / 3));
                 return (
-                  <tr key={key} className={`rise border-t border-line2 ${changed ? "text-ink" : "bg-grey text-muted"}`} style={{ animationDelay: delay }}>
+                  <tr key={key} className={`rise border-t border-line2 ${changed ? "text-ink" : "bg-grey text-muted"}`} style={{ animationDelay: entrance }}>
                     <th scope="row" className="px-5 py-3 text-start font-normal">
                       <span className="flex items-center gap-3">
                         <Plate
                           variant={changed ? "accent" : "line"}
                           className={`w-[84px] flex-none !px-0 text-center !text-[11px] ${changed ? "stamp-in" : ""}`}
-                          style={changed ? { animationDelay: delay } : undefined}
+                          style={changed ? { animationDelay: entrance } : undefined}
                         >
                           {changed ? s.changed : s.same}
                         </Plate>
@@ -166,7 +167,7 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
                     <td
                       data-label={scenarioName(chosen.scenario.label).name}
                       className={`border-s border-line px-5 py-3 font-mono text-sm ${changed ? "flash bg-accent-soft font-semibold" : ""}`}
-                      style={changed ? { animationDelay: delay } : undefined}
+                      style={changed ? { animationDelay: entrance } : undefined}
                     >
                       {right[key]!.shown}
                     </td>

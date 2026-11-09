@@ -113,7 +113,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   const demo = `/${locale}/business/${DEMO_BUSINESS}`;
   return (
     <>
-      <section aria-labelledby="hero" className="on-hero relative overflow-hidden bg-hero text-white">
+      <section aria-labelledby="hero" data-motion="full" className="on-hero relative overflow-hidden bg-hero text-white">
         <div aria-hidden="true" className="absolute -end-[60px] -top-[60px] opacity-[0.09]">
           <ArabicLogo height={620} color="#ffffff" />
         </div>
@@ -170,7 +170,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
       <section id="how" aria-labelledby="howh" className="mx-auto flex max-w-[1240px] flex-col gap-10 px-6 py-[72px] sm:py-[88px]">
         <SectionHead eyebrow={l.howEyebrow} title={l.howTitle} id="howh" />
-        <Flow steps={l.steps} />
+        <Flow steps={l.steps} full />
       </section>
 
       <section id="lenses" aria-labelledby="lensh" className="bleed border-y border-line bg-card">

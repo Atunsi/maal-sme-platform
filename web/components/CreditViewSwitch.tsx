@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
+import { delay } from "@/lib/motion";
 
 type View = "public" | "compliance";
 
@@ -46,7 +47,7 @@ export function CreditViewSwitch({ initialView, labels, publicSlot, complianceSl
 
   return (
     <div className="flex flex-col gap-6">
-      <div role="group" aria-label={labels.group} className="rise clip-box flex self-start border border-ink" style={{ animationDelay: "0.15s" }}>
+      <div role="group" aria-label={labels.group} className="rise clip-box flex self-start border border-ink" style={{ animationDelay: delay(1) }}>
         {button("public", labels.public)}
         {button("compliance", labels.compliance)}
       </div>

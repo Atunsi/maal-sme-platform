@@ -8,6 +8,7 @@ import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
 import type { GlossaryId } from "@/lib/glossary";
 import { HOW_INTRO, HOW_SECTIONS, segments } from "@/lib/howItWorks";
 import { getMessages, isLocale } from "@/lib/i18n";
+import { delay } from "@/lib/motion";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -42,7 +43,7 @@ export default async function HowItWorksPage({ params, searchParams }: Props) {
               id={section.id}
               aria-labelledby={`${section.id}-title`}
               className="rise flex flex-col gap-3 border border-line bg-card p-6 sm:p-8"
-              style={{ animationDelay: `${(0.2 + i * 0.08).toFixed(2)}s` }}
+              style={{ animationDelay: delay(2 + i) }}
             >
               <h2 id={`${section.id}-title`} className="heading text-[26px]">
                 {s.title}
