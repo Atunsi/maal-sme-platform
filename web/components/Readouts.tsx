@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Num, Plate, Probability, type PlateVariant } from "@/components/ui";
+import { BackendText, Num, Plate, Probability, type PlateVariant } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -13,7 +13,7 @@ const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
 const ZAKAT_VARIANT = { computed: "ok", zero_liability: "ink", not_computed: "warn" } as const;
 
 /** What one card shows: a word on a plate, one figure and one line, all read from the response. */
-type Readout = { variant: PlateVariant; state: string; figure: ReactNode; note: string };
+type Readout = { variant: PlateVariant; state: string; figure: ReactNode; note: ReactNode };
 
 type Fn<T> = (data: T, locale: Locale, m: Messages) => Readout;
 
@@ -74,7 +74,17 @@ export const forecastReadout: Fn<ForecastResponse> = (data, locale, m) => {
           <Probability value={hazard} locale={locale} />
         </>
       ),
-    note: days === null ? m.overview.noNegative : fill(m.overview.negativeIn, { n: formatInt(days, locale) }),
+    // C2: a Watch or Crunch with no negative balance projected says why, in the backend's own driver text.
+    note:
+      days !== null ? (
+        fill(m.overview.negativeIn, { n: formatInt(days, locale) })
+      ) : alert.level !== "none" && alert.drivers[0] ? (
+        <BackendText locale={locale} m={m}>
+          {alert.drivers[0]}
+        </BackendText>
+      ) : (
+        m.overview.noNegative
+      ),
   };
 };
 

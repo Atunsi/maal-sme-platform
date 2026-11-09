@@ -72,3 +72,25 @@ describe("probabilities", () => {
     }
   });
 });
+
+describe("forecast readout", () => {
+  it("forecast card states the driver behind watch", () => {
+    // C2: 10001 is on Watch with no negative balance projected; the card says why, in the driver's own text.
+    const forecast = fixture("forecast_10001", ForecastResponse);
+    const f = forecast.forecast!;
+    if (f.status !== "computed") throw new Error("10001 forecast fixture did not compute");
+    expect(f.crunch_alert.level).not.toBe("none");
+    expect(f.crunch_alert.days_to_projected_negative_balance).toBeNull();
+    for (const [locale, m] of [["en", en], ["ar", ar]] as const) {
+      const { container, unmount } = render(<ReadoutCard lens="Forecast" href="#" readout={forecastReadout(forecast, locale, m)} index={0} m={m} />);
+      const backend = container.querySelector("[data-backend]")!;
+      expect(backend.textContent).toBe(f.crunch_alert.drivers[0]); // verbatim (U4)
+      expect(container.textContent).not.toContain(m.overview.noNegative);
+      if (locale === "ar") expect(container.textContent).toContain(ar.common.englishTemplate);
+      unmount();
+    }
+    // With no alert, today's note stays.
+    const calm = fixture("forecast_10004", ForecastResponse);
+    expect(forecastReadout(calm, "en", en).note).toBe(en.overview.noNegative);
+  });
+});
