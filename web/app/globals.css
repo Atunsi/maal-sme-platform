@@ -1133,3 +1133,31 @@ body {
   text-decoration-thickness: 2px;
   text-underline-offset: 6px;
 }
+
+/* C5: review table headers sort. The mark is drawn with borders, not a symbol character. */
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.sort-mark {
+  width: 0;
+  height: 0;
+  border-inline: 4px solid transparent;
+  opacity: 0;
+}
+.sort-button[data-dir="asc"] .sort-mark {
+  border-bottom: 6px solid currentColor;
+  opacity: 1;
+}
+.sort-button[data-dir="desc"] .sort-mark {
+  border-top: 6px solid currentColor;
+  opacity: 1;
+}

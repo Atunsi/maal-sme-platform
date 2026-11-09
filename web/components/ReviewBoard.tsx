@@ -1,11 +1,12 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Term } from "@/components/Term";
 import { Num, TableScroll, TD, TH } from "@/components/ui";
 import { formatDate, formatInt, formatSar } from "@/lib/format";
 import { dirOf, fill, type Locale, type Messages } from "@/lib/i18n";
-import { label } from "@/lib/labels";
+import { label, labelWord } from "@/lib/labels";
 import { delay } from "@/lib/motion";
 import { buildLanes, type Cluster } from "@/lib/timeline";
 import type { AnomalyResponse } from "@/lib/types";
@@ -44,6 +45,20 @@ function useTrackWidth() {
   return [ref, width] as const;
 }
 
+// C5: the table sorts on the client, over the one response; nothing is fetched again. The sort lives in
+// ?sort=<column>&dir=asc|desc, written with replaceState, so a shared link opens sorted and Back still leaves.
+export const SORT_COLUMNS = ["date", "hour", "direction", "amount", "counterparty", "category", "reason"] as const;
+export type SortColumn = (typeof SORT_COLUMNS)[number];
+type Sort = { column: SortColumn; dir: "asc" | "desc" };
+
+export function readSort(params: URLSearchParams | null): Sort {
+  const column = params?.get("sort") as SortColumn | null;
+  return { column: column && SORT_COLUMNS.includes(column) ? column : "date", dir: params?.get("dir") === "desc" ? "desc" : "asc" };
+}
+
+/** "03:00" from the hour the API returns. */
+export const hourText = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
+
 /** U8: reasons only, placed by date. A mark or a cluster and its rows select each other. */
 export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale; labels: Pick<Messages, "anomaly" | "enums"> }) {
   const [picked, setPicked] = useState<ReadonlySet<number>>(new Set());
@@ -51,6 +66,8 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
   // elsewhere hides it. Picking (the highlight) is separate.
   const [shown, setShown] = useState<string | null>(null);
   const [trackRef, width] = useTrackWidth();
+  const params = useSearchParams();
+  const [sort, setSort] = useState<Sort>(() => readSort(params));
   useEffect(() => {
     if (shown === null) return;
     const away = (event: PointerEvent) => {
@@ -69,6 +86,47 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
   // Picking exactly what is already picked clears it; anything else replaces the pick.
   const pick = (ids: readonly number[]) => setPicked(isPicked(ids) && picked.size === ids.length ? new Set() : new Set(ids));
   const markText = (flag: Flag) => fill(n.markLabel, { date: formatDate(flag.date, locale), reason: labels.enums.flag_reason[flag.flag_reason] });
+  const word = (flag: Flag, column: SortColumn): string | number => {
+    switch (column) {
+      case "date":
+        return flag.date;
+      case "hour":
+        return flag.hour;
+      case "amount":
+        return flag.amount_sar;
+      case "direction":
+        return labels.enums.flow[flag.direction];
+      case "counterparty":
+        return labelWord("counterparty_type", flag.counterparty_type, labels) ?? flag.counterparty_type;
+      case "category":
+        return labelWord("category", flag.category, labels) ?? flag.category;
+      case "reason":
+        return labels.enums.flag_reason[flag.flag_reason];
+    }
+  };
+  const compare = (x: string | number, y: string | number) => (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), locale));
+  // Ties fall back to date, then hour, then the transaction, so the order is always the same.
+  const rows = [...a.flags].sort((p, q) => {
+    const first = compare(word(p, sort.column), word(q, sort.column)) * (sort.dir === "asc" ? 1 : -1);
+    return first || p.date.localeCompare(q.date) || p.hour - q.hour || p.transaction_id - q.transaction_id;
+  });
+  const sortBy = (column: SortColumn) => {
+    const next: Sort = { column, dir: sort.column === column && sort.dir === "asc" ? "desc" : "asc" };
+    setSort(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set("sort", next.column);
+    url.searchParams.set("dir", next.dir);
+    window.history.replaceState(null, "", url);
+  };
+  const headings: Record<SortColumn, string> = {
+    date: n.date,
+    hour: n.hour,
+    direction: n.direction,
+    amount: n.amount,
+    counterparty: n.counterparty,
+    category: n.category,
+    reason: n.reason,
+  };
   const clusterText = (c: Cluster<Flag>) =>
     c.flags.length === 1 ? markText(c.flags[0]!) : fill(n.clusterLabel, { n: formatInt(c.flags.length, locale), list: c.flags.map(markText).join("; ") });
 
@@ -135,7 +193,12 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
             <span>{formatDate(to, locale)}</span>
           </div>
         </div>
-        <ul aria-label={n.lanes} className="mt-2 flex flex-wrap gap-5 text-[13px]">
+        <span className="mt-2 text-xs text-muted">
+          <Term id="flag-reason" locale={locale}>
+            {n.reason}
+          </Term>
+        </span>
+        <ul aria-label={n.lanes} className="flex flex-wrap gap-5 text-[13px]">
           {[...counts].map(([reason, count]) => (
             <li key={reason} className="flex items-center gap-2">
               <span aria-hidden="true" className="h-3 w-1.5" style={{ background: COLOUR[reason] }} />
@@ -150,21 +213,21 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
           <table className="w-full min-w-[860px]">
             <thead>
               <tr>
-                {[n.date, n.hour, n.direction, n.amount, n.counterparty, n.category, n.reason].map((heading) => (
-                  <th key={heading} scope="col" className={TH}>
-                    {heading === n.reason ? (
-                      <Term id="flag-reason" locale={locale}>
-                        {heading}
-                      </Term>
-                    ) : (
-                      heading
-                    )}
-                  </th>
-                ))}
+                {SORT_COLUMNS.map((column) => {
+                  const active = sort.column === column;
+                  return (
+                    <th key={column} scope="col" className={TH} aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}>
+                      <button type="button" className="sort-button" data-sort={column} data-dir={active ? sort.dir : undefined} onClick={() => sortBy(column)}>
+                        {headings[column]}
+                        <span aria-hidden="true" className="sort-mark" />
+                      </button>
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
-              {a.flags.map((flag) => (
+              {rows.map((flag) => (
                 <tr
                   key={flag.transaction_id}
                   data-id={flag.transaction_id}
@@ -188,7 +251,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                     </button>
                   </td>
                   <td className={TD}>
-                    <Num>{flag.hour}</Num>
+                    <Num>{hourText(flag.hour)}</Num>
                   </td>
                   <td className={TD}>{labels.enums.flow[flag.direction]}</td>
                   <td className={TD}>

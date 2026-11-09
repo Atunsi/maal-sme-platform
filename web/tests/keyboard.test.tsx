@@ -49,7 +49,8 @@ describe("keyboard paths", () => {
     expect(rows).toHaveLength(anomaly.flags.length);
     for (const row of rows) expect(within(row as HTMLElement).getAllByRole("button")).toHaveLength(1);
     const button = within(rows[0] as HTMLElement).getByRole("button");
-    expect(button.getAttribute("aria-label")).toContain(en.enums.flag_reason[anomaly.flags[0]!.flag_reason]);
+    const flag = anomaly.flags.find((f) => String(f.transaction_id) === rows[0]!.getAttribute("data-id"))!;
+    expect(button.getAttribute("aria-label")).toContain(en.enums.flag_reason[flag.flag_reason]);
     fireEvent.click(button);
     expect(rows[0]!.getAttribute("data-picked")).toBe("true");
     expect(button.getAttribute("aria-pressed")).toBe("true");
