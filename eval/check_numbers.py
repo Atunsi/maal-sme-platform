@@ -10,7 +10,7 @@ docs/NUMBERS.md. Retraining the model or re-running an evaluation without updati
 the register therefore fails here.
 
 Needs no generated data: every source is committed or derived from config.yaml.
-Numbers it cannot recompute (e.g. the Zakat nisab placeholder) are not listed;
+Numbers it cannot recompute (e.g. the Zakat nisab gold quotation) are not listed;
 those rows cite their source and are maintained by hand.
 """
 

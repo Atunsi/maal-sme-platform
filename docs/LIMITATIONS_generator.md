@@ -61,8 +61,11 @@ outflow for some businesses (entry 11).
 
 **10. Zakat inputs are generated separately.** Cash flow alone cannot support
 Zakat. Monthly balance sheets are generated alongside the transactions, whereas
-a real system would read them from the business's accounts. The nisab gold price
-is a placeholder (`lens_config.yaml`), not a sourced price.
+a real system would read them from the business's accounts. The nisab is valued
+at one commercial gold quotation (SAR 491.291 per gram on 8 November 2026, giving
+SAR 41,759.74), which is not independently verified and is dated after every
+calculation date in the synthetic data (entry 48). The gold basis and the hawl
+rule have not been reviewed by a Sharia advisor.
 
 **11. The default rate is an outcome, not a target.** 4.78% of research
 businesses default (478 of 10,000). That rate comes out of the label model and
