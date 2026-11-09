@@ -613,6 +613,19 @@ summary {
 .row-pick:hover {
   background: var(--bg);
 }
+/* B8: the date cell's button picks the row from the keyboard; it reads as the date, not as a control. */
+.row-button {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
 .row-pick[data-picked="true"] {
   background: var(--accentSoft);
   font-weight: 600;

@@ -135,7 +135,19 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                   onClick={() => pick(flag.transaction_id)}
                 >
                   <td className={TD}>
-                    <bdi>{formatDate(flag.date, locale)}</bdi>
+                    {/* B8, R4: the row's click has a keyboard path. The button's name is the date and the reason. */}
+                    <button
+                      type="button"
+                      className="row-button"
+                      aria-pressed={picked === flag.transaction_id}
+                      aria-label={fill(n.markLabel, { date: formatDate(flag.date, locale), reason: labels.enums.flag_reason[flag.flag_reason] })}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        pick(flag.transaction_id);
+                      }}
+                    >
+                      <bdi>{formatDate(flag.date, locale)}</bdi>
+                    </button>
                   </td>
                   <td className={TD}>
                     <Num>{flag.hour}</Num>

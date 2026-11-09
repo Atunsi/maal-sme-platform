@@ -128,6 +128,19 @@ test("the FAQ uses native details", async ({ page }) => {
   await expect(answer).toBeVisible();
 });
 
+test("review row picks its mark from the keyboard", async ({ page }) => {
+  // B8, R4: the date cell's button is reachable with Tab and picks the row and its mark.
+  await page.goto("/en/business/10010/review", { waitUntil: "networkidle" });
+  const button = page.locator("tbody tr").first().getByRole("button");
+  await button.focus();
+  await expect(button).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator('tbody tr[data-picked="true"]')).toHaveCount(1);
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('button.tick[aria-pressed="true"]')).toHaveCount(1);
+  expect(await button.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("solid");
+});
+
 test("clicking a timeline mark highlights its table row", async ({ page }) => {
   await page.goto("/en/business/10001/review", { waitUntil: "networkidle" });
   await page.locator("button.tick").nth(3).click();
