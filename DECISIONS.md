@@ -109,7 +109,7 @@ features, not the sector code") is a claim that could genuinely fail. Read
 this alongside the feature-11 consequence above: the audit should expect real
 within-construction discrimination, just not through features 11 / 56.
 
-**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-01)
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☑ profile engine owner (Faris Alsharifi, 2026-11-01)
 
 ---
 
@@ -495,7 +495,7 @@ for feature 42, `max(0, avg_monthly_inflow − committed_monthly_outflow) × (1 
 flow_asymmetry_ratio, 0.5))` with k = 0.15, is the one that counts and supersedes the formula text
 above, which omits the 0.5 cap.
 
-**Sign-off:** ☐ credit lens owner (41, 42, 61) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07; features 41, 42, 61; subject to Entry 34 and team approval) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -1078,7 +1078,7 @@ comparison under one CV protocol on all three sources is entry 19 (Workstream B4
 C 25 — the A1/A2 split is entry 16).
 
 **Recorded by:** generator owner, 2026-09-17.
-**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☐ credit-lens owner (professional_services cell is below the §23 minimum at N = 10,000)
+**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☑ credit-lens owner (Abdulrahman Alharbi, 2026-11-08; acknowledges professional_services insufficient defaults and SKIP)
 
 ---
 
@@ -1287,7 +1287,7 @@ interval for the population AUC; with 22 primary defaults that fold-to-fold spre
 width, and the report says so.
 
 **Recorded by:** credit-lens owner, 2026-09-17.
-**Sign-off:** ☐ credit-lens owner ☐ team (protocol as the standing headline; §21 definition wording)
+**Sign-off:** ☑ credit-lens owner (Abdulrahman Alharbi, 2026-11-08; approves unified CV protocol and documented eligibility limitations) ☐ team (protocol as the standing headline; §21 definition wording)
 
 ---
 
@@ -1701,7 +1701,7 @@ so the generator config's hash — cited by the calibration and compare_real rec
   pre-aggregated store.
 - **Everyone:** unit tests — there are still none beneath the integration checks.
 
-**Sign-off:** ☐ credit lens owner (23.3 credit) ☐ forecast + anomaly owner (23.3
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves 23.3 credit policy, subject to Entry 34 change control) ☐ forecast + anomaly owner (23.3
 anomaly, forecast) ☐ compliance owner + Sharia advisor (23.3 Zakat) ☐ team (gating
 Zakat on insufficient_data)
 
@@ -1836,7 +1836,7 @@ confirmation" — never as a Sharia determination.
 (notably 5993 tobacco and 7929 entertainment, where scholars differ, and the decision to treat existing
 financing as a disclosure rather than a flag); the Compliance View toggle (UI, Week 10).
 
-**Sign-off:** ☐ compliance owner ☐ Sharia advisor ☐ credit lens owner (the §27 gate and conditional offers)
+**Sign-off:** ☐ compliance owner ☐ Sharia advisor ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves compliance gate and conditional offers, subject to Sharia-advisor confirmation)
 
 ---
 
@@ -2292,7 +2292,7 @@ computed.
 entries 30, 35 and 38, the "before" figures in item 2 are measured on the retrained model, not on
 `model_v1.json`.
 
-**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07; accepts documented affordability risk) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -2917,6 +2917,22 @@ clipped recomputation against v2 to 8.8e-15. Nothing retrained.
 **Rule restated:** the credit AUC after the retrain is reported whichever way it moves, and the bound is
 not revisited because of it. The retrain waits for the team box.
 
+**Reported after implementation (full scale, from `79160cb`, recorded 2026-11-08).**
+- **Clip counts** (`eval/out/reference_stats_clip_counts.csv`, per sector and feature with N): research
+  843 of 47,475 z values clipped (1.8%), serving 79 of 4,715 (1.7%). Largest research cells: retail 57
+  138 high / 4,204; construction 56 93 high / 3,486; retail 56 88 high; retail 55 81 low; construction 58
+  77 (6 low, 71 high); retail 58 69 high; construction 59 66 high. As the quick run suggested, most clips
+  are on the upper tails of 56–59, not on the lower tail of 55.
+- **Credit retrain** (`python -m lenses.credit.train`, hyperparameters, labels and protocol unchanged):
+  CV AUC **0.5911 [0.5842, 0.5996]** (research, scorable, N = 9,495 / 449 defaults, repeated stratified
+  group 5-fold × 20) against 0.5912 [0.5841, 0.5985] before; oracle ceiling 0.6660 unchanged (labels
+  unchanged), 88.8% of ceiling; serving check **0.628 [0.536, 0.710]** (943 / 45) against 0.643. The
+  artifact changed (sha256 `c7b6f733…f982` → `7ed936b6…9274`, intercept −3.151 → −3.142). Entries 30, 35
+  and 38 were applied together, so this change cannot be attributed to any one of them.
+- The retrain commit (`79160cb`, 22:45) precedes the commit recording the team box (`67a5779`, 22:50,
+  2026-11-07). The team approved the entry 38 clip before the retrain ran; the
+  approval was committed afterwards (credit lens owner, confirmed 2026-11-08).
+
 **Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☑ team (approval confirmed 2026-11-07)
 
 ---
@@ -3013,3 +3029,95 @@ on Linux or Mac, and the other way round, although nothing in the decision diffe
    makes the switch should be recorded here.
 
 **Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
+
+
+## 43. §25 within-sector fairness: construction's top attributions are not liquidity / working-capital features — FINDING (2026-11-08)
+
+**Owner:** credit lens owner (Abdulrahman Alharbi). **Touches:** §25, the report's limitations, any
+fairness claim made in the demo or report.
+
+**Status: FINDING.** The §25 pass criterion is **not met**. This is recorded as a result about the model,
+not explained away, and it goes into the report's limitations. No fairness-approved claim is made.
+
+**Why a finding and not an explanation.** An argument that the criterion is wrong for construction
+would be made after seeing the result, which is retuning the test (CLAUDE.md, "decide calibration before
+the result exists"). Entry 1b settled this in advance on 2026-09-20: "A Week 11 audit that finds 11 / 56
+near the top in construction is a finding about the model and should be reported as such." Any revised
+criterion is a separate PROPOSED entry, applies only to a later model and audit, and does not turn this
+result into a pass.
+
+**Method.** `python -m eval.within_sector_fairness` on the research population, scored or
+partial_profile (N = 9,495; construction 3,486). Attribution is coefficient × standardised feature value,
+which is exactly the SHAP value of a linear model with the mean as baseline (§13's "SHAP
+infrastructure" reduces to this for the logistic lens; intercept + contributions reproduce the logit,
+tested on 100 profiles). Features are ranked within each sector by mean |contribution| (impact) and by
+the SD of the contribution within the sector (variation).
+
+**Which model: the retrained one (confirmed 2026-11-08).** The committed `model_v1.json` is identical in
+`79160cb` (the retrain, artifact sha256 `7ed936b6…9274`, trained 2026-11-07, after entries 30, 35 and 38)
+and `4482491` (the audit commit); `e36bc85`, `bbbc9d7` and the entry 38 clip commit are ancestors of
+`79160cb`. The credit lens owner's diagnostics below report feature 3's coefficient as +1.294436, which is
+the retrained artifact's value (the earlier model's was +1.467769). The committed outputs did not record
+the model; the script now prints the artifact's sha256, its training date and the largest |z| over 55–59
+in `profiles.csv`, so later runs state this themselves.
+
+**Construction result, as committed.**
+- **By the schema's text** (§25 names features 11–19): **1 of the top 10** by impact is in the set
+  (15 `volatility_index`, rank 2).
+- **By entry 1b's reading** (11–19 plus 37–40, recorded 2026-09-20 before any audit): **2 of 10**
+  (adds 39 `implied_dpo_days`, rank 6). Both readings fail. The schema text and entry 1b disagree on 37–40;
+  the schema wording follows at the next team-approved schema edit (entry 33).
+- **By within-sector variation** (top 10: 15, 6, 3, 55, 52, 68, 53, 14, 66, 49): 2 of 10 by the schema's
+  text (15, 14), 2 by entry 1b's. Still fails. This ranking is reported because the script already
+  computes it, not chosen as the test after the fact.
+- **Rank 1 is feature 3 `inflow_regularity_score`**, mean contribution −1.585 log-odds with SD 0.407:
+  it moves almost every construction business by the same amount (|mean| / mean |contribution| = 1.00).
+  Features 6, 10, 39 and 60 behave the same way (≥ 0.98). A near-constant contribution across a whole
+  sector is a sector-level offset, which is the pattern §25 asks to rule out.
+- **Why, from the model's own parameters.** Within one sector, feature 55 is feature 3 rescaled:
+  `(x − μ_s) / σ_s` with v2's construction μ = 0.144, σ = 0.133 (retail 0.998 / 0.020, F&B 0.999 / 0.009).
+  The owner measured r = 0.9995 between 3 and 55 in construction (N = 3,486; not exactly 1 because of
+  the ±3 clip and imputation) and VIF ≈ 1,022 for both there. A model holding both can therefore give
+  each sector its own slope and its own constant: an implicit sector term. In construction, ignoring the
+  clip (which binds above 0.54), the retrained model's slope on feature 3 is +3.054 log-odds per unit
+  through feature 3 and −2.702 through feature 55, net **+0.35 per unit** (≈ 0.05 log-odds per
+  within-construction SD). The two large attributions (SD 0.41 and 0.36) almost cancel inside the sector;
+  what remains of feature 3's −1.585 is the gap between construction's regularity level and the pooled
+  population's (retail and F&B sit near 1.0). The same pairing exists for 11/56, 13/57, 16/58 and 21/59.
+  This is a mechanism for the failure, not a reason to discount it.
+- Summed mean contributions by sector (the average sector-level offset in log-odds, intercept excluded):
+  construction +0.242, food & beverage −0.001, retail −0.115, professional services −1.431. No sector-code
+  feature is in the model (58 features, §8 list minus 23–26); indirect sector effects are not ruled out.
+
+**Further diagnostics (credit lens owner, 2026-11-08, on the retrained model; scripts not yet committed,
+so these numbers are not quoted in the report until they are).** In construction (N = 3,486): feature 3
+vs `default_label` Spearman ρ = −0.0076, single-feature AUC 0.4907; vs the latent risk index ρ = −0.0857;
+vs latent management quality ρ = +0.0385. Feature 3's coefficient is +1.294 with feature 55 present and
++0.379 without it; feature 55's is −0.012 without feature 3. VIF for feature 3: 66.1 overall, 1,022.5 in
+construction; feature 55: 3.39 overall, 1,022.1 in construction. So the top construction attribution
+carries almost no standalone signal about default in construction.
+
+**Ablation: not recorded.** The credit lens owner ran a feature-group ablation in a working session,
+but which features the group contained was not recorded, so its numbers are not stated here or used
+anywhere. If it is re-run, the script is committed first with the feature list, and any change to the
+feature set is a new PROPOSED entry with its selection rule fixed before it is evaluated. The shipped
+model and A1 stay as they are.
+
+**Serving-population calibration (943 businesses, 45 defaults), predicted vs observed default rate.**
+Construction 360 / 25 defaults: 5.64% vs 6.94% (−1.31 pp, under-predicted). Food & beverage 148 / 5:
+4.61% vs 3.38% (+1.23 pp). Retail 409 / 15: 4.22% vs 3.67% (+0.56 pp). Professional services 26 / 0:
+1.00% vs 0.00%. Default counts are small; calibration differences do not establish fairness either way.
+
+**For the report's limitations (wording to use).** "The §25 within-sector audit did not pass. In
+construction, only 1 of the 10 most influential features (2 under the wider working-capital reading of
+entry 1b) is a liquidity or working-capital feature; the most influential, inflow regularity, shifts
+nearly every construction business by the same amount, which is a sector-level effect rather than an
+assessment of individual risk. Inflow regularity also enters through its sector-relative z-score, and
+together the two let the model set a separate baseline per sector. We therefore make no claim that the model rewards disciplined operators
+within volatile sectors."
+
+**Reproduction:** `python -m eval.within_sector_fairness` → `eval/out/within_sector_fairness.{csv,md}`,
+`within_sector_calibration.csv`, `within_sector_serving_calibration.csv`.
+
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; finding recorded — not fairness
+approval) ☐ team (the finding and the limitations wording)

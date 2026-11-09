@@ -41,13 +41,75 @@ CONTRACT_KEYS = (
 # §13 threshold table — fixed, documented, never a per-decision judgement.
 # Phrased relative to *approval* so the same sentence reads correctly on a decline.
 PHRASES = {
-    ("strongly", "supports"): "strongly supported approval",
-    ("strongly", "against"): "was the main factor working against approval",
-    ("moderately", "supports"): "moderately supported approval",
-    ("moderately", "against"): "moderately weighed against approval",
-    ("marginally", "either"): "had only a small effect either way",
+    ("strongly", "supports"): "was a major factor supporting the credit assessment",
+    ("strongly", "against"): "was a major factor increasing the estimated credit risk",
+    ("moderately", "supports"): "contributed to a lower estimated credit risk",
+    ("moderately", "against"): "contributed to a higher estimated credit risk",
+    ("marginally", "either"): "had only a small effect on the credit risk assessment",
 }
 
+# Fixed customer-facing labels for all 58 Credit Lens model features.
+# These labels are presentation-only and must not affect model scoring.
+FEATURE_LABELS = {
+    "avg_monthly_inflow": "average monthly money received",
+    "inflow_count_per_month": "number of incoming payments each month",
+    "inflow_regularity_score": "consistency of incoming payments",
+    "revenue_growth_rate_90d": "recent revenue growth",
+    "largest_single_source_ratio": "reliance on your largest income source",
+    "avg_monthly_outflow": "average monthly spending",
+    "outflow_count_per_month": "number of outgoing payments each month",
+    "recurring_expense_ratio": "share of recurring expenses",
+    "expense_growth_rate_90d": "recent expense growth",
+    "top_expense_category_share": "concentration of expenses in one category",
+    "cash_flow_volatility": "cash flow stability",
+    "inflow_outflow_ratio": "balance between incoming and outgoing payments",
+    "days_negative_balance_90d": "days with a negative account balance",
+    "overdraft_events_90d": "recent overdraft occurrences",
+    "volatility_index": "overall cash flow variability",
+    "avg_daily_balance": "average daily account balance",
+    "min_daily_balance_90d": "lowest recent account balance",
+    "current_runway_days": "estimated cash runway",
+    "runway_days_avg_balance": "cash runway based on average balances",
+    "liquidity_trend_slope": "recent trend in available cash",
+    "unique_counterparties_count": "number of customers and payment partners",
+    "counterparty_concentration_index": "concentration of payment relationships",
+    "new_counterparty_ratio_30d": "share of new payment relationships",
+    "coverage_days_90d": "days of available transaction history",
+    "data_gap_ratio": "gaps in transaction records",
+    "implied_dso_days": "estimated time to collect customer payments",
+    "implied_dio_days": "estimated inventory holding period",
+    "implied_dpo_days": "estimated time to pay suppliers",
+    "cash_conversion_cycle_days": "estimated cash conversion cycle",
+    "financing_outflow_ratio": "share of outgoing payments used for financing",
+    "installment_capacity_sar": "estimated monthly installment capacity",
+    "inflow_break_recency_days": "time since the last interruption in incoming payments",
+    "net_flow_autocorr_lag7": "weekly cash flow consistency",
+    "counterparty_persistence_ratio": "continuity of payment relationships",
+    "downside_semideviation_90d": "variability of unfavorable cash flow changes",
+    "upside_semideviation_90d": "variability of favorable cash flow changes",
+    "flow_asymmetry_ratio": "imbalance between cash flow gains and losses",
+    "revenue_shock_absorption_pct": "ability to absorb a revenue decline",
+    "fixed_obligation_coverage_months": "months of coverage for fixed obligations",
+    "liquidity_hazard_30d": "estimated short-term cash shortage risk",
+    "liquidity_hazard_60d": "estimated medium-term cash shortage risk",
+    "liquidity_hazard_90d": "estimated three-month cash shortage risk",
+    "sector_relative_regularity_z": "payment consistency compared with similar businesses",
+    "sector_relative_volatility_z": "cash flow variability compared with similar businesses",
+    "sector_relative_days_negative_z": "negative balance frequency compared with similar businesses",
+    "sector_relative_balance_z": "account balance compared with similar businesses",
+    "sector_relative_concentration_z": "payment concentration compared with similar businesses",
+    "committed_monthly_outflow": "monthly committed payments",
+    "obligation_coverage_ratio": "ability to cover recurring obligations",
+    "ocr_forward_3m": "projected obligation coverage over three months",
+    "ocr_forward_6m": "projected obligation coverage over six months",
+    "obligation_horizon_months": "remaining months of identified obligations",
+    "mandate_cancellation_count_90d": "recent payment mandate cancellations",
+    "balloon_exposure_sar": "outstanding large lump-sum payment exposure",
+    "facility_utilisation": "share of available financing already used",
+    "headroom_days_of_burn": "days of available funds at the current spending rate",
+    "max_consecutive_overdraft_days": "longest recent period of negative balance",
+    "emergency_line_present": "availability of emergency financing",
+}
 
 @lru_cache(maxsize=4)
 def load_artifact(path: str) -> dict:
@@ -107,7 +169,7 @@ def explain(contribs: list[dict], ccfg: dict) -> dict:
     for c in ranked[: int(ccfg["explanation_top_n"])]:
         mag = _magnitude(c["contribution_logodds"], th)
         direction = "either" if mag == "marginally" else ("against" if c["contribution_logodds"] > 0 else "supports")
-        label = c["feature"].replace("_", " ")
+        label = FEATURE_LABELS[c["feature"]]
         public.append({
             "feature_id": c["feature_id"],
             "text": f"Your {label} {PHRASES[(mag, direction)]}.",
@@ -117,7 +179,7 @@ def explain(contribs: list[dict], ccfg: dict) -> dict:
     return {
         "public_tier": public,
         "compliance_tier": {
-            "units": "log-odds of default, relative to the training-mean business (exact SHAP for this linear model)",
+            "units": "log-odds of default, relative to the standardized training-mean baseline (exact additive linear-model contributions)",
             "threshold_table": {"strongly": f"|c| > {th['strong']}", "moderately": f"{th['moderate']} <= |c| <= {th['strong']}", "marginally": f"|c| < {th['moderate']}"},
             "phrases": {f"{m}/{d}": p for (m, d), p in PHRASES.items()},
             "contributions": [

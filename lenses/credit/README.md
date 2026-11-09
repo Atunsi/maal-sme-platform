@@ -95,3 +95,65 @@ model (0.6050) — the feature pipeline is the binding constraint.
   should expect the disciplined-operator signal through features 13, 16–19 and
   37–40. This is a signed-off property of the training data, not a bug to tune
   away.
+
+
+## Validation and Attribution Verification (C5)
+
+The Credit Lens uses L2-regularized logistic regression with median
+imputation and feature standardization.
+
+### Cross-validation methodology
+
+Training uses the research population only. Validation follows
+`eval.compare_real.unified_cv`: repeated stratified group 5-fold
+cross-validation with 20 repeats, grouped by `business_id`.
+
+Grouping prevents the same business from appearing in both training
+and validation folds within a split.
+
+The serving population is disjoint from the research population
+and is evaluated separately without being used for model fitting.
+
+### Temporal validation limitation
+
+The synthetic dataset provides one labeled snapshot per business.
+Consequently, the Credit Lens does not perform expanding-window
+or forward-in-time validation.
+
+Business-grouped validation does not establish performance on
+future time periods or under temporal distribution shifts.
+
+### Attribution verification
+
+The frozen logistic regression model produces additive feature
+contributions:
+
+`contribution = coefficient * standardized_feature_value`
+
+The model logit is reconstructed as:
+
+`logit = intercept + sum(feature_contributions)`
+
+The predicted probability is:
+
+`PD = 1 / (1 + exp(-logit))`
+
+The automated test
+`tests/test_lenses_unit.py::test_credit_contributions_reconstruct_logit`
+verifies these relationships across 100 business profiles.
+
+These are exact linear-model contributions, not independently
+estimated SHAP values.
+
+Customer-facing explanations use fixed feature labels and
+threshold-based templates. They do not expose raw feature names.
+
+### Remaining limitations
+
+- No temporal or forward-in-time validation.
+- **Section 25 within-sector fairness audit did not pass (DECISIONS 43, a finding).** In
+  construction, 1 of the top 10 attributed features is in §25's liquidity/working-capital set
+  (11–19), 2 under entry 1b's wider reading (adds 37–40). The top feature, inflow regularity (3),
+  shifts nearly every construction business by the same amount — a sector-level effect. No claim is
+  made that the model rewards disciplined operators within a volatile sector.
+- Customer-facing explanation wording requires teammate review.

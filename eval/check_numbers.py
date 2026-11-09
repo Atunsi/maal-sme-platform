@@ -52,6 +52,21 @@ def credit_model() -> list[tuple[str, str]]:
     ]
 
 
+def fairness_s25() -> list[tuple[str, str]]:
+    """§3 row, DECISIONS 43: construction's top-10 attributions inside §25's set (schema 11–19; entry 1b adds 37–40)."""
+    import io
+
+    import pandas as pd
+
+    d = pd.read_csv(io.StringIO(_read("eval/out/within_sector_fairness.csv")))
+    c = d[d["sector"] == "construction"]
+    top = c.nsmallest(10, "rank_by_impact")["feature_id"].astype(int)
+    schema, wide = set(range(11, 20)), set(range(11, 20)) | set(range(37, 41))
+    n = int(c["n_businesses"].iloc[0])
+    return [("§25 construction top-10", f"{top.isin(schema).sum()} of 10 (schema 11–19); {top.isin(wide).sum()} of 10 (entry 1b, adds 37–40)"),
+            ("§25 construction N", f"{n:,}")]
+
+
 def real_vs_synthetic() -> list[tuple[str, str]]:
     t = _read("eval/out/real_vs_synthetic.md")
     row = next(ln for ln in t.splitlines() if ln.startswith("| **Unified"))
@@ -231,7 +246,7 @@ def forecast_selection() -> list[tuple[str, str]]:
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, gate, selectivity, latency, sharia, forecast_selection):
+    for fn in (credit_model, fairness_s25, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, gate, selectivity, latency, sharia, forecast_selection):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:
