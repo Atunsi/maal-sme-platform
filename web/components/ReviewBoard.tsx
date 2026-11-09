@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Term } from "@/components/Term";
-import { Code, Num, TableScroll, TD, TH } from "@/components/ui";
+import { Num, TableScroll, TD, TH } from "@/components/ui";
 import { formatDate, formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { label } from "@/lib/labels";
 import type { AnomalyResponse } from "@/lib/types";
 
 type Computed = Extract<NonNullable<AnomalyResponse["anomaly"]>, { status: "computed" }>;
@@ -111,14 +112,14 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
           <table className="w-full min-w-[860px]">
             <thead>
               <tr>
-                {[n.date, n.hour, n.direction, n.amount, n.counterparty, n.category, n.reason].map((label) => (
-                  <th key={label} scope="col" className={TH}>
-                    {label === n.reason ? (
+                {[n.date, n.hour, n.direction, n.amount, n.counterparty, n.category, n.reason].map((heading) => (
+                  <th key={heading} scope="col" className={TH}>
+                    {heading === n.reason ? (
                       <Term id="flag-reason" locale={locale}>
-                        {label}
+                        {heading}
                       </Term>
                     ) : (
-                      label
+                      heading
                     )}
                   </th>
                 ))}
@@ -143,10 +144,10 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                     <Num>{formatSar(flag.amount_sar, locale)}</Num>
                   </td>
                   <td className={TD}>
-                    <Code>{flag.counterparty_type}</Code>
+                    {label("counterparty_type", flag.counterparty_type, labels)}
                   </td>
                   <td className={TD}>
-                    <Code>{flag.category}</Code>
+                    {label("category", flag.category, labels)}
                   </td>
                   <td className={TD}>{labels.enums.flag_reason[flag.flag_reason]}</td>
                 </tr>

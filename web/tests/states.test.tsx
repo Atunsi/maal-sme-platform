@@ -30,9 +30,14 @@ describe("credit states", () => {
     expect(screen.queryByText(en.credit.adjustedMarkup)).toBeNull();
   });
 
-  it("U2 late_penalty_policy renders exactly as returned", () => {
+  it("U2 late_penalty_policy renders the word for the value returned", () => {
+    // C1: the page shows the catalogue word for the response's own value; the schema admits only
+    // charity_directed, and the raw code stays in the receipt.
+    const data = fixture("credit_10001", CreditResponse);
     const { container } = credit("credit_10001");
-    expect(screen.getByText("charity_directed")).toBeTruthy();
+    expect(data.credit!.late_penalty_policy).toBe("charity_directed");
+    expect(screen.getByText(en.enums.late_penalty_policy[data.credit!.late_penalty_policy])).toBeTruthy();
+    expect(en.enums.late_penalty_policy.charity_directed).toMatch(/charity/i);
     expect(container.textContent).not.toMatch(/late fee|interest|penalty rate/i);
   });
 

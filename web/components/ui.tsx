@@ -72,7 +72,7 @@ export function Num({ children }: { children: ReactNode }) {
 export function BackendText({ locale, m, children }: { locale: Locale; m: Messages; children: string }) {
   return (
     <span className="block">
-      <span lang="en" dir="ltr" className="block text-start">
+      <span lang="en" dir="ltr" data-backend className="block text-start">
         {children}
       </span>
       {locale === "ar" && <span className="text-xs text-muted">{m.common.englishTemplate}</span>}

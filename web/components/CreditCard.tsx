@@ -3,10 +3,11 @@ import { LensHead } from "@/components/BusinessHeader";
 import { ComplianceView } from "@/components/ComplianceView";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
 import { Term as GlossaryTerm } from "@/components/Term";
-import { BackendText, Code, Num, Plate, Refusal, SubHeading } from "@/components/ui";
+import { BackendText, Num, Plate, Refusal, SubHeading } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { label } from "@/lib/labels";
 import type { CreditExplanation, CreditResponse } from "@/lib/types";
 
 type Line = CreditExplanation["public_tier"][number];
@@ -154,7 +155,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
             </Term>
           )}
           <Term label={m.credit.latePolicy}>
-            <Code>{credit.late_penalty_policy}</Code>
+            {label("late_penalty_policy", credit.late_penalty_policy, m)}
           </Term>
           {detail.offer_status && (
             <Term label={m.credit.offerStatus}>

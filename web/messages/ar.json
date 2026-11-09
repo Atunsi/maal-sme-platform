@@ -432,6 +432,42 @@
       "below_nisab": "دون النصاب",
       "hawl_incomplete": "لم يكتمل الحول",
       "no_balance_sheet_snapshot": "لا توجد لقطة ميزانية"
+    },
+    "late_penalty_policy": {
+      "charity_directed": "مبالغ التأخير تُوجَّه للأعمال الخيرية"
+    },
+    "hawl_rule": {
+      "nisab_at_start_and_end": "بلوغ النصاب في أول الحول وآخره"
+    },
+    "hawl_start_source": {
+      "seeded_opening_state": "ميزانية افتتاحية مسجلة",
+      "earliest_observed_history": "أقدم سجل متاح"
+    },
+    "zakat_method": {
+      "net_working_capital": "صافي رأس المال العامل"
+    },
+    "counterparty_type": {
+      "customer": "عميل",
+      "supplier": "مورّد",
+      "landlord": "مؤجِّر",
+      "payroll": "رواتب",
+      "financial_institution": "مؤسسة مالية",
+      "other": "أخرى"
+    },
+    "category": {
+      "sales": "مبيعات",
+      "supplier": "دفعة لمورّد",
+      "rent": "إيجار",
+      "payroll": "أجور",
+      "loan_repayment": "سداد تمويل",
+      "transfer": "تحويل",
+      "cash_deposit": "إيداع نقدي",
+      "cash_withdrawal": "سحب نقدي",
+      "bank_interest": "فائدة بنكية",
+      "bank_fee": "رسوم بنكية",
+      "household": "مصروفات منزلية",
+      "insurance": "تأمين",
+      "pension": "معاش تقاعدي"
     }
   },
   "overview": {

@@ -432,6 +432,42 @@
       "below_nisab": "Below nisab",
       "hawl_incomplete": "Hawl incomplete",
       "no_balance_sheet_snapshot": "No balance-sheet snapshot"
+    },
+    "late_penalty_policy": {
+      "charity_directed": "Late payments go to charity"
+    },
+    "hawl_rule": {
+      "nisab_at_start_and_end": "Nisab met at the start and the end of the hawl"
+    },
+    "hawl_start_source": {
+      "seeded_opening_state": "Opening balance sheet on file",
+      "earliest_observed_history": "Earliest history on file"
+    },
+    "zakat_method": {
+      "net_working_capital": "Net working capital"
+    },
+    "counterparty_type": {
+      "customer": "Customer",
+      "supplier": "Supplier",
+      "landlord": "Landlord",
+      "payroll": "Payroll",
+      "financial_institution": "Financial institution",
+      "other": "Other"
+    },
+    "category": {
+      "sales": "Sales",
+      "supplier": "Supplier payment",
+      "rent": "Rent",
+      "payroll": "Wages",
+      "loan_repayment": "Loan repayment",
+      "transfer": "Transfer",
+      "cash_deposit": "Cash deposit",
+      "cash_withdrawal": "Cash withdrawal",
+      "bank_interest": "Bank interest",
+      "bank_fee": "Bank fee",
+      "household": "Household",
+      "insurance": "Insurance",
+      "pension": "Pension"
     }
   },
   "overview": {

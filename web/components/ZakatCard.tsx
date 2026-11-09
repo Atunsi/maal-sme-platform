@@ -6,6 +6,7 @@ import { TipButton } from "@/components/TipButton";
 import { BackendText, Code, Field, Fields, NisabPlate, Num, Plate, Refusal } from "@/components/ui";
 import { formatDate, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { label } from "@/lib/labels";
 import type { ZakatResponse } from "@/lib/types";
 
 const STATUS_VARIANT = { computed: "ok", zero_liability: "ink", not_computed: "warn" } as const;
@@ -141,9 +142,9 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
       </div>
       <Fields>
         <Field label={n.hawlRule}>
-          <Code>{z.hawl_rule}</Code>
+          {label("hawl_rule", z.hawl_rule, m)}
         </Field>
-        <Field label={n.hawlSource}>{z.hawl_start_source ? <Code>{z.hawl_start_source}</Code> : m.common.dash}</Field>
+        <Field label={n.hawlSource}>{z.hawl_start_source ? label("hawl_start_source", z.hawl_start_source, m) : m.common.dash}</Field>
       </Fields>
     </section>
   );
@@ -226,7 +227,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
               <Code>{z.nisab_basis}</Code>
             </Field>
             <Field label={n.method}>
-              <Code>{z.method}</Code>
+              {label("zakat_method", z.method, m)}
             </Field>
           </Fields>
         </>
