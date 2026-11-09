@@ -589,9 +589,9 @@
   },
   "zakat": {
     "liability_sar": 2651.45,
-    "nisab_value_sar": 34000.0,
+    "nisab_value_sar": 41759.74,
     "nisab_basis": "85g gold",
-    "nisab_source_status": "placeholder_unverified",
+    "nisab_source_status": "commercial_quote_documented_pending_independent_verification",
     "rate": 0.025,
     "method": "net_working_capital",
     "hawl_rule": "nisab_at_start_and_end",
@@ -647,17 +647,17 @@
   "receipt": {
     "schema_version": "v2.9",
     "config_sha256": "9d60db774d169931054cb48fd3f492557488ae413716b908913b367bd5479137",
-    "lens_config_sha256": "b084a52af106f5c062c94bfb41d64999bd98fb437561b954de5ce7f661246f76",
+    "lens_config_sha256": "eb715f89b95a2d3287adb9217160b95dc994571748ed5cda53eb033c7f1b57e0",
     "credit_model_version": "v1",
     "credit_model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
     "credit_model_cv_auc": 0.5911,
     "credit_model_oracle_ceiling_auc": 0.666,
     "reference_stats_sha256": "e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60",
     "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
-    "code_commit": "d9e69435901fc4ba429e15ae03d4ea448fa5befd",
+    "code_commit": "32a3285b67a96f0465f71a2ad631bc86de8c089e",
     "generated_by": "scenarios.run",
     "data_sha256": "10a90982c00eba60899bb5f40ab8758e8a38b5898ef74443719d4f099c94c49d",
-    "output_sha256": "5dbee83f12685c82a5b8955700ac1c7587619bdf006506dd72f64ae92559063a",
+    "output_sha256": "32f8b01dbc80664b16e676b0e6135ca50cd4d24300fe98d5ec3ad039347f0c4a",
     "scope": "Covers the deterministic core only: re-running with these inputs reproduces this object byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is outside its scope and cannot affect the decision (§36).",
     "scenario_library_sha256": "8f84b9175aac62b1e29445d710a16879d30731b9da0c0a4f6402ae05d9cc0e7d"
   }
