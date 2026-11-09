@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Arabic, IBM_Plex_Sans_Condensed } from "next/font/google";
+import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { DigitsSync } from "@/components/DigitsToggle";
@@ -13,11 +13,44 @@ import { getScenarioIndex } from "@/lib/scenarios";
 import { THEME_BOOT } from "@/lib/theme";
 import "../globals.css";
 
-// next/font downloads these at build time and serves them from this app: no runtime call to Google.
-const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-sans" });
-const arabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], weight: ["400", "500", "600", "700"], variable: "--font-plex-arabic" });
-const condensed = IBM_Plex_Sans_Condensed({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-plex-cond" });
-const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono" });
+// B19 (DECISIONS 45): the four IBM Plex families are self-hosted from app/fonts (woff2 files from the
+// Fontsource 5.3.0 packages, SIL Open Font License, licences beside them), so neither the build nor the page
+// calls Google. Same weights, subsets and CSS variables as before.
+const sans = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-sans-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-latin-600-normal.woff2", weight: "600", style: "normal" },
+  ],
+  variable: "--font-plex-sans",
+  display: "swap",
+});
+const arabic = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-plex-arabic",
+  display: "swap",
+});
+const condensed = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-sans-condensed-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-condensed-latin-600-normal.woff2", weight: "600", style: "normal" },
+  ],
+  variable: "--font-plex-cond",
+  display: "swap",
+});
+const mono = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/ibm-plex-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+  ],
+  variable: "--font-plex-mono",
+  display: "swap",
+});
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
