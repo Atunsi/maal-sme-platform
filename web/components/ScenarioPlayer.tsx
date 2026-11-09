@@ -31,6 +31,8 @@ export function ScenarioPlayer({ names, labels, current, hrefBase, text }: Props
   // Playing only while the page shows what the player asked for (a visitor's own pick stops it) and the
   // last scenario has not been reached.
   const playing = on && expected === current && index < last;
+  // What the player itself moved to, while it is on: every step, the last one included.
+  const announced = on && expected === current;
 
   useEffect(() => {
     if (!playing) return;
@@ -62,14 +64,16 @@ export function ScenarioPlayer({ names, labels, current, hrefBase, text }: Props
 
   return (
     <div role="group" aria-label={text.group} className="flex flex-wrap items-center gap-3" data-player>
-      <button type="button" className="solid-btn min-h-11" aria-pressed={playing} onClick={toggle}>
+      {/* R3: the label says what a press does (Play all or Pause), so the button carries no aria-pressed. */}
+      <button type="button" className="solid-btn min-h-11" onClick={toggle}>
         {playing ? text.pause : text.play}
       </button>
       <span className="text-sm text-muted" data-position>
         {fill(text.position, { x: String(index + 1), y: String(names.length) })}
       </span>
       <span role="status" aria-live="polite" className="sr-only">
-        {playing ? labels[index] : ""}
+        {/* B13: the last scenario the player moved to is announced too, after playback stops at the end. */}
+        {announced ? labels[index] : ""}
       </span>
     </div>
   );

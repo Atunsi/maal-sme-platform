@@ -28,7 +28,8 @@ describe("play all", () => {
     const view = render(player(names[0]!));
     expect(screen.getByText(`Scenario 1 of ${names.length}`)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: text.play }));
-    expect(screen.getByRole("button", { name: text.pause }).getAttribute("aria-pressed")).toBe("true");
+    // R3: the label says the state (Pause while playing), so there is no aria-pressed.
+    expect(screen.getByRole("button", { name: text.pause }).hasAttribute("aria-pressed")).toBe(false);
     for (let i = 1; i < names.length; i++) {
       act(() => vi.advanceTimersByTime(PLAY_STEP_MS - 1));
       expect(replace).toHaveBeenCalledTimes(i - 1);
@@ -37,7 +38,8 @@ describe("play all", () => {
       view.rerender(player(names[i]!)); // the router brings the next scenario
       expect(screen.getByText(`Scenario ${i + 1} of ${names.length}`)).toBeTruthy();
     }
-    expect(screen.getByRole("button", { name: text.play }).getAttribute("aria-pressed")).toBe("false"); // stopped at the last
+    expect(screen.getByRole("button", { name: text.play })).toBeTruthy(); // stopped at the last
+    expect(screen.queryByRole("button", { name: text.pause })).toBeNull();
     act(() => vi.advanceTimersByTime(PLAY_STEP_MS * 3));
     expect(replace).toHaveBeenCalledTimes(names.length - 1);
   });
@@ -49,6 +51,21 @@ describe("play all", () => {
     act(() => vi.advanceTimersByTime(PLAY_STEP_MS));
     view.rerender(player(names[1]!));
     expect(screen.getByRole("status").textContent).toBe(labels[1]);
+  });
+
+  it("play all announces the last scenario", () => {
+    // B13: playback stops at the end, and the last scenario it moved to is still announced.
+    const view = render(player(names[0]!));
+    fireEvent.click(screen.getByRole("button", { name: text.play }));
+    for (let i = 1; i < names.length; i++) {
+      act(() => vi.advanceTimersByTime(PLAY_STEP_MS));
+      view.rerender(player(names[i]!));
+    }
+    expect(screen.getByRole("button", { name: text.play })).toBeTruthy(); // stopped
+    expect(screen.getByRole("status").textContent).toBe(labels[names.length - 1]);
+    // A pick of the visitor's own is not announced as the player's.
+    view.rerender(player(names[2]!));
+    expect(screen.getByRole("status").textContent).toBe("");
   });
 
   it("play all pauses and stops on user choice", () => {

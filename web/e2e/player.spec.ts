@@ -1,6 +1,7 @@
 // E6: scenario Play all (DECISIONS 43).
 import { expect, test } from "@playwright/test";
 import index from "../scenarios-data/index.json";
+import { scenarioName } from "../lib/scenario-label";
 
 const names = index.scenarios.map((s) => s.name);
 
@@ -9,14 +10,16 @@ test("play all steps through every scenario", async ({ page }) => {
   await page.clock.install();
   await page.goto(`/en/scenarios?scenario=${names[0]}`, { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Play all" }).click();
-  await expect(page.getByRole("button", { name: "Pause" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "Pause" })).toBeVisible(); // R3: the label carries the state
   for (let i = 1; i < names.length; i++) {
     await page.clock.runFor(8000);
     await expect(page).toHaveURL(new RegExp(`scenario=${names[i]}`));
     await expect(page.locator("[data-position]")).toHaveText(`Scenario ${i + 1} of ${names.length}`);
     await expect(page.locator("main nav a[aria-current=page]")).toHaveAttribute("href", new RegExp(`s=${names[i]}`));
   }
-  await expect(page.getByRole("button", { name: "Play all" })).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("button", { name: "Play all" })).toBeVisible();
+  // B13: the last scenario is announced after playback stops.
+  await expect(page.locator("[data-player] [role=status]")).toHaveText(scenarioName(index.scenarios.at(-1)!.label).name);
 });
 
 test("play all pauses and stops on user choice", async ({ page }) => {
