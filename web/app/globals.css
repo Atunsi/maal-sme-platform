@@ -229,6 +229,13 @@ summary {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+/* X1: Arabic script needs more room than condensed caps: more padding, a lighter weight, taller lines. */
+:lang(ar) .plate {
+  padding: 6px 12px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
 .plate-ok {
   background: #0b6e63;
   color: #ffffff;
@@ -1117,4 +1124,12 @@ body {
     background: var(--surface);
     box-shadow: 0 8px 24px rgba(16, 20, 24, 0.12);
   }
+}
+
+/* X2: the tour title after a step change shows a thin underline; any other focus keeps the full box. */
+.tour-title[data-step-focus]:focus {
+  outline: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
 }

@@ -24,7 +24,7 @@ test("sign-in sends no request and stores nothing", async ({ page, context }) =>
   await page.getByLabel("Password").fill("pass");
   await page.getByRole("button", { name: "Sign in to my business" }).click();
   await expect(page).toHaveURL(/\/en\/business\/10001\?as=owner$/);
-  await expect(page.getByText("Owner of business 10001")).toBeVisible();
+  await expect(page.getByText("Demo role: business owner")).toBeVisible(); // X5
 
   expect(requests.filter(({ method }) => method !== "GET")).toEqual([]);
   expect(requests.filter(({ url, body }) => `${url}${body ?? ""}`.includes(TYPED))).toEqual([]);
@@ -56,14 +56,14 @@ test("the Admin role routes to the admin page and shows in the header", async ({
   await page.getByRole("button", { name: "Sign in as admin" }).click();
   await expect(page).toHaveURL(/\/en\/admin\?as=admin$/);
   await expect(page.getByRole("heading", { name: "All businesses" })).toBeVisible();
-  await expect(page.getByText("Signed in as")).toBeVisible();
+  await expect(page.getByText("Demo role: admin")).toBeVisible(); // X5
 });
 
 test("the demo role stays in the URL as the visitor moves between pages", async ({ page }) => {
   await page.goto("/en/business/10016?as=owner", { waitUntil: "networkidle" });
   await page.getByRole("link", { name: "Zakat", exact: true }).first().click();
   await expect(page).toHaveURL(/\/business\/10016\/zakat\?as=owner$/);
-  await expect(page.getByText("Owner of business 10016")).toBeVisible();
+  await expect(page.getByText("Demo role: business owner")).toBeVisible(); // X5
 });
 
 test("admin rows read their status and decision from the API", async ({ page }) => {
@@ -84,7 +84,7 @@ test("admin links open a business with the admin role", async ({ page }) => {
   await page.goto("/en/admin?as=admin", { waitUntil: "networkidle" });
   await page.getByRole("link", { name: "Open 10004" }).click();
   await expect(page).toHaveURL(/\/en\/business\/10004\?as=admin$/);
-  await expect(page.getByText("Signed in as")).toBeVisible();
+  await expect(page.getByText("Demo role: admin")).toBeVisible(); // X5
   const main = page.getByRole("navigation", { name: "Pages" });
   await main.getByRole("link", { name: "Zakat", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/business\/10004\/zakat\?as=admin$/);
@@ -172,4 +172,37 @@ test("faq word follows the open state", async ({ page }) => {
   await expect(item.locator(".faq-close")).toBeVisible();
   await expect(item.locator(".faq-close")).toHaveText("Close");
   expect(await item.locator("summary [aria-hidden=true]").count()).toBe(1);
+});
+
+test("demo role label names no business", async ({ page }) => {
+  // X5: a demo role, not access control: the owner label carries no business ID, on any business.
+  await page.goto("/en/business/10013/zakat?as=owner", { waitUntil: "networkidle" });
+  const role = page.locator("header [data-demo-role]");
+  await expect(role).toHaveText("Demo role: business owner");
+  await expect(role).not.toHaveText(/[0-9]/);
+  await page.goto("/ar/business/10013?as=admin", { waitUntil: "networkidle" });
+  await expect(page.locator("header [data-demo-role]")).toHaveText("الدور التجريبي: مشرف");
+});
+
+test("registration hint is visible text", async ({ page }) => {
+  // X3: the hint shows as text under the label, not only as a placeholder.
+  await page.goto("/en/sign-in");
+  await expect(page.locator("#sign-in-cr-hint")).toHaveText("10 digits");
+  await expect(page.locator("#sign-in-cr-hint")).toBeVisible();
+  const field = page.getByLabel("Commercial registration number");
+  await expect(field).toHaveAttribute("aria-describedby", "sign-in-cr-hint");
+  await expect(field).not.toHaveAttribute("placeholder", /./);
+});
+
+test("arabic plates keep their padding", async ({ page }) => {
+  // X1: Arabic plates get more padding, weight 500 and a 1.6 line height.
+  await page.goto("/ar/business/10001", { waitUntil: "networkidle" });
+  const style = await page.locator("main .plate").first().evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { top: parseFloat(s.paddingTop), side: parseFloat(s.paddingInlineStart), weight: s.fontWeight, line: parseFloat(s.lineHeight) / parseFloat(s.fontSize) };
+  });
+  expect(style.top).toBeGreaterThanOrEqual(6);
+  expect(style.side).toBeGreaterThanOrEqual(12);
+  expect(style.weight).toBe("500");
+  expect(style.line).toBeCloseTo(1.6, 1);
 });

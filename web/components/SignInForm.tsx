@@ -52,7 +52,11 @@ export function SignInForm({ locale, s }: { locale: Locale; s: Messages["signIn"
         {role === "owner" ? (
           <label className="flex flex-col gap-1.5 text-sm font-medium">
             {s.cr}
-            <input type="text" inputMode="numeric" dir="ltr" placeholder={s.crHint} autoComplete="off" className="field font-mono" />
+            {/* X3: the hint is visible text, not only a placeholder that disappears as the visitor types. */}
+            <span id="sign-in-cr-hint" className="text-xs font-normal text-muted">
+              {s.crHint}
+            </span>
+            <input type="text" inputMode="numeric" dir="ltr" aria-describedby="sign-in-cr-hint" autoComplete="off" className="field font-mono" />
           </label>
         ) : (
           <label className="flex flex-col gap-1.5 text-sm font-medium">

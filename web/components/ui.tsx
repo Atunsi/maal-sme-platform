@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { RetryButton } from "@/components/RetryButton";
-import type { Locale, Messages } from "@/lib/i18n";
+import { localeOf, type Locale, type Messages } from "@/lib/i18n";
 import { formatDate, formatProbability } from "@/lib/format";
 import { nisabPlate } from "@/lib/nisab";
 import type { ApiErrorKind, Provenance } from "@/lib/types";
@@ -124,14 +124,17 @@ export function Refusal({ reason, m }: { reason: "insufficient_data" | undefined
   );
 }
 
+/** X4: the detail comes from the API, so it is backend text: in Arabic it carries the English-template note. */
 export function ApiError({ kind, detail, m }: { kind: ApiErrorKind; detail?: string; m: Messages }) {
   return (
     <div role="alert" className="border border-bad bg-bad-soft p-4 text-bad">
       <p>{m.errors[kind]}</p>
       {detail && (
-        <p className="mt-1">
-          <Code>{detail}</Code>
-        </p>
+        <div className="mt-1 font-mono text-sm">
+          <BackendText locale={localeOf(m)} m={m}>
+            {detail}
+          </BackendText>
+        </div>
       )}
       {(kind === "rate_limited" || kind === "server" || kind === "network") && <RetryButton label={m.common.retry} />}
     </div>

@@ -55,6 +55,8 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
   // Outline the target and bring it into view above the panel. It may still be loading: look for a while.
   useEffect(() => {
     if (!stepId || !target) return;
+    // X2: focus that a step change moves here gets a thin underline, not the full focus box.
+    if (title.current) title.current.dataset.stepFocus = "";
     title.current?.focus({ preventScroll: true });
     let el: Element | null = null;
     let tries = 0;
@@ -112,7 +114,13 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
             {fill(labels.position, { x: String(index + 1), y: String(TOUR_STEPS.length) })}
           </span>
         </div>
-        <h2 id={titleId} ref={title} tabIndex={-1} className="heading text-2xl outline-none focus-visible:outline-2">
+        <h2
+          id={titleId}
+          ref={title}
+          tabIndex={-1}
+          className="tour-title heading text-2xl outline-none focus-visible:outline-2"
+          onBlur={(event) => delete event.currentTarget.dataset.stepFocus}
+        >
           {text.title}
         </h2>
         <p className="max-w-3xl text-[15px]">{text.caption}</p>

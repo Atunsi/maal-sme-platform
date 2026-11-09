@@ -62,3 +62,16 @@ for (const theme of ["light", "dark"] as const) {
     await expectAxeClean(page);
   });
 }
+
+test("tour title shows a thin focus mark after a step change", async ({ page }) => {
+  // X2: focus still moves to the step title, drawn as a thin underline instead of the full box.
+  await page.goto("/en/business/10001/zakat?tour=waterfall", { waitUntil: "networkidle" });
+  await page.locator("[data-tour-panel]").getByRole("button", { name: "Next" }).click();
+  const title = page.locator("[data-tour-panel] h2");
+  await expect(title).toBeFocused();
+  const look = await title.evaluate((el) => ({ outline: getComputedStyle(el).outlineStyle, line: getComputedStyle(el).textDecorationLine, mark: el.hasAttribute("data-step-focus") }));
+  expect(look).toEqual({ outline: "none", line: "underline", mark: true });
+  // Once focus leaves, the mark goes: any later focus gets the full box.
+  await page.keyboard.press("Tab");
+  expect(await title.evaluate((el) => el.hasAttribute("data-step-focus"))).toBe(false);
+});

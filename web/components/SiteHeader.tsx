@@ -9,7 +9,7 @@ import { DisplayMenu } from "@/components/DisplayMenu";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import type { Locale, Messages } from "@/lib/i18n";
 
 type Item = { href: string; label: string; current?: boolean };
 
@@ -53,8 +53,8 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
   const base = `/${locale}`;
   const query = roleQuery(role);
   const admin = role === "admin" || rest === "/admin";
-  const id = /^\/business\/(\d+)/.exec(rest)?.[1];
-  const signedIn = role === "admin" ? nav.roleAdmin : role === "owner" ? fill(nav.roleOwner, { id: id ?? DEMO_BUSINESS }) : null;
+  // X5: a demo role, not access control, so the label names no business.
+  const signedIn = role === "admin" ? nav.roleAdmin : role === "owner" ? nav.roleOwner : null;
 
   const items = navItems(rest, base, query, nav, admin);
   const close = () => setOpenOn(null);
@@ -104,9 +104,8 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
             </nav>
             <div className="flex flex-wrap items-center gap-3">
               {signedIn && (
-                <span className="flex flex-col leading-tight">
-                  <span className="text-xs text-muted">{nav.signedInAs}</span>
-                  <span className="text-sm font-semibold">{signedIn}</span>
+                <span className="text-sm font-semibold leading-tight" data-demo-role>
+                  {signedIn}
                 </span>
               )}
               <LanguageToggle locale={locale} label={nav.language} />

@@ -25,3 +25,8 @@ export function getMessages(locale: Locale): Messages {
 export function fill(template: string, values: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, k: string) => String(values[k] ?? `{${k}}`));
 }
+
+/** Which locale a catalogue belongs to. The two catalogues are module singletons, so identity tells them apart. */
+export function localeOf(m: Messages): Locale {
+  return m === CATALOGUES.ar ? "ar" : "en";
+}
