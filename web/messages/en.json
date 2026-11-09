@@ -589,6 +589,7 @@
     ],
     "faqTitle": "Questions",
     "faqOpen": "Open",
+    "faqClose": "Close",
     "faq": [
       {
         "q": "Is this a loan offer?",

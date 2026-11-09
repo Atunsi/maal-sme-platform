@@ -159,3 +159,17 @@ test("footer links keep the demo role", async ({ page }) => {
   await page.goto("/en/business/10012", { waitUntil: "networkidle" });
   await expect(footer.getByRole("link", { name: "Glossary" })).toHaveAttribute("href", "/en/glossary");
 });
+
+test("faq word follows the open state", async ({ page }) => {
+  // B15: "Open" while closed, "Close" while open; the word is aria-hidden, the native details state is announced.
+  await page.goto("/en");
+  const item = page.locator("details.faq").filter({ hasText: "Is the data real?" });
+  await expect(item.locator(".faq-open")).toBeVisible();
+  await expect(item.locator(".faq-close")).toBeHidden();
+  await item.locator("summary").click();
+  await expect(item).toHaveAttribute("open", "");
+  await expect(item.locator(".faq-open")).toBeHidden();
+  await expect(item.locator(".faq-close")).toBeVisible();
+  await expect(item.locator(".faq-close")).toHaveText("Close");
+  expect(await item.locator("summary [aria-hidden=true]").count()).toBe(1);
+});

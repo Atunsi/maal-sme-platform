@@ -742,6 +742,13 @@ details.faq summary {
 details.faq summary::-webkit-details-marker {
   display: none;
 }
+details.faq .faq-close,
+details.faq[open] .faq-open {
+  display: none;
+}
+details.faq[open] .faq-close {
+  display: inline;
+}
 
 @keyframes rise {
   from {

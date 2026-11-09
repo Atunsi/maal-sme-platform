@@ -237,7 +237,11 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           <details key={item.q} className="faq border-t border-line py-3.5">
             <summary className="text-[19px] font-semibold">
               <span>{item.q}</span>
-              <span className="flex-none font-mono text-[13px] font-normal text-accent">{l.faqOpen}</span>
+              {/* B15: the word follows the native open state; screen readers hear that state, not the word. */}
+              <span aria-hidden="true" className="flex-none font-mono text-[13px] font-normal text-accent">
+                <span className="faq-open">{l.faqOpen}</span>
+                <span className="faq-close">{l.faqClose}</span>
+              </span>
             </summary>
             <p className="mt-2.5 text-base leading-relaxed text-muted">{item.a}</p>
           </details>
