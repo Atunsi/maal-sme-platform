@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SectionMark } from "@/components/brand/Logos";
 import { ScenarioCompare } from "@/components/ScenarioCompare";
+import { ChangedRows, DiffHeading, ScenarioMenu, ScenarioSelect } from "@/components/ScenarioControls";
 import { ScenarioPlayer } from "@/components/ScenarioPlayer";
 import { ApiError, BackendText, Num, Page } from "@/components/ui";
 import { roleQuery } from "@/lib/businesses";
@@ -17,7 +18,7 @@ const BASELINE = "baseline";
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ s?: string | string[]; scenario?: string | string[]; as?: string | string[] }>;
+  searchParams: Promise<{ s?: string | string[]; scenario?: string | string[]; as?: string | string[]; changed?: string | string[] }>;
 };
 
 export default async function ScenariosPage({ params, searchParams }: Props) {
@@ -35,7 +36,7 @@ export default async function ScenariosPage({ params, searchParams }: Props) {
   }
 
   const menu = index.data.scenarios;
-  const { s, scenario, as } = await searchParams;
+  const { s, scenario, as, changed } = await searchParams;
   const asked = scenario ?? s; // ?scenario= is what Play all writes (E6); ?s= is the menu's
   const role = roleQuery(as).replace("?", "&");
   const roleFirst = roleQuery(as) ? `${roleQuery(as).slice(1)}&` : "";
@@ -64,43 +65,56 @@ export default async function ScenariosPage({ params, searchParams }: Props) {
       />
 
       <div className="flex flex-wrap items-start gap-7">
-        <nav aria-label={sc.menu} className="clip-box flex min-w-0 flex-[1_1_280px] flex-col border border-ink bg-card">
-          {menu.map((entry, i) => {
+        <ScenarioSelect
+          label={sc.menu}
+          entries={menu.map((entry) => ({
+            name: entry.name,
+            label: scenarioName(entry.label).name,
+            href: `/${locale}/scenarios?s=${entry.name}${role}`,
+            current: entry.name === selected.name,
+          }))}
+        />
+        <ScenarioMenu
+          label={sc.menu}
+          locale={locale}
+          footer={locale === "ar" ? <p className="border-t border-line p-3 text-xs text-muted">{m.common.englishTemplate}</p> : undefined}
+          entries={menu.map((entry, i) => {
             const current = entry.name === selected.name;
             const { name, detail } = scenarioName(entry.label);
-            return (
-              <Link
-                key={entry.name}
-                href={`/${locale}/scenarios?s=${entry.name}${role}`}
-                aria-current={current ? "page" : undefined}
-                className={`menu-link square rise flex min-h-11 flex-col gap-0.5 px-4 py-3.5 no-underline ${i ? "border-t border-line" : ""} ${
-                  current ? "bg-solid text-white" : "bg-card text-ink"
-                }`}
-                style={{ animationDelay: delay(1 + Math.floor(i / 2)) }}
-              >
-                <span aria-hidden="true" className="font-mono text-xs opacity-75">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span lang="en" dir="ltr" className="text-start font-semibold">
-                  {name}
-                </span>
-                {detail && (
-                  <span lang="en" dir="ltr" className="text-start text-[13px] opacity-85">
-                    {detail}
+            return {
+              name: entry.name,
+              href: `/${locale}/scenarios?s=${entry.name}${role}`,
+              current,
+              className: `menu-link square rise flex min-h-11 flex-col gap-0.5 px-4 py-3.5 no-underline ${i ? "border-t border-line" : ""} ${current ? "bg-solid text-white" : "bg-card text-ink"}`,
+              style: { animationDelay: delay(1 + Math.floor(i / 2)) },
+              children: (
+                <>
+                  <span aria-hidden="true" className="font-mono text-xs opacity-75">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                )}
-              </Link>
-            );
+                  <span lang="en" dir="ltr" className="text-start font-semibold">
+                    {name}
+                  </span>
+                  {detail && (
+                    <span lang="en" dir="ltr" className="text-start text-[13px] opacity-85">
+                      {detail}
+                    </span>
+                  )}
+                </>
+              ),
+            };
           })}
-          {locale === "ar" && <p className="border-t border-line p-3 text-xs text-muted">{m.common.englishTemplate}</p>}
-        </nav>
+        />
 
         <section aria-label={sc.resultTitle} className="flex min-w-0 flex-[999_1_640px] flex-col gap-6">
+          <DiffHeading id="diff-heading">{sc.resultTitle}</DiffHeading>
           <BackendText locale={locale} m={m}>
             {selected.story}
           </BackendText>
           {baseline.ok && chosen.ok ? (
-            <ScenarioCompare baseline={baseline.data} chosen={chosen.data} locale={locale} m={m} />
+            <ChangedRows initial={changed === "1"} label={sc.changedOnly}>
+              <ScenarioCompare baseline={baseline.data} chosen={chosen.data} locale={locale} m={m} />
+            </ChangedRows>
           ) : (
             <ApiError kind="contract" detail={(!baseline.ok && baseline.detail) || (!chosen.ok && chosen.detail) || undefined} m={m} />
           )}

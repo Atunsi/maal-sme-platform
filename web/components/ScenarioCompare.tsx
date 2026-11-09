@@ -148,7 +148,7 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
                 const changed = JSON.stringify(left[key]!.raw) !== JSON.stringify(right[key]!.raw);
                 const entrance = delay(1 + Math.floor(i / 3));
                 return (
-                  <tr key={key} className={`rise border-t border-line2 ${changed ? "text-ink" : "bg-grey text-muted"}`} style={{ animationDelay: entrance }}>
+                  <tr key={key} data-same={changed ? undefined : ""} className={`rise border-t border-line2 ${changed ? "text-ink" : "bg-grey text-muted"}`} style={{ animationDelay: entrance }}>
                     <th scope="row" className="px-5 py-3 text-start font-normal">
                       <span className="flex items-center gap-3">
                         <Plate

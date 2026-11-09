@@ -306,6 +306,7 @@
     "diff": "Diff sheet",
     "changed": "Changed",
     "same": "Same",
+    "changedOnly": "Changed rows only",
     "notDeclined": "Not declined",
     "notOffered": "Not offered",
     "play": "Play all",

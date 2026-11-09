@@ -75,13 +75,15 @@ describe("credit contract guards", () => {
     // CopyButton's only input is a read-only fallback holding a hash; HashCheck compares a pasted hash in the
     // browser (E4, DECISIONS 43). BusinessSearch searches the admin list (E10). CustomScenarioForm takes only
     // the API's shock parameters, each bounded; tests/custom.test.tsx checks its input names (E12). None of
-    // them can reach a term.
+    // them can reach a term. DECISIONS 45: ScenarioControls' phone select (I4) picks one of the library's
+    // fixed scenarios and only navigates to its page, so it cannot reach a term either.
     expect(withInput.sort()).toEqual([
       "BusinessPicker.tsx",
       "BusinessSearch.tsx",
       "CopyButton.tsx",
       "CustomScenarioForm.tsx",
       "HashCheck.tsx",
+      "ScenarioControls.tsx",
       "SignInForm.tsx",
     ]);
   });

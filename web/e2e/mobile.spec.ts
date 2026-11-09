@@ -154,3 +154,19 @@ test("hawl labels never overlap", async ({ page }) => {
     expect(b.right).toBeLessThanOrEqual(track.x + track.width + 1);
   }
 });
+
+test("phone scenario select scrolls to the diff", async ({ page }) => {
+  // I4: below 768 px a native select replaces the scenario cards; a choice moves to the diff sheet heading.
+  test.skip(width(page) >= 768, "the select is for phones");
+  await page.goto("/en/scenarios?s=mild_slowdown", { waitUntil: "networkidle" });
+  await expect(page.locator("[data-scenario-menu]")).toBeHidden();
+  const select = page.locator("[data-scenario-select]");
+  await expect(select).toBeVisible();
+  await select.selectOption("severe_collapse");
+  await expect(page).toHaveURL(/s=severe_collapse/);
+  const heading = page.locator("#diff-heading");
+  await expect(heading).toBeFocused();
+  await expect(page).not.toHaveURL(/jump=1/);
+  const top = await heading.evaluate((el) => el.getBoundingClientRect().top);
+  expect(Math.abs(top)).toBeLessThan(40);
+});

@@ -3,6 +3,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
+import { PLAY_STEP_MS } from "@/components/ScenarioPlayer";
 import { delay } from "@/lib/motion";
 import { webRoot } from "./helpers";
 
@@ -49,7 +50,9 @@ describe("motion", () => {
     const css = readFileSync(join(webRoot, "app", "globals.css"), "utf8");
     const steps = [...css.matchAll(/--d-(\d):\s*([\d.]+)s/g)].map(([, n, s]) => [Number(n), Number(s)]);
     expect(steps).toEqual([[0, 0], [1, 0.1], [2, 0.2], [3, 0.3], [4, 0.4]]);
-    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(([, selector]) => !selector!.includes('data-motion="full"'));
+    // Play all's step timer (I4) fills over the 8 s step; it is a timer, not an entrance, and is checked below.
+    const TIMERS = [".play-progress-fill"];
+    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(([, selector]) => !selector!.includes('data-motion="full"') && !TIMERS.includes(selector!.trim()));
     const over: string[] = [];
     for (const [, selector, body] of rules) {
       for (const [, decl] of body!.matchAll(/animation:\s*([^;]+);/g)) {
@@ -60,5 +63,6 @@ describe("motion", () => {
       for (const [, t] of body!.matchAll(/animation-delay:\s*([\d.]+m?s)/g)) if (seconds(t!) > 0.4) over.push(`${selector!.trim()}: delay ${t}`);
     }
     expect(over).toEqual([]);
+    expect(css).toMatch(new RegExp(`\.play-progress-fill \{[^}]*animation: growx ${PLAY_STEP_MS / 1000}s linear both`));
   });
 });

@@ -1161,3 +1161,25 @@ body {
   border-top: 6px solid currentColor;
   opacity: 1;
 }
+
+/* I4: "Changed rows only" hides the diff sheet's Same rows. */
+[data-changed-only="true"] tr[data-same] {
+  display: none;
+}
+
+/* I4: Play all's step timer. 8 s matches PLAY_STEP_MS in components/ScenarioPlayer.tsx (tested). */
+.play-progress {
+  display: block;
+  width: 160px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--r-bar);
+  background: var(--rule);
+}
+.play-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: var(--o-start);
+  animation: growx 8s linear both;
+}
