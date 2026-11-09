@@ -28,7 +28,8 @@ test("admin search and sector filter", async ({ page }) => {
   await page.goto("/en/admin?as=admin", { waitUntil: "networkidle" });
   await page.getByLabel(/^Business ID starts with/).fill("1002");
   await page.locator('select[name="sector"]').selectOption("retail_trade");
-  await page.getByRole("button", { name: "Search" }).click();
+  // The header's Search button (I8) shares the word, so the list's own form is named.
+  await page.getByRole("search").filter({ has: page.locator("select") }).getByRole("button", { name: "Search" }).click();
   await expect(page).toHaveURL(/q=1002/);
   await expect(page).toHaveURL(/sector=retail_trade/);
   const rows = page.getByRole("region", { name: "Serving business list" }).locator("tbody tr");

@@ -1140,6 +1140,7 @@ body {
   align-items: center;
   gap: 6px;
   min-height: 44px;
+  min-width: 44px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -1281,4 +1282,9 @@ body {
   border-radius: var(--r-box);
   background: var(--surface);
   color: var(--ink);
+}
+
+/* I5: the builder's sliders keep a 44 px touch target. */
+.custom-slider {
+  min-height: 44px;
 }

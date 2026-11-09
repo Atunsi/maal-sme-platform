@@ -166,7 +166,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                 <span dir={dirOf(locale)} className="lane-label block text-start text-xs font-medium text-muted">
                   {labels.enums.flag_reason[lane.reason]}
                 </span>
-                <div className="relative h-11 border-t border-line2">
+                <div className="relative h-[45px] border-t border-line2">
                   {lane.clusters.map((c) => {
                     const key = c.ids.join("-");
                     const readout = clusterText(c);
