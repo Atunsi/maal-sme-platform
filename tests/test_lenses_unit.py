@@ -99,10 +99,126 @@ def test_no_capacity_declines_on_affordability():
 
 def test_explanation_uses_the_fixed_threshold_table():
     th = LC["credit"]["explanation_thresholds"]
-    contribs = [{"feature_id": 1, "feature": "a", "contribution_logodds": th["strong"] + 0.01, "imputed": False},
-                {"feature_id": 2, "feature": "b", "contribution_logodds": -(th["moderate"] + 0.01), "imputed": False},
-                {"feature_id": 3, "feature": "c", "contribution_logodds": th["moderate"] / 2, "imputed": False}]
-    pub = {p["feature_id"]: p for p in explain(contribs, LC["credit"])["public_tier"]}
+
+    contribs = [
+        {
+            "feature_id": 1,
+            "feature": "avg_monthly_inflow",
+            "contribution_logodds": th["strong"] + 0.01,
+            "imputed": False,
+        },
+        {
+            "feature_id": 11,
+            "feature": "cash_flow_volatility",
+            "contribution_logodds": -(th["moderate"] + 0.01),
+            "imputed": False,
+        },
+        {
+            "feature_id": 42,
+            "feature": "installment_capacity_sar",
+            "contribution_logodds": th["moderate"] / 2,
+            "imputed": False,
+        },
+    ]
+
+    pub = {
+        p["feature_id"]: p
+        for p in explain(contribs, LC["credit"])["public_tier"]
+    }
+
     assert (pub[1]["magnitude"], pub[1]["direction"]) == ("strongly", "against")
-    assert (pub[2]["magnitude"], pub[2]["direction"]) == ("moderately", "supports")
-    assert (pub[3]["magnitude"], pub[3]["direction"]) == ("marginally", "either")
+    assert (pub[11]["magnitude"], pub[11]["direction"]) == ("moderately", "supports")
+    assert (pub[42]["magnitude"], pub[42]["direction"]) == ("marginally", "either")
+
+def test_all_credit_features_have_customer_facing_labels():
+    from lenses.credit.model import FEATURE_LABELS, load_artifact
+
+    artifact = load_artifact("lenses/credit/model_v1.json")
+    model_features = {f["name"] for f in artifact["features"]}
+
+    assert len(model_features) == 58
+    assert set(FEATURE_LABELS) == model_features
+    assert all(
+        isinstance(label, str) and label.strip()
+        for label in FEATURE_LABELS.values()
+    )
+
+
+@pytest.mark.skipif(not __import__("pathlib").Path("data/profiles.csv").exists(),
+                    reason="needs full-scale data/profiles.csv (python -m profile_engine.compute --dir data)")
+def test_credit_contributions_reconstruct_logit():
+    from lenses.credit.model import load_artifact, score
+
+    artifact = load_artifact("lenses/credit/model_v1.json")
+
+    profiles = pd.read_csv("data/profiles.csv").head(100)
+
+    assert len(profiles) == 100
+
+    for _, profile in profiles.iterrows():
+        predicted_pd, logit, contributions = score(profile, artifact)
+
+        reconstructed_logit = artifact["intercept"] + sum(
+            item["contribution_logodds"]
+            for item in contributions
+        )
+
+        assert len(contributions) == len(artifact["features"])
+        assert math.isclose(
+            logit,
+            reconstructed_logit,
+            rel_tol=0,
+            abs_tol=1e-10,
+        )
+        assert math.isclose(
+            predicted_pd,
+            1 / (1 + math.exp(-logit)),
+            rel_tol=0,
+            abs_tol=1e-10,
+        )
+
+@pytest.mark.parametrize(
+    ("contribution", "expected"),
+    [
+        (0.0, "marginally"),
+        (0.099, "marginally"),
+        (0.1, "moderately"),
+        (-0.1, "moderately"),
+        (0.3, "moderately"),
+        (-0.3, "moderately"),
+        (0.301, "strongly"),
+        (-0.301, "strongly"),
+    ],
+)
+def test_credit_explanation_magnitude_boundaries(contribution, expected):
+    from lenses.credit.model import _magnitude
+
+    thresholds = LC["credit"]["explanation_thresholds"]
+
+    assert _magnitude(contribution, thresholds) == expected
+
+def test_credit_customer_explanation_uses_exact_template():
+    from lenses.credit.model import FEATURE_LABELS, PHRASES, explain
+
+    contribs = [
+        {
+            "feature_id": 1,
+            "feature": "avg_monthly_inflow",
+            "contribution_logodds": -0.4,
+            "imputed": False,
+        }
+    ]
+
+    result = explain(contribs, LC["credit"])
+    public = result["public_tier"]
+
+    assert len(public) == 1
+    assert public[0]["magnitude"] == "strongly"
+    assert public[0]["direction"] == "supports"
+
+    expected = (
+        f"Your {FEATURE_LABELS['avg_monthly_inflow']} "
+        f"{PHRASES[('strongly', 'supports')]}."
+    )
+
+    assert public[0]["text"] == expected

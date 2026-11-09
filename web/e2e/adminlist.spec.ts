@@ -1,4 +1,4 @@
-// E10: the searchable admin list (DECISIONS 43). Axe at desktop and 390 px comes from pages.ts.
+// E10: the searchable admin list (DECISIONS 51). Axe at desktop and 390 px comes from pages.ts.
 import { nameOf } from "../lib/business-names";
 import { expect, test } from "@playwright/test";
 import { apiEnv } from "./helpers";
@@ -49,7 +49,7 @@ test("admin list shows serving population", async ({ page }) => {
 
 test("search, sector and page are handled on the server from the URL alone", async ({ request }) => {
   // No browser script runs here: the HTML the server sends already holds the filtered page. (The page
-  // streams, so a browser with JavaScript off shows the loading state; see DECISIONS 43.)
+  // streams, so a browser with JavaScript off shows the loading state; see DECISIONS 51.)
   const some = await apiList("q=1003&sector=retail_trade&limit=25");
   const html = await (await request.get("/en/admin?q=1003&sector=retail_trade")).text();
   expect(html).toContain(`${some.total}`);

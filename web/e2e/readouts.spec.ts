@@ -1,4 +1,4 @@
-// E5: chart readouts on hover, keyboard and tap, and the cash-floor label (DECISIONS 43).
+// E5: chart readouts on hover, keyboard and tap, and the cash-floor label (DECISIONS 51).
 import { expect, test, type Page } from "@playwright/test";
 import { apiEnv } from "./helpers";
 

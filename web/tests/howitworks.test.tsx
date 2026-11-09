@@ -1,4 +1,4 @@
-// E9: the "How Ma'al decides" page. DECISIONS 43.
+// E9: the "How Ma'al decides" page. DECISIONS 51.
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import HowItWorksPage from "@/app/[locale]/how-it-works/page";

@@ -20,6 +20,7 @@ deliverables.
 | `signal_decomposition.py` | §14 attribution: where signal is lost between the hidden latent and the measured features | 0 |
 | `model_baseline.py` | What the feature set supports at this sample size — logistic vs tuned/untuned XGBoost on one protocol, as % of the oracle ceiling | 0 |
 | `week8_check.py` | Week 8 contract: §11 keys, fixed markup, charity penalty, no forbidden keys / scores, Zakat arithmetic, forecast-with-baseline, byte-identical re-run — asserted on real CLI output | 0 = PASS, 1 = FAIL |
+| `demo_exposure.py` | Serving-population counts behind the demo findings: the first customer-explanation sentence by sector, declines by reason, anomaly flags per business (entries 29, 43, 47). Needs `data/serving.duckdb` | 0 |
 | `anomaly_eval.py` | §12 anomaly lens recall@K / precision@K (with its ceiling), injected and held-out types reported separately | 0 |
 | `forecast_backtest.py` | §10 model vs naive on a 30-day holdout: scale-free error, MAPE away from zero, crunch recall / false alarms | 0 |
 | `check_numbers.py` | Recomputes every checkable headline number from its source artifact and asserts `docs/NUMBERS.md` carries it — the register cannot silently go stale | 0 = current, 1 = drift |
@@ -52,7 +53,27 @@ deliverables.
 - **Seasonality is gated on the population, not one business** — criterion 3 requires the configured value AND count multipliers to be recovered within ±0.08 for the SAMA-measured sectors (B and B-weak windows alike: the test is of the wiring); class-C sectors are printed only.
 - **No feature claims prediction without a CI excluding 0.50** — `evidence.py` resolves A → A1/A2 only from `profile_engine/feature_transfer.json`, written by `calibration.reclass_evidence` from `feature_transfer.py`; nothing hand-typed.
 - **No cross-source AUC comparison mixes CV protocols** — the headline row of `real_vs_synthetic.md` is one protocol on all three sources; every other row is labelled secondary.
+## Credit Lens within-sector fairness audit (Section 25)
 
+Run:
+
+`python -m eval.within_sector_fairness`
+
+The audit evaluates the frozen Credit Lens model using exact additive
+linear-model feature contributions, grouped separately by sector.
+These contributions are not separately estimated SHAP values.
+
+Outputs:
+- `out/within_sector_fairness.csv` — sector-level feature attribution rankings.
+- `out/within_sector_calibration.csv` — research-population calibration.
+- `out/within_sector_serving_calibration.csv` — serving-population calibration.
+- `out/within_sector_fairness.md` — findings and limitations.
+
+**Status (2026-11-08): Audit completed; Section 25 acceptance
+criterion NOT DEMONSTRATED.** Construction-sector liquidity and
+working-capital features do not dominate the top-10 attribution
+ranking as required. Further review is needed; no model changes
+were made. See DECISIONS.md for the recorded findings.
 ## Still missing
 
-Expanding-window + entity-level CV on the synthetic side for the credit lens (§13), ~~AUC-vs-label-noise~~ (§14 — **done 2026-10-31**, DECISIONS entry 28, `eval/out/section14_noise_sweep.txt`; the ρ half is entry 21), the holdout-shock lead-time test (§10), SHAP threshold-table verification (§13), the §25 fairness audit. `compare_real.py` already implements the Berka temporal/entity scheme (§7.3) and a contiguous-ID entity split for the synthetic snapshot; the credit lens should reuse those rather than write a third.
+Expanding-window + entity-level CV on the synthetic side for the credit lens (§13), ~~AUC-vs-label-noise~~ (§14 — **done 2026-10-31**, DECISIONS entry 28, `eval/out/section14_noise_sweep.txt`; the ρ half is entry 21), the holdout-shock lead-time test (§10). Done since: SHAP threshold-table verification (§13; `tests/test_lenses_unit.py`, contributions reconstruct the logit and map to the right phrase). The §25 fairness audit has been run and its criterion is **not met** (DECISIONS 43, a finding). `compare_real.py` already implements the Berka temporal/entity scheme (§7.3) and a contiguous-ID entity split for the synthetic snapshot; the credit lens should reuse those rather than write a third.

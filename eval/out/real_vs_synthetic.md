@@ -6,14 +6,14 @@
 
 | protocol | Synthetic (research, class B tables) | Berka primary (A vs B, finished contracts) | Berka secondary (A+C vs B+D, censored) |
 |---|---|---|---|
-| **Unified — repeated stratified group 5-fold × 20, out-of-fold pooled per repeat, median [2.5, 97.5 pct]** (HEADLINE) | **0.574 [0.568, 0.585]** (n 9495 / 449 defaults) | **0.721 [0.681, 0.770]** (n 209 / 22) | **0.859 [0.841, 0.880]** (n 615 / 59) |
+| **Unified — repeated stratified group 5-fold × 20, out-of-fold pooled per repeat, median [2.5, 97.5 pct]** (HEADLINE) | **0.570 [0.563, 0.580]** (n 9495 / 449 defaults) | **0.721 [0.681, 0.770]** (n 209 / 22) | **0.859 [0.841, 0.880]** (n 615 / 59) |
 | Temporal split at loan_date 1997-01-01 — single split, bootstrap CI (v1.0 Berka headline; kept as a **leakage check**) | — (one-window population; no temporal axis) | not evaluable (too few defaults in a split) (test 42 / 3) | 0.901 [0.835, 0.955] (test 328 / 25) |
 | Expanding loan_date-quintile folds, bootstrap CI (secondary) | — | 0.740 [0.558, 0.902] (167 / 17) | 0.873 [0.789, 0.938] (492 / 39) |
-| Contiguous-ID entity 5-fold, no shuffling, bootstrap CI (v1.0 synthetic headline; secondary) | 0.578 [0.550, 0.607] (n 9495 / 449) | — | — |
+| Contiguous-ID entity 5-fold, no shuffling, bootstrap CI (v1.0 synthetic headline; secondary) | 0.576 [0.550, 0.605] (n 9495 / 449) | — | — |
 
-**Verdict against the pre-registered band: FINDING** — under one protocol on all three sources, |AUC_synth − AUC_berka| = **0.147** on the primary label set (0.574 vs 0.721; repeat bands do not overlap) and 0.285 on the secondary (0.859), vs tolerance 0.1. Per §8.3 a miss is reported as a finding; nothing is retuned.
+**Verdict against the pre-registered band: FINDING** — under one protocol on all three sources, |AUC_synth − AUC_berka| = **0.152** on the primary label set (0.570 vs 0.721; repeat bands do not overlap) and 0.289 on the secondary (0.859), vs tolerance 0.1. Per §8.3 a miss is reported as a finding; nothing is retuned.
 
-**What the protocol changed.** The v1.0 headline compared a cross-validated synthetic AUC (0.578) with a single Berka temporal split (0.901 [0.835, 0.955], 25 test defaults) and reported a gap of 0.323. Under the same repeated stratified group k-fold on both sides the Berka primary estimate is 0.721 [0.681, 0.770] and the secondary 0.859 [0.841, 0.880]; the synthetic side is 0.574. The part of the v1.0 gap that was protocol rather than signal is the difference between the temporal-split row and the unified row on the Berka columns.
+**What the protocol changed.** The v1.0 headline compared a cross-validated synthetic AUC (0.578 then; 0.576 on the current data) with a single Berka temporal split (0.901 [0.835, 0.955], 25 test defaults) and reported a gap of 0.32 (0.325 on the current data). Under the same repeated stratified group k-fold on both sides the Berka primary estimate is 0.721 [0.681, 0.770] and the secondary 0.859 [0.841, 0.880]; the synthetic side is 0.570. The part of the v1.0 gap that was protocol rather than signal is the difference between the temporal-split row and the unified row on the Berka columns.
 
 | Metric | Synthetic (research, N=10,000) | Berka primary | Berka secondary |
 |---|---|---|---|
@@ -45,8 +45,8 @@ The A1/A2 split over all class-A features, with 1,000-resample CIs, is in `eval/
 | `overdraft_events_90d` | A2 | 0.537 [0.52, 0.56] | +0.04 | 0.568 [0.50, 0.65] | +0.35 | 0.627 [0.57, 0.68] | +0.49 |
 | `volatility_index` | A2 | 0.566 [0.54, 0.59] | +0.05 | 0.602 [0.47, 0.74] | +0.11 | 0.650 [0.56, 0.74] | +0.15 |
 | `unique_counterparties_count` | A1 | 0.450 [0.43, 0.48] | -0.04 | 0.466 [0.32, 0.63] | -0.03 | 0.524 [0.42, 0.63] | +0.02 |
-| `counterparty_concentration_index` | A1 | 0.539 [0.52, 0.57] | +0.03 | 0.540 [0.37, 0.70] | +0.03 | 0.469 [0.36, 0.58] | -0.02 |
-| `new_counterparty_ratio_30d` | A2 | 0.470 [0.45, 0.49] | -0.02 | 0.470 [0.45, 0.49] | -0.06 | 0.472 [0.46, 0.48] | -0.05 |
+| `counterparty_concentration_index` | A1 | 0.550 [0.52, 0.58] | +0.04 | 0.540 [0.37, 0.70] | +0.03 | 0.469 [0.36, 0.58] | -0.02 |
+| `new_counterparty_ratio_30d` | A2 | 0.506 [0.49, 0.52] | +0.01 | 0.470 [0.45, 0.49] | -0.06 | 0.472 [0.46, 0.48] | -0.05 |
 | `coverage_days_90d` | A2 | 0.478 [0.45, 0.50] | -0.02 | 0.358 [0.25, 0.47] | -0.15 | 0.420 [0.35, 0.50] | -0.08 |
 | `data_gap_ratio` | A2 | 0.511 [0.48, 0.53] | +0.01 | 0.631 [0.51, 0.75] | +0.14 | 0.560 [0.48, 0.63] | +0.06 |
 | `inflow_break_recency_days` | A1 | 0.521 [0.49, 0.56] | +0.02 | 0.420 [0.22, 0.64] | -0.08 | 0.458 [0.36, 0.57] | -0.04 |

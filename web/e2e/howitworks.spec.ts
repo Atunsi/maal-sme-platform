@@ -1,4 +1,4 @@
-// E9: "How Ma'al decides" (DECISIONS 43). Axe, themes and the symbol guard come from pages.ts.
+// E9: "How Ma'al decides" (DECISIONS 51). Axe, themes and the symbol guard come from pages.ts.
 import { expect, test } from "@playwright/test";
 
 for (const locale of ["en", "ar"] as const) {

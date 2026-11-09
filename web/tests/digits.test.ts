@@ -1,4 +1,4 @@
-// E8: the Arabic-Indic digits switch, and N3 (hashes, commands and IDs in code stay Latin). DECISIONS 43.
+// E8: the Arabic-Indic digits switch, and N3 (hashes, commands and IDs in code stay Latin). DECISIONS 51.
 import { afterEach, describe, expect, it } from "vitest";
 import { applyDigits, toArabDigits, toLatnDigits } from "@/lib/digits";
 import { formatDate, formatInt, formatRaw, formatSar } from "@/lib/format";

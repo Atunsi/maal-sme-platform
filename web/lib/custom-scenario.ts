@@ -1,4 +1,4 @@
-// E12: the custom scenario's shocks in the URL, so a result can be shared and re-run (DECISIONS 43).
+// E12: the custom scenario's shocks in the URL, so a result can be shared and re-run (DECISIONS 51).
 // One ?shock= per shock: the type, then each parameter's value in the catalogue's order, joined by dots,
 // for example ?shock=cash_crunch.16.40&shock=large_transfer.10. Nothing is stored anywhere.
 import type { ScenarioCatalog } from "@/lib/types";

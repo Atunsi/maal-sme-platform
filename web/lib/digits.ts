@@ -1,5 +1,5 @@
 // E8: the Arabic-Indic digits switch. Western digits are the default; the switch exists in the Arabic
-// locale only, and the choice lives in localStorage only, never a cookie (DECISIONS 43, like the theme).
+// locale only, and the choice lives in localStorage only, never a cookie (DECISIONS 51, like the theme).
 //
 // The server cannot know a choice kept in localStorage, so it always renders Western digits. After
 // hydration, the client rewrites the digits in the page's text (and keeps doing so as the page changes).

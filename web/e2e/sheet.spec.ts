@@ -1,4 +1,4 @@
-// E2: the printable decision sheet (DECISIONS 43).
+// E2: the printable decision sheet (DECISIONS 51).
 import { expect, test } from "@playwright/test";
 
 test("print sheet shows the required labels", async ({ page }) => {

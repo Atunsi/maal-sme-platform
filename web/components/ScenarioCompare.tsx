@@ -14,7 +14,7 @@ const SHARIA_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "
 
 const SHORT = 12;
 
-/** Words U8 keeps off the screen. A scenario whose own name holds one gets no command (DECISIONS 43, S5). */
+/** Words U8 keeps off the screen. A scenario whose own name holds one gets no command (DECISIONS 51, S5). */
 const U8_WORDS = /fraud|score/i;
 
 /** The command that re-runs a library scenario, built from the object's own scenario name (E4). A custom

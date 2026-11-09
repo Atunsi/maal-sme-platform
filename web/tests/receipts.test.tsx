@@ -1,4 +1,4 @@
-// E4: receipt panel copy buttons, the re-run command and the hash check (DECISIONS 43).
+// E4: receipt panel copy buttons, the re-run command and the hash check (DECISIONS 51).
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ReceiptPanel, verifyCommand } from "@/components/ReceiptPanel";

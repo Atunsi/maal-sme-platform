@@ -1,4 +1,4 @@
-// E3: the glossary (DECISIONS 43). Fixed text written for the UI, not generated. Only terms the UI shows,
+// E3: the glossary (DECISIONS 51). Fixed text written for the UI, not generated. Only terms the UI shows,
 // each defined from a repo source named in `source`. Rules, all tested: no digits in any term or
 // definition (N1), at most thirty words per definition, no symbol characters, every entry has a source (N2).
 // Every Arabic string is a draft for the compliance owner's review, like the rest of messages/ar.json.

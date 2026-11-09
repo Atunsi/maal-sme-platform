@@ -24,7 +24,7 @@ It is a demo on synthetic data. It has no real accounts, tracking or logging of 
 | `/[locale]/glossary` | Every glossary term |
 | `/[locale]/how-it-works` | How Ma'al decides |
 
-Enhancements (DECISIONS 43):
+Enhancements (DECISIONS 51):
 
 - **Guided tour.** "Take the tour" on the landing page and the overview. The step is in the URL (`?tour=<step>`); Escape ends it. Steps live in `lib/tour.ts`.
 - **Print sheet.** `/business/[id]/sheet`, with print CSS for A4. No print timestamp.

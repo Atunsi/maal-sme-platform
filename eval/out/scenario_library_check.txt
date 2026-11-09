@@ -1,27 +1,27 @@
 baseline == business 10001 in data/ (all values; surrogate IDs excepted)
 
 [baseline] Baseline — business 10001 exactly as configured
-  status=scored, decision=approved, amount_sar=47000.0, markup_pct=6.5, pd=0.055732, tier=B, cash_alert=watch, days_to_negative=None, hazard_30d=0.346, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=5963.26, sharia=compliant, seconds=0.4
+  status=scored, decision=approved, amount_sar=47000.0, markup_pct=6.5, pd=0.052612, tier=B, cash_alert=watch, days_to_negative=None, hazard_30d=0.346, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=5963.26, sharia=compliant, seconds=0.45
 
 [calm_counterfactual] Calm half-year — no shock, no anomalies
-  status=scored, decision=approved, amount_sar=242000.0, markup_pct=8.0, pd=0.06896, tier=C, cash_alert=none, days_to_negative=None, hazard_30d=0.0, anomaly_flags=10, injected_caught=0 of 0, zakat_sar=9031.05, sharia=compliant, seconds=0.36
+  status=scored, decision=approved, amount_sar=242000.0, markup_pct=8.0, pd=0.066261, tier=C, cash_alert=none, days_to_negative=None, hazard_30d=0.0, anomaly_flags=10, injected_caught=0 of 0, zakat_sar=9031.05, sharia=compliant, seconds=0.42
 
 [mild_slowdown] Mild slowdown — inflows down 15% from week 18
-  status=scored, decision=approved, amount_sar=173000.0, markup_pct=8.0, pd=0.084905, tier=C, cash_alert=none, days_to_negative=None, hazard_30d=0.0, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=6890.63, sharia=compliant, seconds=0.37
+  status=scored, decision=approved, amount_sar=173000.0, markup_pct=8.0, pd=0.0743, tier=C, cash_alert=none, days_to_negative=None, hazard_30d=0.0, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=6890.63, sharia=compliant, seconds=0.42
 
 [severe_collapse] Severe revenue collapse — inflows down 60% from week 14
-  status=scored, decision=declined (affordability), amount_sar=None, markup_pct=None, pd=0.048267, tier=None, cash_alert=crunch, days_to_negative=1, hazard_30d=1.0, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=1327.52, sharia=compliant, seconds=0.34
+  status=scored, decision=declined (affordability), amount_sar=None, markup_pct=None, pd=0.038985, tier=None, cash_alert=crunch, days_to_negative=1, hazard_30d=1.0, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=1327.52, sharia=compliant, seconds=0.38
 
 [late_sudden_shock] Late sudden shock — inflows down 70% in the final three weeks
-  status=scored, decision=approved, amount_sar=104000.0, markup_pct=8.0, pd=0.099923, tier=C, cash_alert=none, days_to_negative=None, hazard_30d=0.032, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=6568.57, sharia=compliant, seconds=0.36
+  status=scored, decision=approved, amount_sar=104000.0, markup_pct=8.0, pd=0.087301, tier=C, cash_alert=none, days_to_negative=None, hazard_30d=0.032, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=6568.57, sharia=compliant, seconds=0.39
 
 [fraud_pattern] Suspicious activity — repeated large transfers and night-time sales
-  status=scored, decision=approved, amount_sar=159000.0, markup_pct=8.0, pd=0.095281, tier=C, cash_alert=none, days_to_negative=None, hazard_30d=0.124, anomaly_flags=10, injected_caught=5 of 5, zakat_sar=4978.57, sharia=compliant, seconds=0.37
+  status=scored, decision=approved, amount_sar=159000.0, markup_pct=8.0, pd=0.095994, tier=C, cash_alert=none, days_to_negative=None, hazard_30d=0.124, anomaly_flags=10, injected_caught=5 of 5, zakat_sar=4978.57, sharia=compliant, seconds=0.4
 
 [combined_crisis] Combined crisis — 60% revenue collapse from week 12 plus large transfers out
-  status=scored, decision=declined (affordability), amount_sar=None, markup_pct=None, pd=0.056133, tier=None, cash_alert=crunch, days_to_negative=1, hazard_30d=1.0, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=2651.45, sharia=compliant, seconds=0.33
+  status=scored, decision=declined (affordability), amount_sar=None, markup_pct=None, pd=0.065644, tier=None, cash_alert=crunch, days_to_negative=1, hazard_30d=1.0, anomaly_flags=10, injected_caught=2 of 2, zakat_sar=2651.45, sharia=compliant, seconds=0.36
 
 [thin_file_newcomer] Newcomer — trading for about 40 days only
-  status=insufficient_data, decision=not decided (insufficient_data), seconds=0.1
+  status=insufficient_data, decision=not decided (insufficient_data), seconds=0.11
 
-SCENARIO LIBRARY CHECK PASSED — 8 scenarios, Week 8 contract, byte-identical re-runs, max 0.40s per regenerate-and-run (budget 30s)
+SCENARIO LIBRARY CHECK PASSED — 8 scenarios, Week 8 contract, byte-identical re-runs, max 0.45s per regenerate-and-run (budget 30s)

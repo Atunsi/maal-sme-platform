@@ -1,4 +1,4 @@
-// E1: the guided tour. DECISIONS 43.
+// E1: the guided tour. DECISIONS 51.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { act, fireEvent, render, screen } from "@testing-library/react";

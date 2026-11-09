@@ -198,7 +198,7 @@ const AnomalyBody = z.discriminatedUnion("status", [
   }),
 ]);
 
-// E11 (DECISIONS 43, 44): the review cap would ride here. It stopped at S9 (adding it changes the response's
+// E11 (DECISIONS 51, 44): the review cap would ride here. It stopped at S9 (adding it changes the response's
 // output_sha256), so the field is optional and the UI falls back to the count alone when it is absent.
 const Limits = z.strictObject({ max_flags: z.number().int().positive() });
 

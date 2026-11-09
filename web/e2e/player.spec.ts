@@ -1,4 +1,4 @@
-// E6: scenario Play all (DECISIONS 43).
+// E6: scenario Play all (DECISIONS 51).
 import { expect, test } from "@playwright/test";
 import index from "../scenarios-data/index.json";
 import { scenarioName } from "../lib/scenario-label";

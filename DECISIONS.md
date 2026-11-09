@@ -109,7 +109,7 @@ features, not the sector code") is a claim that could genuinely fail. Read
 this alongside the feature-11 consequence above: the audit should expect real
 within-construction discrimination, just not through features 11 / 56.
 
-**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-01)
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☑ profile engine owner (Faris Alsharifi, 2026-11-01)
 
 ---
 
@@ -495,7 +495,7 @@ for feature 42, `max(0, avg_monthly_inflow − committed_monthly_outflow) × (1 
 flow_asymmetry_ratio, 0.5))` with k = 0.15, is the one that counts and supersedes the formula text
 above, which omits the 0.5 cap.
 
-**Sign-off:** ☐ credit lens owner (41, 42, 61) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07; features 41, 42, 61; subject to Entry 34 and team approval) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -1078,7 +1078,7 @@ comparison under one CV protocol on all three sources is entry 19 (Workstream B4
 C 25 — the A1/A2 split is entry 16).
 
 **Recorded by:** generator owner, 2026-09-17.
-**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☐ credit-lens owner (professional_services cell is below the §23 minimum at N = 10,000)
+**Sign-off:** ☑ generator owner (Ahmed Altunusi, 2026-10-31) ☑ credit-lens owner (Abdulrahman Alharbi, 2026-11-08; acknowledges professional_services insufficient defaults and SKIP)
 
 ---
 
@@ -1287,7 +1287,7 @@ interval for the population AUC; with 22 primary defaults that fold-to-fold spre
 width, and the report says so.
 
 **Recorded by:** credit-lens owner, 2026-09-17.
-**Sign-off:** ☐ credit-lens owner ☐ team (protocol as the standing headline; §21 definition wording)
+**Sign-off:** ☑ credit-lens owner (Abdulrahman Alharbi, 2026-11-08; approves unified CV protocol and documented eligibility limitations) ☐ team (protocol as the standing headline; §21 definition wording)
 
 ---
 
@@ -1701,7 +1701,7 @@ so the generator config's hash — cited by the calibration and compare_real rec
   pre-aggregated store.
 - **Everyone:** unit tests — there are still none beneath the integration checks.
 
-**Sign-off:** ☐ credit lens owner (23.3 credit) ☐ forecast + anomaly owner (23.3
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves 23.3 credit policy, subject to Entry 34 change control) ☐ forecast + anomaly owner (23.3
 anomaly, forecast) ☐ compliance owner + Sharia advisor (23.3 Zakat) ☐ team (gating
 Zakat on insufficient_data)
 
@@ -1836,7 +1836,7 @@ confirmation" — never as a Sharia determination.
 (notably 5993 tobacco and 7929 entertainment, where scholars differ, and the decision to treat existing
 financing as a disclosure rather than a flag); the Compliance View toggle (UI, Week 10).
 
-**Sign-off:** ☐ compliance owner ☐ Sharia advisor ☐ credit lens owner (the §27 gate and conditional offers)
+**Sign-off:** ☐ compliance owner ☐ Sharia advisor ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves compliance gate and conditional offers, subject to Sharia-advisor confirmation)
 
 ---
 
@@ -2292,7 +2292,7 @@ computed.
 entries 30, 35 and 38, the "before" figures in item 2 are measured on the retrained model, not on
 `model_v1.json`.
 
-**Sign-off:** ☐ credit lens owner ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07; accepts documented affordability risk) ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ team
 
 ---
 
@@ -2917,6 +2917,22 @@ clipped recomputation against v2 to 8.8e-15. Nothing retrained.
 **Rule restated:** the credit AUC after the retrain is reported whichever way it moves, and the bound is
 not revisited because of it. The retrain waits for the team box.
 
+**Reported after implementation (full scale, from `79160cb`, recorded 2026-11-08).**
+- **Clip counts** (`eval/out/reference_stats_clip_counts.csv`, per sector and feature with N): research
+  843 of 47,475 z values clipped (1.8%), serving 79 of 4,715 (1.7%). Largest research cells: retail 57
+  138 high / 4,204; construction 56 93 high / 3,486; retail 56 88 high; retail 55 81 low; construction 58
+  77 (6 low, 71 high); retail 58 69 high; construction 59 66 high. As the quick run suggested, most clips
+  are on the upper tails of 56–59, not on the lower tail of 55.
+- **Credit retrain** (`python -m lenses.credit.train`, hyperparameters, labels and protocol unchanged):
+  CV AUC **0.5911 [0.5842, 0.5996]** (research, scorable, N = 9,495 / 449 defaults, repeated stratified
+  group 5-fold × 20) against 0.5912 [0.5841, 0.5985] before; oracle ceiling 0.6660 unchanged (labels
+  unchanged), 88.8% of ceiling; serving check **0.628 [0.536, 0.710]** (943 / 45) against 0.643. The
+  artifact changed (sha256 `c7b6f733…f982` → `7ed936b6…9274`, intercept −3.151 → −3.142). Entries 30, 35
+  and 38 were applied together, so this change cannot be attributed to any one of them.
+- The retrain commit (`79160cb`, 22:45) precedes the commit recording the team box (`67a5779`, 22:50,
+  2026-11-07). The team approved the entry 38 clip before the retrain ran; the
+  approval was committed afterwards (credit lens owner, confirmed 2026-11-08).
+
 **Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-07) ☑ team (approval confirmed 2026-11-07)
 
 ---
@@ -3191,7 +3207,488 @@ the fixed label and its frame still stand on the page with every animation off.
 
 ---
 
-## 43. Web UI enhancements: tour, print sheet, glossary, receipts, readouts, digits, mobile, how-it-works, play all, admin list, review cap, custom scenarios — PROPOSED (2026-11-09)
+## 43. §25 within-sector fairness: construction's top attributions are not liquidity / working-capital features — FINDING (2026-11-08)
+
+**Owner:** credit lens owner (Abdulrahman Alharbi). **Touches:** §25, the report's limitations, any
+fairness claim made in the demo or report.
+
+**Status: FINDING.** The §25 pass criterion is **not met**. This is recorded as a result about the model,
+not explained away, and it goes into the report's limitations. No fairness-approved claim is made.
+
+**Why a finding and not an explanation.** An argument that the criterion is wrong for construction
+would be made after seeing the result, which is retuning the test (CLAUDE.md, "decide calibration before
+the result exists"). Entry 1b settled this in advance on 2026-09-20: "A Week 11 audit that finds 11 / 56
+near the top in construction is a finding about the model and should be reported as such." Any revised
+criterion is a separate PROPOSED entry, applies only to a later model and audit, and does not turn this
+result into a pass.
+
+**Method.** `python -m eval.within_sector_fairness` on the research population, scored or
+partial_profile (N = 9,495; construction 3,486). Attribution is coefficient × standardised feature value,
+which is exactly the SHAP value of a linear model with the mean as baseline (§13's "SHAP
+infrastructure" reduces to this for the logistic lens; intercept + contributions reproduce the logit,
+tested on 100 profiles). Features are ranked within each sector by mean |contribution| (impact) and by
+the SD of the contribution within the sector (variation).
+
+**Which model: the retrained one (confirmed 2026-11-08).** The committed `model_v1.json` is identical in
+`79160cb` (the retrain, artifact sha256 `7ed936b6…9274`, trained 2026-11-07, after entries 30, 35 and 38)
+and `4482491` (the audit commit); `e36bc85`, `bbbc9d7` and the entry 38 clip commit are ancestors of
+`79160cb`. The credit lens owner's diagnostics below report feature 3's coefficient as +1.294436, which is
+the retrained artifact's value (the earlier model's was +1.467769). The committed outputs did not record
+the model; the script now prints the artifact's sha256, its training date and the largest |z| over 55–59
+in `profiles.csv`, so later runs state this themselves.
+
+**Construction result, as committed.**
+- **By the schema's text** (§25 names features 11–19): **1 of the top 10** by impact is in the set
+  (15 `volatility_index`, rank 2).
+- **By entry 1b's reading** (11–19 plus 37–40, recorded 2026-09-20 before any audit): **2 of 10**
+  (adds 39 `implied_dpo_days`, rank 6). Both readings fail. The schema text and entry 1b disagree on 37–40;
+  the schema wording follows at the next team-approved schema edit (entry 33).
+- **By within-sector variation** (top 10: 15, 6, 3, 55, 52, 68, 53, 14, 66, 49): 2 of 10 by the schema's
+  text (15, 14), 2 by entry 1b's. Still fails. This ranking is reported because the script already
+  computes it, not chosen as the test after the fact.
+- **Rank 1 is feature 3 `inflow_regularity_score`**, mean contribution −1.585 log-odds with SD 0.407:
+  it moves almost every construction business by the same amount (|mean| / mean |contribution| = 1.00).
+  Features 6, 10, 39 and 60 behave the same way (≥ 0.98). A near-constant contribution across a whole
+  sector is a sector-level offset, which is the pattern §25 asks to rule out.
+- **Why, from the model's own parameters.** Within one sector, feature 55 is feature 3 rescaled:
+  `(x − μ_s) / σ_s` with v2's construction μ = 0.144, σ = 0.133 (retail 0.998 / 0.020, F&B 0.999 / 0.009).
+  The owner measured r = 0.9995 between 3 and 55 in construction (N = 3,486; not exactly 1 because of
+  the ±3 clip and imputation) and VIF ≈ 1,022 for both there. A model holding both can therefore give
+  each sector its own slope and its own constant: an implicit sector term. In construction, ignoring the
+  clip (which binds above 0.54), the retrained model's slope on feature 3 is +3.054 log-odds per unit
+  through feature 3 and −2.702 through feature 55, net **+0.35 per unit** (≈ 0.05 log-odds per
+  within-construction SD). The two large attributions (SD 0.41 and 0.36) almost cancel inside the sector;
+  what remains of feature 3's −1.585 is the gap between construction's regularity level and the pooled
+  population's (retail and F&B sit near 1.0). The same pairing exists for 11/56, 13/57, 16/58 and 21/59.
+  This is a mechanism for the failure, not a reason to discount it.
+- Summed mean contributions by sector (the average sector-level offset in log-odds, intercept excluded):
+  construction +0.242, food & beverage −0.001, retail −0.115, professional services −1.431. No sector-code
+  feature is in the model (58 features, §8 list minus 23–26); indirect sector effects are not ruled out.
+
+**Further diagnostics (credit lens owner, 2026-11-08, on the retrained model; scripts not yet committed,
+so these numbers are not quoted in the report until they are).** In construction (N = 3,486): feature 3
+vs `default_label` Spearman ρ = −0.0076, single-feature AUC 0.4907; vs the latent risk index ρ = −0.0857;
+vs latent management quality ρ = +0.0385. Feature 3's coefficient is +1.294 with feature 55 present and
++0.379 without it; feature 55's is −0.012 without feature 3. VIF for feature 3: 66.1 overall, 1,022.5 in
+construction; feature 55: 3.39 overall, 1,022.1 in construction. So the top construction attribution
+carries almost no standalone signal about default in construction.
+
+**Ablation: not recorded.** The credit lens owner ran a feature-group ablation in a working session,
+but which features the group contained was not recorded, so its numbers are not stated here or used
+anywhere. If it is re-run, the script is committed first with the feature list, and any change to the
+feature set is a new PROPOSED entry with its selection rule fixed before it is evaluated. The shipped
+model and A1 stay as they are.
+
+**Serving-population calibration (943 businesses, 45 defaults), predicted vs observed default rate.**
+Construction 360 / 25 defaults: 5.64% vs 6.94% (−1.31 pp, under-predicted). Food & beverage 148 / 5:
+4.61% vs 3.38% (+1.23 pp). Retail 409 / 15: 4.22% vs 3.67% (+0.56 pp). Professional services 26 / 0:
+1.00% vs 0.00%. Default counts are small; calibration differences do not establish fairness either way.
+
+**For the report's limitations (wording to use).** "The §25 within-sector audit did not pass. In
+construction, only 1 of the 10 most influential features (2 under the wider working-capital reading of
+entry 1b) is a liquidity or working-capital feature; the most influential, inflow regularity, shifts
+nearly every construction business by the same amount, which is a sector-level effect rather than an
+assessment of individual risk. Inflow regularity also enters through its sector-relative z-score, and
+together the two let the model set a separate baseline per sector. We therefore make no claim that the model rewards disciplined operators
+within volatile sectors."
+
+**Reproduction:** `python -m eval.within_sector_fairness` → `eval/out/within_sector_fairness.{csv,md}`,
+`within_sector_calibration.csv`, `within_sector_serving_calibration.csv`.
+
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; finding recorded — not fairness
+approval) ☐ team (the finding and the limitations wording)
+
+---
+
+## 44. API additions: GET /businesses, anomaly max_flags, GET /scenarios and POST /scenarios/run — PROPOSED (2026-11-09)
+
+**Faris Alsharifi acted for the API owner for this work** (SOP_web_ui_enhancements section 1a). The API owner
+should review this entry and the code (`api/app.py`, `api/store.py`, `api/scenario_bounds.py`) before it counts
+as the API's own. Nothing outside `api/` and `tests/` changed; `pipeline/`, `lenses/`, `scenarios/`, `generator/`,
+`config.yaml` and the schema are untouched, and no existing route's logic or output changed.
+
+**`GET /businesses`.** Query `offset` (whole number from 0, default 0), `limit` (1 to 50, default 25), `sector`
+(one of the sectors in the store), `q` (digits: the start of a business ID). Any other parameter, or a bad value,
+is a 422 in the existing `{"detail": "<reason>"}` format. Response:
+`{"population": "serving", "data_source": "synthetic", "total", "offset", "limit", "businesses": [{"business_id", "sector"}]}`,
+in ID order; `total` counts after filters. No lens runs. Serving only, twice over: the store holds the serving
+population, and the route also keeps only IDs inside config's serving `id_range` whose stored population is
+serving. Same key check as every route; the per-business rate limiter counts it against one bucket of its own.
+
+**`max_flags` in the anomaly response: stopped (S9).** The cap comes from `lenses/lens_config.yaml` (`max_flags`).
+`receipt.output_sha256` hashes the whole response except the `receipt` key (`pipeline.week8.output_sha256`), so
+no envelope sits outside the hash: a `limits` object anywhere at the top level changes the anomaly response's
+`output_sha256` and every captured anomaly fixture hash. The SOP says to stop there. Options for the API owner:
+(a) accept the new hashes once and record the switch here; (b) put the cap inside the receipt, which is outside
+the hash, and say so in the receipt contract; (c) serve it from a small separate route (for example
+`GET /limits`), which changes no hash. The UI already reads `limits.max_flags` when present.
+
+**`GET /scenarios`.** The library entries (name, label, story), `scenario_library_sha256`, `max_shocks` (3), and for
+each shock type its parameters with `min`, `max`, `step` and `unit`, plus any fixed value.
+
+**`POST /scenarios/run`.** Body `{"shocks": [{"type", "params"}]}`, one to three shocks; anything else is a 422.
+The scenario is built on the library's base business by the same functions `scenarios.run` uses
+(`scenario_config`, `generate`, `prepare`, `decision_object`, `receipt`) on an in-memory copy of the library;
+`scenarios/` is not edited. The result has the shape of an exported scenario object, with
+`scenario.source: "custom"`, `scenario.label: "Custom scenario"`, the shocks echoed back, and a receipt carrying
+`scenario_library_sha256` and an `output_sha256` the object hashes to (entry 41's integrity rule). The same
+request gives the same bytes; nothing is stored or cached. Past the `scenarios.run` budget (30 s) it answers 503.
+A lever no shock names keeps the base business's own demo spec, as library scenarios do.
+
+**Bounds** (`api/scenario_bounds.py`, read from `scenarios/library.yaml` at import; nothing typed in):
+
+| Shock type | Parameter | Library values | Bound | Reason |
+|---|---|---|---|---|
+| `cash_crunch` | `week` | 12, 14, 18, 24 | 12 to 24, step 1 | smallest and largest in the library |
+| `cash_crunch` | `severity_pct` | 15, 60, 70 | 15 to 70 percent, step 1 | smallest and largest in the library |
+| `large_transfer` | `week` | 6, 13, 16, 22, 23 | 6 to 23, step 1 | smallest and largest in the library |
+| `odd_hours_transaction` | `week` | 9, 17 | 9 to 17, step 1 | smallest and largest in the library |
+| `newcomer` | `operating_start_date` | 2026-06-20 | fixed | not numeric; fixed at the library value |
+
+At most one `cash_crunch` and one `newcomer`. Only the anomaly types the library uses are offered, so held-out
+types never appear. No parameter names a term of an offer (asserted at import; U1). The generator owner should
+confirm or change these bounds.
+
+**N6, receipts stay reproducible.** `pipeline.verify` on the business 10001 decision object (quick data,
+N = 300 serving businesses) before and after this work: both "REPRODUCED byte-identical", output hash
+`ed7d4de3…` unchanged. `scenarios.run --check` exits 0; `eval.check_numbers` reports the register current.
+
+**The store bug is still open.** `ServingStore` shares one DuckDB connection across request threads.
+`GET /businesses` reads through that same connection (a new `business_list()` on the store, like `load()`), so it
+shares the connection exactly as the existing routes do and adds no new way to hit the bug. `GET /scenarios` and
+`POST /scenarios/run` never read the store. The UI still queues every call (entry 41).
+
+**Tests.** `tests/test_api_businesses.py`: `new routes require the api key`, `businesses route returns serving ids
+only`, `businesses pagination totals add up`, `businesses sector and q filters`, `businesses bad params return 422`,
+`businesses runs no lens`. `tests/test_api_scenarios.py`: `scenarios route lists the library with bounds`, `custom
+scenario rejects out of bound params`, `custom scenario rejects unknown shock types`, `custom scenario integrity hash
+matches its receipt`, `custom scenario is byte identical on re-run`, `custom scenario result is labelled custom`,
+`custom scenario has the shape of a library object`, `custom scenario has no terms parameters`, `scenarios run
+check still exits 0`. 39 tests in all, every one passing.
+
+**Sign-off:** ☐ API owner (routes and contracts; Faris Alsharifi acted for this SOP) ☐ generator owner (custom scenario bounds and labelling) ☐ team
+
+## 45. Web UI review fixes: defects B1 to B22, clarity C1 to C8, interactions I1 to I10, U7 widened, N3 enforcement changed — PROPOSED (2026-11-09)
+
+**What this is.** The fixes from the review "Ma'al web UI review: errors, improvements and interactivity"
+(2026-11-09, made at `faris/web-ui` `5e6599f`), built on `faris/web-ui` under `SOP_web_ui_review_fixes.md` v1.
+Everything changed is under `web/`, apart from this entry, the README row and the merge of `main`. Rules U1 to U15
+(as amended in entry 42) and N1 to N7 (entry 51) still apply to every page.
+
+**The merge of `main` (B22).** `origin/main` at `812fe41` (7 commits: GoldAPI nisab price, hawl review note, MCC
+validation in `compliance/sharia.py`, `pipeline/week8.py`, `lenses/lens_config.yaml`, this file) was merged with a
+normal merge commit (`bfca14a`), with no conflicts. Before it, branch `faris/web-ui-pre-review-merge` and tag
+`pre-review-merge` were pushed at `5e6599f`. What it changed for the UI:
+- `nisab_source_status` is now `commercial_quote_documented_pending_independent_verification` (nisab 85 g gold ×
+  SAR 491.291/g = SAR 41,759.74). The UI compared the status with `placeholder_unverified`, so the U7 plate
+  disappeared. B22 fixed that first (below).
+- A receipt carries `gold_quote` only when `pipeline.week8 --gold-quote` is given. The API calls `make_context()`
+  without one, so served receipts do not carry it; the UI's `Receipt` schema is a loose object and would parse it.
+- No response shape changed (`nisab_source_status` was already `z.string()`).
+- `_mcc()` now rejects anything that is not exactly four ASCII digits. None of the five demo states moved
+  (10001 approved unconditional, 10004 declined on affordability, 10037 conditional on Sharia review with one
+  owner prompt, 10040 partial profile, 10003 insufficient data), so `DEMO_BUSINESSES` is unchanged.
+- The 8 scenario objects were re-exported; all pass their integrity check, and `scenarios.run --check` exits 0.
+  The library sha256 is unchanged.
+
+**Decisions taken for this work (SOP section 1a), word for word.**
+1. **Merge `origin/main` first.** `origin/main` is at `812fe41` with 7 commits the branch lacks (GoldAPI nisab price, hawl review note, MCC validation in `compliance/sharia.py`, `pipeline/week8.py`, `lenses/lens_config.yaml`, `DECISIONS.md`). Phase A0 merges it with a normal merge commit, the same way the enhancements SOP did.
+2. **U7 is widened, never narrowed.** The nisab plate shows for every `nisab_source_status` that is not an explicitly verified value. Each known status gets its own words from the catalogue. An unknown status shows a generic plate ("Nisab price not independently verified") with the raw code beside it. Only a status named in the catalogue as verified hides the plate, and no such status exists today.
+3. **Demo sign-in (B1).** The page shows the demo password in plain text next to the field. The field and the browser-only check stay as DECISIONS 42 describes.
+4. **Conditional approval word (B2).** "Approved, conditional" (Arabic draft: «موافقة مشروطة»), on every plate and heading that shows a credit decision.
+5. **Digits (B3, B20).** The choice stays in `localStorage` only (DECISIONS 51, decision 3, unchanged). N3 keeps its effect: hashes, commands, URLs and business IDs inside links stay Latin. Its enforcement changes from "skip every `a` element" to "skip what is marked `data-latin`, plus `code`, `pre`, `[lang=en]` and form fields". Business IDs inside links get `data-latin`.
+6. **Probabilities (C3).** Shown as a percentage with one decimal, followed by the exact value as returned in a smaller mono span: `34.6% (0.346)`. `formatRaw` and its test stay unchanged. The Compliance View and receipts keep the exact value only.
+7. **Motion (M1).** On every page except the landing page and sign-in, no entrance delay is longer than 0.4 s and no entrance duration longer than 0.6 s. The landing page and sign-in keep their full sequence. No new storage of any kind is added for motion.
+8. **No new storage.** Nothing in this SOP adds a cookie, `sessionStorage`, `localStorage` key or IndexedDB use. Theme and digits stay the only stored values.
+9. **New inputs are named in the U1 allowlist.** The business switcher (I1), the Ctrl+K search (I8) and the builder's range sliders (I5) are added to the named allowlist in `tests/wording.test.tsx`, each with one line saying why it can't reach a term. No general relaxation.
+10. **I6 (compare) is conditional.** Build it only if `origin/main` contains a fix for the shared DuckDB connection in `api/store.py` when Phase E starts. Otherwise skip it and say so in the report.
+11. **Fonts (B19).** Self-host the four IBM Plex families with `next/font/local`, using the woff2 files from the Fontsource npm packages (SIL Open Font License). Commit the font files and the licence text. No runtime or build-time call to Google.
+12. **Fixed text.** Every new string exists in English and Arabic, every new Arabic string is marked draft for review in the catalogue (existing convention), and no rendered text uses the banned symbol characters. N1 (no digits) still applies to the tour, glossary and how-it-works catalogues.
+
+**New rules R1 to R8, how each is enforced, and its test.**
+
+| # | Rule | Enforced by | Test |
+|---|---|---|---|
+| R1 | Different states never share a word; colour is never the only difference between two plates | `lib/decision.ts` (`decisionState`, `decisionWord`, `decisionPlate`, `creditPlate`) used by every decision plate and heading; catalogue groups with one word per state | `every plate state has its own word` (`tests/plates.test.tsx`: every plate group in both locales, plus a scan that no component indexes `m.enums.decision` directly) |
+| R2 | With Arabic-Indic digits on, every eligible number converts, including inside links and before `%` | `lib/digits.ts` (links no longer skipped; `data-latin` on ID links) and `formatPct` | `arabic digits convert every eligible number` (`tests/digits-render.test.tsx`; `e2e/digits.spec.ts` on overview, credit, zakat, review for 10001) |
+| R3 | A toggle with `aria-pressed` keeps one fixed label | `ThemeToggle`, `DigitsToggle`, the changed-rows and reason toggles; Play all dropped `aria-pressed` because its label says what a press does | `pressed toggles keep one label` (`tests/brand.test.tsx`) |
+| R4 | Every element with a click handler has a keyboard path | Buttons and links; the review row keeps its mouse click beside a date-cell button | `every click handler has a keyboard path` (`tests/keyboard.test.tsx`, a source scan with one named exception) |
+| R5 | No raw enum code in user-facing text outside receipts, the Compliance View, `BackendText` and the profile features table | `lib/labels.ts` `label()`, with a code fallback for unknown values | `no raw codes outside receipts` (`tests/labels.test.tsx`, credit, zakat and review for 10001, both locales) |
+| R6 | Entrance delay at most 0.4 s and duration at most 0.6 s outside the landing page and sign-in | `--d-0` to `--d-4` in `globals.css`, `lib/motion.ts` `delay()`, capped CSS durations; `data-motion="full"` restores the landing page and sign-in | `entrance motion stays under the cap` (`tests/motion.test.ts` source and CSS scan; `e2e/motion.spec.ts` animation timings on overview, zakat, review) |
+| R7 | The nisab plate shows for every status not named verified in the catalogue | `lib/nisab.ts` `nisabPlate()` and `NisabPlate`, used by `ZakatCard`, `Readouts`, `ScenarioCompare` and the print sheet; no component compares the status with a literal | `nisab plate shows for every unverified status` (`tests/nisab.test.tsx`) |
+| R8 | The header fits one row at 1280 px and 1440 px in both locales | Header layout: a "Display" button for the theme and digits toggles from 768 px up, a "Business" button for the switcher, slightly tighter header spacing | `header fits one row on laptops` (`e2e/header.spec.ts`) |
+
+R6 names one timer that is not an entrance: Play all's 8 s progress fill (I4), which the test checks equals
+`PLAY_STEP_MS`.
+
+**U7 widened.** Before, the plate showed for exactly one status string; any new status hid it. Now it shows for
+every status except one the catalogue names as verified (`zakat.nisabVerified`, empty today), with its own words
+for each known status and generic words plus the raw code for an unknown one. A new backend status can only add
+a plate, never remove one, so the rule is stronger.
+
+**N3 enforcement changed.** The rule is unchanged: hashes, commands, URLs and business IDs inside links stay Latin.
+Enforcement moves from skipping every `a` element (which also left readout-card figures and counts inside links
+Western, the B3 defect) to skipping `[data-latin]`, `code`, `pre`, `[lang=en]` and form fields, with `data-latin`
+on every link whose text shows a business ID (the admin demo table, the full business list, the landing strip,
+the switcher, the refusal link). The test of that name passes; its sample link now carries `data-latin`, like the
+app's own ID links. B20 also skips `[aria-live]` regions and watches the header and `<main>` (and regions mounted
+later into `<body>`) instead of every node.
+
+**U1 allowlist entries added (`tests/wording.test.tsx`).** Each is named, with its reason:
+- `BusinessSwitcher.tsx` (I1): digits of a business ID; it searches serving IDs and opens that business.
+- `CommandPalette.tsx` (I8): matches typed text against fixed lists of pages, scenarios, glossary terms and serving
+  IDs, and only navigates.
+- `CustomScenarioForm.tsx` sliders (I5): the file was already listed; its range sliders edit the same bounded shock
+  values as its number fields. `tests/custom.test.tsx`'s input names add `<type>.<parameter>.slider`.
+- `ScenarioControls.tsx` (I4): the phone `<select>` picks one of the library's fixed scenarios and only navigates.
+  This is a fourth entry beyond the three 1a.9 names; I4 step 3 requires the native select.
+None can reach a term of an offer.
+
+**Calls to the API.** Every new call (I1 plates and search, I3 profile, I9 strip) is made from the server through the
+queue in `lib/api.ts`. I1 and I3 use server actions in `app/actions.ts`; the key-leak guard stops its client import
+graph at a `"use server"` module (Next sends the browser a reference, never the code) and checks that every such
+module is marked.
+
+**Sharia with no MCC (C6).** `compliance/sharia.py` `screen()`, branch (a): with no merchant code the screen uses the
+registered sector, and a sector that the rule table's `no_mcc_by_sector` marks compliant triggers no rule. The Sharia
+page now says so in one fixed sentence, shown only for compliant, registered-sector screens with no MCC.
+
+**Items left out.**
+- **I6 (compare two businesses): skipped under 1a.10.** `origin/main` holds no fix for the shared DuckDB connection
+  in `api/store.py`. It can be built once the API owner's fix is merged.
+- **B10 and B11 (review lanes and clusters): built, then reverted at Faris's request (2026-11-09).** The review
+  timeline is back to one track with one mark per transaction, colour and height both marking the reason, as
+  before this work. Marks that sit close together can still overlap; the table lists the same transactions. The
+  legend filters, table sort, row buttons and mark-to-row scrolling stay.
+- No S2, S3, S4, S5, S6, S8 or S9 stop was hit. I3's feature mapping (`compliance_tier.contributions`), I5's
+  "Start from" shocks (`scenario.overrides` in the exported objects) and C6's sentence were all buildable from what
+  the API returns or what is under `web/`.
+
+**Next steps for other owners.**
+- **C4 (credit lens owner):** human factor names in the credit templates ("Your inflow regularity score..." reads
+  the raw feature name). Not built here; the UI shows the template verbatim (U4).
+- **Store concurrency fix (API owner):** `ServingStore` still shares one DuckDB connection across request threads.
+  Once fixed, I6 can be built and the request queue in `lib/api.ts` removed.
+
+**Sign-off:** ☐ team (fixes and scope) ☐ compliance owner (nisab plate wording, Sharia no-MCC sentence, Arabic copy) ☐ credit lens owner (conditional approval word, factor expanders)
+
+## 46. Scenario library re-run on the retrained credit model; entry 29's findings 1–2 restated — RECORDED (measurement, 2026-11-09)
+
+**Touches:** `eval/out/scenario_library_check.txt`, `docs/NUMBERS.md` §5b and §7. `config.yaml`,
+`lenses/lens_config.yaml`, `lenses/credit/model_v1.json` and `scenarios/library.yaml` are unchanged.
+
+**Numbering.** Numbers 41, 42, 44 and 45 are used on the unmerged branch `origin/faris/web-ui`, which
+also carries a different entry 43 (web UI enhancements) from the one on `main` (§25 fairness). This
+entry takes 46 so a third collision is not added. The two entries numbered 43 have to be renumbered
+when that branch is merged.
+
+**Why.** NUMBERS §5b and the report behind it were last produced on 2026-10-31, before entries 30, 35
+and 38 changed ten features and before the credit model was retrained (`79160cb`, 2026-11-07). Entry
+38 said §5b "moves with the retrain"; it was not re-run. `eval.check_numbers` compares the register
+with the committed report, and both were stale, so the check passed.
+
+**Result** (`python -m scenarios.run --check`, exit 0; business 10001, N = 1 per scenario, severities
+unchanged since 2026-10-31). Decisions, amounts, tiers, cash alerts, anomaly flags and Zakat are the
+same as on 2026-10-31. Only the PD moved:
+
+| scenario | decision | PD on 2026-10-31 | PD now |
+|---|---|---|---|
+| `baseline` | approved, 47,000 SAR, tier B | 0.0557 | 0.0526 |
+| `calm_counterfactual` | approved, 242,000 SAR, tier C | 0.0690 | 0.0663 |
+| `mild_slowdown` | approved, 173,000 SAR, tier C | 0.0849 | 0.0743 |
+| `severe_collapse` | declined (affordability) | 0.0483 | 0.0390 |
+| `late_sudden_shock` | approved, 104,000 SAR, tier C | 0.0999 | 0.0873 |
+| `fraud_pattern` | approved, 159,000 SAR, tier C | 0.0953 | 0.0960 |
+| `combined_crisis` | declined (affordability) | 0.0561 | 0.0656 |
+
+**Entry 29's findings, restated for the shipped model:**
+1. Collapses are still declined by the §31 affordability gate, not by the risk model. Entry 29's
+   sentence "Their PDs (0.0483, 0.0561) are no higher than the baseline's (0.0557)" no longer holds for
+   `combined_crisis`: 0.0656 against 0.0526. It still holds for `severe_collapse` (0.0390), which has the
+   lowest PD of the seven scored scenarios.
+2. PD does not follow the severity of the disaster. The calm half-year with no shock and no anomalies
+   (0.0663) scores above the baseline (0.0526) and above the combined crisis (0.0656); the severe
+   collapse scores lowest. Say "the risk score does not track how bad the scenario is", not "PD does
+   not rise": five of the six other scored scenarios now have a higher PD than the baseline, the calm
+   one included.
+3. Findings 3 to 5 are unchanged: the late three-week shock is approved for 104,000 SAR against the
+   baseline's 47,000 with no cash alert, and the anomaly lens returns 10 flags in every scenario.
+
+Nothing was retuned, and one business per scenario is a demonstration, not an estimate.
+
+**Sign-off:** ☐ generator owner (scenario library re-run) ☐ credit lens owner (findings 1–2 as restated) ☐ team (the wording used in the demo)
+
+---
+
+## 47. The customer explanation states a sector-level effect as the business's own trait — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** `lenses/credit/model.py` (`explain`, `FEATURE_LABELS`, `PHRASES`), §13 (public tier), §25,
+the demo, entry 23.3's sentence "the model cannot shortcut to the sector code", and the same comment in
+`lenses/lens_config.yaml`. Nothing is changed by this entry.
+
+**Finding** (`python -m eval.demo_exposure` → `eval/out/demo_exposure.md`, NUMBERS §5d; serving, all
+1,000 businesses through the shipped code path, 943 scored or partial_profile):
+- Feature 3 `inflow_regularity_score` is the **first** public reason for **834 of 943** businesses, and
+  feature 3 or its z-score 55 is among the three public reasons for **943 of 943**.
+- Where it is first, its direction is fixed by sector: against the business for all 138 food and
+  beverage and all 373 retail cases, in its favour for all 298 construction and all 25 professional
+  services cases.
+- Demo business 10001, the first one shown, reads: "Your consistency of incoming payments was a major
+  factor increasing the estimated credit risk." Its feature 3 contribution is +1.027583 log-odds
+  (`python -m pipeline.week8 --demo`). It is a daily-POS retail shop, so its inflows are as regular as
+  the feature can measure (entry 38: feature 3 is exactly 1.0 for 98.1% of retail research businesses).
+  Its third sentence is "Your recent overdraft occurrences was a major factor supporting the credit
+  assessment."
+
+**Why it happens** is already recorded in entry 43: with features 3 and 55 both in the model, the pair
+acts as a per-sector constant. Entry 43 drew the consequence for the §25 audit. It did not draw the
+consequence for the customer text, which was written on 2026-11-08 and shows the largest contributions
+first. The text is a fixed template (no generated text, SOP §2 holds). What it says is the problem: a
+retail owner is told that being consistent raises their risk, and every owner in a sector is told the
+same thing.
+
+**A second sentence this contradicts.** Entry 23.3 and the comment in `lenses/lens_config.yaml` say
+sector "enters only through the §35 z-scores, so the model cannot shortcut to the sector code (§25)".
+Entry 43 measured summed sector-level offsets of +0.242 (construction) to −1.431 (professional services)
+log-odds. The sentence should be withdrawn by the credit lens owner. Editing the comment changes
+`lens_config_sha256` in every receipt, so it is left for the owner to do with the next lens-config change.
+
+**Options (not chosen here; each is the credit lens owner's to pick):**
+- **A. Keep the model and the text, and say it first.** State in the demo that the first reason is a
+  sector effect for 834 of 943 businesses. Costs nothing; the sentence still misleads a real owner.
+- **B. Change only what the public tier shows.** For example, leave out of the customer text any feature
+  whose direction is the same for a whole sector, by a rule written before looking at which features it
+  removes. The model, the PD and the compliance tier (all contributions) stay as they are.
+- **C. Change the feature set** (for example, do not give the model both members of a pair such as 3
+  and 55). This is a new model: entry 43 already requires the selection rule to be fixed and committed
+  before it is evaluated, and A1 and every number downstream move.
+- **D. Hold the public tier back from the demo** until one of the above is decided, and show the
+  compliance tier with entry 43's wording.
+
+**Not done, deliberately:** no label, phrase, threshold, feature or model file was changed. Choosing
+B or C after seeing which sentences look bad is the retuning this project rules out, so the rule has
+to be written first.
+
+**Sign-off:** ☐ credit lens owner (choose A–D; withdraw the "cannot shortcut" sentence) ☐ team (what is said in the demo)
+
+---
+
+## 48. Zakat nisab price changed without a numbered entry; the price is dated after every calculation date — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** `lenses/lens_config.yaml` (`zakat.nisab`), `lenses/zakat/gold_price.py`,
+`lenses/zakat/refresh_gold_price.py`, `pipeline/week8.py` (`--gold-quote`),
+`.github/workflows/update-gold-price.yml`, `sources/zakat_nisab_gold_price.md`, entry 23.3, SOP §9.
+Nothing is changed by this entry. The Zakat arithmetic itself is deterministic and unchanged (SOP §2
+holds: no model and no LLM is involved).
+
+**What happened.** On 2026-11-08 (`55c3547`, `82f86d6`) `price_sar_per_gram` went from the placeholder
+400 to 491.291, from a LivePriceOfGold quotation of 2026-11-08 19:06 UTC, archived as a screenshot. The
+nisab went from SAR 34,000.00 to SAR 41,759.74 (NUMBERS §5). Replacing the placeholder with a dated,
+archived quotation is an improvement. Three things about how it was done are open:
+
+1. **No numbered entry.** The change was written into entry 23.3's text in place. Entry 23 carries a
+   signed line, and SOP §9 asks for a recorded change before code. The compliance owner's own line on
+   entry 23 is still unticked.
+2. **The price is later than every date it is applied to.** Every business's Zakat is calculated as of
+   its `window_end`, and those run from 2026-01-27 to 2026-07-30 (`data/businesses.csv`, all 11,000). The
+   nisab for all of them is valued at a price from 2026-11-08. The new code already treats this as an
+   error on its other path: `pipeline/week8.py` raises "Gold quotation is newer than the Zakat
+   calculation date" for a `--gold-quote` file. The default price in the lens config is not checked.
+3. **The live-quote path cannot run on this project's data.** Any quotation GoldAPI returns today is
+   dated after 2026-07-30, so it is refused for every generated business. Checked on 2026-11-09:
+   `python -m pipeline.week8 --demo --gold-quote <a quote dated 2026-11-09>` stops with that error. The
+   daily workflow fetches a quotation and publishes it to GitHub Pages; nothing on `main` reads it, and
+   the quotations are written under `data/`, which is git-ignored, so they are not archived in
+   `sources/` as the source rule requires. The pinned price and the fetched price also come from two
+   different providers (LivePriceOfGold and GoldAPI.io).
+
+**What it changes in results.** Demo business 10001's liability is unchanged at SAR 5,963.26 (its base
+is far above either nisab). How many businesses cross the nisab threshold between 34,000 and 41,759.74
+has not been measured.
+
+**Options (not chosen here):**
+- **A. Keep 491.291 as one pinned reference price** and state plainly, in the output and the report,
+  that the nisab is valued at a single documented quotation and not at the price on the calculation
+  date. Then either remove the date check on `--gold-quote` or apply the same check to the default.
+- **B. Pin a price dated on or before the calculation dates**, from a source that can be archived in
+  `sources/` with its edition (one price for the window, or one per month-end).
+- **C. Keep the live path for a future real deployment only**, where the calculation date is today, and
+  say that it is not exercised on the synthetic population. Decide whether the daily workflow and its
+  public page belong in the capstone repository.
+- In every case: the hawl rule and the gold basis still wait for the Sharia advisor (entry 23.3).
+
+**Sign-off:** ☐ compliance owner (choose; record the 2026-11-08 change) ☐ Sharia advisor (basis, valuation date) ☐ team
+
+---
+
+## 49. The governing documents name XGBoost and Prophet/ARIMA; the shipped lenses are a logistic regression and a 90-day moving average — PROPOSED wording change, options only (2026-11-09)
+
+**Touches:** `docs/SME_Platform_SOP.md` §3 and §5 (Week 7), `docs/Behavioral_Profile_Feature_Schema.md`
+§13 and §19, the component READMEs, the proposal and the final report. No code.
+
+**Finding.**
+- SOP §3 gives the credit lens owner "XGBoost, SHAP" and the forecast owner "Prophet/ARIMA"; SOP §5's
+  Week 7 test names "XGBoost inference"; schema §13 calls log-odds the "native XGBoost output scale".
+- The shipped credit model is an L2 logistic regression (entry 23). XGBoost was measured and lost:
+  logistic 0.5959 against early-stopped XGBoost 0.5865 and untuned XGBoost 0.5568, on the §14 feature
+  set, research, N = 9,495 (NUMBERS §4, entry 21). The "SHAP" value is coefficient × standardised
+  value, which is exact for a linear model (entry 43).
+- The shipped forecast is `naive90`, a trailing 90-day mean (entry 27). The six candidates fixed in
+  advance were `naive90`, `ewma`, `blend`, `naive30`, `structural` and `ols_damped`
+  (`eval/out/forecast_selection.md`). **Prophet and ARIMA were never candidates**, so the project has
+  no measurement of either.
+- The same documents still say 59 features. The engine computes 69 numbered features plus 18b and 62b
+  (71 registry entries), and the credit lens reads 58. That part is already entry 33 (PROPOSED schema
+  edit v2.9 → v2.10) and is not re-opened here.
+
+**Why it needs a decision.** A reader who compares the proposal with the repository finds a different
+model in two of three lenses. For credit, the team has a measured reason. For forecasting it has none:
+the promised methods were not tried.
+
+**Options (not chosen here):**
+- **A. Amend the wording** in the SOP, the schema (with entry 33's edit) and the report to what was
+  built, with the reasons above, and say outright that Prophet and ARIMA were not evaluated.
+- **B. Evaluate Prophet and ARIMA.** The test window (days 151–180) has been used once (entry 27), so a
+  fair comparison needs the protocol and a new untouched window written down first; otherwise the test
+  becomes a second validation.
+- **C. Leave the documents and state the difference in the report's limitations only.**
+
+**Sign-off:** ☐ credit lens owner ☐ forecast + anomaly owner ☐ team (SOP and schema wording)
+
+## 50. Five class-A1 features have no usable value on Berka, and "22 predict real defaults" rests partly on the censored label — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** the evidence registry (entry 16's A1 / A2 rule), `eval/out/feature_transfer.md`,
+`eval/out/evidence_table.md`, NUMBERS §1 and §6, the README honesty rules. No code and no class is
+changed by this entry; the claim wording in NUMBERS §1 and the README was narrowed in the same pass.
+
+**Finding** (counted from `eval/out/feature_transfer.md`, 43 class-A rows; Berka, primary label n = 209
+with 22 defaults, secondary label n = 615 with 59, censored):
+- **Five of the 43 "computed on real data" features carry no information there.** Features 5, 41, 45
+  and 46 are constant on Berka on both label sets. Feature 26 has no rows at all (n = 0); it is
+  `not_implemented` in the engine and is classed A1 because it "reuses features 3 and 11". So 38
+  features have a value that varies on real data, not 43.
+- **Of the 22 A2 features, 14 have an interval that excludes 0.50 on the primary label.** 19 do on the
+  secondary label, 11 on both, and 8 only on the secondary label, which is censored
+  (loans still running are counted as non-defaults). One of the 14, feature 22, is the "hair-thin" case the report already names (folded AUC
+  0.530 on a near-constant feature).
+- The rule tests 43 features on two label sets at 95% with no correction for the number of tests, so
+  a few of the 22 are expected by chance alone.
+
+**Options (not chosen here):**
+- **A. Keep the classes; keep only the narrower wording** now in NUMBERS §1 ("14 of 43 on the
+  confirmed-default label; 22 on at least one of two label sets").
+- **B. Add a rule to entry 16**: a feature that is constant or has no rows on the real source is not
+  A1 (it would be class C, or a new "real_degenerate" label). The counts in NUMBERS §6 and the evidence
+  table then change by a rule, not by hand.
+- **C. Require the primary label for A2**, so the headline count is 14.
+
+**Sign-off:** ☐ profile engine owner (registry rule) ☐ team (claim wording)
+
+---
+
+## 51. Web UI enhancements: tour, print sheet, glossary, receipts, readouts, digits, mobile, how-it-works, play all, admin list, review cap, custom scenarios — PROPOSED (2026-11-09)
+
+**Renumbered from 43 when `faris/web-ui` was merged into `main` (2026-11-10):** `main` had already given 43 to the §25 fairness finding. References to this entry in `web/` and in entries 41, 42, 44 and 45 now say 51.
 
 **Touches:** `web/` only (the API side is entry 44). Builds on entries 41 and 42; rules U1 to U15 as amended in 42
 still apply, with the rules below added. Done on `faris/web-ui` after merging `origin/main` at `f06639f`.
@@ -3271,174 +3768,3 @@ glossary, tour and how-it-works entries carry `draft: true`. The Arabic-Indic se
 
 ---
 
-## 44. API additions: GET /businesses, anomaly max_flags, GET /scenarios and POST /scenarios/run — PROPOSED (2026-11-09)
-
-**Faris Alsharifi acted for the API owner for this work** (SOP_web_ui_enhancements section 1a). The API owner
-should review this entry and the code (`api/app.py`, `api/store.py`, `api/scenario_bounds.py`) before it counts
-as the API's own. Nothing outside `api/` and `tests/` changed; `pipeline/`, `lenses/`, `scenarios/`, `generator/`,
-`config.yaml` and the schema are untouched, and no existing route's logic or output changed.
-
-**`GET /businesses`.** Query `offset` (whole number from 0, default 0), `limit` (1 to 50, default 25), `sector`
-(one of the sectors in the store), `q` (digits: the start of a business ID). Any other parameter, or a bad value,
-is a 422 in the existing `{"detail": "<reason>"}` format. Response:
-`{"population": "serving", "data_source": "synthetic", "total", "offset", "limit", "businesses": [{"business_id", "sector"}]}`,
-in ID order; `total` counts after filters. No lens runs. Serving only, twice over: the store holds the serving
-population, and the route also keeps only IDs inside config's serving `id_range` whose stored population is
-serving. Same key check as every route; the per-business rate limiter counts it against one bucket of its own.
-
-**`max_flags` in the anomaly response: stopped (S9).** The cap comes from `lenses/lens_config.yaml` (`max_flags`).
-`receipt.output_sha256` hashes the whole response except the `receipt` key (`pipeline.week8.output_sha256`), so
-no envelope sits outside the hash: a `limits` object anywhere at the top level changes the anomaly response's
-`output_sha256` and every captured anomaly fixture hash. The SOP says to stop there. Options for the API owner:
-(a) accept the new hashes once and record the switch here; (b) put the cap inside the receipt, which is outside
-the hash, and say so in the receipt contract; (c) serve it from a small separate route (for example
-`GET /limits`), which changes no hash. The UI already reads `limits.max_flags` when present.
-
-**`GET /scenarios`.** The library entries (name, label, story), `scenario_library_sha256`, `max_shocks` (3), and for
-each shock type its parameters with `min`, `max`, `step` and `unit`, plus any fixed value.
-
-**`POST /scenarios/run`.** Body `{"shocks": [{"type", "params"}]}`, one to three shocks; anything else is a 422.
-The scenario is built on the library's base business by the same functions `scenarios.run` uses
-(`scenario_config`, `generate`, `prepare`, `decision_object`, `receipt`) on an in-memory copy of the library;
-`scenarios/` is not edited. The result has the shape of an exported scenario object, with
-`scenario.source: "custom"`, `scenario.label: "Custom scenario"`, the shocks echoed back, and a receipt carrying
-`scenario_library_sha256` and an `output_sha256` the object hashes to (entry 41's integrity rule). The same
-request gives the same bytes; nothing is stored or cached. Past the `scenarios.run` budget (30 s) it answers 503.
-A lever no shock names keeps the base business's own demo spec, as library scenarios do.
-
-**Bounds** (`api/scenario_bounds.py`, read from `scenarios/library.yaml` at import; nothing typed in):
-
-| Shock type | Parameter | Library values | Bound | Reason |
-|---|---|---|---|---|
-| `cash_crunch` | `week` | 12, 14, 18, 24 | 12 to 24, step 1 | smallest and largest in the library |
-| `cash_crunch` | `severity_pct` | 15, 60, 70 | 15 to 70 percent, step 1 | smallest and largest in the library |
-| `large_transfer` | `week` | 6, 13, 16, 22, 23 | 6 to 23, step 1 | smallest and largest in the library |
-| `odd_hours_transaction` | `week` | 9, 17 | 9 to 17, step 1 | smallest and largest in the library |
-| `newcomer` | `operating_start_date` | 2026-06-20 | fixed | not numeric; fixed at the library value |
-
-At most one `cash_crunch` and one `newcomer`. Only the anomaly types the library uses are offered, so held-out
-types never appear. No parameter names a term of an offer (asserted at import; U1). The generator owner should
-confirm or change these bounds.
-
-**N6, receipts stay reproducible.** `pipeline.verify` on the business 10001 decision object (quick data,
-N = 300 serving businesses) before and after this work: both "REPRODUCED byte-identical", output hash
-`ed7d4de3…` unchanged. `scenarios.run --check` exits 0; `eval.check_numbers` reports the register current.
-
-**The store bug is still open.** `ServingStore` shares one DuckDB connection across request threads.
-`GET /businesses` reads through that same connection (a new `business_list()` on the store, like `load()`), so it
-shares the connection exactly as the existing routes do and adds no new way to hit the bug. `GET /scenarios` and
-`POST /scenarios/run` never read the store. The UI still queues every call (entry 41).
-
-**Tests.** `tests/test_api_businesses.py`: `new routes require the api key`, `businesses route returns serving ids
-only`, `businesses pagination totals add up`, `businesses sector and q filters`, `businesses bad params return 422`,
-`businesses runs no lens`. `tests/test_api_scenarios.py`: `scenarios route lists the library with bounds`, `custom
-scenario rejects out of bound params`, `custom scenario rejects unknown shock types`, `custom scenario integrity hash
-matches its receipt`, `custom scenario is byte identical on re-run`, `custom scenario result is labelled custom`,
-`custom scenario has the shape of a library object`, `custom scenario has no terms parameters`, `scenarios run
-check still exits 0`. 39 tests in all, every one passing.
-
-**Sign-off:** ☐ API owner (routes and contracts; Faris Alsharifi acted for this SOP) ☐ generator owner (custom scenario bounds and labelling) ☐ team
-
-## 45. Web UI review fixes: defects B1 to B22, clarity C1 to C8, interactions I1 to I10, U7 widened, N3 enforcement changed — PROPOSED (2026-11-09)
-
-**What this is.** The fixes from the review "Ma'al web UI review: errors, improvements and interactivity"
-(2026-11-09, made at `faris/web-ui` `5e6599f`), built on `faris/web-ui` under `SOP_web_ui_review_fixes.md` v1.
-Everything changed is under `web/`, apart from this entry, the README row and the merge of `main`. Rules U1 to U15
-(as amended in entry 42) and N1 to N7 (entry 43) still apply to every page.
-
-**The merge of `main` (B22).** `origin/main` at `812fe41` (7 commits: GoldAPI nisab price, hawl review note, MCC
-validation in `compliance/sharia.py`, `pipeline/week8.py`, `lenses/lens_config.yaml`, this file) was merged with a
-normal merge commit (`bfca14a`), with no conflicts. Before it, branch `faris/web-ui-pre-review-merge` and tag
-`pre-review-merge` were pushed at `5e6599f`. What it changed for the UI:
-- `nisab_source_status` is now `commercial_quote_documented_pending_independent_verification` (nisab 85 g gold ×
-  SAR 491.291/g = SAR 41,759.74). The UI compared the status with `placeholder_unverified`, so the U7 plate
-  disappeared. B22 fixed that first (below).
-- A receipt carries `gold_quote` only when `pipeline.week8 --gold-quote` is given. The API calls `make_context()`
-  without one, so served receipts do not carry it; the UI's `Receipt` schema is a loose object and would parse it.
-- No response shape changed (`nisab_source_status` was already `z.string()`).
-- `_mcc()` now rejects anything that is not exactly four ASCII digits. None of the five demo states moved
-  (10001 approved unconditional, 10004 declined on affordability, 10037 conditional on Sharia review with one
-  owner prompt, 10040 partial profile, 10003 insufficient data), so `DEMO_BUSINESSES` is unchanged.
-- The 8 scenario objects were re-exported; all pass their integrity check, and `scenarios.run --check` exits 0.
-  The library sha256 is unchanged.
-
-**Decisions taken for this work (SOP section 1a), word for word.**
-1. **Merge `origin/main` first.** `origin/main` is at `812fe41` with 7 commits the branch lacks (GoldAPI nisab price, hawl review note, MCC validation in `compliance/sharia.py`, `pipeline/week8.py`, `lenses/lens_config.yaml`, `DECISIONS.md`). Phase A0 merges it with a normal merge commit, the same way the enhancements SOP did.
-2. **U7 is widened, never narrowed.** The nisab plate shows for every `nisab_source_status` that is not an explicitly verified value. Each known status gets its own words from the catalogue. An unknown status shows a generic plate ("Nisab price not independently verified") with the raw code beside it. Only a status named in the catalogue as verified hides the plate, and no such status exists today.
-3. **Demo sign-in (B1).** The page shows the demo password in plain text next to the field. The field and the browser-only check stay as DECISIONS 42 describes.
-4. **Conditional approval word (B2).** "Approved, conditional" (Arabic draft: «موافقة مشروطة»), on every plate and heading that shows a credit decision.
-5. **Digits (B3, B20).** The choice stays in `localStorage` only (DECISIONS 43, decision 3, unchanged). N3 keeps its effect: hashes, commands, URLs and business IDs inside links stay Latin. Its enforcement changes from "skip every `a` element" to "skip what is marked `data-latin`, plus `code`, `pre`, `[lang=en]` and form fields". Business IDs inside links get `data-latin`.
-6. **Probabilities (C3).** Shown as a percentage with one decimal, followed by the exact value as returned in a smaller mono span: `34.6% (0.346)`. `formatRaw` and its test stay unchanged. The Compliance View and receipts keep the exact value only.
-7. **Motion (M1).** On every page except the landing page and sign-in, no entrance delay is longer than 0.4 s and no entrance duration longer than 0.6 s. The landing page and sign-in keep their full sequence. No new storage of any kind is added for motion.
-8. **No new storage.** Nothing in this SOP adds a cookie, `sessionStorage`, `localStorage` key or IndexedDB use. Theme and digits stay the only stored values.
-9. **New inputs are named in the U1 allowlist.** The business switcher (I1), the Ctrl+K search (I8) and the builder's range sliders (I5) are added to the named allowlist in `tests/wording.test.tsx`, each with one line saying why it can't reach a term. No general relaxation.
-10. **I6 (compare) is conditional.** Build it only if `origin/main` contains a fix for the shared DuckDB connection in `api/store.py` when Phase E starts. Otherwise skip it and say so in the report.
-11. **Fonts (B19).** Self-host the four IBM Plex families with `next/font/local`, using the woff2 files from the Fontsource npm packages (SIL Open Font License). Commit the font files and the licence text. No runtime or build-time call to Google.
-12. **Fixed text.** Every new string exists in English and Arabic, every new Arabic string is marked draft for review in the catalogue (existing convention), and no rendered text uses the banned symbol characters. N1 (no digits) still applies to the tour, glossary and how-it-works catalogues.
-
-**New rules R1 to R8, how each is enforced, and its test.**
-
-| # | Rule | Enforced by | Test |
-|---|---|---|---|
-| R1 | Different states never share a word; colour is never the only difference between two plates | `lib/decision.ts` (`decisionState`, `decisionWord`, `decisionPlate`, `creditPlate`) used by every decision plate and heading; catalogue groups with one word per state | `every plate state has its own word` (`tests/plates.test.tsx`: every plate group in both locales, plus a scan that no component indexes `m.enums.decision` directly) |
-| R2 | With Arabic-Indic digits on, every eligible number converts, including inside links and before `%` | `lib/digits.ts` (links no longer skipped; `data-latin` on ID links) and `formatPct` | `arabic digits convert every eligible number` (`tests/digits-render.test.tsx`; `e2e/digits.spec.ts` on overview, credit, zakat, review for 10001) |
-| R3 | A toggle with `aria-pressed` keeps one fixed label | `ThemeToggle`, `DigitsToggle`, the changed-rows and reason toggles; Play all dropped `aria-pressed` because its label says what a press does | `pressed toggles keep one label` (`tests/brand.test.tsx`) |
-| R4 | Every element with a click handler has a keyboard path | Buttons and links; the review row keeps its mouse click beside a date-cell button | `every click handler has a keyboard path` (`tests/keyboard.test.tsx`, a source scan with one named exception) |
-| R5 | No raw enum code in user-facing text outside receipts, the Compliance View, `BackendText` and the profile features table | `lib/labels.ts` `label()`, with a code fallback for unknown values | `no raw codes outside receipts` (`tests/labels.test.tsx`, credit, zakat and review for 10001, both locales) |
-| R6 | Entrance delay at most 0.4 s and duration at most 0.6 s outside the landing page and sign-in | `--d-0` to `--d-4` in `globals.css`, `lib/motion.ts` `delay()`, capped CSS durations; `data-motion="full"` restores the landing page and sign-in | `entrance motion stays under the cap` (`tests/motion.test.ts` source and CSS scan; `e2e/motion.spec.ts` animation timings on overview, zakat, review) |
-| R7 | The nisab plate shows for every status not named verified in the catalogue | `lib/nisab.ts` `nisabPlate()` and `NisabPlate`, used by `ZakatCard`, `Readouts`, `ScenarioCompare` and the print sheet; no component compares the status with a literal | `nisab plate shows for every unverified status` (`tests/nisab.test.tsx`) |
-| R8 | The header fits one row at 1280 px and 1440 px in both locales | Header layout: a "Display" button for the theme and digits toggles from 768 px up, a "Business" button for the switcher, slightly tighter header spacing | `header fits one row on laptops` (`e2e/header.spec.ts`) |
-
-R6 names one timer that is not an entrance: Play all's 8 s progress fill (I4), which the test checks equals
-`PLAY_STEP_MS`.
-
-**U7 widened.** Before, the plate showed for exactly one status string; any new status hid it. Now it shows for
-every status except one the catalogue names as verified (`zakat.nisabVerified`, empty today), with its own words
-for each known status and generic words plus the raw code for an unknown one. A new backend status can only add
-a plate, never remove one, so the rule is stronger.
-
-**N3 enforcement changed.** The rule is unchanged: hashes, commands, URLs and business IDs inside links stay Latin.
-Enforcement moves from skipping every `a` element (which also left readout-card figures and counts inside links
-Western, the B3 defect) to skipping `[data-latin]`, `code`, `pre`, `[lang=en]` and form fields, with `data-latin`
-on every link whose text shows a business ID (the admin demo table, the full business list, the landing strip,
-the switcher, the refusal link). The test of that name passes; its sample link now carries `data-latin`, like the
-app's own ID links. B20 also skips `[aria-live]` regions and watches the header and `<main>` (and regions mounted
-later into `<body>`) instead of every node.
-
-**U1 allowlist entries added (`tests/wording.test.tsx`).** Each is named, with its reason:
-- `BusinessSwitcher.tsx` (I1): digits of a business ID; it searches serving IDs and opens that business.
-- `CommandPalette.tsx` (I8): matches typed text against fixed lists of pages, scenarios, glossary terms and serving
-  IDs, and only navigates.
-- `CustomScenarioForm.tsx` sliders (I5): the file was already listed; its range sliders edit the same bounded shock
-  values as its number fields. `tests/custom.test.tsx`'s input names add `<type>.<parameter>.slider`.
-- `ScenarioControls.tsx` (I4): the phone `<select>` picks one of the library's fixed scenarios and only navigates.
-  This is a fourth entry beyond the three 1a.9 names; I4 step 3 requires the native select.
-None can reach a term of an offer.
-
-**Calls to the API.** Every new call (I1 plates and search, I3 profile, I9 strip) is made from the server through the
-queue in `lib/api.ts`. I1 and I3 use server actions in `app/actions.ts`; the key-leak guard stops its client import
-graph at a `"use server"` module (Next sends the browser a reference, never the code) and checks that every such
-module is marked.
-
-**Sharia with no MCC (C6).** `compliance/sharia.py` `screen()`, branch (a): with no merchant code the screen uses the
-registered sector, and a sector that the rule table's `no_mcc_by_sector` marks compliant triggers no rule. The Sharia
-page now says so in one fixed sentence, shown only for compliant, registered-sector screens with no MCC.
-
-**Items left out.**
-- **I6 (compare two businesses): skipped under 1a.10.** `origin/main` holds no fix for the shared DuckDB connection
-  in `api/store.py`. It can be built once the API owner's fix is merged.
-- **B10 and B11 (review lanes and clusters): built, then reverted at Faris's request (2026-11-09).** The review
-  timeline is back to one track with one mark per transaction, colour and height both marking the reason, as
-  before this work. Marks that sit close together can still overlap; the table lists the same transactions. The
-  legend filters, table sort, row buttons and mark-to-row scrolling stay.
-- No S2, S3, S4, S5, S6, S8 or S9 stop was hit. I3's feature mapping (`compliance_tier.contributions`), I5's
-  "Start from" shocks (`scenario.overrides` in the exported objects) and C6's sentence were all buildable from what
-  the API returns or what is under `web/`.
-
-**Next steps for other owners.**
-- **C4 (credit lens owner):** human factor names in the credit templates ("Your inflow regularity score..." reads
-  the raw feature name). Not built here; the UI shows the template verbatim (U4).
-- **Store concurrency fix (API owner):** `ServingStore` still shares one DuckDB connection across request threads.
-  Once fixed, I6 can be built and the request queue in `lib/api.ts` removed.
-
-**Sign-off:** ☐ team (fixes and scope) ☐ compliance owner (nisab plate wording, Sharia no-MCC sentence, Arabic copy) ☐ credit lens owner (conditional approval word, factor expanders)

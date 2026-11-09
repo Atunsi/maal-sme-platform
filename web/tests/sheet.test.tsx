@@ -1,4 +1,4 @@
-// E2: the printable decision sheet, rendered from the captured fixtures. DECISIONS 43.
+// E2: the printable decision sheet, rendered from the captured fixtures. DECISIONS 51.
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import SheetPage from "@/app/[locale]/business/[id]/sheet/page";

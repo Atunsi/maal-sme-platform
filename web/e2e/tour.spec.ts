@@ -1,4 +1,4 @@
-// E1: the guided tour (DECISIONS 43).
+// E1: the guided tour (DECISIONS 51).
 import { expect, test } from "@playwright/test";
 import { TOUR_STEPS } from "../lib/tour";
 import { expectAxeClean } from "./axe";

@@ -1,4 +1,4 @@
-// E6: scenario "Play all". DECISIONS 43.
+// E6: scenario "Play all". DECISIONS 51.
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PLAY_STEP_MS, ScenarioPlayer } from "@/components/ScenarioPlayer";

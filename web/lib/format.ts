@@ -2,7 +2,7 @@ import type { Digits } from "@/lib/digits";
 import type { Locale } from "@/lib/i18n";
 
 // Every number, amount, percentage and date the app shows is formatted here. Western digits are the
-// default in both languages; Arabic can also show Arabic-Indic digits (E8, DECISIONS 43). The server always
+// default in both languages; Arabic can also show Arabic-Indic digits (E8, DECISIONS 51). The server always
 // formats Western: the digits choice lives in localStorage, and the client rewrites the page's text to
 // exactly what these functions return with digits "arab" (lib/digits.ts, tests/digits.test.ts).
 // Arabic pins the Gregorian calendar: ar-SA defaults to Umm al-Qura, which would silently

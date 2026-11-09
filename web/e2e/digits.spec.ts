@@ -1,4 +1,4 @@
-// E8: the Arabic-Indic digits switch, N3, and hydration (DECISIONS 43).
+// E8: the Arabic-Indic digits switch, N3, and hydration (DECISIONS 51).
 import { nameOf } from "../lib/business-names";
 import { expect, test, type Page } from "@playwright/test";
 

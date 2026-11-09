@@ -1,4 +1,4 @@
-// E7: phones and tablets (DECISIONS 43). Runs in the phone-360, phone-390, tablet-768 and laptop-1280
+// E7: phones and tablets (DECISIONS 51). Runs in the phone-360, phone-390, tablet-768 and laptop-1280
 // projects (playwright.config.ts). N7: no page scrolls sideways; menus, targets and axe at small widths.
 import { expect, test, type Page } from "@playwright/test";
 import { expectAxeClean } from "./axe";

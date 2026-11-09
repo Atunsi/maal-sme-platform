@@ -1,4 +1,4 @@
-// E1: the guided tour (DECISIONS 43). Fixed text written for the UI. Captions say what to look at, never
+// E1: the guided tour (DECISIONS 51). Fixed text written for the UI. Captions say what to look at, never
 // what a value is, and hold no digits (N1). Every Arabic string is a draft for review.
 import type { Locale } from "@/lib/i18n";
 

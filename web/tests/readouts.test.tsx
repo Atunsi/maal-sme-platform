@@ -1,4 +1,4 @@
-// E5: chart readouts on hover, keyboard and tap, and the computed cash-floor label (DECISIONS 43).
+// E5: chart readouts on hover, keyboard and tap, and the computed cash-floor label (DECISIONS 51).
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { AnomalyCard } from "@/components/AnomalyCard";

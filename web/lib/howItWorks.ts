@@ -1,4 +1,4 @@
-// E9: the "How Ma'al decides" page (DECISIONS 43). Fixed text written for the UI from the repo's own
+// E9: the "How Ma'al decides" page (DECISIONS 51). Fixed text written for the UI from the repo's own
 // documents; the source of each section is in the comment above it. No digits (N1): any number the page
 // shows comes from code. `[[id|text]]` marks a glossary term, rendered with <Term>, first appearance only.
 // Every Arabic string is a draft for review, like the rest of messages/ar.json.

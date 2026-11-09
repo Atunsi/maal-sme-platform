@@ -1,4 +1,4 @@
-// E3: the glossary catalogue, its rules (N1, N2) and the term popover. DECISIONS 43.
+// E3: the glossary catalogue, its rules (N1, N2) and the term popover. DECISIONS 51.
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { fireEvent, render, screen } from "@testing-library/react";

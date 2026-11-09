@@ -1,4 +1,4 @@
-// E3: glossary terms on the pages, and the glossary page (DECISIONS 43).
+// E3: glossary terms on the pages, and the glossary page (DECISIONS 51).
 import { expect, test } from "@playwright/test";
 
 test("term popover opens on focus and closes on escape", async ({ page }) => {
