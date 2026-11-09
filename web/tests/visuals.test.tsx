@@ -270,6 +270,20 @@ describe("demo sign-in", () => {
     expect(code.match(/\.value\b/g)).toHaveLength(1);
   });
 
+  it("sign-in shows the demo password", () => {
+    for (const [locale, m] of [["en", en], ["ar", ar]] as const) {
+      const { unmount } = render(<SignInForm locale={locale} s={m.signIn} />);
+      const hint = screen.getByText(m.signIn.demoPassword.replace("{password}", DEMO_PASSWORD));
+      const field = screen.getByLabelText(m.signIn.password);
+      expect(field.getAttribute("aria-describedby")!.split(" ")).toContain(hint.id);
+      fireEvent.change(field, { target: { value: "wrong" } });
+      fireEvent.submit(field.closest("form")!);
+      // The error joins the hint, never replaces it.
+      expect(field.getAttribute("aria-describedby")!.split(" ")).toEqual([hint.id, "sign-in-wrong"]);
+      unmount();
+    }
+  });
+
   it("U15 the demo password is pass, and the username is not checked as an email", () => {
     expect(DEMO_PASSWORD).toBe("pass");
     render(<SignInForm locale="en" s={en.signIn} />);

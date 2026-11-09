@@ -587,6 +587,7 @@
     "password": "Password",
     "ctaOwner": "Sign in to my business",
     "ctaAdmin": "Sign in as admin",
+    "demoPassword": "Demo password: {password}",
     "wrongPassword": "Wrong password. Try again.",
     "demo": "Demo sign-in. No accounts exist. The password is checked in this browser only, and nothing you type is saved or sent.",
     "synthetic": "This demo runs on synthetic data."

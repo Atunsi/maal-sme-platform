@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { DEMO_BUSINESS } from "@/lib/businesses";
-import type { Locale, Messages } from "@/lib/i18n";
+import { fill, type Locale, type Messages } from "@/lib/i18n";
 
 type Role = "owner" | "admin";
 
@@ -69,13 +69,17 @@ export function SignInForm({ locale, s }: { locale: Locale; s: Messages["signIn"
             className="field"
             value={password}
             aria-invalid={wrong || undefined}
-            aria-describedby={wrong ? "sign-in-wrong" : undefined}
+            aria-describedby={wrong ? "sign-in-demo-password sign-in-wrong" : "sign-in-demo-password"}
             onChange={(event) => {
               setPassword(event.currentTarget.value);
               setWrong(false);
             }}
           />
         </label>
+        {/* B1: the password protects nothing (DECISIONS 42), so the page says what it is. */}
+        <p id="sign-in-demo-password" className="-mt-2.5 text-sm text-muted">
+          {fill(s.demoPassword, { password: DEMO_PASSWORD })}
+        </p>
         {wrong && (
           <p id="sign-in-wrong" role="alert" className="text-sm font-medium text-bad">
             {s.wrongPassword}

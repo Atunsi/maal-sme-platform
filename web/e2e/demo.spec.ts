@@ -39,6 +39,15 @@ test("sign-in says what it is, on the page", async ({ page }) => {
   await expect(page.locator("footer")).toContainText("Synthetic data only. Population: serving.");
 });
 
+test("sign-in shows the demo password", async ({ page }) => {
+  for (const [locale, text] of [["en", "Demo password: pass"], ["ar", "كلمة المرور التجريبية: pass"]] as const) {
+    await page.goto(`/${locale}/sign-in`);
+    const hint = page.getByText(text, { exact: true });
+    await expect(hint).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toHaveAttribute("aria-describedby", "sign-in-demo-password");
+  }
+});
+
 test("the Admin role routes to the admin page and shows in the header", async ({ page }) => {
   await page.goto("/en/sign-in", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Admin" }).click();
