@@ -3301,3 +3301,39 @@ with 22 defaults, secondary label n = 615 with 59, censored):
 - **C. Require the primary label for A2**, so the headline count is 14.
 
 **Sign-off:** ☐ profile engine owner (registry rule) ☐ team (claim wording)
+
+---
+
+## 49. The governing documents name XGBoost and Prophet/ARIMA; the shipped lenses are a logistic regression and a 90-day moving average — PROPOSED wording change, options only (2026-11-09)
+
+**Touches:** `docs/SME_Platform_SOP.md` §3 and §5 (Week 7), `docs/Behavioral_Profile_Feature_Schema.md`
+§13 and §19, the component READMEs, the proposal and the final report. No code.
+
+**Finding.**
+- SOP §3 gives the credit lens owner "XGBoost, SHAP" and the forecast owner "Prophet/ARIMA"; SOP §5's
+  Week 7 test names "XGBoost inference"; schema §13 calls log-odds the "native XGBoost output scale".
+- The shipped credit model is an L2 logistic regression (entry 23). XGBoost was measured and lost:
+  logistic 0.5959 against early-stopped XGBoost 0.5865 and untuned XGBoost 0.5568, on the §14 feature
+  set, research, N = 9,495 (NUMBERS §4, entry 21). The "SHAP" value is coefficient × standardised
+  value, which is exact for a linear model (entry 43).
+- The shipped forecast is `naive90`, a trailing 90-day mean (entry 27). The six candidates fixed in
+  advance were `naive90`, `ewma`, `blend`, `naive30`, `structural` and `ols_damped`
+  (`eval/out/forecast_selection.md`). **Prophet and ARIMA were never candidates**, so the project has
+  no measurement of either.
+- The same documents still say 59 features. The engine computes 69 numbered features plus 18b and 62b
+  (71 registry entries), and the credit lens reads 58. That part is already entry 33 (PROPOSED schema
+  edit v2.9 → v2.10) and is not re-opened here.
+
+**Why it needs a decision.** A reader who compares the proposal with the repository finds a different
+model in two of three lenses. For credit, the team has a measured reason. For forecasting it has none:
+the promised methods were not tried.
+
+**Options (not chosen here):**
+- **A. Amend the wording** in the SOP, the schema (with entry 33's edit) and the report to what was
+  built, with the reasons above, and say outright that Prophet and ARIMA were not evaluated.
+- **B. Evaluate Prophet and ARIMA.** The test window (days 151–180) has been used once (entry 27), so a
+  fair comparison needs the protocol and a new untouched window written down first; otherwise the test
+  becomes a second validation.
+- **C. Leave the documents and state the difference in the report's limitations only.**
+
+**Sign-off:** ☐ credit lens owner ☐ forecast + anomaly owner ☐ team (SOP and schema wording)
