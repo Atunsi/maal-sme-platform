@@ -202,7 +202,8 @@
     "chartKeys": "Forecast chart readout. Use the Left and Right arrow keys to move between today and each horizon, Home and End for the first and last, and Escape to hide the readout.",
     "today": "today",
     "tableLabel": "Projection table",
-    "noneProjected": "None projected"
+    "noneProjected": "None projected",
+    "pointsNote": "Values at today and three horizons only; the lines between them are not daily values"
   },
   "anomaly": {
     "title": "Review queue",

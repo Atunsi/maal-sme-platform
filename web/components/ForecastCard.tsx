@@ -99,7 +99,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
         />
         <div className="flex flex-wrap gap-7 text-sm">
           <span className="flex items-center gap-2">
-            <span aria-hidden="true" className="h-[3px] w-7 bg-accent" />
+            <span aria-hidden="true" className="h-0 w-7 border-t-[3px] border-dotted border-accent" />
             {n.model}
           </span>
           <span className="flex items-center gap-2">
@@ -108,6 +108,9 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
           </span>
         </div>
         <p className="text-[13px] text-muted">{n.chartNote}</p>
+        <p data-points-note className="text-[13px] text-muted">
+          {n.pointsNote}
+        </p>
       </section>
       <section aria-label={n.tableLabel} className="rise border border-line bg-card" style={{ animationDelay: delay(3) }}>
         <TableScroll label={n.chartTitle}>

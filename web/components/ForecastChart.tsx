@@ -210,7 +210,9 @@ export function ForecastChart({ data, locale, labels }: Props) {
             </text>
           )}
           <g className="reveal">
-            <polyline data-series="model" points={line("model")} fill="none" stroke="var(--accent)" strokeWidth={3.5} />
+            {/* C8: the response holds today and three horizons only, so each series is points joined by broken
+                segments, never a solid line that reads as daily values. The two keep different dash patterns. */}
+            <polyline data-series="model" points={line("model")} fill="none" stroke="var(--accent)" strokeWidth={3.5} strokeDasharray="1 7" strokeLinecap="round" />
             <polyline data-series="baseline" points={line("baseline")} fill="none" stroke="var(--ochre)" strokeWidth={3.5} strokeDasharray="9 7" />
             {data.slice(1).flatMap((d) => [
               <circle key={`m${d.day}`} cx={x(d.day)} cy={y(d.model)} r={5} fill="var(--accent)" />,

@@ -94,3 +94,17 @@ describe("forecast readout", () => {
     expect(forecastReadout(calm, "en", en).note).toBe(en.overview.noNegative);
   });
 });
+
+describe("forecast chart", () => {
+  it("forecast lines are dashed between points", () => {
+    // C8: four values, so neither series is drawn as a solid line, and the two keep different patterns.
+    const forecast = fixture("forecast_10001", ForecastResponse);
+    const { container } = render(<ForecastCard data={forecast} locale="en" m={en} />);
+    const dashes = [...container.querySelectorAll("polyline")].map((p) => p.getAttribute("stroke-dasharray"));
+    expect(dashes).toHaveLength(2);
+    for (const d of dashes) expect(d).toBeTruthy();
+    expect(new Set(dashes).size).toBe(2);
+    expect(container.querySelector("[data-points-note]")!.textContent).toBe(en.forecast.pointsNote);
+    for (const m of [en, ar]) expect(m.forecast.pointsNote).not.toMatch(/[0-9٠-٩]/);
+  });
+});
