@@ -109,3 +109,13 @@ def test_soft_flag_makes_an_approval_conditional():
 def test_compliant_approval_is_unconditional():
     out = gated(5411)
     assert out["credit"]["decision"] == "approved" and out["internals"]["offer_status"] == "unconditional"
+
+def test_mcc_validation():
+    from compliance.sharia import _mcc
+
+    assert _mcc(5813) == 5813
+    assert _mcc("5813") == 5813
+    assert _mcc(5813.0) == 5813
+    assert _mcc(5813.5) is None
+    assert _mcc("5813.5") is None
+    assert _mcc(None) is None
