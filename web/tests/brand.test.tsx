@@ -6,6 +6,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ArabicLogo, EnglishWordmark, LogoBand, SectionMark } from "@/components/brand/Logos";
 import { AR_BODY, AR_MADDA, EN_BODY, EN_MADDA } from "@/components/brand/logoPaths";
+import { DigitsToggle } from "@/components/DigitsToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Plate } from "@/components/ui";
 import { THEME_KEY } from "@/lib/theme";
@@ -81,7 +82,7 @@ describe("theme", () => {
   });
 
   it("theme toggle switches and persists without cookies", () => {
-    render(<ThemeToggle labels={{ dark: en.nav.themeDark, light: en.nav.themeLight }} />);
+    render(<ThemeToggle label={en.nav.themeDark} />);
     const button = screen.getByRole("button", { name: en.nav.themeDark });
     expect(button.getAttribute("aria-pressed")).toBe("false");
 
@@ -90,17 +91,41 @@ describe("theme", () => {
     expect(document.documentElement.classList.contains("th-light")).toBe(false);
     expect(localStorage.getItem(THEME_KEY)).toBe("dark");
     expect(document.cookie).toBe("");
-    expect(screen.getByRole("button", { name: en.nav.themeLight }).getAttribute("aria-pressed")).toBe("true");
+    expect(button.getAttribute("aria-pressed")).toBe("true");
 
-    fireEvent.click(screen.getByRole("button", { name: en.nav.themeLight }));
+    fireEvent.click(button);
+    expect(button.getAttribute("aria-pressed")).toBe("false");
     expect(document.documentElement.classList.contains("th-light")).toBe(true);
     expect(localStorage.getItem(THEME_KEY)).toBe("light");
     expect(document.cookie).toBe("");
   });
 
+  it("pressed toggles keep one label", () => {
+    // R3: the state is in aria-pressed; the words never change with it.
+    document.documentElement.lang = "ar";
+    for (const [element, label] of [
+      [<ThemeToggle key="t" label={ar.nav.themeDark} />, ar.nav.themeDark],
+      [<DigitsToggle key="d" label={ar.nav.digitsArab} />, ar.nav.digitsArab],
+    ] as const) {
+      const { unmount } = render(element);
+      const button = screen.getByRole("button", { name: label });
+      const before = button.getAttribute("aria-pressed");
+      fireEvent.click(button);
+      expect(button.getAttribute("aria-pressed")).not.toBe(before);
+      expect(button.textContent).toBe(label);
+      fireEvent.click(button);
+      expect(button.getAttribute("aria-pressed")).toBe(before);
+      expect(button.textContent).toBe(label);
+      unmount();
+    }
+    document.documentElement.lang = "";
+    delete document.documentElement.dataset.digits;
+    for (const m of [en, ar]) expect(Object.keys(m.nav).filter((k) => /themeLight|digitsLatn/.test(k))).toEqual([]);
+  });
+
   it("the toggle's Arabic labels are the agreed words", () => {
     expect(ar.nav.themeDark).toBe("الوضع الداكن");
-    expect(ar.nav.themeLight).toBe("الوضع الفاتح");
+    expect(ar.nav.digitsArab).toBe("أرقام عربية");
   });
 });
 

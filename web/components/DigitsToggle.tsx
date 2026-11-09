@@ -3,12 +3,12 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { digitsChosen, onDigitsChange, setDigits, startDigits, stopDigits } from "@/lib/digits";
 
-/** E8: shown in the Arabic locale only. The label names what a press switches to, like the theme toggle. */
-export function DigitsToggle({ labels }: { labels: { arab: string; latn: string } }) {
+/** E8: shown in the Arabic locale only. R3: one fixed label, "Arabic-Indic digits"; aria-pressed says whether it is on. */
+export function DigitsToggle({ label }: { label: string }) {
   const arab = useSyncExternalStore(onDigitsChange, () => digitsChosen() === "arab", () => false);
   return (
     <button type="button" className="themebtn" aria-pressed={arab} data-digits-toggle onClick={() => setDigits(arab ? "latn" : "arab")}>
-      {arab ? labels.latn : labels.arab}
+      {label}
     </button>
   );
 }

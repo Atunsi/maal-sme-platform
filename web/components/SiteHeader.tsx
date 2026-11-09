@@ -109,8 +109,8 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
                 </span>
               )}
               <LanguageToggle locale={locale} label={nav.language} />
-              <ThemeToggle labels={{ dark: nav.themeDark, light: nav.themeLight }} />
-              {locale === "ar" && <DigitsToggle labels={{ arab: nav.digitsArab, latn: nav.digitsLatn }} />}
+              <ThemeToggle label={nav.themeDark} />
+              {locale === "ar" && <DigitsToggle label={nav.digitsArab} />}
               {signedIn ? (
                 <Link href={`${base}/sign-in`} prefetch={false} className="textlink">
                   {nav.signOut}

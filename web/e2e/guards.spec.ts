@@ -28,7 +28,10 @@ test("the dark theme follows the system and the choice survives a reload, with n
   const html = page.locator("html");
   await expect(html).toHaveClass(/th-dark/);
 
-  await page.getByRole("button", { name: "Light theme" }).click();
+  const toggle = page.getByRole("button", { name: "Dark theme" });
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
   await expect(html).toHaveClass(/th-light/);
   await page.reload();
   await expect(html).toHaveClass(/th-light/);

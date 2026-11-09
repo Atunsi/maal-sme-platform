@@ -52,8 +52,8 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
           <Suspense>
             <LanguageToggle locale={locale} label={m.nav.language} />
           </Suspense>
-          <ThemeToggle labels={{ dark: m.nav.themeDark, light: m.nav.themeLight }} />
-          {locale === "ar" && <DigitsToggle labels={{ arab: m.nav.digitsArab, latn: m.nav.digitsLatn }} />}
+          <ThemeToggle label={m.nav.themeDark} />
+          {locale === "ar" && <DigitsToggle label={m.nav.digitsArab} />}
         </div>
         <div className="mx-auto flex w-full max-w-[440px] flex-1 flex-col justify-center gap-6">
           <div className="rise" style={{ animationDelay: "0.3s" }}>

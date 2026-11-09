@@ -31,7 +31,7 @@ test("digits switch changes amounts and persists without cookies", async ({ page
   const heading = page.locator("main").getByText(/ر\.س\./).first();
   await expect(heading).toHaveText(LATN);
   await page.locator("[data-digits-toggle]").click();
-  await expect(page.locator("[data-digits-toggle]")).toHaveText("أرقام غربية");
+  await expect(page.locator("[data-digits-toggle]")).toHaveText("أرقام عربية");
   await expect(page.locator("[data-digits-toggle]")).toHaveAttribute("aria-pressed", "true");
   await expect(heading).toHaveText(ARAB);
   await expect(heading).not.toHaveText(LATN);

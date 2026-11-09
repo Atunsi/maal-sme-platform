@@ -28,9 +28,7 @@
     "roleOwner": "مالك المنشأة {id}",
     "roleAdmin": "المشرف",
     "themeDark": "الوضع الداكن",
-    "themeLight": "الوضع الفاتح",
     "digitsArab": "أرقام عربية",
-    "digitsLatn": "أرقام غربية",
     "menu": "القائمة"
   },
   "footer": {

@@ -28,9 +28,7 @@
     "roleOwner": "Owner of business {id}",
     "roleAdmin": "Admin",
     "themeDark": "Dark theme",
-    "themeLight": "Light theme",
     "digitsArab": "Arabic-Indic digits",
-    "digitsLatn": "Western digits",
     "menu": "Menu"
   },
   "footer": {
