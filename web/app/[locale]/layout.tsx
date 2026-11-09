@@ -5,6 +5,7 @@ import { Suspense, type ReactNode } from "react";
 import { AppTabBar } from "@/components/AppTabBar";
 import { DigitsSync } from "@/components/DigitsToggle";
 import { FooterLinks } from "@/components/FooterLinks";
+import { HtmlState } from "@/components/HtmlState";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TourPanel } from "@/components/TourPanel";
 import { APP_BOOT } from "@/lib/app-mode";
@@ -126,6 +127,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
             <p className="text-[13px] text-muted">{m.footer.scope}</p>
           </div>
         </footer>
+        <HtmlState locale={locale} />
         {locale === "ar" && <DigitsSync />}
         <Suspense>
           <AppTabBar locale={locale} nav={m.nav} />

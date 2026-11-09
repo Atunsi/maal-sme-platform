@@ -14,6 +14,25 @@ function colourBar(dark: boolean): void {
 
 const CHANGE = "maal-theme-change";
 
+/**
+ * Puts the chosen theme back on <html>: the stored choice, else the system's. The root layout re-renders <html>
+ * when the locale changes, which drops the class THEME_BOOT added, so components/HtmlState.tsx calls this.
+ */
+export function applyStoredTheme(): void {
+  let dark = false;
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    dark = stored ? stored === "dark" : window.matchMedia?.("(prefers-color-scheme: dark)").matches === true;
+  } catch {
+    // Storage refused: the system's choice, as THEME_BOOT does.
+    dark = window.matchMedia?.("(prefers-color-scheme: dark)").matches === true;
+  }
+  const { classList } = document.documentElement;
+  classList.toggle("th-dark", dark);
+  classList.toggle("th-light", !dark);
+  colourBar(dark);
+}
+
 export function isDark(): boolean {
   return document.documentElement.classList.contains("th-dark");
 }
