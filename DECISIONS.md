@@ -3169,3 +3169,56 @@ same as on 2026-10-31. Only the PD moved:
 Nothing was retuned, and one business per scenario is a demonstration, not an estimate.
 
 **Sign-off:** ☐ generator owner (scenario library re-run) ☐ credit lens owner (findings 1–2 as restated) ☐ team (the wording used in the demo)
+
+---
+
+## 47. The customer explanation states a sector-level effect as the business's own trait — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** `lenses/credit/model.py` (`explain`, `FEATURE_LABELS`, `PHRASES`), §13 (public tier), §25,
+the demo, entry 23.3's sentence "the model cannot shortcut to the sector code", and the same comment in
+`lenses/lens_config.yaml`. Nothing is changed by this entry.
+
+**Finding** (`python -m eval.demo_exposure` → `eval/out/demo_exposure.md`, NUMBERS §5d; serving, all
+1,000 businesses through the shipped code path, 943 scored or partial_profile):
+- Feature 3 `inflow_regularity_score` is the **first** public reason for **834 of 943** businesses, and
+  feature 3 or its z-score 55 is among the three public reasons for **943 of 943**.
+- Where it is first, its direction is fixed by sector: against the business for all 138 food and
+  beverage and all 373 retail cases, in its favour for all 298 construction and all 25 professional
+  services cases.
+- Demo business 10001, the first one shown, reads: "Your consistency of incoming payments was a major
+  factor increasing the estimated credit risk." Its feature 3 contribution is +1.027583 log-odds
+  (`python -m pipeline.week8 --demo`). It is a daily-POS retail shop, so its inflows are as regular as
+  the feature can measure (entry 38: feature 3 is exactly 1.0 for 98.1% of retail research businesses).
+  Its third sentence is "Your recent overdraft occurrences was a major factor supporting the credit
+  assessment."
+
+**Why it happens** is already recorded in entry 43: with features 3 and 55 both in the model, the pair
+acts as a per-sector constant. Entry 43 drew the consequence for the §25 audit. It did not draw the
+consequence for the customer text, which was written on 2026-11-08 and shows the largest contributions
+first. The text is a fixed template (no generated text, SOP §2 holds). What it says is the problem: a
+retail owner is told that being consistent raises their risk, and every owner in a sector is told the
+same thing.
+
+**A second sentence this contradicts.** Entry 23.3 and the comment in `lenses/lens_config.yaml` say
+sector "enters only through the §35 z-scores, so the model cannot shortcut to the sector code (§25)".
+Entry 43 measured summed sector-level offsets of +0.242 (construction) to −1.431 (professional services)
+log-odds. The sentence should be withdrawn by the credit lens owner. Editing the comment changes
+`lens_config_sha256` in every receipt, so it is left for the owner to do with the next lens-config change.
+
+**Options (not chosen here; each is the credit lens owner's to pick):**
+- **A. Keep the model and the text, and say it first.** State in the demo that the first reason is a
+  sector effect for 834 of 943 businesses. Costs nothing; the sentence still misleads a real owner.
+- **B. Change only what the public tier shows.** For example, leave out of the customer text any feature
+  whose direction is the same for a whole sector, by a rule written before looking at which features it
+  removes. The model, the PD and the compliance tier (all contributions) stay as they are.
+- **C. Change the feature set** (for example, do not give the model both members of a pair such as 3
+  and 55). This is a new model: entry 43 already requires the selection rule to be fixed and committed
+  before it is evaluated, and A1 and every number downstream move.
+- **D. Hold the public tier back from the demo** until one of the above is decided, and show the
+  compliance tier with entry 43's wording.
+
+**Not done, deliberately:** no label, phrase, threshold, feature or model file was changed. Choosing
+B or C after seeing which sentences look bad is the retuning this project rules out, so the rule has
+to be written first.
+
+**Sign-off:** ☐ credit lens owner (choose A–D; withdraw the "cannot shortcut" sentence) ☐ team (what is said in the demo)
