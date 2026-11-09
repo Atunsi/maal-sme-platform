@@ -171,3 +171,22 @@ test("a first-pass ?view=compliance link on the overview lands on the credit pag
   await expect(page).toHaveURL(/\/en\/business\/10014\/credit\?view=compliance$/);
   await expect(page.getByTestId("compliance-view")).toBeVisible();
 });
+
+test("credit factor opens its raw value from the profile", async ({ page }) => {
+  // I3: the disclosure fetches /profile once, through a server action, and shows the raw named value.
+  await page.goto("/en/business/10016/credit", { waitUntil: "networkidle" });
+  const posts: string[] = [];
+  page.on("request", (r) => {
+    if (r.method() === "POST") posts.push(r.url());
+  });
+  const buttons = page.locator("button[data-factor]");
+  expect(await buttons.count()).toBeGreaterThan(0);
+  await buttons.first().click();
+  const panel = page.locator("[data-factor-panel]").first();
+  await expect(panel).toContainText("Value:");
+  await expect(panel).toContainText((await buttons.first().getAttribute("data-factor"))!);
+  if ((await buttons.count()) > 1) await buttons.nth(1).click();
+  await expect(page.locator("[data-factor-panel]").nth(1)).toContainText("Value:");
+  expect(posts).toHaveLength(1); // one server action for the page
+  expect(posts.every((u) => !u.includes(":8000"))).toBe(true);
+});

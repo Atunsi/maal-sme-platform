@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
 import { ComplianceView } from "@/components/ComplianceView";
+import { FactorDetails } from "@/components/FactorDetails";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
 import { Term as GlossaryTerm } from "@/components/Term";
 import { BackendText, Num, Plate, Refusal, SubHeading } from "@/components/ui";
@@ -23,7 +24,11 @@ function Bar({ line, from, index }: { line: Line; from: "start" | "end"; index: 
   return <span aria-hidden="true" className={`bar-grow bar-from-${from} ${BAR_COLOUR[line.direction!]}`} style={style} />;
 }
 
-function LineText({ line, locale, m }: { line: Line; locale: Locale; m: Messages }) {
+/** I3: what a factor row needs to open its feature: the business, and feature_id to feature name. */
+type Factors = { businessId: number; names: Record<string, string> };
+
+function LineText({ line, factors, locale, m }: { line: Line; factors: Factors; locale: Locale; m: Messages }) {
+  const feature = line.feature_id === null ? undefined : factors.names[String(line.feature_id)];
   return (
     <span className="block min-w-0 text-base">
       <BackendText locale={locale} m={m}>
@@ -33,13 +38,23 @@ function LineText({ line, locale, m }: { line: Line; locale: Locale; m: Messages
         <Plate variant="ink">{m.enums.magnitude[line.magnitude!]}</Plate>
         <Plate variant={DIRECTION_VARIANT[line.direction!]}>{m.enums.direction[line.direction!]}</Plate>
       </span>
+      {feature && (
+        <FactorDetails
+          businessId={factors.businessId}
+          feature={feature}
+          features={Object.values(factors.names)}
+          locale={locale}
+          glossaryHref={`/${locale}/glossary`}
+          labels={{ more: m.credit.factorMore, value: m.dashboard.value, nullReason: m.dashboard.nullReason, none: m.common.dash, glossary: m.footer.glossary, loading: m.common.loading }}
+        />
+      )}
     </span>
   );
 }
 
 /** One row on the centre axis: against on one side, supports on the other, either across both. */
-function AxisRow({ line, index, locale, m }: { line: Line; index: number; locale: Locale; m: Messages }) {
-  const words = <LineText line={line} locale={locale} m={m} />;
+function AxisRow({ line, index, factors, locale, m }: { line: Line; index: number; factors: Factors; locale: Locale; m: Messages }) {
+  const words = <LineText line={line} factors={factors} locale={locale} m={m} />;
   const against = line.direction === "against";
   const either = line.direction === "either";
   return (
@@ -56,7 +71,7 @@ function AxisRow({ line, index, locale, m }: { line: Line; index: number; locale
   );
 }
 
-function PublicTier({ lines, locale, m }: { lines: Line[]; locale: Locale; m: Messages }) {
+function PublicTier({ lines, factors, locale, m }: { lines: Line[]; factors: Factors; locale: Locale; m: Messages }) {
   const onAxis = lines.filter((line) => line.magnitude && line.direction);
   const plain = lines.filter((line) => !line.magnitude || !line.direction);
   return (
@@ -74,7 +89,7 @@ function PublicTier({ lines, locale, m }: { lines: Line[]; locale: Locale; m: Me
             <span className="ps-5 text-ok">{m.credit.supports}</span>
           </div>
           {onAxis.map((line, i) => (
-            <AxisRow key={line.feature_id ?? `line-${i}`} line={line} index={i} locale={locale} m={m} />
+            <AxisRow key={line.feature_id ?? `line-${i}`} line={line} index={i} factors={factors} locale={locale} m={m} />
           ))}
           <p className="mt-4 text-[13px] text-muted">{m.credit.barNote}</p>
         </>
@@ -105,6 +120,11 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
     );
   }
   const plate = decisionPlate(credit, detail, m);
+  // I3: the response's own contributions table maps each feature_id to its feature name.
+  const factors: Factors = {
+    businessId: data.business_id,
+    names: Object.fromEntries(explanation.compliance_tier.contributions.map((c) => [String(c.feature_id), c.feature])),
+  };
   const title = { approved_unconditional: m.credit.titleApproved, approved_conditional: m.credit.titleConditional, declined: m.credit.titleDeclined }[plate.state];
   const aside = (
     <div className="flex items-center gap-3">
@@ -122,7 +142,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
       <CreditViewSwitch
         initialView={initialView}
         labels={{ group: m.credit.viewLabel, public: m.credit.viewPublic, compliance: m.credit.viewCompliance }}
-        publicSlot={<PublicTier lines={explanation.public_tier} locale={locale} m={m} />}
+        publicSlot={<PublicTier lines={explanation.public_tier} factors={factors} locale={locale} m={m} />}
         complianceSlot={<ComplianceView explanation={explanation} detail={detail} receipt={data.receipt} locale={locale} m={m} />}
       />
       <section aria-label={m.credit.terms} className="rise" style={{ animationDelay: delay(3) }}>

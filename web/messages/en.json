@@ -129,7 +129,8 @@
     "against": "Worked against approval",
     "supports": "Supported approval",
     "barNote": "Bar length shows the word the model returned: strongly, moderately or marginally. It is not a number.",
-    "terms": "Offer terms"
+    "terms": "Offer terms",
+    "factorMore": "What this factor reads"
   },
   "compliance": {
     "units": "Units",
