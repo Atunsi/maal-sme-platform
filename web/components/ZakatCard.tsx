@@ -159,7 +159,7 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
         {n.amountTitle}
       </h2>
       <div aria-hidden="true" className="rounded-bar relative h-11 overflow-hidden" style={{ background: "var(--panelRule)" }}>
-        <div className="fill-bar fill-from-start start-0 min-w-3" style={{ width: pct(z.rate, 1), background: "#e0b05c", animationDelay: delay(4) }} />
+        <div className="fill-bar fill-from-start start-0 min-w-3" style={{ width: pct(z.rate, 1), background: "var(--gold-amount)", animationDelay: delay(4) }} />
       </div>
       <div className="font-mono text-base leading-relaxed">
         {z.zakat_base_sar !== undefined && (
@@ -172,7 +172,7 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
         </div>
         {/* U10: a calculation that did not run shows no amount, never a zero. */}
         {z.status !== "not_computed" && z.liability_sar !== null && (
-          <div className="text-[26px]" style={{ color: "#e0b05c" }}>
+          <div className="text-[26px]" style={{ color: "var(--gold-amount)" }}>
             <span>{n.liability}</span> <Num>{formatSar(z.liability_sar, locale)}</Num>
           </div>
         )}

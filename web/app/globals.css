@@ -33,6 +33,16 @@
   --hero: #2e3192;
   --stripe: #f4d8d2;
   --tile: url("/brand/maal-logo-tile-light.svg");
+  /* B17: colours that sit on fixed dark or gold surfaces; the same in both themes, named so no component
+     carries a hex value. */
+  --gold-amount: #e0b05c;
+  --gold-shadow: #c9a227;
+  --hero-ink: #e4e5fa;
+  --hero-muted: #cfd1f5;
+  --night: #101418;
+  --night-ink: #e8eaed;
+  --night-rule: #2a3038;
+  --night-muted: #b8c0c8;
   color-scheme: light;
 }
 
@@ -63,6 +73,16 @@
   --hero: #1a1c5c;
   --stripe: #3a2019;
   --tile: url("/brand/maal-logo-tile-dark.svg");
+  /* B17: colours that sit on fixed dark or gold surfaces; the same in both themes, named so no component
+     carries a hex value. */
+  --gold-amount: #e0b05c;
+  --gold-shadow: #c9a227;
+  --hero-ink: #e4e5fa;
+  --hero-muted: #cfd1f5;
+  --night: #101418;
+  --night-ink: #e8eaed;
+  --night-rule: #2a3038;
+  --night-muted: #b8c0c8;
   color-scheme: dark;
 }
 

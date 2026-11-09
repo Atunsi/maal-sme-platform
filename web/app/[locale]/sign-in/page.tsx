@@ -36,11 +36,11 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
           <p className="rise max-w-[520px] text-xl leading-normal" style={{ animationDelay: "2s" }}>
             <span lang="ar">{arName}</span> {s.meaning}
           </p>
-          <p className="rise max-w-[520px] text-[15px]" style={{ color: "#cfd1f5", animationDelay: "2.2s" }}>
+          <p className="rise max-w-[520px] text-[15px]" style={{ color: "var(--hero-muted)", animationDelay: "2.2s" }}>
             {s.receiptLine}
           </p>
         </div>
-        <div className="rise eyebrow relative flex flex-wrap gap-6 !text-xs" style={{ color: "#cfd1f5", animationDelay: "2.4s" }}>
+        <div className="rise eyebrow relative flex flex-wrap gap-6 !text-xs" style={{ color: "var(--hero-muted)", animationDelay: "2.4s" }}>
           {lenses.map((lens) => (
             <span key={lens}>{lens}</span>
           ))}

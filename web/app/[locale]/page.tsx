@@ -52,7 +52,7 @@ function IllustrativeCard({ o, locale, m }: { o: ScenarioObject; locale: Locale;
   const sharia = o.governance.sharia_screen.sharia_screen_status;
   const alert = o.forecast?.status === "computed" ? o.forecast.crunch_alert : null;
   return (
-    <div className="rise flex flex-col gap-4 bg-card p-7 text-ink shadow-[18px_18px_0_#c9a227] rtl:shadow-[-18px_18px_0_#c9a227]" style={{ animationDelay: "0.7s" }}>
+    <div className="rise flex flex-col gap-4 bg-card p-7 text-ink shadow-[18px_18px_0_var(--gold-shadow)] rtl:shadow-[-18px_18px_0_var(--gold-shadow)]" style={{ animationDelay: "0.7s" }}>
       <div className="flex items-center justify-between gap-3 text-xs text-muted">
         <span className="font-mono">{fill(l.cardBusiness, { id: o.business_id, sector: m.enums.sector[o.sector] })}</span>
         <span>{l.illustrative}</span>
@@ -119,7 +119,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
         <div className="relative mx-auto flex max-w-[1240px] flex-wrap items-center gap-14 px-6 py-[72px] sm:py-[88px]">
           <div className="flex min-w-0 flex-[999_1_520px] flex-col gap-6">
-            <div className="rise eyebrow flex items-center gap-2.5" style={{ color: "#cfd1f5" }}>
+            <div className="rise eyebrow flex items-center gap-2.5" style={{ color: "var(--hero-muted)" }}>
               <SectionMark onDark />
               {l.eyebrow}
             </div>
@@ -127,7 +127,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
               {l.title}
             </h1>
             <span aria-hidden="true" className="verdict-rule w-[140px] text-gold" />
-            <p className="rise max-w-[600px] text-xl leading-normal" style={{ color: "#e4e5fa", animationDelay: "0.4s" }}>
+            <p className="rise max-w-[600px] text-xl leading-normal" style={{ color: "var(--hero-ink)", animationDelay: "0.4s" }}>
               {l.lead}
             </p>
             <div className="rise flex flex-wrap gap-3.5" style={{ animationDelay: "0.55s" }}>
@@ -212,15 +212,15 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       </section>
 
       <LogoBand />
-      <section id="different" aria-labelledby="diffh" className="on-hero" style={{ background: "#101418", color: "#e8eaed" }}>
+      <section id="different" aria-labelledby="diffh" className="on-hero" style={{ background: "var(--night)", color: "var(--night-ink)" }}>
         <div className="mx-auto flex max-w-[1240px] flex-col gap-10 px-6 py-[72px] sm:py-[88px]">
           <SectionHead eyebrow={l.whyEyebrow} title={l.whyTitle} id="diffh" onDark />
-          <div className="grid grid-cols-1 gap-px sm:grid-cols-2" style={{ background: "#2a3038" }}>
+          <div className="grid grid-cols-1 gap-px sm:grid-cols-2" style={{ background: "var(--night-rule)" }}>
             {l.why.map((item, i) => (
-              <div key={item.title} className="rise flex flex-col gap-2.5 p-8" style={{ background: "#101418", animationDelay: `${(0.1 + i * 0.12).toFixed(2)}s` }}>
+              <div key={item.title} className="rise flex flex-col gap-2.5 p-8" style={{ background: "var(--night)", animationDelay: `${(0.1 + i * 0.12).toFixed(2)}s` }}>
                 <span className="font-mono text-[13px] text-gold">{pad(i)}</span>
                 <span className="heading text-[26px]">{item.title}</span>
-                <span className="text-[15px] leading-relaxed" style={{ color: "#b8c0c8" }}>
+                <span className="text-[15px] leading-relaxed" style={{ color: "var(--night-muted)" }}>
                   {item.text}
                 </span>
               </div>
