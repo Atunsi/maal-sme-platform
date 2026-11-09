@@ -6,7 +6,7 @@ test("print sheet shows the required labels", async ({ page }) => {
   await page.goto("/en/business/10001/sheet", { waitUntil: "networkidle" });
   const sheet = page.locator("article.sheet");
   await expect(sheet).toContainText("Rule-based screening, pending Sharia-advisor confirmation"); // U6
-  await expect(sheet).toContainText("Nisab price is a placeholder, unverified"); // U7
+  await expect(sheet).toContainText("Nisab price is a commercial quote, pending independent verification"); // U7
   await expect(sheet).toContainText("Not a ZATCA assessment");
   await expect(sheet).toContainText("Base markup, fixed at signing"); // U1
   await expect(sheet).toContainText("go to charity"); // U2
