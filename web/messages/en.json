@@ -31,6 +31,21 @@
     "menu": "Menu",
     "display": "Display"
   },
+  "search": {
+    "button": "Search",
+    "title": "Search this demo",
+    "label": "Search pages, scenarios and glossary terms",
+    "hint": "A page, a scenario, a term or a business ID",
+    "results": "Results",
+    "none": "Nothing matches.",
+    "openBusiness": "Open business {id}",
+    "groups": {
+      "pages": "Page",
+      "scenarios": "Scenario",
+      "terms": "Glossary term",
+      "business": "Business"
+    }
+  },
   "switcher": {
     "button": "Business",
     "label": "Open another business",

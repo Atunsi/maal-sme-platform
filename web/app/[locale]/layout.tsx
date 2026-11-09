@@ -8,6 +8,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { TourPanel } from "@/components/TourPanel";
 import { DIGITS_BOOT } from "@/lib/digits";
 import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
+import { scenarioName } from "@/lib/scenario-label";
+import { getScenarioIndex } from "@/lib/scenarios";
 import { THEME_BOOT } from "@/lib/theme";
 import "../globals.css";
 
@@ -32,6 +34,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const m = getMessages(locale);
+  // I8: the search covers the scenario library, read from the exported index (a file, not the API).
+  const index = await getScenarioIndex();
+  const scenarios = index.ok ? index.data.scenarios.map((s) => ({ name: s.name, label: scenarioName(s.label).name })) : [];
   return (
     // The boot scripts add the theme class and the digits mark before hydration, so React must not object.
     <html
@@ -49,7 +54,11 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           {m.nav.skip}
         </a>
         <Suspense>
-          <SiteHeader locale={locale} m={{ nav: m.nav, app: m.app, tour: m.tour, switcher: m.switcher, enums: m.enums, errors: m.errors }} />
+          <SiteHeader
+            locale={locale}
+            m={{ nav: m.nav, app: m.app, tour: m.tour, switcher: m.switcher, enums: m.enums, errors: m.errors, search: m.search, sheet: m.sheet }}
+            scenarios={scenarios}
+          />
         </Suspense>
         <main id="main" className="w-full flex-1">
           {children}

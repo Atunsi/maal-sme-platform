@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 import { ArabicLogo, EnglishWordmark, LogoBand } from "@/components/brand/Logos";
 import { BusinessSwitcher } from "@/components/BusinessSwitcher";
+import { CommandPalette, type PaletteScenario } from "@/components/CommandPalette";
 import { DigitsToggle } from "@/components/DigitsToggle";
 import { DisplayMenu } from "@/components/DisplayMenu";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -41,7 +42,7 @@ function navItems(rest: string, base: string, query: string, nav: Messages["nav"
   ];
 }
 
-export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "nav" | "app" | "tour" | "switcher" | "enums" | "errors"> }) {
+export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<Messages, "nav" | "app" | "tour" | "switcher" | "enums" | "errors" | "search" | "sheet">; scenarios: PaletteScenario[] }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const role = params.get("as");
@@ -98,7 +99,7 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
               menuButton.current?.focus();
             }}
           >
-            <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-2.5 text-[15px] md:flex-row md:flex-wrap">
+            <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-1.5 text-[15px] md:flex-row md:flex-wrap md:text-sm">
               {items.map((item) => (
                 // No prefetch: a prefetch renders the page on the server, and its API calls would join the queue
                 // (lib/api.ts) ahead of the page the visitor actually opens next.
@@ -107,12 +108,13 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
                 </Link>
               ))}
             </nav>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               {signedIn && (
-                <span className="max-w-[8.5rem] text-xs font-semibold leading-tight" data-demo-role>
+                <span className="max-w-[6.5rem] text-xs font-semibold leading-tight" data-demo-role>
                   {signedIn}
                 </span>
               )}
+              <CommandPalette locale={locale} m={m} scenarios={scenarios} />
               {rest.startsWith("/business/") && <BusinessSwitcher locale={locale} m={m} />}
               {ended && rest.startsWith("/business") && (
                 <Link href={tourHref(locale, ended.step, role === "owner" || role === "admin" ? role : null)} prefetch={false} className="textlink font-semibold" data-tour-resume>

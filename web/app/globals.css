@@ -307,7 +307,7 @@ summary {
 
 .themebtn {
   min-height: 44px;
-  padding: 0 14px;
+  padding: 0 10px; /* R8: tight enough that the Arabic header keeps one row */
   border: 1px solid var(--ink);
   background: transparent;
   color: var(--ink);
@@ -1258,4 +1258,27 @@ body {
 .reason-toggle[aria-pressed="false"] {
   color: var(--muted);
   text-decoration: line-through;
+}
+
+/* I8: the search dialog. */
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 16px 16px;
+  background: rgba(16, 20, 24, 0.45);
+}
+.palette {
+  display: flex;
+  width: min(560px, 100%);
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-box);
+  background: var(--surface);
+  color: var(--ink);
 }

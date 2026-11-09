@@ -79,11 +79,13 @@ describe("credit contract guards", () => {
     // fixed scenarios and only navigates to its page, so it cannot reach a term either. BusinessSwitcher (I1,
     // 1a.9) takes digits of a business ID, searches serving IDs and opens that business: it names a business,
     // never a term. CustomScenarioForm's range sliders (I5, 1a.9) edit the same bounded shock values as its
-    // number fields, so they reach no term either.
+    // number fields, so they reach no term either. CommandPalette (I8, 1a.9) matches typed text against fixed
+    // lists of pages, scenarios, glossary terms and serving IDs, and only navigates.
     expect(withInput.sort()).toEqual([
       "BusinessPicker.tsx",
       "BusinessSearch.tsx",
       "BusinessSwitcher.tsx",
+      "CommandPalette.tsx",
       "CopyButton.tsx",
       "CustomScenarioForm.tsx",
       "HashCheck.tsx",
