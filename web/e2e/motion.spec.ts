@@ -116,3 +116,20 @@ test("time axes stay left to right in Arabic", async ({ page }) => {
   await page.goto("/ar/business/10001/review");
   await expect(page.locator('[dir="ltr"]:has(.tick)')).toHaveCount(1);
 });
+
+for (const path of ["/en/business/10001", "/en/business/10001/credit"]) {
+  test(`loading skeleton keeps the final card height: ${path}`, async ({ page }) => {
+    // I7: the skeletons hold the final cards' space, so the page shifts less than 0.1 CLS as data arrives.
+    await page.addInitScript(() => {
+      (window as unknown as { __cls: number }).__cls = 0;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries() as (PerformanceEntry & { value: number; hadRecentInput: boolean })[])
+          if (!entry.hadRecentInput) (window as unknown as { __cls: number }).__cls += entry.value;
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    await page.goto(path, { waitUntil: "networkidle" });
+    await page.waitForTimeout(500);
+    const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+    expect(cls).toBeLessThan(0.1);
+  });
+}

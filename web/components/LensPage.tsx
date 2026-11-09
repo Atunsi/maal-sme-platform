@@ -73,8 +73,13 @@ export async function LensPage<T>({
   return (
     <Suspense
       fallback={
+        // I7: the title and the business ID come from the route, so they show before the lens answers.
         <Page>
-          <CardLoading title={title(m)} m={m} />
+          <div className="flex flex-col gap-3" data-lens-fallback>
+            <span className="font-mono text-[13px] uppercase text-muted">{fill(m.dashboard.title, { id: rawId })}</span>
+            <h1 className="heading text-[40px] sm:text-[52px]">{title(m)}</h1>
+          </div>
+          <CardLoading title={title(m)} m={m} tall />
         </Page>
       }
     >

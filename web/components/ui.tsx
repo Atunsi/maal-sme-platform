@@ -153,13 +153,23 @@ export function ApiError({ kind, detail, m }: { kind: ApiErrorKind; detail?: str
   );
 }
 
-export function CardLoading({ title, m }: { title: string; m: Messages }) {
+/**
+ * I7: a loading card the size of the card it stands for (title bar, plate, figure line, note line), drawn
+ * from tokens, so nothing jumps when the real card arrives. Screen readers still hear "Loading". U10: only
+ * ever a loading state, never a stand-in for insufficient_data or partial_profile, which keep their words.
+ */
+export function CardLoading({ title, m, tall }: { title: string; m: Messages; tall?: boolean }) {
   return (
-    <Card title={title}>
-      <p role="status" className="text-muted">
+    <section aria-label={title} aria-busy="true" data-skeleton className={`flex min-w-0 flex-col gap-3 border border-line bg-card p-5 ${tall ? "min-h-[420px]" : "min-h-[200px]"}`}>
+      <span className="text-[13px] text-muted">{title}</span>
+      <span aria-hidden="true" className="skeleton h-6 w-24" />
+      <span aria-hidden="true" className="skeleton h-5 w-40" />
+      <span aria-hidden="true" className="skeleton h-3.5 w-3/4" />
+      {tall && <span aria-hidden="true" className="skeleton mt-2 flex-1" />}
+      <p role="status" className="sr-only">
         {m.common.loading}
       </p>
-    </Card>
+    </section>
   );
 }
 
