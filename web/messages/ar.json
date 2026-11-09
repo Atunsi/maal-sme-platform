@@ -117,6 +117,7 @@
     "viewCompliance": "عرض الامتثال",
     "titleApproved": "لماذا وافقت عدسة الائتمان",
     "titleDeclined": "لماذا رفضت عدسة الائتمان",
+    "titleConditional": "لماذا وافقت عدسة الائتمان موافقة مشروطة",
     "factors": "العوامل",
     "against": "عوامل ضد الموافقة",
     "supports": "عوامل داعمة للموافقة",
@@ -347,6 +348,11 @@
     },
     "decision": {
       "approved": "موافقة",
+      "declined": "رفض"
+    },
+    "decision_state": {
+      "approved_unconditional": "موافقة",
+      "approved_conditional": "موافقة مشروطة",
       "declined": "رفض"
     },
     "magnitude": {

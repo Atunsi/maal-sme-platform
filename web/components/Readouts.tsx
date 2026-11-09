@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Num, Plate, type PlateVariant } from "@/components/ui";
+import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import { nisabPlate } from "@/lib/nisab";
@@ -21,9 +22,10 @@ const refused = (m: Messages): Readout => ({ variant: "warn", state: m.refusal.t
 export const creditReadout: Fn<CreditResponse> = (data, locale, m) => {
   const { credit, credit_decision_detail: detail } = data;
   if (!credit || !detail) return refused(m);
+  const plate = decisionPlate(credit, detail, m);
   return {
-    variant: credit.decision === "approved" ? (detail.offer_status === "unconditional" ? "ok" : "warn") : "bad",
-    state: m.enums.decision[credit.decision],
+    variant: plate.variant,
+    state: plate.word,
     figure: credit.amount_sar === null ? m.common.dash : <Num>{formatSar(credit.amount_sar, locale)}</Num>,
     note: detail.offer_status ? m.enums.offer_status[detail.offer_status] : detail.decline_reason ? m.enums.decline_reason[detail.decline_reason] : m.common.dash,
   };

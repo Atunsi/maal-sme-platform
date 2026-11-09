@@ -117,6 +117,7 @@
     "viewCompliance": "Compliance View",
     "titleApproved": "Why the credit lens approved",
     "titleDeclined": "Why the credit lens declined",
+    "titleConditional": "Why the credit lens approved, conditional",
     "factors": "Factors",
     "against": "Worked against approval",
     "supports": "Supported approval",
@@ -347,6 +348,11 @@
     },
     "decision": {
       "approved": "Approved",
+      "declined": "Declined"
+    },
+    "decision_state": {
+      "approved_unconditional": "Approved",
+      "approved_conditional": "Approved, conditional",
       "declined": "Declined"
     },
     "magnitude": {

@@ -5,6 +5,7 @@ import { ArabicLogo, EnglishWordmark, LogoBand, SectionMark } from "@/components
 import { Flow } from "@/components/Flow";
 import { Num, Plate } from "@/components/ui";
 import { DEMO_BUSINESS } from "@/lib/businesses";
+import { decisionWord } from "@/lib/decision";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, getMessages, isLocale, LOCALES, type Locale, type Messages } from "@/lib/i18n";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
@@ -58,7 +59,7 @@ function IllustrativeCard({ o, locale, m }: { o: ScenarioObject; locale: Locale;
       </div>
       {credit && (
         <div>
-          <div className={`heading text-[40px] leading-none ${credit.decision === "approved" ? "text-ok" : "text-bad"}`}>{m.enums.decision[credit.decision]}</div>
+          <div className={`heading text-[40px] leading-none ${credit.decision === "approved" ? "text-ok" : "text-bad"}`}>{decisionWord(credit, o.credit_decision_detail, m)}</div>
           {credit.amount_sar !== null && (
             <div className="mt-1.5 font-mono text-2xl">
               <Num>{formatSar(credit.amount_sar, locale)}</Num>

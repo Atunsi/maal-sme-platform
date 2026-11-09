@@ -4,6 +4,7 @@ import { ComplianceView } from "@/components/ComplianceView";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
 import { Term as GlossaryTerm } from "@/components/Term";
 import { BackendText, Code, Num, Plate, Refusal, SubHeading } from "@/components/ui";
+import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { CreditExplanation, CreditResponse } from "@/lib/types";
@@ -101,10 +102,11 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
       </>
     );
   }
-  const approved = credit.decision === "approved";
+  const plate = decisionPlate(credit, detail, m);
+  const title = { approved_unconditional: m.credit.titleApproved, approved_conditional: m.credit.titleConditional, declined: m.credit.titleDeclined }[plate.state];
   const aside = (
     <div className="flex items-center gap-3">
-      <Plate variant={approved ? "ok" : "bad"}>{m.enums.decision[credit.decision]}</Plate>
+      <Plate variant={plate.variant}>{plate.word}</Plate>
       {credit.amount_sar !== null && (
         <span className="font-mono text-xl">
           <Num>{formatSar(credit.amount_sar, locale)}</Num>
@@ -114,7 +116,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
   );
   return (
     <>
-      <LensHead data={data} title={approved ? m.credit.titleApproved : m.credit.titleDeclined} aside={aside} locale={locale} m={m} />
+      <LensHead data={data} title={title} aside={aside} locale={locale} m={m} />
       <CreditViewSwitch
         initialView={initialView}
         labels={{ group: m.credit.viewLabel, public: m.credit.viewPublic, compliance: m.credit.viewCompliance }}

@@ -6,6 +6,7 @@ import { PrintButton } from "@/components/PrintButton";
 import { ShariaLabel } from "@/components/ShariaPanel";
 import { ApiError, BackendText, Code, NisabPlate, Num, Plate, ProvenanceLine, Refusal, TableScroll, TD, TH } from "@/components/ui";
 import { getAnomaly, getCredit, getForecast, getZakat } from "@/lib/api";
+import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
@@ -45,11 +46,12 @@ function Verdict({ data, locale, m }: { data: CreditResponse; locale: Locale; m:
   const { credit, credit_decision_detail: detail, credit_explanation: explanation } = data;
   const o = m.overview;
   if (!credit || !detail) return <Refusal reason={data.lens_not_run_reason} m={m} />;
+  const plate = decisionPlate(credit, detail, m);
   return (
     <>
       <dl>
         <Row label={m.admin.credit}>
-          <Plate variant={credit.decision === "approved" ? "ok" : "bad"}>{m.enums.decision[credit.decision]}</Plate>
+          <Plate variant={plate.variant}>{plate.word}</Plate>
         </Row>
         {credit.amount_sar !== null && <Row label={m.credit.amount}>{<Num>{formatSar(credit.amount_sar, locale)}</Num>}</Row>}
         {credit.repayment_months !== null && <Row label={o.repayment}>{fill(o.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</Row>}

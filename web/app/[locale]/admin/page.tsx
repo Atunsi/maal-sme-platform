@@ -5,9 +5,10 @@ import { SectionMark } from "@/components/brand/Logos";
 import { BusinessPicker } from "@/components/BusinessPicker";
 import { AllBusinesses, PAGE_SIZE } from "@/components/AllBusinesses";
 import { BusinessSearch } from "@/components/BusinessSearch";
-import { Num, Page, Plate, TableScroll, type PlateVariant } from "@/components/ui";
+import { Num, Page, Plate, TableScroll } from "@/components/ui";
 import { getBusinesses, getCredit } from "@/lib/api";
 import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
+import { creditPlate } from "@/lib/decision";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { SERVING_ID_MAX, SERVING_ID_MIN } from "@/lib/population";
 import type { ApiResult, CreditResponse } from "@/lib/types";
@@ -15,13 +16,6 @@ import type { ApiResult, CreditResponse } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
-
-function creditPlate(data: CreditResponse, m: Messages): { variant: PlateVariant; word: string } {
-  const { credit, credit_decision_detail: detail } = data;
-  if (!credit || !detail) return { variant: "ink", word: m.admin.notRun };
-  if (credit.decision === "declined") return { variant: "bad", word: m.enums.decision.declined };
-  return { variant: detail.offer_status === "unconditional" ? "ok" : "warn", word: m.enums.decision.approved };
-}
 
 /** What each row demonstrates, read from the response. Nothing here is typed per business. */
 function shows(data: CreditResponse, m: Messages): string {

@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ShariaLabel } from "@/components/ShariaPanel";
 import { NisabPlate, Num, Plate, ProvenanceLine, Refusal, SubHeading, TableScroll, TH } from "@/components/ui";
+import { decisionPlate, decisionState, decisionWord } from "@/lib/decision";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import { scenarioName } from "@/lib/scenario-label";
 import type { ScenarioObject } from "@/lib/types";
 
-const DECISION_VARIANT = { approved: "ok", declined: "bad" } as const;
 const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
 const SHARIA_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
 
@@ -47,8 +47,9 @@ function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, 
   const zakatShown = o.zakat && o.zakat.status !== "not_computed" && o.zakat.liability_sar !== null;
   return {
     decision: {
-      raw: o.credit?.decision ?? null,
-      shown: o.credit ? <Plate variant={DECISION_VARIANT[o.credit.decision]}>{m.enums.decision[o.credit.decision]}</Plate> : notRun,
+      // The state, so a move between conditional and unconditional approval counts as a change.
+      raw: o.credit ? decisionState(o.credit, detail) : null,
+      shown: o.credit ? <Plate variant={decisionPlate(o.credit, detail, m).variant}>{decisionWord(o.credit, detail, m)}</Plate> : notRun,
     },
     declineOrigin: {
       raw: o.credit ? (detail?.decline_origin ?? "none") : null,
