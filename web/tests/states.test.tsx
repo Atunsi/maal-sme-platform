@@ -118,11 +118,11 @@ describe("Sharia panel", () => {
 describe("Zakat states", () => {
   const zakat = (name: string) => render(<ZakatCard data={fixture(name, ZakatResponse)} locale="en" m={en} />);
 
-  it("U3 U7 computed (10001): exact liability at 2 decimals, placeholder badge", () => {
+  it("U3 U7 computed (10001): exact liability at 2 decimals, nisab status plate", () => {
     const data = fixture("zakat_10001", ZakatResponse);
     const { container } = zakat("zakat_10001");
     expect(container.textContent).toContain(data.zakat!.liability_sar!.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-    expect(screen.getByText(en.zakat.nisabStatus.placeholder_unverified)).toBeTruthy();
+    expect(screen.getByText(en.zakat.nisabStatus.commercial_quote_documented_pending_independent_verification)).toBeTruthy();
   });
 
   it("zero_liability, hawl_incomplete (10037): the reason and detail", () => {

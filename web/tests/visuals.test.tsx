@@ -91,7 +91,7 @@ describe("zakat visuals", () => {
     render(<ZakatCard data={zakat} locale="en" m={en} />);
     const [waterfall, hawl] = screen.getAllByRole("img");
     expect(waterfall!.getAttribute("aria-label")).toContain("638,310.41");
-    expect(waterfall!.getAttribute("aria-label")).toContain("34,000.00");
+    expect(waterfall!.getAttribute("aria-label")).toContain("41,759.74");
     expect(hawl!.getAttribute("aria-label")).toContain("2025");
   });
 
@@ -248,8 +248,8 @@ describe("overview", () => {
     expect(shariaReadout(credit, "en", en).note).toBe(en.sharia.label);
   });
 
-  it("U7 the Zakat card carries the placeholder line", () => {
-    expect(zakatReadout(fixture("zakat_10001", ZakatResponse), "en", en).note).toBe(en.zakat.nisabStatus.placeholder_unverified);
+  it("U7 the Zakat card carries the nisab status line", () => {
+    expect(zakatReadout(fixture("zakat_10001", ZakatResponse), "en", en).note).toBe(en.zakat.nisabStatus.commercial_quote_documented_pending_independent_verification);
   });
 });
 
