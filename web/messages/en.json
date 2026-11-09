@@ -477,6 +477,7 @@
   },
   "overview": {
     "welcome": "Welcome back. Here is where business {id} is heading.",
+    "heading": "Business {id}: where it is heading",
     "repayment": "Repayment",
     "monthsValue": "{n} months",
     "markupLabel": "Base markup, fixed at signing",

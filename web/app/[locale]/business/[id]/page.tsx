@@ -47,7 +47,8 @@ export default async function OverviewPage({ params, searchParams }: Props) {
   return (
     <Page>
       <div className="rise flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="heading text-[30px]">{fill(m.overview.welcome, { id })}</h1>
+        {/* C7: "Welcome back" only for the owner role; anyone else sees the business named. */}
+        <h1 className="heading text-[30px]">{fill(as === "owner" ? m.overview.welcome : m.overview.heading, { id })}</h1>
         <div className="flex flex-wrap items-center gap-3">
           <Link href={`${root}?tour=${TOUR_STEPS[0]!.id}${query.replace("?", "&")}`} className="textlink font-semibold" data-tour-start data-print-hide>
             {m.tour.start}

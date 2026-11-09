@@ -206,3 +206,13 @@ test("arabic plates keep their padding", async ({ page }) => {
   expect(style.weight).toBe("500");
   expect(style.line).toBeCloseTo(1.6, 1);
 });
+
+test("overview greeting follows the demo role", async ({ page }) => {
+  // C7: "Welcome back" for the owner only; the admin and a visitor with no role see the business named.
+  await page.goto("/en/business/10014?as=owner", { waitUntil: "networkidle" });
+  await expect(page.locator("main h1")).toHaveText("Welcome back. Here is where business 10014 is heading.");
+  await page.goto("/en/business/10014?as=admin", { waitUntil: "networkidle" });
+  await expect(page.locator("main h1")).toHaveText("Business 10014: where it is heading");
+  await page.goto("/en/business/10014", { waitUntil: "networkidle" });
+  await expect(page.locator("main h1")).toHaveText("Business 10014: where it is heading");
+});
