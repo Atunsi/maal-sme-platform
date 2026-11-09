@@ -322,3 +322,15 @@ describe("demo sign-in", () => {
     expect(ar.footer.scope).toContain("بيانات اصطناعية فقط. المجموعة: الخدمة.");
   });
 });
+
+describe("hawl labels", () => {
+  it("snapshot label sits at its marker", () => {
+    // B18: the label is placed at the snapshot marker's own position, not pinned to the track's end.
+    const data = fixture("zakat_10001", ZakatResponse);
+    const { container } = render(<ZakatCard data={data} locale="en" m={en} />);
+    const label = container.querySelector<HTMLElement>('[data-hawl-label="snapshot"]')!;
+    const marker = container.querySelector<HTMLElement>("section[aria-labelledby=hawl] .drop.border-ink")!;
+    expect(label.style.left).toBe(marker.style.left);
+    expect(label.textContent).toContain(en.zakat.snapshot);
+  });
+});

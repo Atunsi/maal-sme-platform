@@ -134,3 +134,23 @@ test("review marks never overlap at any width", async ({ page }) => {
     expect(overlaps).toEqual([]);
   }
 });
+
+test("hawl labels never overlap", async ({ page }) => {
+  // B18: at every width, and in particular 360 px, the start, end and snapshot labels keep apart.
+  await page.goto("/en/business/10001/zakat", { waitUntil: "networkidle" });
+  const boxes = await page.locator("[data-hawl-label]").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+  expect(boxes.length).toBe(3);
+  for (let i = 0; i < boxes.length; i++)
+    for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i]!;
+      const b = boxes[j]!;
+      const x = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+      const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      expect(x > 0.5 && y > 0.5, `labels ${i} and ${j} overlap at ${width(page)} px`).toBe(false);
+    }
+  const track = (await page.locator("section[aria-labelledby=hawl] [role=img]").boundingBox())!;
+  for (const b of boxes) {
+    expect(b.left).toBeGreaterThanOrEqual(track.x - 1);
+    expect(b.right).toBeLessThanOrEqual(track.x + track.width + 1);
+  }
+});

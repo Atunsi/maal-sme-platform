@@ -113,6 +113,9 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
   const at = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
   const date = (iso: string) => formatDate(iso, locale);
   const marker = snapshot ? pct(at(snapshot) - at(start), at(end) - at(start)) : null;
+  const share = snapshot ? (at(snapshot) - at(start)) / (at(end) - at(start) || 1) : 0;
+  // B18: the snapshot label sits over its marker, kept inside the track near either end.
+  const snapshotShift = share < 0.15 ? "0" : share > 0.85 ? "-100%" : "-50%";
   const alt = fill(n.hawlAlt, { start: date(start), end: date(end), snapshot: snapshot ? date(snapshot) : m.common.dash });
   return (
     <section aria-labelledby="hawl" className="rise flex min-w-0 flex-[999_1_560px] flex-col gap-5 border border-line bg-card p-5 sm:p-9" style={{ animationDelay: delay(1) }}>
@@ -121,7 +124,7 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
           {n.hawlTitle}
         </Term>
       </h2>
-      <div role="img" aria-label={alt} dir="ltr" className="relative h-[90px]">
+      <div role="img" aria-label={alt} dir="ltr" className="relative h-[110px] min-[400px]:h-[90px]">
         <div className="absolute inset-x-0 top-9 h-2.5 bg-line2" />
         <div className="fill-bar fill-from-start inset-x-0 !top-9 !bottom-auto h-2.5 bg-accent" style={{ animationDelay: delay(2) }} />
         <div className="absolute left-0 top-7 h-[26px] w-[3px] bg-ink" />
@@ -129,15 +132,18 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
         {marker && (
           <div className="drop absolute top-7 -ml-[7px] box-border h-[26px] w-3.5 border-[3px] border-ink bg-card" style={{ left: marker, animationDelay: delay(3) }} />
         )}
-        <div className="absolute left-0 top-[62px] font-mono text-xs">
-          {n.hawlStart} {date(start)}
+        {/* B18: below 400 px each end label takes two lines, so the start and end labels cannot collide. */}
+        <div data-hawl-label="start" className="absolute left-0 top-[62px] max-w-[48%] font-mono text-xs">
+          <span className="block min-[400px]:inline">{n.hawlStart}</span> <span className="block min-[400px]:inline">{date(start)}</span>
         </div>
-        <div className="absolute right-0 top-[62px] font-mono text-xs">
-          {n.hawlEnd} {date(end)}
+        <div data-hawl-label="end" className="absolute right-0 top-[62px] max-w-[48%] text-end font-mono text-xs">
+          <span className="block min-[400px]:inline">{n.hawlEnd}</span> <span className="block min-[400px]:inline">{date(end)}</span>
         </div>
-        {snapshot && (
-          <div className="drop absolute right-0 top-0 font-mono text-xs" style={{ animationDelay: delay(3) }}>
-            {n.snapshot} {date(snapshot)}
+        {snapshot && marker && (
+          <div data-hawl-label="snapshot" className="absolute top-0 w-max max-w-full" style={{ left: marker, translate: `${snapshotShift} 0` }}>
+            <div className="drop font-mono text-xs" style={{ animationDelay: delay(3) }}>
+              {n.snapshot} {date(snapshot)}
+            </div>
           </div>
         )}
       </div>
