@@ -86,6 +86,21 @@
   color-scheme: dark;
 }
 
+/* Frosted glass for everything that floats over the page: menus, pop-ups, search, the tour panel and the
+   tab bar. The surface colour at partial strength, blurred behind; a fine light edge; a soft shadow. With
+   no backdrop-filter support, or with reduced transparency asked for, they stay solid. */
+:root {
+  --glass: color-mix(in srgb, var(--surface) 72%, transparent);
+  --glass-edge: color-mix(in srgb, var(--surface) 55%, var(--rule));
+  --glass-shadow: 0 18px 44px rgba(10, 12, 20, 0.18);
+  --glass-blur: blur(20px) saturate(170%);
+}
+.th-dark {
+  --glass: color-mix(in srgb, var(--surface) 68%, transparent);
+  --glass-edge: color-mix(in srgb, #ffffff 10%, transparent);
+  --glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+
 /* Animation origins follow the reading direction, so bars grow from the right in Arabic. */
 :root {
   --o-start: left;
@@ -187,6 +202,34 @@ html {
 
 html[lang="ar"] {
   font-family: var(--font-plex-arabic), var(--font-plex-sans), system-ui, sans-serif;
+}
+
+/* Touch, as in a native app. `manipulation` drops the double-tap-zoom wait, so a tap acts at once, while
+   pinch zoom stays (axe and WCAG 1.4.4: the page must never block zoom). No grey flash on tap: the press
+   state below answers instead. Text keeps its size when a phone turns sideways. */
+html {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+/* Press feedback the moment a finger lands: the control dips a little and comes back as it lifts. It uses
+   `scale`, not `transform`, so it never fights a component's own transform, and :where() keeps it at zero
+   specificity, so a component's own transition always wins. Reduced motion keeps the opacity cue alone. */
+:where(button, .solid-btn, .themebtn, .navlink, [role="tab"], summary) {
+  transition: scale 0.14s ease-out;
+}
+:where(button, .solid-btn, .themebtn, .navlink, [role="tab"], summary):not(:disabled):active {
+  scale: 0.97;
+  transition-duration: 0.05s;
+}
+:where(.textlink, .navlink, .tour-dot):active {
+  opacity: 0.7;
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(button, .solid-btn, .themebtn, .navlink, [role="tab"], summary):active {
+    scale: none;
+  }
 }
 
 :focus-visible {
@@ -314,6 +357,12 @@ summary {
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
+}
+/* A link styled as a button (the tour's Back and End tour) keeps the 44 px tap target. */
+a.themebtn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 /* R3: the label never changes, so the pressed look comes from aria-pressed alone. */
 .icon-btn {
@@ -1004,6 +1053,207 @@ body {
   border-top: 3px solid var(--accent);
   background: var(--surface);
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+}
+/* The phone menu drops in from the Menu button: short, decelerating, nothing after it waits on it. */
+@media (max-width: 767.98px) {
+  .menu-drop {
+    transform-origin: top;
+    animation: menudrop 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+@keyframes menudrop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* The app variant (lib/app-mode.ts): on a phone running Ma'al as an installed app, a bottom tab bar. Hidden
+   everywhere else, so the website keeps its own navigation. */
+.app-tabbar {
+  display: none;
+}
+@media (max-width: 767.98px) {
+  html.app-mode {
+    --tabbar-h: calc(58px + env(safe-area-inset-bottom, 0px));
+    /* No rubber-band bounce or pull-to-refresh on the page itself, as in a native app. */
+    overscroll-behavior-y: none;
+  }
+  html.app-mode body:has([data-app-tabbar]) {
+    padding-bottom: calc(var(--tour-h, 0px) + var(--tabbar-h));
+  }
+  html.app-mode .app-tabbar {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 45;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-top: 1px solid var(--rule);
+  }
+  /* The tour panel sits on the tab bar, not under it. */
+  html.app-mode body:has([data-app-tabbar]) .tour-panel {
+    bottom: var(--tabbar-h);
+    padding-bottom: 0;
+  }
+}
+.app-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 58px;
+  margin: 0;
+  padding: 0 4px;
+  list-style: none;
+}
+.app-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+.app-tab > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-tab[aria-current="page"],
+.app-tab[data-current] {
+  color: var(--accent);
+  font-weight: 600;
+}
+.app-tab:active > svg {
+  scale: 0.88;
+}
+.app-tab > svg {
+  transition: scale 0.14s ease-out;
+}
+/* More: a sheet rising from the bar, list rows like AFC2027's menu. */
+.app-more {
+  position: absolute;
+  inset-inline: 8px;
+  bottom: calc(100% + 8px);
+  padding: 6px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  transform-origin: bottom right;
+  animation: moreup 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+[dir="rtl"] .app-more {
+  transform-origin: bottom left;
+}
+.app-more ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.app-more a {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 10px;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+.app-more a:active {
+  background: var(--accentSoft);
+}
+.app-more a[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 600;
+}
+@keyframes moreup {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
+/* Glass (tokens at the top of the file). */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .switcher-panel,
+  .palette,
+  .term-tip,
+  .tour-panel,
+  .app-more,
+  html.app-mode .app-tabbar {
+    background: var(--glass);
+    border-color: var(--glass-edge);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+  }
+  .tour-panel {
+    border-top-color: var(--accent);
+  }
+  /* Search opens over a dimmed, softly blurred page. */
+  .palette-backdrop {
+    background: rgba(10, 12, 20, 0.32);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  .palette {
+    animation: popin 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .switcher-panel {
+    animation: popin 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .switcher-panel,
+  .palette,
+  .term-tip,
+  .tour-panel,
+  .app-more,
+  html.app-mode .app-tabbar {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@keyframes popin {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+/* Under a notch or a home bar (viewport-fit=cover): the header clears the status bar, the page clears the
+   rounded corners in landscape, and the bottom panel clears the home bar. All zero on a plain screen. */
+body {
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+}
+body > header:first-of-type {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.tour-panel {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* It rises from the bottom edge once, when the tour starts (it stays mounted between steps). */
+  animation: sheetup 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  overscroll-behavior: contain;
+}
+@keyframes sheetup {
+  from {
+    transform: translateY(100%);
+  }
 }
 .tour-target {
   outline: 4px solid var(--accent) !important;

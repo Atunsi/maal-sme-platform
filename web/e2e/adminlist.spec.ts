@@ -1,4 +1,5 @@
 // E10: the searchable admin list (DECISIONS 43). Axe at desktop and 390 px comes from pages.ts.
+import { nameOf } from "../lib/business-names";
 import { expect, test } from "@playwright/test";
 import { apiEnv } from "./helpers";
 
@@ -52,10 +53,10 @@ test("search, sector and page are handled on the server from the URL alone", asy
   const some = await apiList("q=1003&sector=retail_trade&limit=25");
   const html = await (await request.get("/en/admin?q=1003&sector=retail_trade")).text();
   expect(html).toContain(`${some.total}`);
-  for (const b of some.businesses) expect(html).toContain(`Open business ${b.business_id}`);
+  for (const b of some.businesses) expect(html).toContain(`Open ${nameOf(b.business_id, "en")}`);
   const page2 = await apiList("offset=25&limit=25");
   const html2 = await (await request.get("/en/admin?page=2")).text();
-  expect(html2).toContain(`Open business ${page2.businesses[0]!.business_id}`);
+  expect(html2).toContain(`Open ${nameOf(page2.businesses[0]!.business_id, "en")}`);
 });
 
 for (const width of [1280, 390]) {

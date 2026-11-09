@@ -29,7 +29,9 @@
     "themeDark": "Dark theme",
     "digitsArab": "Arabic-Indic digits",
     "menu": "Menu",
-    "display": "Display"
+    "display": "Display",
+    "appTabs": "Sections",
+    "more": "More"
   },
   "search": {
     "button": "Search",
@@ -38,7 +40,7 @@
     "hint": "A page, a scenario, a term or a business ID",
     "results": "Results",
     "none": "Nothing matches.",
-    "openBusiness": "Open business {id}",
+    "openBusiness": "Open {name} ({id})",
     "groups": {
       "pages": "Page",
       "scenarios": "Scenario",
@@ -112,7 +114,7 @@
     "unavailable": "Could not read the store size from the API."
   },
   "dashboard": {
-    "title": "Business {id}",
+    "title": "{name}",
     "profileTitle": "Profile features",
     "profileIntro": "Raw feature values as the API returned them, with the reason for any missing value.",
     "feature": "Feature",
@@ -325,7 +327,7 @@
     ],
     "caveat": "Each scenario is a single business (N = 1). These are demonstrations, not estimates.",
     "library": "Scenario library version",
-    "eyebrow": "Business {id}, {n} fixed scenarios, nothing is typed in",
+    "eyebrow": "{name}, {n} fixed scenarios, nothing is typed in",
     "diff": "Diff sheet",
     "changed": "Changed",
     "same": "Same",
@@ -338,9 +340,10 @@
     "playerGroup": "Play the scenarios in turn"
   },
   "custom": {
-    "eyebrow": "Business {id}, built from the library's own shocks",
+    "eyebrow": "{name}, built from the library's own shocks",
     "title": "Build a custom scenario",
     "intro": "Pick up to three shocks. Every value must stay inside the range the scenario library itself uses, and nothing here can change a term of an offer. Nothing is saved.",
+    "staticNote": "This online version is a snapshot of the demo, so it cannot rebuild a business under your own shocks: that needs the live engine. The eight library scenarios below were run in full and work here.",
     "link": "Build a custom scenario",
     "include": "Include this shock",
     "run": "Run scenario",
@@ -505,8 +508,8 @@
     }
   },
   "overview": {
-    "welcome": "Welcome back. Here is where business {id} is heading.",
-    "heading": "Business {id}: where it is heading",
+    "welcome": "Welcome back. Here is where {name} is heading.",
+    "heading": "{name}: where it is heading",
     "repayment": "Repayment",
     "monthsValue": "{n} months",
     "markupLabel": "Base markup, fixed at signing",
@@ -532,7 +535,7 @@
   },
   "sheet": {
     "title": "Decision sheet",
-    "heading": "Decision sheet for business {id}",
+    "heading": "Decision sheet for {name}",
     "print": "Print or save as PDF",
     "verdict": "Verdict",
     "receipt": "Receipt",
@@ -557,7 +560,7 @@
     "lead": "Ma'al reads a small business's cash flow through four lenses: credit, Sharia screen, zakat and forecast. Every result carries a receipt anyone can re-run. This demo runs on synthetic data.",
     "ctaSignIn": "Sign in to the demo",
     "ctaScenarios": "See the {n} scenarios",
-    "cardBusiness": "Business {id}, {sector}",
+    "cardBusiness": "{name}, {sector}",
     "illustrative": "Illustrative, synthetic data",
     "cardTerms": "{months} months, {markup} markup fixed at signing",
     "tryTitle": "Try a business",
@@ -683,7 +686,7 @@
     "profile": "Profile status",
     "credit": "Credit lens",
     "shows": "What it shows",
-    "open": "Open {id}",
+    "open": "Open {name}",
     "openColumn": "Open",
     "notRun": "Not run",
     "error": "Could not read this business from the API.",
@@ -709,6 +712,6 @@
     "page": "Page {x} of {y}",
     "none": "No serving business matches.",
     "sector": "Sector",
-    "openRow": "Open business {id}"
+    "openRow": "Open {name}"
   }
 }

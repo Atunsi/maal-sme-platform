@@ -55,6 +55,6 @@ describe("print sheet", () => {
     const { container } = await sheet(10001, "ar");
     expect(container.textContent).toContain(ar.sharia.label);
     expect(container.textContent).toContain(ar.overview.markupLabel);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(ar.sheet.heading.split("{id}")[0]!);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(ar.sheet.heading.split("{name}")[0]!);
   });
 });

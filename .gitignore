@@ -29,6 +29,9 @@ Thumbs.db
 # Web UI
 web/node_modules/
 web/.next/
+# The online demo build (web/scripts/build-static.mjs)
+web/.next-static/
+web/out/
 web/.env*.local
 web/test-results/
 web/playwright-report/

@@ -1,16 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
+import { AppTabBar } from "@/components/AppTabBar";
 import { DigitsSync } from "@/components/DigitsToggle";
 import { FooterLinks } from "@/components/FooterLinks";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TourPanel } from "@/components/TourPanel";
+import { APP_BOOT } from "@/lib/app-mode";
 import { DIGITS_BOOT } from "@/lib/digits";
 import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
 import { scenarioName } from "@/lib/scenario-label";
 import { getScenarioIndex } from "@/lib/scenarios";
-import { THEME_BOOT } from "@/lib/theme";
+import { BAR_COLOUR, THEME_BOOT } from "@/lib/theme";
 import "../globals.css";
 
 // B19 (DECISIONS 45): the four IBM Plex families are self-hosted from app/fonts (woff2 files from the
@@ -56,11 +58,28 @@ export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
+// The page may run under a phone's notch and home bar (viewport-fit=cover); the header and fixed panels pad
+// themselves with the safe-area insets. Zoom is never blocked. THEME_BOOT and setDark re-colour these metas
+// when the visitor's chosen theme differs from the system's.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: BAR_COLOUR.light },
+    { media: "(prefers-color-scheme: dark)", color: BAR_COLOUR.dark },
+  ],
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const m = getMessages(locale);
-  return { title: `${m.app.name}: ${m.app.tagline}` };
+  return {
+    title: `${m.app.name}: ${m.app.tagline}`,
+    // The app variant: added to an iPhone's home screen, it opens full screen under a translucent status bar.
+    appleWebApp: { capable: true, title: m.app.name, statusBarStyle: "black-translucent" },
+  };
 }
 
 export default async function LocaleLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
@@ -81,6 +100,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <script dangerouslySetInnerHTML={{ __html: DIGITS_BOOT }} />
+        <script dangerouslySetInnerHTML={{ __html: APP_BOOT }} />
       </head>
       <body className="flex min-h-screen flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:m-2 focus:inline-block focus:underline">
@@ -105,6 +125,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           </div>
         </footer>
         {locale === "ar" && <DigitsSync />}
+        <Suspense>
+          <AppTabBar locale={locale} nav={m.nav} />
+        </Suspense>
         <Suspense>
           <TourPanel
             locale={locale}

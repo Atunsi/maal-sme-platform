@@ -12,8 +12,8 @@ import { fill, getMessages, isLocale, LOCALES, type Locale, type Messages } from
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
 import { TOUR_STEPS, tourHref } from "@/lib/tour";
 import type { ScenarioObject } from "@/lib/types";
+import { nameOf } from "@/lib/business-names";
 
-export const dynamic = "force-dynamic";
 
 // The landing page's four lenses. The review queue is a fifth readout, not a lens of its own here.
 const LENSES = ["credit", "sharia", "zakat", "forecast"] as const;
@@ -55,7 +55,7 @@ function IllustrativeCard({ o, locale, m }: { o: ScenarioObject; locale: Locale;
   return (
     <div className="rise flex flex-col gap-4 bg-card p-7 text-ink shadow-[18px_18px_0_var(--gold-shadow)] rtl:shadow-[-18px_18px_0_var(--gold-shadow)]" style={{ animationDelay: "0.7s" }}>
       <div className="flex items-center justify-between gap-3 text-xs text-muted">
-        <span className="font-mono">{fill(l.cardBusiness, { id: o.business_id, sector: m.enums.sector[o.sector] })}</span>
+        <span className="font-mono">{fill(l.cardBusiness, { id: o.business_id, name: nameOf(o.business_id, locale), sector: m.enums.sector[o.sector] })}</span>
         <span>{l.illustrative}</span>
       </div>
       {credit && (

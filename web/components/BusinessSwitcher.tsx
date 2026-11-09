@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { searchServing, switcherPlate, type SwitcherPlate } from "@/app/actions";
 import { Plate } from "@/components/ui";
+import { nameOf } from "@/lib/business-names";
 import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
 import type { Locale, Messages } from "@/lib/i18n";
 
@@ -161,8 +162,12 @@ export function BusinessSwitcher({ locale, m }: { locale: Locale; m: Pick<Messag
                     choose(option.id);
                   }}
                 >
-                  <span data-latin className="font-mono">
-                    {option.id}
+                  {/* The name to read, the ID to search by (the field above takes digits). */}
+                  <span className="flex flex-col">
+                    <span className="font-semibold">{nameOf(option.id, locale)}</span>
+                    <span data-latin className="font-mono text-xs text-muted">
+                      {option.id}
+                    </span>
                   </span>
                   {option.sector && <span className="text-xs text-muted">{m.enums.sector[option.sector as keyof Messages["enums"]["sector"]]}</span>}
                   {!searching && plate && (plate.ok ? <Plate variant={plate.variant}>{plate.word}</Plate> : <span className="text-xs text-bad">{plate.word}</span>)}

@@ -6,6 +6,8 @@ import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
 import { GLOSSARY } from "@/lib/glossary";
 import type { Locale, Messages } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
+import { nameOf } from "@/lib/business-names";
+import { fill } from "@/lib/i18n";
 
 export type PaletteScenario = { name: string; label: string };
 type Item = { id: string; label: string; group: string; href: string };
@@ -32,7 +34,7 @@ export function paletteMatches(items: Item[], query: string, locale: Locale, m: 
   const q = query.trim().toLowerCase();
   const found = q ? items.filter((i) => i.label.toLowerCase().includes(q)) : items;
   const id = /^[0-9]{5}$/.test(q) ? Number(q) : null;
-  const open = id !== null && isServingId(id) ? [{ id: `business-${id}`, label: m.search.openBusiness.replace("{id}", String(id)), group: m.search.groups.business, href: `/${locale}/business/${id}${roleQuery(role)}` }] : [];
+  const open = id !== null && isServingId(id) ? [{ id: `business-${id}`, label: fill(m.search.openBusiness, { id, name: nameOf(id, locale) }), group: m.search.groups.business, href: `/${locale}/business/${id}${roleQuery(role)}` }] : [];
   return [...open, ...found];
 }
 

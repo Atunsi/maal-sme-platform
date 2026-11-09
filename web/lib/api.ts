@@ -15,6 +15,7 @@ import {
   ScenarioObject,
   ZakatResponse,
 } from "@/lib/schemas";
+import { STATIC, staticBusinesses, staticJson } from "@/lib/static-data";
 import type { ApiErrorKind, ApiResult } from "@/lib/types";
 
 const STATUS_KIND: Record<number, ApiErrorKind> = { 401: "unauthorized", 404: "not_found", 422: "invalid", 429: "rate_limited", 503: "unavailable" };
@@ -40,7 +41,27 @@ function post<S extends z.ZodType>(path: string, body: unknown, schema: S): Prom
   return oneAtATime(() => request(path, schema, body));
 }
 
+/** The online demo snapshot (lib/static-data.ts): the captured response, checked by the same schema. */
+function fromSnapshot<S extends z.ZodType>(path: string, schema: S, body?: unknown): ApiResult<z.output<S>> {
+  if (body !== undefined) return { ok: false, kind: "unavailable", detail: "The online demo is a snapshot; this needs the live engine." };
+  let json: unknown;
+  if (path.startsWith("/businesses")) {
+    // The list over the captured businesses only, filtered and paged as the API would.
+    const q = new URLSearchParams(path.split("?")[1] ?? "");
+    const offset = Number(q.get("offset") ?? 0);
+    const limit = Number(q.get("limit") ?? 25);
+    const rows = staticBusinesses().filter((b) => (!q.get("sector") || b.sector === q.get("sector")) && (!q.get("q") || String(b.business_id).startsWith(q.get("q")!)));
+    json = { population: "serving", data_source: "synthetic", total: rows.length, offset, limit, businesses: rows.slice(offset, offset + limit) };
+  } else {
+    json = staticJson(path);
+    if (json === undefined) return { ok: false, kind: "not_found" };
+  }
+  const parsed = schema.safeParse(json);
+  return parsed.success ? { ok: true, data: parsed.data } : { ok: false, kind: "contract", detail: `snapshot ${path}` };
+}
+
 async function request<S extends z.ZodType>(path: string, schema: S, body?: unknown): Promise<ApiResult<z.output<S>>> {
+  if (STATIC) return fromSnapshot(path, schema, body);
   const url = process.env.MAAL_API_URL;
   const key = process.env.MAAL_API_KEY;
   if (!url || !key) return { ok: false, kind: "config" };

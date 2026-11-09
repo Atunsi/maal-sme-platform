@@ -1,3 +1,4 @@
+import { searchOf } from "@/lib/static-data";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SectionMark } from "@/components/brand/Logos";
@@ -20,7 +21,7 @@ export default async function HowItWorksPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const m = getMessages(locale);
-  const query = roleQuery((await searchParams).as);
+  const query = roleQuery((await searchOf(searchParams)).as);
   const intro = HOW_INTRO[locale];
   const seen = new Set<GlossaryId>(); // a term is a button at its first appearance on the page only
   return (

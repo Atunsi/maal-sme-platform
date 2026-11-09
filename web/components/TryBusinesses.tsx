@@ -4,7 +4,8 @@ import { Plate } from "@/components/ui";
 import { getCredit } from "@/lib/api";
 import { DEMO_BUSINESSES } from "@/lib/businesses";
 import { creditPlate } from "@/lib/decision";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { fill, localeOf, type Locale, type Messages } from "@/lib/i18n";
+import { nameOf } from "@/lib/business-names";
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
 
@@ -16,8 +17,8 @@ export async function TryCard({ id, locale, m }: { id: number; locale: Locale; m
     // A failed card says so and blocks no other card. Not a link: there is nothing to open.
     return (
       <div role="alert" data-try={id} data-try-error className="flex min-h-[150px] flex-col gap-2.5 border border-bad bg-bad-soft p-5 text-bad">
-        <span data-latin className="font-mono text-lg">
-          {fill(m.dashboard.title, { id })}
+        <span className="heading text-lg">
+          {fill(m.dashboard.title, { id, name: nameOf(id, locale) })}
         </span>
         <span className="text-sm">
           {m.admin.error} {m.errors[r.kind]}
@@ -28,8 +29,8 @@ export async function TryCard({ id, locale, m }: { id: number; locale: Locale; m
   const plate = creditPlate(r.data, m);
   return (
     <Link href={`/${locale}/business/${id}`} prefetch={false} data-try={id} className="lift flex min-h-[150px] flex-col gap-2.5 border border-line bg-card p-5 text-ink no-underline">
-      <span data-latin className="font-mono text-lg">
-        {fill(m.dashboard.title, { id })}
+      <span className="heading text-lg">
+        {fill(m.dashboard.title, { id, name: nameOf(id, locale) })}
       </span>
       <span className="flex flex-wrap gap-2">
         <Plate variant={plate.variant}>{plate.word}</Plate>
@@ -43,8 +44,8 @@ export async function TryCard({ id, locale, m }: { id: number; locale: Locale; m
 function TryCardLoading({ id, m }: { id: number; m: Messages }) {
   return (
     <div aria-busy="true" data-try-loading={id} className="flex min-h-[150px] flex-col gap-2.5 border border-line bg-card p-5">
-      <span data-latin className="font-mono text-lg">
-        {fill(m.dashboard.title, { id })}
+      <span className="heading text-lg">
+        {fill(m.dashboard.title, { id, name: nameOf(id, localeOf(m)) })}
       </span>
       <span aria-hidden="true" className="skeleton h-6 w-40" />
       <span className="sr-only">{m.common.loading}</span>

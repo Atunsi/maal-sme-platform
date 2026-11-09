@@ -3,7 +3,6 @@ import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ShariaPanel } from "@/components/ShariaPanel";
 import { getCredit } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
 
 // The Sharia screen arrives in the credit response; the API has no route of its own for it.
 export default function ShariaPage({ params }: { params: Promise<{ locale: string; id: string }> }) {

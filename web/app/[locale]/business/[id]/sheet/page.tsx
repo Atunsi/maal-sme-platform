@@ -11,8 +11,8 @@ import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import type { AnomalyResponse, ApiResult, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
+import { nameOf } from "@/lib/business-names";
 
-export const dynamic = "force-dynamic";
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
 const SHARIA_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
@@ -207,7 +207,7 @@ export default async function SheetPage({ params }: Props) {
         </div>
         <PrintButton label={sh.print} />
       </div>
-      <h1 className="heading text-[30px]">{fill(sh.heading, { id })}</h1>
+      <h1 className="heading text-[30px]">{fill(sh.heading, { id, name: nameOf(id, locale) })}</h1>
       {c.ok ? (
         <>
           <div className="flex flex-wrap items-center gap-3 text-sm">

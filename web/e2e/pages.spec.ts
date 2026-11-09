@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { LOCALES, PAGES, THEMES } from "./pages";
 
-const FOOTER = { en: "Synthetic data only. Population: serving.", ar: "بيانات اصطناعية فقط. المجموعة: الخدمة." };
+const FOOTER = { en: "Synthetic data only. Population: serving.", ar: "بيانات اصطناعية فقط. المجموعة: العرض." };
 
 for (const theme of THEMES) {
   for (const locale of LOCALES) {

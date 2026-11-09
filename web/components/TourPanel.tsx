@@ -83,16 +83,19 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
     };
   }, [stepId, target, pathname]);
 
-  const end = () => {
-    const rest = new URLSearchParams(params.toString());
-    rest.delete("tour");
-    rest.delete("tourMin");
-    // I10: the step the visitor ended on rides along in the URL, so a Resume link can bring them back.
-    if (stepId) rest.set("tourEnded", stepId);
-    const query = rest.toString();
-    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
-    // Focus returns to where a tour starts, or to the page heading.
+  // The page without the tour. I10: the step the visitor ended on rides along in the URL, so a Resume link
+  // can bring them back.
+  const endRest = new URLSearchParams(params.toString());
+  endRest.delete("tour");
+  endRest.delete("tourMin");
+  if (stepId) endRest.set("tourEnded", stepId);
+  const endHref = `${pathname}${endRest.size ? `?${endRest.toString()}` : ""}`;
+  // Focus returns to where a tour starts, or to the page heading.
+  const refocus = () =>
     setTimeout(() => (document.querySelector<HTMLElement>("[data-tour-start]") ?? document.querySelector<HTMLElement>("main h1"))?.focus(), 50);
+  const end = () => {
+    router.replace(endHref, { scroll: false });
+    refocus();
   };
 
   useEffect(() => {
@@ -113,7 +116,6 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
   const collapsed = params.get("tourMin") === "1";
   // I10: collapsing is kept in ?tourMin=1, never in storage, and every step link keeps it.
   const href = (i: number) => `${tourHref(locale, TOUR_STEPS[i]!, role)}${collapsed ? "&tourMin=1" : ""}`;
-  const go = (i: number) => router.push(href(i), { scroll: false });
   const setCollapsed = (next: boolean) => {
     const query = new URLSearchParams(params.toString());
     if (next) query.set("tourMin", "1");
@@ -178,20 +180,22 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
             </Link>
           </div>
         )}
+        {/* Back, Next and End tour are links to the next URL, like the step dots: a tap works even before
+            the page's script has taken over (a slow phone, or a page served by a server since rebuilt). */}
         <div className="flex flex-wrap items-center gap-3">
           {index > 0 && !collapsed && (
-            <button type="button" className="themebtn" onClick={() => go(index - 1)}>
+            <Link href={href(index - 1)} scroll={false} className="themebtn" data-tour-back>
               {labels.back}
-            </button>
+            </Link>
           )}
           {!last && (
-            <button type="button" className="solid-btn min-h-11" onClick={() => go(index + 1)}>
+            <Link href={href(index + 1)} scroll={false} className="solid-btn min-h-11" data-tour-next>
               {labels.next}
-            </button>
+            </Link>
           )}
-          <button type="button" className="themebtn" onClick={end}>
+          <Link href={endHref} scroll={false} replace className="themebtn" data-tour-end onClick={refocus}>
             {labels.end}
-          </button>
+          </Link>
         </div>
       </div>
     </section>

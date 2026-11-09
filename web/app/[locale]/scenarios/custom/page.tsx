@@ -1,3 +1,4 @@
+import { searchOf, STATIC } from "@/lib/static-data";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -11,10 +12,10 @@ import { decodeShocks, encodeShock, type Shock } from "@/lib/custom-scenario";
 import { scenarioName } from "@/lib/scenario-label";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
 import { libraryShocks } from "@/lib/start-from";
-import { runCustomScenarioForm } from "./actions";
+import { runCustomScenarioForm } from "@/app/[locale]/scenarios/custom/actions";
 import { fill, getMessages, isLocale } from "@/lib/i18n";
+import { nameOf } from "@/lib/business-names";
 
-export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -26,8 +27,20 @@ export default async function CustomScenarioPage({ params, searchParams }: Props
   if (!isLocale(locale)) notFound();
   const m = getMessages(locale);
   const c = m.custom;
-  const search = await searchParams;
+  const search = await searchOf(searchParams);
   const query = roleQuery(search.as);
+  if (STATIC) {
+    // The online snapshot runs no engine: say so, and send the visitor to the library, which works there.
+    return (
+      <Page>
+        <h1 className="heading text-[40px]">{c.title}</h1>
+        <p className="max-w-3xl">{c.staticNote}</p>
+        <Link href={`/${locale}/scenarios${query}`} className="textlink self-start font-semibold">
+          {c.back}
+        </Link>
+      </Page>
+    );
+  }
   const catalog = await getScenarioCatalog();
   if (!catalog.ok) {
     return (
@@ -58,7 +71,7 @@ export default async function CustomScenarioPage({ params, searchParams }: Props
       <div className="rise">
         <div className="flex items-center gap-2.5 text-muted">
           <SectionMark />
-          <span className="eyebrow">{fill(c.eyebrow, { id: catalog.data.base_business })}</span>
+          <span className="eyebrow">{fill(c.eyebrow, { id: catalog.data.base_business, name: nameOf(catalog.data.base_business, locale) })}</span>
         </div>
         <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{c.title}</h1>
         <p className="mt-2 max-w-3xl text-sm text-muted">{c.intro}</p>

@@ -3,6 +3,7 @@ import { ApiError, Num, TableScroll } from "@/components/ui";
 import { formatInt } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ApiResult, BusinessesResponse } from "@/lib/types";
+import { nameOf } from "@/lib/business-names";
 
 /** E10: rows per page of the "All businesses" table. */
 export const PAGE_SIZE = 25;
@@ -44,13 +45,16 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
               <tbody>
                 {businesses.map((b) => (
                   <tr key={b.business_id} className="row-pick border-t border-line2">
-                    <th scope="row" className="px-6 py-2 text-start font-mono font-normal">
-                      <Num>{b.business_id}</Num>
+                    <th scope="row" className="px-6 py-2 text-start font-normal">
+                      <span className="block font-semibold">{nameOf(b.business_id, locale)}</span>
+                      <span className="block font-mono text-sm text-muted">
+                        <Num>{b.business_id}</Num>
+                      </span>
                     </th>
                     <td className="px-6 py-2 text-sm">{m.enums.sector[b.sector]}</td>
                     <td className="px-6 py-2 text-end">
                       <Link href={`/${locale}/business/${b.business_id}${query}`} data-latin className="textlink font-semibold">
-                        {fill(a.openRow, { id: b.business_id })}
+                        {fill(a.openRow, { id: b.business_id, name: nameOf(b.business_id, locale) })}
                       </Link>
                     </td>
                   </tr>

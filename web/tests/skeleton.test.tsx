@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { LensPage } from "@/components/LensPage";
 import { CardLoading } from "@/components/ui";
+import { nameOf } from "@/lib/business-names";
 import { en } from "./helpers";
 
 describe("loading", () => {
@@ -21,7 +22,7 @@ describe("loading", () => {
     const { container } = render(ui);
     const head = container.querySelector("[data-lens-fallback]")!;
     expect(head.querySelector("h1")!.textContent).toBe(en.credit.title);
-    expect(head.textContent).toContain("Business 10001");
+    expect(head.textContent).toContain(nameOf(10001, "en"));
     expect(container.querySelector("[data-skeleton]")).not.toBeNull();
   });
 });

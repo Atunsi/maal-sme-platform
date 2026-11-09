@@ -1,9 +1,9 @@
+import { searchOf } from "@/lib/static-data";
 import { CreditCard } from "@/components/CreditCard";
 import { LensPage } from "@/components/LensPage";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { getCredit } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default async function CreditPage({ params, searchParams }: Props) {
-  const initialView = (await searchParams).view === "compliance" ? "compliance" : "public";
+  const initialView = (await searchOf(searchParams)).view === "compliance" ? "compliance" : "public";
   return (
     <LensPage params={params} load={getCredit} title={(m) => m.credit.title}>
       {(data, { locale, m }) => (

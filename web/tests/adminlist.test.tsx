@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { AllBusinesses, PAGE_SIZE } from "@/components/AllBusinesses";
 import { BusinessSearch } from "@/components/BusinessSearch";
 import { BusinessesResponse } from "@/lib/schemas";
+import { nameOf } from "@/lib/business-names";
 import { en, fixture } from "./helpers";
 
 const page1 = fixture("businesses_page1", BusinessesResponse);
@@ -16,7 +17,7 @@ describe("admin list", () => {
     expect(page1.population).toBe("serving");
     expect(container.textContent).toContain(`${page1.total} serving businesses`);
     expect(container.querySelectorAll("tbody tr")).toHaveLength(page1.businesses.length);
-    expect(screen.getByRole("link", { name: `Open business ${page1.businesses[0]!.business_id}` }).getAttribute("href")).toBe(`/en/business/${page1.businesses[0]!.business_id}?as=admin`);
+    expect(screen.getByRole("link", { name: `Open ${nameOf(page1.businesses[0]!.business_id, "en")}` }).getAttribute("href")).toBe(`/en/business/${page1.businesses[0]!.business_id}?as=admin`);
   });
 
   it("admin list pages through businesses", async () => {

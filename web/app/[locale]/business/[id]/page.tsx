@@ -1,3 +1,5 @@
+import { RoleHeading } from "@/components/RoleHeading";
+import { searchOf } from "@/lib/static-data";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Lens, NotServing } from "@/components/LensPage";
@@ -11,8 +13,8 @@ import { roleQuery } from "@/lib/businesses";
 import { fill, getMessages, isLocale } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import { TOUR_STEPS } from "@/lib/tour";
+import { nameOf } from "@/lib/business-names";
 
-export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -25,7 +27,7 @@ export default async function OverviewPage({ params, searchParams }: Props) {
   const m = getMessages(locale);
   const id = Number(rawId);
   if (!isServingId(id)) return <NotServing locale={locale} m={m} id={rawId} />;
-  const { view, as } = await searchParams;
+  const { view, as } = await searchOf(searchParams);
   const query = roleQuery(as);
   // First-pass links to the Compliance View pointed here. It now lives on the credit page.
   if (view === "compliance") redirect(`/${locale}/business/${id}/credit?view=compliance${query.replace("?", "&")}`);
@@ -48,7 +50,11 @@ export default async function OverviewPage({ params, searchParams }: Props) {
     <Page>
       <div className="rise flex flex-wrap items-baseline justify-between gap-3">
         {/* C7: "Welcome back" only for the owner role; anyone else sees the business named. */}
-        <h1 className="heading text-[30px]">{fill(as === "owner" ? m.overview.welcome : m.overview.heading, { id })}</h1>
+        <RoleHeading
+          className="heading text-[30px]"
+          owner={fill(m.overview.welcome, { id, name: nameOf(id, locale) })}
+          other={fill(m.overview.heading, { id, name: nameOf(id, locale) })}
+        />
         <div className="flex flex-wrap items-center gap-3">
           <Link href={`${root}?tour=${TOUR_STEPS[0]!.id}${query.replace("?", "&")}`} className="textlink font-semibold" data-tour-start data-print-hide>
             {m.tour.start}

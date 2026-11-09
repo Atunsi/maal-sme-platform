@@ -316,7 +316,7 @@ describe("demo sign-in", () => {
     expect(en.signIn.synthetic).toContain("synthetic data");
     expect(en.admin.eyebrow).toContain("synthetic data");
     expect(en.footer.scope).toContain("Synthetic data only. Population: serving.");
-    expect(ar.footer.scope).toContain("بيانات اصطناعية فقط. المجموعة: الخدمة.");
+    expect(ar.footer.scope).toContain("بيانات اصطناعية فقط. المجموعة: العرض.");
   });
 });
 

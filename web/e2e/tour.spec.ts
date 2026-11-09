@@ -16,7 +16,7 @@ for (const locale of ["en", "ar"] as const) {
       await expect(panel.getByRole("heading", { level: 2 })).toBeFocused();
       await expect(panel.locator("[data-tour-position]")).toContainText(String(i + 1));
       await expect(page.locator(`[data-tour="${step.target}"]`)).toHaveClass(/tour-target/);
-      if (i < TOUR_STEPS.length - 1) await panel.getByRole("button", { name: next }).click();
+      if (i < TOUR_STEPS.length - 1) await panel.getByRole("link", { name: next }).click();
     }
     await expect(panel.locator("a:not(.tour-dot)")).toHaveCount(2); // the print sheet and How Ma'al decides (the step dots, I10, are links too)
   });
@@ -26,7 +26,7 @@ test("tour step survives reload and Back", async ({ page }) => {
   await page.goto("/en/business/10001/zakat?tour=waterfall", { waitUntil: "networkidle" });
   await page.reload({ waitUntil: "networkidle" });
   await expect(page.locator("[data-tour-panel] h2")).toHaveText("Zakat, step by step");
-  await page.locator("[data-tour-panel]").getByRole("button", { name: "Next" }).click();
+  await page.locator("[data-tour-panel]").getByRole("link", { name: "Next" }).click();
   await expect(page).toHaveURL(/tour=runway/);
   await page.goBack();
   await expect(page).toHaveURL(/tour=waterfall/);
@@ -48,7 +48,7 @@ test("tour continues when a target fails to load", async ({ page }) => {
   await page.goto("/en/business/10003/zakat?tour=waterfall", { waitUntil: "networkidle" });
   const panel = page.locator("[data-tour-panel]");
   await expect(panel).toContainText("This part didn't load. You can go to the next step.", { timeout: 10_000 });
-  await panel.getByRole("button", { name: "Next" }).click();
+  await panel.getByRole("link", { name: "Next" }).click();
   await expect(page).toHaveURL(/tour=runway/);
 });
 
@@ -66,7 +66,7 @@ for (const theme of ["light", "dark"] as const) {
 test("tour title shows a thin focus mark after a step change", async ({ page }) => {
   // X2: focus still moves to the step title, drawn as a thin underline instead of the full box.
   await page.goto("/en/business/10001/zakat?tour=waterfall", { waitUntil: "networkidle" });
-  await page.locator("[data-tour-panel]").getByRole("button", { name: "Next" }).click();
+  await page.locator("[data-tour-panel]").getByRole("link", { name: "Next" }).click();
   const title = page.locator("[data-tour-panel] h2");
   await expect(title).toBeFocused();
   const look = await title.evaluate((el) => ({ outline: getComputedStyle(el).outlineStyle, line: getComputedStyle(el).textDecorationLine, mark: el.hasAttribute("data-step-focus") }));
@@ -97,9 +97,9 @@ test("tour collapses and expands", async ({ page }) => {
   await expect(page).toHaveURL(/tourMin=1/);
   await expect(panel.locator("[data-tour-dots]")).toHaveCount(0);
   await expect(panel.locator("h2")).toBeVisible();
-  await expect(panel.getByRole("button", { name: "Next" })).toBeVisible();
+  await expect(panel.getByRole("link", { name: "Next" })).toBeVisible();
   expect((await panel.boundingBox())!.height).toBeLessThan(full);
-  await panel.getByRole("button", { name: "Next" }).click();
+  await panel.getByRole("link", { name: "Next" }).click();
   await expect(page).toHaveURL(/tour=factors.*tourMin=1|tourMin=1.*tour=factors/);
   await panel.getByRole("button", { name: "Expand" }).click();
   await expect(page).not.toHaveURL(/tourMin/);
@@ -110,7 +110,7 @@ test("tour collapses and expands", async ({ page }) => {
 test("tour resume returns to the step it ended on", async ({ page }) => {
   // I10: after End tour, a Resume tour link stays in the header for the visit (in the URL, ?tourEnded=).
   await page.goto("/en/business/10001/zakat?tour=waterfall&as=owner", { waitUntil: "networkidle" });
-  await page.locator("[data-tour-panel]").getByRole("button", { name: "End tour" }).click();
+  await page.locator("[data-tour-panel]").getByRole("link", { name: "End tour" }).click();
   await expect(page.locator("[data-tour-panel]")).toHaveCount(0);
   await expect(page).toHaveURL(/tourEnded=waterfall/);
   const resume = page.locator("[data-tour-resume]");

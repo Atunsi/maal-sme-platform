@@ -1,4 +1,5 @@
 // E8: the Arabic-Indic digits switch, N3, and hydration (DECISIONS 43).
+import { nameOf } from "../lib/business-names";
 import { expect, test, type Page } from "@playwright/test";
 
 const ARAB = /[٠-٩]/;
@@ -88,7 +89,7 @@ test("arabic digits never touch hashes or commands", async ({ page }) => {
   for (const code of await page.locator("details[data-receipt] code").all()) await expect(code).not.toHaveText(ARAB);
   await expect(page.locator("[data-rerun] code").first()).toHaveText("python -m pipeline.verify <file>");
   await page.goto("/ar/admin?as=admin", { waitUntil: "networkidle" });
-  await expect(page.getByRole("link", { name: "افتح 10004", exact: true })).toBeVisible(); // IDs inside links stay Latin
+  await expect(page.getByRole("link", { name: `افتح ${nameOf(10004, "ar")}`, exact: true })).toBeVisible(); // links name the business; its ID sits beside them
 });
 
 for (const path of ["/ar/business/10001", "/ar/admin?as=admin", "/ar/scenarios", "/ar/business/10004/forecast"]) {

@@ -1,5 +1,6 @@
 // Guard 10: the controls, clicked. Each test uses its own business because of the API's per-business
 // rate limit, so the page-load tests can't push another test over it.
+import { nameOf } from "../lib/business-names";
 import { expect, test } from "@playwright/test";
 import { apiEnv } from "./helpers";
 
@@ -91,7 +92,7 @@ test("picker: a valid ID opens the dashboard", async ({ page }) => {
   await page.getByRole("textbox", { name: "Open a business by ID" }).fill("10009");
   await page.getByRole("button", { name: "Open", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/business\/10009$/);
-  await expect(page.getByRole("heading", { name: "Business 10009" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: nameOf(10009, "en") })).toBeVisible();
 });
 
 for (const value of ["9999", "11001", "abc", "10001.5", ""]) {

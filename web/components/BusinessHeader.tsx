@@ -4,6 +4,8 @@ import { Code, Num, Plate, ProvenanceLine } from "@/components/ui";
 import { formatDate, formatInt } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ProfileResponse } from "@/lib/types";
+import { nameOf } from "@/lib/business-names";
+import { localeOf } from "@/lib/i18n";
 
 const STATUS_VARIANT = { scored: "ok", partial_profile: "warn", insufficient_data: "warn" } as const;
 
@@ -19,7 +21,7 @@ function MetaRow({ data, locale, m }: Base) {
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[13px] text-muted">
       <SectionMark />
-      <span className="uppercase">{fill(m.dashboard.title, { id: data.business_id })}</span>
+      <span className="uppercase">{fill(m.dashboard.title, { id: data.business_id, name: nameOf(data.business_id, localeOf(m)) })}</span>
       <span>{m.enums.sector[data.sector]}</span>
       <span>
         {m.common.asOf} <bdi>{formatDate(data.as_of, locale)}</bdi>

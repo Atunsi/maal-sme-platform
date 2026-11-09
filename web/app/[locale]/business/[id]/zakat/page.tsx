@@ -2,7 +2,6 @@ import { LensPage } from "@/components/LensPage";
 import { ZakatCard } from "@/components/ZakatCard";
 import { getZakat } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
 
 export default function ZakatPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   return (

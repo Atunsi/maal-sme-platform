@@ -5,11 +5,13 @@ import { ApiError, Card, CardLoading, Page } from "@/components/ui";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import type { ApiResult } from "@/lib/types";
+import { nameOf } from "@/lib/business-names";
+import { localeOf } from "@/lib/i18n";
 
 export function NotServing({ locale, m, id }: { locale: string; m: Messages; id: string }) {
   return (
     <Page>
-      <h1 className="heading text-[40px]">{fill(m.dashboard.title, { id })}</h1>
+      <h1 className="heading text-[40px]">{fill(m.dashboard.title, { id, name: nameOf(id, localeOf(m)) })}</h1>
       <ApiError kind="not_found" m={m} />
       <Link href={`/${locale}`} className="textlink underline">
         {m.common.back}
@@ -76,7 +78,7 @@ export async function LensPage<T>({
         // I7: the title and the business ID come from the route, so they show before the lens answers.
         <Page>
           <div className="flex flex-col gap-3" data-lens-fallback>
-            <span className="font-mono text-[13px] uppercase text-muted">{fill(m.dashboard.title, { id: rawId })}</span>
+            <span className="font-mono text-[13px] uppercase text-muted">{fill(m.dashboard.title, { id: rawId, name: nameOf(rawId, localeOf(m)) })}</span>
             <h1 className="heading text-[40px] sm:text-[52px]">{title(m)}</h1>
           </div>
           <CardLoading title={title(m)} m={m} tall />

@@ -69,9 +69,19 @@ describe("tour panel", () => {
     expect(document.activeElement).toBe(screen.getByRole("heading", { name: TOUR_STEPS[0]!.en.title }));
     act(() => vi.advanceTimersByTime(10));
     expect(target.classList.contains("tour-target")).toBe(true);
-    expect(screen.queryByRole("button", { name: en.tour.back })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: en.tour.next }));
-    expect(nav.push).toHaveBeenCalledWith(tourHref("en", TOUR_STEPS[1]!, null), { scroll: false });
+    expect(screen.queryByRole("link", { name: en.tour.back })).toBeNull();
+    // Next is a link, so it works before the page's script has taken over.
+    expect(screen.getByRole("link", { name: en.tour.next }).getAttribute("href")).toBe(tourHref("en", TOUR_STEPS[1]!, null));
+  });
+
+  it("Back, Next and End tour are links that keep the role and the collapsed state", () => {
+    nav.params = new URLSearchParams("tour=runway&as=owner&tourMin=1");
+    render(<TourPanel locale="en" labels={labels(en)} />);
+    expect(screen.getByRole("link", { name: en.tour.next }).getAttribute("href")).toBe(`${tourHref("en", TOUR_STEPS[6]!, "owner")}&tourMin=1`);
+    expect(screen.getByRole("link", { name: en.tour.end }).getAttribute("href")).toBe("/en/business/10001?as=owner&tourEnded=runway");
+    nav.params = new URLSearchParams("tour=runway");
+    render(<TourPanel locale="en" labels={labels(en)} />);
+    expect(screen.getAllByRole("link", { name: en.tour.back }).at(-1)!.getAttribute("href")).toBe(tourHref("en", TOUR_STEPS[4]!, null));
   });
 
   it("tour ends on escape", () => {
@@ -98,13 +108,13 @@ describe("tour panel", () => {
     expect(screen.queryByText(ar.tour.missing)).toBeNull();
     act(() => vi.advanceTimersByTime(5000));
     expect(screen.getByText(ar.tour.missing)).toBeTruthy();
-    expect(screen.getByRole("button", { name: ar.tour.next })).toBeTruthy();
+    expect(screen.getByRole("link", { name: ar.tour.next })).toBeTruthy();
   });
 
   it("the last step links to the sheet and to how Ma'al decides", () => {
     nav.params = new URLSearchParams("tour=receipt");
     render(<TourPanel locale="en" labels={labels(en)} />);
-    expect(screen.queryByRole("button", { name: en.tour.next })).toBeNull();
+    expect(screen.queryByRole("link", { name: en.tour.next })).toBeNull();
     expect(screen.getByRole("link", { name: en.sheet.open }).getAttribute("href")).toBe(`/en/business/${TOUR.business}/sheet`);
     expect(screen.getByRole("link", { name: en.footer.how }).getAttribute("href")).toBe("/en/how-it-works");
   });

@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { paletteItems, paletteMatches } from "@/components/CommandPalette";
 import { GLOSSARY } from "@/lib/glossary";
+import { nameOf } from "@/lib/business-names";
 import { en } from "./helpers";
 
 const scenarios = [{ name: "severe_collapse", label: "Severe revenue collapse" }];
@@ -14,7 +15,7 @@ describe("search lists", () => {
     const term = GLOSSARY[0]!;
     expect(paletteMatches(items, term.en.term, "en", en, null).some((i) => i.href.endsWith(`/en/glossary?as=admin#${term.id}`))).toBe(true);
     const open = paletteMatches(items, "10037", "en", en, "admin")[0]!;
-    expect(open.label).toBe("Open business 10037");
+    expect(open.label).toBe(`Open ${nameOf(10037, "en")} (10037)`);
     expect(open.href).toBe("/en/business/10037?as=admin");
   });
 

@@ -97,7 +97,7 @@ export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<M
           </div>
           <div
             id="site-menu"
-            className={`${open ? "flex" : "hidden"} w-full flex-col gap-3 border-t border-line pt-3 md:contents`}
+            className={`${open ? "menu-drop flex" : "hidden"} w-full flex-col gap-3 border-t border-line pt-3 md:contents`}
             onKeyDown={(event) => {
               if (event.key !== "Escape") return;
               close();
