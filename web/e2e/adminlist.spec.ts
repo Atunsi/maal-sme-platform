@@ -56,3 +56,22 @@ test("search, sector and page are handled on the server from the URL alone", asy
   const html2 = await (await request.get("/en/admin?page=2")).text();
   expect(html2).toContain(`Open business ${page2.businesses[0]!.business_id}`);
 });
+
+for (const width of [1280, 390]) {
+  test(`admin search controls share one baseline at ${width} px`, async ({ page }) => {
+    // B16: the ID field, the Sector select and the search button line up at laptop width, and stack cleanly on a phone.
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/en/admin?as=admin&q=1001", { waitUntil: "networkidle" });
+    const form = page.getByRole("search").filter({ has: page.locator("select") });
+    const boxes = await Promise.all(
+      [form.locator('input[name="q"]'), form.locator("select"), form.getByRole("button", { name: "Search" })].map(async (l) => (await l.boundingBox())!),
+    );
+    if (width >= 768) {
+      const tops = boxes.map((b) => b.y);
+      expect(Math.max(...tops) - Math.min(...tops)).toBeLessThanOrEqual(2);
+      const bottoms = boxes.map((b) => b.y + b.height);
+      expect(Math.max(...bottoms) - Math.min(...bottoms)).toBeLessThanOrEqual(2);
+    }
+    for (const b of boxes) expect(b.x + b.width).toBeLessThanOrEqual(width);
+  });
+}

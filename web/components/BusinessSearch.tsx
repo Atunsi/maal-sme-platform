@@ -12,8 +12,13 @@ export function BusinessSearch({ locale, role, q, sector, sectors, labels }: { l
   return (
     <form method="get" action={`/${locale}/admin`} className="flex flex-wrap items-end gap-3" role="search">
       {role && <input type="hidden" name="as" value={role} />}
-      <label className="flex flex-col gap-1 self-start text-sm font-medium">
+      {/* B16: the hint sits between the label and the field, so with items-end every field and button shares
+          one line at laptop width. */}
+      <label className="flex flex-col gap-1 text-sm font-medium">
         {labels.searchLabel}
+        <span id="search-help" className="text-xs font-normal text-muted">
+          {labels.searchHelp}
+        </span>
         <input
           name="q"
           defaultValue={q}
@@ -25,9 +30,6 @@ export function BusinessSearch({ locale, role, q, sector, sectors, labels }: { l
           autoComplete="off"
           className="field w-44 font-mono"
         />
-        <span id="search-help" className="text-xs font-normal text-muted">
-          {labels.searchHelp}
-        </span>
       </label>
       <label className="flex flex-col gap-1 text-sm font-medium">
         {labels.sectorLabel}
