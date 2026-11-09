@@ -1210,3 +1210,33 @@ body {
   height: 14px;
   background: var(--accent);
 }
+
+/* I1: the business switcher's panel and options. */
+.switcher-panel {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-box);
+  background: var(--surface);
+}
+@media (min-width: 768px) {
+  .switcher-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    inset-inline-end: 0;
+    z-index: 45;
+    box-shadow: 0 8px 24px rgba(16, 20, 24, 0.12);
+  }
+}
+.switcher-option {
+  display: flex;
+  min-height: 44px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: var(--r-ctl);
+  cursor: pointer;
+}
+.switcher-option.is-active,
+.switcher-option:hover {
+  background: var(--accentSoft);
+}

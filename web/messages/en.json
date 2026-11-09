@@ -31,6 +31,14 @@
     "menu": "Menu",
     "display": "Display"
   },
+  "switcher": {
+    "button": "Business",
+    "label": "Open another business",
+    "help": "The demo businesses, or type two or more digits of a serving ID.",
+    "demo": "Demo businesses",
+    "results": "Matching serving businesses",
+    "none": "No serving business matches."
+  },
   "footer": {
     "scope": "Synthetic data only. Population: serving. This demo holds no accounts, tracking cookies, analytics or logging of business data. A real deployment would need a PDPL notice, per-owner access and SAMA Open Banking consent.",
     "links": "More about Ma'al",

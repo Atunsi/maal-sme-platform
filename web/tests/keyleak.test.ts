@@ -36,6 +36,9 @@ function clientGraph(): Set<string> {
     if (seen.has(file)) continue;
     seen.add(file);
     const text = readFileSync(file, "utf8");
+    // A "use server" module (app/actions.ts, DECISIONS 45) is the server-action boundary: Next sends the
+    // browser a reference to call, never the module's code, so its imports stay on the server.
+    if (/^["']use server["']/.test(text)) continue;
     for (const match of text.matchAll(/^import (?!type )[^;]*?from ["']([^"']+)["']/gm)) {
       const target = resolveImport(file, match[1]!);
       if (target) todo.push(target);
@@ -63,6 +66,11 @@ describe("key-leak guard", () => {
     const graph = [...clientGraph()].map((file) => relative(webRoot, file).replaceAll("\\", "/"));
     expect(graph.length).toBeGreaterThan(5);
     expect(graph.filter((file) => file === "lib/api.ts" || file === "lib/scenarios.ts")).toEqual([]);
+  });
+
+  it("every server action module the client reaches is marked use server", () => {
+    const actions = [...clientGraph()].filter((file) => readFileSync(file, "utf8").includes("@/lib/api"));
+    for (const file of actions) expect(readFileSync(file, "utf8")).toMatch(/^"use server";/);
   });
 
   it("lib/api.ts is marked server-only", () => {

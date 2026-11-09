@@ -76,10 +76,13 @@ describe("credit contract guards", () => {
     // browser (E4, DECISIONS 43). BusinessSearch searches the admin list (E10). CustomScenarioForm takes only
     // the API's shock parameters, each bounded; tests/custom.test.tsx checks its input names (E12). None of
     // them can reach a term. DECISIONS 45: ScenarioControls' phone select (I4) picks one of the library's
-    // fixed scenarios and only navigates to its page, so it cannot reach a term either.
+    // fixed scenarios and only navigates to its page, so it cannot reach a term either. BusinessSwitcher (I1,
+    // 1a.9) takes digits of a business ID, searches serving IDs and opens that business: it names a business,
+    // never a term.
     expect(withInput.sort()).toEqual([
       "BusinessPicker.tsx",
       "BusinessSearch.tsx",
+      "BusinessSwitcher.tsx",
       "CopyButton.tsx",
       "CustomScenarioForm.tsx",
       "HashCheck.tsx",

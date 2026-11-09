@@ -49,7 +49,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           {m.nav.skip}
         </a>
         <Suspense>
-          <SiteHeader locale={locale} m={{ nav: m.nav, app: m.app, tour: m.tour }} />
+          <SiteHeader locale={locale} m={{ nav: m.nav, app: m.app, tour: m.tour, switcher: m.switcher, enums: m.enums, errors: m.errors }} />
         </Suspense>
         <main id="main" className="w-full flex-1">
           {children}
