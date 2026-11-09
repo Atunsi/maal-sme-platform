@@ -9,6 +9,7 @@ import { DisplayMenu } from "@/components/DisplayMenu";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
+import { tourHref, tourStep, withTourEnded } from "@/lib/tour";
 import type { Locale, Messages } from "@/lib/i18n";
 
 type Item = { href: string; label: string; current?: boolean };
@@ -39,9 +40,10 @@ function navItems(rest: string, base: string, query: string, nav: Messages["nav"
   ];
 }
 
-export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "nav" | "app"> }) {
+export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "nav" | "app" | "tour"> }) {
   const pathname = usePathname();
-  const role = useSearchParams().get("as");
+  const params = useSearchParams();
+  const role = params.get("as");
   // The phone menu is open on the page it was opened on, so moving to another page closes it.
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
@@ -51,7 +53,9 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
 
   const { nav } = m;
   const base = `/${locale}`;
-  const query = roleQuery(role);
+  // I10: after End tour, ?tourEnded=<step> rides along on the page links, like the role, for the visit.
+  const ended = tourStep(params.get("tourEnded"));
+  const query = withTourEnded(roleQuery(role), ended?.step.id ?? null);
   const admin = role === "admin" || rest === "/admin";
   // X5: a demo role, not access control, so the label names no business.
   const signedIn = role === "admin" ? nav.roleAdmin : role === "owner" ? nav.roleOwner : null;
@@ -104,9 +108,14 @@ export function SiteHeader({ locale, m }: { locale: Locale; m: Pick<Messages, "n
             </nav>
             <div className="flex flex-wrap items-center gap-3">
               {signedIn && (
-                <span className="text-sm font-semibold leading-tight" data-demo-role>
+                <span className="max-w-[8.5rem] text-xs font-semibold leading-tight" data-demo-role>
                   {signedIn}
                 </span>
+              )}
+              {ended && rest.startsWith("/business") && (
+                <Link href={tourHref(locale, ended.step, role === "owner" || role === "admin" ? role : null)} prefetch={false} className="textlink font-semibold" data-tour-resume>
+                  {m.tour.resume}
+                </Link>
               )}
               <LanguageToggle locale={locale} label={nav.language} />
               <DisplayMenu label={nav.display}>
