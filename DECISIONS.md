@@ -3222,3 +3222,51 @@ B or C after seeing which sentences look bad is the retuning this project rules 
 to be written first.
 
 **Sign-off:** ☐ credit lens owner (choose A–D; withdraw the "cannot shortcut" sentence) ☐ team (what is said in the demo)
+
+---
+
+## 48. Zakat nisab price changed without a numbered entry; the price is dated after every calculation date — FINDING + PROPOSED, options only (2026-11-09)
+
+**Touches:** `lenses/lens_config.yaml` (`zakat.nisab`), `lenses/zakat/gold_price.py`,
+`lenses/zakat/refresh_gold_price.py`, `pipeline/week8.py` (`--gold-quote`),
+`.github/workflows/update-gold-price.yml`, `sources/zakat_nisab_gold_price.md`, entry 23.3, SOP §9.
+Nothing is changed by this entry. The Zakat arithmetic itself is deterministic and unchanged (SOP §2
+holds: no model and no LLM is involved).
+
+**What happened.** On 2026-11-08 (`55c3547`, `82f86d6`) `price_sar_per_gram` went from the placeholder
+400 to 491.291, from a LivePriceOfGold quotation of 2026-11-08 19:06 UTC, archived as a screenshot. The
+nisab went from SAR 34,000.00 to SAR 41,759.74 (NUMBERS §5). Replacing the placeholder with a dated,
+archived quotation is an improvement. Three things about how it was done are open:
+
+1. **No numbered entry.** The change was written into entry 23.3's text in place. Entry 23 carries a
+   signed line, and SOP §9 asks for a recorded change before code. The compliance owner's own line on
+   entry 23 is still unticked.
+2. **The price is later than every date it is applied to.** Every business's Zakat is calculated as of
+   its `window_end`, and those run from 2026-01-27 to 2026-07-30 (`data/businesses.csv`, all 11,000). The
+   nisab for all of them is valued at a price from 2026-11-08. The new code already treats this as an
+   error on its other path: `pipeline/week8.py` raises "Gold quotation is newer than the Zakat
+   calculation date" for a `--gold-quote` file. The default price in the lens config is not checked.
+3. **The live-quote path cannot run on this project's data.** Any quotation GoldAPI returns today is
+   dated after 2026-07-30, so it is refused for every generated business. Checked on 2026-11-09:
+   `python -m pipeline.week8 --demo --gold-quote <a quote dated 2026-11-09>` stops with that error. The
+   daily workflow fetches a quotation and publishes it to GitHub Pages; nothing on `main` reads it, and
+   the quotations are written under `data/`, which is git-ignored, so they are not archived in
+   `sources/` as the source rule requires. The pinned price and the fetched price also come from two
+   different providers (LivePriceOfGold and GoldAPI.io).
+
+**What it changes in results.** Demo business 10001's liability is unchanged at SAR 5,963.26 (its base
+is far above either nisab). How many businesses cross the nisab threshold between 34,000 and 41,759.74
+has not been measured.
+
+**Options (not chosen here):**
+- **A. Keep 491.291 as one pinned reference price** and state plainly, in the output and the report,
+  that the nisab is valued at a single documented quotation and not at the price on the calculation
+  date. Then either remove the date check on `--gold-quote` or apply the same check to the default.
+- **B. Pin a price dated on or before the calculation dates**, from a source that can be archived in
+  `sources/` with its edition (one price for the window, or one per month-end).
+- **C. Keep the live path for a future real deployment only**, where the calculation date is today, and
+  say that it is not exercised on the synthetic population. Decide whether the daily workflow and its
+  public page belong in the capstone repository.
+- In every case: the hawl rule and the gold basis still wait for the Sharia advisor (entry 23.3).
+
+**Sign-off:** ☐ compliance owner (choose; record the 2026-11-08 change) ☐ Sharia advisor (basis, valuation date) ☐ team
