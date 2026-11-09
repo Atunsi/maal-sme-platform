@@ -130,7 +130,7 @@ Four receipt hashes depend on line endings, so a Windows receipt fails
 verification on Linux or Mac although the decision is identical (entry 40, open).
 
 **19. Some numbers predate this month's engine changes.** The §14 sensitivity
-sweeps (NUMBERS §4, §4b, row A6) and the latency table (§6b) were measured before
+sweeps (NUMBERS §4, §4b, row A6) were measured before
 entries 30, 35 and 38 and have not been re-run. The one comparison re-run after
 the changes moved by 0.004.
 

@@ -173,14 +173,14 @@ Source: `eval/out/holdout_shock.md` (`python -m eval.holdout_shock`). Serving, d
 
 ## 6b. Serving path — Week 7 latency (§19)
 
-Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`), re-run after Sharia screening and the forecast change (entries 26–27). **Not re-timed since 2026-10-11:** the anomaly route now also runs the seasonal gate and the exact repeat check (entries 36.7, 37.5), and the credit model was retrained. On a slower 2-core machine with both anomaly changes the anomaly route's maximum was 1,271 ms and the credit route's 626 ms (entry 37.6), under the 2 s target; the figures below are the older run on the original machine. Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
+Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`). **Re-run 2026-11-09** on the same 20-CPU machine as the 2026-10-11 run, with the current code: retrained credit model, entries 30, 35 and 38 in the engine, the anomaly seasonal gate and exact repeat check (entries 36.7, 37.5). Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max. Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
 
 | Path | Value | n |
 |---|---|---|
-| `/lenses/credit` — full §19 path (store → profile engine → model → SHAP → §13 text) | **110 / 138 / 252 ms** | 1,000 (every serving business) |
-| `/lenses/credit` over real HTTP (uvicorn) | 110 / 136 / 158 ms | 50 |
-| `/lenses/anomaly` — slowest route (per-business Isolation Forest) | 287 / 427 / 964 ms | 100 |
-| SHAP explanation alone (exact log-odds, `coef × z`) | 0.156 / 0.168 / 0.177 ms | 194 |
+| `/lenses/credit` — full §19 path (store → profile engine → model → SHAP → §13 text) | **124 / 150 / 248 ms** | 1,000 (every serving business) |
+| `/lenses/credit` over real HTTP (uvicorn) | 131 / 152 / 169 ms | 50 |
+| `/lenses/anomaly` — slowest route (per-business Isolation Forest) | 314 / 478 / 1028 ms | 100 |
+| SHAP explanation alone (exact log-odds, `coef × z`) | 0.160 / 0.176 / 0.225 ms | 194 |
 | Targets (§19) | API < 2 s, SHAP < 1 s — **PASS on the maximum**, not just a percentile | — |
 | API vs Week 8 CLI decisions (demo businesses, all four lenses) | identical | 3 |
 
@@ -203,5 +203,6 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | Scenario PDs 0.0557 / 0.0690 / 0.0849 / 0.0483 / 0.0999 / 0.0953 / 0.0561, and "the collapses' PDs are no higher than the baseline's" | the model before the retrain of 2026-11-07; with the retrained model the combined crisis (0.0656) is above the baseline (0.0526) | §5b, entry 46 |
 | Held-out round-trip recall 0.92 (precision 0.2135 of 0.2297) | true before the seasonal gate was switched on (entry 36.7); with it, 0.93 | §5 anomaly rows |
 | Held-out duplicate payment recall 0.06 | true with no repeat detector; with the exact check (entry 37.5) the same-day type is designed-for and scores 0.66 | §5 anomaly rows |
+| Latency 110 / 138 / 252 ms (credit), 287 / 427 / 964 ms (anomaly), 0.156 / 0.168 / 0.177 ms (SHAP) | timed 2026-10-11, before the seasonal gate, the exact repeat check and the retrain | §6b, re-run 2026-11-09 |
 | "The forecast model loses to the naive baseline" (median error 0.455 vs 0.376; MAPE 18.1% vs 15.0%) | true of the v1 OLS-trend model, which was replaced (entry 27) | §5 forecast rows |
 | "Φ(sd/√2) is an identity / a proof" | agreement degraded to 0.0118 | "a good approximation" (§3) |

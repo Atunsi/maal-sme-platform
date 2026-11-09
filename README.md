@@ -61,7 +61,7 @@ write code that breaks one, stop and raise it.
 | Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; nisab at one commercial gold quotation (SAR 491.291/g, 8 Nov 2026), **unverified and dated after the calculation dates** (entry 48); no Sharia advisor review yet |
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | **Screening v1 built** — feature 24, deterministic rule table (PROPOSED, not certified); 85.1% compliant / 14.9% soft (entry 26) |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
-| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 252 ms on all 1,000; entries 25–27) |
+| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 248 ms on all 1,000; anomaly max 1,028 ms; re-run 2026-11-09; entries 25–27) |
 | Next.js UI | — | — | Post-Week-8, own Week 10 gate. On the unmerged branch `origin/faris/web-ui`; not on `main`. |
 
 Each component directory has a README stating its contract, the schema sections

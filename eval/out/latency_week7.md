@@ -1,6 +1,6 @@
 # Week 7 serving-path latency smoke test (§19)
 
-Run 2026-10-11 · Windows-11-10.0.26200-SP0 · 20 logical CPUs · RAM n/a · serving store: 1000 businesses (§23 serving scale). Nothing cached between requests.
+Run 2026-11-09 · Windows-11-10.0.26300-SP0 · 20 logical CPUs · RAM 15.7 GB · serving store: 1000 businesses (§23 serving scale). Nothing cached between requests.
 
 **Equivalence with the Week 8 CLI** (demo businesses, all four lenses): **identical**.
 
@@ -8,15 +8,15 @@ Targets: API response < 2 s, SHAP explanation < 1 s — **PASS requires the maxi
 
 | route (in-process, FastAPI TestClient) | n | p50 ms | p95 ms | p99 ms | max ms |
 |---|---|---|---|---|---|
-| `/lenses/credit` |  1000 |     110 |     138 |     177 |     252 |
-| `/lenses/forecast` |   100 |     110 |     151 |     249 |     254 |
-| `/lenses/anomaly` |   100 |     287 |     427 |     916 |     964 |
-| `/lenses/zakat` |   100 |     109 |     143 |     249 |     256 |
-| `/profile/{id}` |   100 |     108 |     142 |     251 |     251 |
-| `/lenses/credit` over **real HTTP** (uvicorn) |    50 |     110 |     136 |     148 |     158 |
-| SHAP generation alone (score + §13 explanation) |   194 |   0.156 |   0.168 |   0.173 |   0.177 |
+| `/lenses/credit` |  1000 |     124 |     150 |     190 |     248 |
+| `/lenses/forecast` |   100 |     125 |     158 |     239 |     250 |
+| `/lenses/anomaly` |   100 |     314 |     478 |     982 |    1028 |
+| `/lenses/zakat` |   100 |     126 |     153 |     242 |     252 |
+| `/profile/{id}` |   100 |     125 |     155 |     240 |     244 |
+| `/lenses/credit` over **real HTTP** (uvicorn) |    50 |     131 |     152 |     163 |     169 |
+| SHAP generation alone (score + §13 explanation) |   194 |   0.160 |   0.176 |   0.201 |   0.225 |
 
-`/lenses/credit` covered every one of the 1,000 serving businesses (statuses: {'scored': 754, 'insufficient_data': 57, 'partial_profile': 189}); the other routes a random 100. Wall time for the timed requests: 181 s.
+`/lenses/credit` covered every one of the 1,000 serving businesses (statuses: {'scored': 754, 'insufficient_data': 57, 'partial_profile': 189}); the other routes a random 100. Wall time for the timed requests: 202 s.
 
 ## Verdict: API **PASS** · SHAP **PASS** · overall **PASS**
 

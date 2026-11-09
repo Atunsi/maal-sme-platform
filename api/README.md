@@ -15,8 +15,8 @@ python -m pytest tests                                    # API guarantees + len
 ```
 
 **Week 7 result (§19): PASS on the maximum.** `/lenses/credit` over all 1,000 serving businesses:
-p50 110 ms, max 252 ms; over real HTTP max 158 ms; slowest route `/lenses/anomaly` max 964 ms;
-SHAP 0.2 ms. Target < 2 s / < 1 s. Exact figures: [`../docs/NUMBERS.md`](../docs/NUMBERS.md) §6b.
+p50 124 ms, max 248 ms; over real HTTP max 169 ms; slowest route `/lenses/anomaly` max 1,028 ms;
+SHAP 0.2 ms (re-run 2026-11-09). Target < 2 s / < 1 s. Exact figures: [`../docs/NUMBERS.md`](../docs/NUMBERS.md) §6b.
 
 **What v1 enforces:** refuses to start without `MAAL_API_KEY`; constant-time key check (401
 otherwise); per-business rate limit (`MAAL_RATE_LIMIT_PER_MIN`, default 60 → 429); research
@@ -27,7 +27,7 @@ a receipt. All asserted in `tests/test_api.py`.
 
 **Left for the API owner:** per-business-owner authorisation (a business reads only its own
 profile — §29 says state it, a shared key is the demo scope); the anomaly route is the closest to
-budget (964 ms max) — the per-business forest is refitted on every call; rebuilding the store
+budget (1,028 ms max) — the per-business forest is refitted on every call; rebuilding the store
 when data is regenerated; wiring the UI (Week 10).
 
 **Schema:** §8, §29 · **Due:** Week 5–7 (latency smoke test Week 7, not Week 10)
