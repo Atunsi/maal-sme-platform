@@ -67,6 +67,8 @@ The analytic form is **an approximation, not an identity**. It agreed to 0.0010 
 
 Source: `eval/out/section14_rho_sweep.md` (`python -m eval.run_section14`). Protocol and features as A6. Labels identical at every ρ.
 
+> **Measured on 2026-10-11, before entries 30, 35 and 38 changed ten of the 71 features (5, 20–22, 45, 55–59). Not re-run since.** §4, §4b and row A6 are the pre-fix measurement. The one comparison that was re-run after the fix moved by 0.004 (A2, 0.574 → 0.570), so a small move is expected here too, but it has not been measured. Re-running needs eight full-scale generations (`python -m eval.run_section14`, then the noise sweep).
+
 | ρ | 0.6 | 0.7 | 0.8 | 0.9 |
 |---|---|---|---|---|
 | logistic out-of-fold AUC | 0.5959 | 0.6059 | 0.5983 | 0.6050 |
@@ -171,7 +173,7 @@ Source: `eval/out/holdout_shock.md` (`python -m eval.holdout_shock`). Serving, d
 
 ## 6b. Serving path — Week 7 latency (§19)
 
-Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`), re-run after Sharia screening and the forecast change (entries 26–27). Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
+Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`), re-run after Sharia screening and the forecast change (entries 26–27). **Not re-timed since 2026-10-11:** the anomaly route now also runs the seasonal gate and the exact repeat check (entries 36.7, 37.5), and the credit model was retrained. On a slower 2-core machine with both anomaly changes the anomaly route's maximum was 1,271 ms and the credit route's 626 ms (entry 37.6), under the 2 s target; the figures below are the older run on the original machine. Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
 
 | Path | Value | n |
 |---|---|---|
