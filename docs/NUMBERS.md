@@ -111,20 +111,20 @@ Source: `eval/out/section14_noise_sweep.txt` (`python -m eval.sweep_rho --param 
 
 ## 5b. Demo scenario library (DECISIONS entry 29)
 
-Source: `eval/out/scenario_library_check.txt` (`python -m scenarios.run --check`). Business 10001 (serving) regenerated under each scenario in `scenarios/library.yaml`, with severities fixed before the first run. N = 1 business per scenario: these are demonstrations, not estimates. Every regenerate-and-run took under 0.5 s.
+Source: `eval/out/scenario_library_check.txt` (`python -m scenarios.run --check`). Business 10001 (serving) regenerated under each scenario in `scenarios/library.yaml`, with severities fixed before the first run. N = 1 business per scenario: these are demonstrations, not estimates. Every regenerate-and-run took under 0.5 s. Re-run on 2026-11-09 with the retrained model (`79160cb`); only the PD column moved (DECISIONS entry 46).
 
-| scenario | credit decision | PD | cash alert | injected anomalies flagged | Zakat (SAR, placeholder nisab) |
+| scenario | credit decision | PD | cash alert | injected anomalies flagged | Zakat (SAR) |
 |---|---|---|---|---|---|
-| `baseline` | approved | 0.0557 | watch | 2 of 2 | 5963.26 |
-| `calm_counterfactual` | approved | 0.0690 | none | 0 of 0 | 9031.05 |
-| `mild_slowdown` | approved | 0.0849 | none | 2 of 2 | 6890.63 |
-| `severe_collapse` | declined (affordability) | 0.0483 | crunch | 2 of 2 | 1327.52 |
-| `late_sudden_shock` | approved | 0.0999 | none | 2 of 2 | 6568.57 |
-| `fraud_pattern` | approved | 0.0953 | none | 5 of 5 | 4978.57 |
-| `combined_crisis` | declined (affordability) | 0.0561 | crunch | 2 of 2 | 2651.45 |
+| `baseline` | approved | 0.0526 | watch | 2 of 2 | 5963.26 |
+| `calm_counterfactual` | approved | 0.0663 | none | 0 of 0 | 9031.05 |
+| `mild_slowdown` | approved | 0.0743 | none | 2 of 2 | 6890.63 |
+| `severe_collapse` | declined (affordability) | 0.0390 | crunch | 2 of 2 | 1327.52 |
+| `late_sudden_shock` | approved | 0.0873 | none | 2 of 2 | 6568.57 |
+| `fraud_pattern` | approved | 0.0960 | none | 5 of 5 | 4978.57 |
+| `combined_crisis` | declined (affordability) | 0.0656 | crunch | 2 of 2 | 2651.45 |
 | `thin_file_newcomer` | not decided (insufficient_data) | — | — | — | — |
 
-Read with entry 29: the declines come from the §31 affordability gate, not from the risk model; PD does not rise with the disaster; the late three-week shock is not seen by any lens; and the anomaly lens returns its 10-flag cap in every scenario, including the calm one.
+Read with entries 29 and 46: the declines come from the §31 affordability gate, not from the risk model; **PD does not follow the severity of the disaster** (the severe collapse has the lowest PD, 0.0390, and the calm half-year, 0.0663, scores above the baseline, 0.0526); the late three-week shock is not seen by any lens; and the anomaly lens returns its 10-flag cap in every scenario, including the calm one.
 
 ---
 
@@ -185,6 +185,7 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | "§21 signal-strength tolerance missed by 0.30" (gap 0.307) | pre-calibration run, Berka side from the single temporal split | gap 0.152 primary / 0.289 secondary vs tolerance 0.10 (`eval/out/real_vs_synthetic.md`) |
 | A2 0.574 [0.568, 0.585]; A7 0.578 [0.550, 0.607]; gap 0.147 primary / 0.285 secondary | measured on 2026-09-17 with counterparty features 20–22 computed from thinned POS rows, which entry 30 showed to be biased; re-run on 2026-11-09 after entries 30, 35 and 38. The Berka side reproduced exactly | A2 0.570, A7 0.576, gap 0.152 / 0.289 (§2) |
 | "The model beats any single observable channel" | true pre-calibration; false after (withdrawn, entry 21) | — |
+| Scenario PDs 0.0557 / 0.0690 / 0.0849 / 0.0483 / 0.0999 / 0.0953 / 0.0561, and "the collapses' PDs are no higher than the baseline's" | the model before the retrain of 2026-11-07; with the retrained model the combined crisis (0.0656) is above the baseline (0.0526) | §5b, entry 46 |
 | Held-out round-trip recall 0.92 (precision 0.2135 of 0.2297) | true before the seasonal gate was switched on (entry 36.7); with it, 0.93 | §5 anomaly rows |
 | Held-out duplicate payment recall 0.06 | true with no repeat detector; with the exact check (entry 37.5) the same-day type is designed-for and scores 0.66 | §5 anomaly rows |
 | "The forecast model loses to the naive baseline" (median error 0.455 vs 0.376; MAPE 18.1% vs 15.0%) | true of the v1 OLS-trend model, which was replaced (entry 27) | §5 forecast rows |

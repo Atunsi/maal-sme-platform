@@ -3121,3 +3121,51 @@ within volatile sectors."
 
 **Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; finding recorded — not fairness
 approval) ☐ team (the finding and the limitations wording)
+
+---
+
+## 46. Scenario library re-run on the retrained credit model; entry 29's findings 1–2 restated — RECORDED (measurement, 2026-11-09)
+
+**Touches:** `eval/out/scenario_library_check.txt`, `docs/NUMBERS.md` §5b and §7. `config.yaml`,
+`lenses/lens_config.yaml`, `lenses/credit/model_v1.json` and `scenarios/library.yaml` are unchanged.
+
+**Numbering.** Numbers 41, 42, 44 and 45 are used on the unmerged branch `origin/faris/web-ui`, which
+also carries a different entry 43 (web UI enhancements) from the one on `main` (§25 fairness). This
+entry takes 46 so a third collision is not added. The two entries numbered 43 have to be renumbered
+when that branch is merged.
+
+**Why.** NUMBERS §5b and the report behind it were last produced on 2026-10-31, before entries 30, 35
+and 38 changed ten features and before the credit model was retrained (`79160cb`, 2026-11-07). Entry
+38 said §5b "moves with the retrain"; it was not re-run. `eval.check_numbers` compares the register
+with the committed report, and both were stale, so the check passed.
+
+**Result** (`python -m scenarios.run --check`, exit 0; business 10001, N = 1 per scenario, severities
+unchanged since 2026-10-31). Decisions, amounts, tiers, cash alerts, anomaly flags and Zakat are the
+same as on 2026-10-31. Only the PD moved:
+
+| scenario | decision | PD on 2026-10-31 | PD now |
+|---|---|---|---|
+| `baseline` | approved, 47,000 SAR, tier B | 0.0557 | 0.0526 |
+| `calm_counterfactual` | approved, 242,000 SAR, tier C | 0.0690 | 0.0663 |
+| `mild_slowdown` | approved, 173,000 SAR, tier C | 0.0849 | 0.0743 |
+| `severe_collapse` | declined (affordability) | 0.0483 | 0.0390 |
+| `late_sudden_shock` | approved, 104,000 SAR, tier C | 0.0999 | 0.0873 |
+| `fraud_pattern` | approved, 159,000 SAR, tier C | 0.0953 | 0.0960 |
+| `combined_crisis` | declined (affordability) | 0.0561 | 0.0656 |
+
+**Entry 29's findings, restated for the shipped model:**
+1. Collapses are still declined by the §31 affordability gate, not by the risk model. Entry 29's
+   sentence "Their PDs (0.0483, 0.0561) are no higher than the baseline's (0.0557)" no longer holds for
+   `combined_crisis`: 0.0656 against 0.0526. It still holds for `severe_collapse` (0.0390), which has the
+   lowest PD of the seven scored scenarios.
+2. PD does not follow the severity of the disaster. The calm half-year with no shock and no anomalies
+   (0.0663) scores above the baseline (0.0526) and above the combined crisis (0.0656); the severe
+   collapse scores lowest. Say "the risk score does not track how bad the scenario is", not "PD does
+   not rise": five of the six other scored scenarios now have a higher PD than the baseline, the calm
+   one included.
+3. Findings 3 to 5 are unchanged: the late three-week shock is approved for 104,000 SAR against the
+   baseline's 47,000 with no cash alert, and the anomaly lens returns 10 flags in every scenario.
+
+Nothing was retuned, and one business per scenario is a demonstration, not an estimate.
+
+**Sign-off:** ☐ generator owner (scenario library re-run) ☐ credit lens owner (findings 1–2 as restated) ☐ team (the wording used in the demo)
