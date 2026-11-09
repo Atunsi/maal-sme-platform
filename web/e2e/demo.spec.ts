@@ -149,3 +149,13 @@ test("clicking a timeline mark highlights its table row", async ({ page }) => {
   await page.locator('button.tick[data-count="1"]').first().click();
   await expect(page.locator('tbody tr[data-picked="true"]')).toHaveCount(1);
 });
+
+test("footer links keep the demo role", async ({ page }) => {
+  // B14: the footer carried no ?as=, so following it dropped the demo role.
+  await page.goto("/en/business/10012?as=admin", { waitUntil: "networkidle" });
+  const footer = page.getByRole("navigation", { name: "More about Ma'al" });
+  await expect(footer.getByRole("link", { name: "How Ma'al decides" })).toHaveAttribute("href", "/en/how-it-works?as=admin");
+  await expect(footer.getByRole("link", { name: "Glossary" })).toHaveAttribute("href", "/en/glossary?as=admin");
+  await page.goto("/en/business/10012", { waitUntil: "networkidle" });
+  await expect(footer.getByRole("link", { name: "Glossary" })).toHaveAttribute("href", "/en/glossary");
+});
