@@ -38,7 +38,7 @@ Use these as written. Each carries the caveat that must travel with it.
 | A6 | 0.5959 | research, scorable | 9,495 / 449 | all 71 engine features incl. Zakat-only 27–31, + dummies | single stratified 5-fold | `eval/out/section14_rho_sweep.md` | the §14 sensitivity measurement at ρ = 0.6 | the credit lens (includes non-contract features) |
 | A7 | 0.576 [0.550, 0.605] | research, scorable | 9,495 / 449 | same 25 as A2 | contiguous-ID entity 5-fold | `eval/out/real_vs_synthetic.md` | secondary protocol check | the headline |
 | A8 | 0.901 [0.835, 0.955] | Berka secondary, temporal test | test 328 / 25 | same 25 as A2 | single temporal split at 1997-01-01 | `eval/out/real_vs_synthetic.md` | **leakage check only** | performance (single split; mixing it with A2 created a spurious 0.32 gap) |
-| A9 | 0.610 | research + serving, scorable | 9,914 | 6 observables + sector | **in-sample** | `eval/out/gate_week3_after_monshaat.txt` | Week 3 gate criterion 2 (signal exists, labels not recoverable) | any performance claim |
+| A9 | 0.610 | research only, scorable by the gate's own 60-day window (entry 39) | 9,016 | 6 observables + sector | **in-sample** | `eval/out/gate_week3_after_monshaat.txt` | Week 3 gate criterion 2 (signal exists, labels not recoverable) | any performance claim |
 
 **Why A1, A2 and A6 differ (0.591 / 0.570 / 0.596):** the same population, but 58 vs 25 vs 71 features. A2 drops absolute-currency features so the comparison with Berka is scale-free. A6 includes the balance-sheet features that §8 keeps out of the credit lens. The protocols are repeated vs single. None of the three is wrong; they answer different questions.
 
@@ -159,7 +159,7 @@ Source: `eval/out/holdout_shock.md` (`python -m eval.holdout_shock`). Serving, d
 | Week 3 gate | PASS with one loud SKIP (professional services, 237 businesses / 3 defaults, below the §23 minimum cell) | `eval/out/gate_week3_after_monshaat.txt` |
 | Construction `implied_dso_days` (gate criterion 1) | 65.9 / 94.2 / 118.2 min/median/max, n = 3,679 — all inside [60, 120] | same |
 | Professional `implied_dio_days` | max 3.39, n = 261 — all < 5 | same |
-| Scorable / excluded | 9,914 scorable; 1,086 `insufficient_data` | same |
+| Scorable / excluded, **by the gate's window** (90 days ending at the last month-end) | 9,914 scorable; 1,086 `insufficient_data`, of 11,000. The lenses use the engine's window (ending at the as-of date): 562 `insufficient_data`, research scorable 9,495 (entry 39) | same; `data/profile_status.csv` |
 | §21 | 0 emergent findings; 6 input-consistency misses (medium-tier revenue share 19.7% vs GASTAT 34.3%; sector TV distance 0.384) | `eval/out/emergent_validation.md`, entry 12 |
 | SAMA POS ticket (calibration input) | retail 61.5 SAR, restaurants 29.0 SAR | `config.yaml`, `calibration/out/` |
 | Seasonality held-out years 2024–2025 | 12 PASS / 8 BOUNDED / 0 FAIL / 16 NOT_APPLIED | `calibration/out/saudi_calibration_report.md` |
