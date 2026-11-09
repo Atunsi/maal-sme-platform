@@ -18,7 +18,7 @@ Use these as written. Each carries the caveat that must travel with it.
 
 | Claim | Caveat that must be said with it |
 |---|---|
-| **On real bank outcomes the engine reaches AUC 0.721 [0.681, 0.770]**, against 0.574 on deliberately harder synthetic labels under the same protocol and features. | **Do not add "inside the published SME range" until a published benchmark is archived in `sources/` and cited** — the often-quoted 0.70–0.80 is not yet sourced (§21 source discipline; the same gap blocks entry 22 Path B).  Berka is Czech retail bank accounts from the 1990s, not Saudi SMEs, so it tests whether the engine extracts real signal, not Saudi calibration. n = 209 with 22 defaults. The eligibility rule removes riskier accounts (risk ratio 3.42), so this is measured on the eligible population and is optimistic. |
+| **On real bank outcomes the engine reaches AUC 0.721 [0.681, 0.770]**, against 0.570 on deliberately harder synthetic labels under the same protocol and features. | **Do not add "inside the published SME range" until a published benchmark is archived in `sources/` and cited** — the often-quoted 0.70–0.80 is not yet sourced (§21 source discipline; the same gap blocks entry 22 Path B).  Berka is Czech retail bank accounts from the 1990s, not Saudi SMEs, so it tests whether the engine extracts real signal, not Saudi calibration. n = 209 with 22 defaults. The eligibility rule removes riskier accounts (risk ratio 3.42), so this is measured on the eligible population and is optimistic. |
 | **The credit lens reaches 88.8% of the best AUC any model could achieve on our synthetic data** (0.5911 of a 0.6660 ceiling). | The ceiling exists because the synthetic labels deliberately contain noise that nothing observable can predict (§14). That design is what makes the labels non-circular. |
 | **AUC ≥ 0.85 on the synthetic data is impossible by construction**, so a result that high would indicate leakage, not skill. | Applies to the *synthetic* labels only. Real-data AUCs (e.g. Berka secondary 0.859) are not subject to it. |
 | **22 of 43 engine features predict real defaults** with a 95% interval excluding 0.5. | Univariate, on Berka; the other 21 are computed on real data but not claimed to predict. |
@@ -31,16 +31,16 @@ Use these as written. Each carries the caveat that must travel with it.
 | ID | AUC [95%] | Population | N / defaults | Features | Protocol | Source | Quote it for | Never quote it for |
 |---|---|---|---|---|---|---|---|---|
 | **A1** | **0.5911 [0.5842, 0.5996]** | research, scorable | 9,495 / 449 | 58 — the §8 `/profile` list minus 23–26 | repeated stratified group 5-fold × 20 (`unified_cv`) | `lenses/credit/model_v1.json` | **The credit lens's performance** | comparing with Berka (different features) |
-| **A2** | **0.574 [0.568, 0.585]** | research, scorable | 9,495 / 449 | 25 scale-free real-computed features | same as A1 | `eval/out/real_vs_synthetic.md` | **Synthetic side of the real-vs-synthetic comparison** | the credit lens's performance |
+| **A2** | **0.570 [0.563, 0.580]** | research, scorable | 9,495 / 449 | 25 scale-free real-computed features | same as A1 | `eval/out/real_vs_synthetic.md` | **Synthetic side of the real-vs-synthetic comparison** | the credit lens's performance |
 | **A3** | **0.721 [0.681, 0.770]** | Berka primary label | 209 / 22 | same 25 as A2 | same as A1 | `eval/out/real_vs_synthetic.md` | **Real-data performance (headline)** | Saudi calibration |
 | A4 | 0.859 [0.841, 0.880] | Berka secondary label (censored) | 615 / 59 | same 25 as A2 | same as A1 | `eval/out/real_vs_synthetic.md` | real-data performance, secondary label | the headline (label is censored) |
 | A5 | 0.628 [0.536, 0.710] | serving (never trained on) | 943 / 45 | same 58 as A1 | A1 model scored once out of sample | `lenses/credit/model_v1.json` | out-of-sample sanity check on the disjoint demo population | a precise estimate (45 defaults) |
 | A6 | 0.5959 | research, scorable | 9,495 / 449 | all 71 engine features incl. Zakat-only 27–31, + dummies | single stratified 5-fold | `eval/out/section14_rho_sweep.md` | the §14 sensitivity measurement at ρ = 0.6 | the credit lens (includes non-contract features) |
-| A7 | 0.578 [0.550, 0.607] | research, scorable | 9,495 / 449 | same 25 as A2 | contiguous-ID entity 5-fold | `eval/out/real_vs_synthetic.md` | secondary protocol check | the headline |
+| A7 | 0.576 [0.550, 0.605] | research, scorable | 9,495 / 449 | same 25 as A2 | contiguous-ID entity 5-fold | `eval/out/real_vs_synthetic.md` | secondary protocol check | the headline |
 | A8 | 0.901 [0.835, 0.955] | Berka secondary, temporal test | test 328 / 25 | same 25 as A2 | single temporal split at 1997-01-01 | `eval/out/real_vs_synthetic.md` | **leakage check only** | performance (single split; mixing it with A2 created a spurious 0.32 gap) |
 | A9 | 0.610 | research + serving, scorable | 9,914 | 6 observables + sector | **in-sample** | `eval/out/gate_week3_after_monshaat.txt` | Week 3 gate criterion 2 (signal exists, labels not recoverable) | any performance claim |
 
-**Why A1, A2 and A6 differ (0.591 / 0.574 / 0.596):** the same population, but 58 vs 25 vs 71 features. A2 drops absolute-currency features so the comparison with Berka is scale-free. A6 includes the balance-sheet features that §8 keeps out of the credit lens. The protocols are repeated vs single. None of the three is wrong; they answer different questions.
+**Why A1, A2 and A6 differ (0.591 / 0.570 / 0.596):** the same population, but 58 vs 25 vs 71 features. A2 drops absolute-currency features so the comparison with Berka is scale-free. A6 includes the balance-sheet features that §8 keeps out of the credit lens. The protocols are repeated vs single. None of the three is wrong; they answer different questions.
 
 ---
 
@@ -182,7 +182,8 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | Within-sector share 56.8% | pre-calibration sector weights | 73.4% (§3) |
 | Medium-tier revenue share 43.9% / 44.0% vs 34.3% | before the Monsha'at register | 19.7% vs 34.3% (§6) |
 | "Synthetic 0.578 vs Berka 0.901, gap 0.32" | compared a CV estimate with a single temporal split | A2 vs A3 under one protocol |
-| "§21 signal-strength tolerance missed by 0.30" (gap 0.307) | pre-calibration run, Berka side from the single temporal split | gap 0.147 primary / 0.285 secondary vs tolerance 0.10 (`eval/out/real_vs_synthetic.md`) |
+| "§21 signal-strength tolerance missed by 0.30" (gap 0.307) | pre-calibration run, Berka side from the single temporal split | gap 0.152 primary / 0.289 secondary vs tolerance 0.10 (`eval/out/real_vs_synthetic.md`) |
+| A2 0.574 [0.568, 0.585]; A7 0.578 [0.550, 0.607]; gap 0.147 primary / 0.285 secondary | measured on 2026-09-17 with counterparty features 20–22 computed from thinned POS rows, which entry 30 showed to be biased; re-run on 2026-11-09 after entries 30, 35 and 38. The Berka side reproduced exactly | A2 0.570, A7 0.576, gap 0.152 / 0.289 (§2) |
 | "The model beats any single observable channel" | true pre-calibration; false after (withdrawn, entry 21) | — |
 | Held-out round-trip recall 0.92 (precision 0.2135 of 0.2297) | true before the seasonal gate was switched on (entry 36.7); with it, 0.93 | §5 anomaly rows |
 | Held-out duplicate payment recall 0.06 | true with no repeat detector; with the exact check (entry 37.5) the same-day type is designed-for and scores 0.66 | §5 anomaly rows |

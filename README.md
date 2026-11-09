@@ -231,7 +231,7 @@ and weighting fixes only 21. Feature 1 and the other daily-table features are un
 | Completeness gate | 4,500 / 4,500 accounts chain (0.21 CZK month-end tolerance) | `data/berka/build_summary.json` |
 | §15 rule on real data | **excludes 100%** of accounts as written; scored under `external_real: 10` (3,947 / 4,500) | [entry 9](DECISIONS.md) |
 | Evidence classes | **A2 22, A1 21, B 3, C 25** of 71 registry entries (69 numbered features + 18b, 62b). A2 = computed on Berka *and* univariate AUC CI excludes 0.50 on ≥ 1 label set; A1 = computed on Berka, performance reported, not assumed | [`eval/out/evidence_table.md`](eval/out/evidence_table.md), [`eval/out/feature_transfer.md`](eval/out/feature_transfer.md), [entry 16](DECISIONS.md) |
-| Real vs synthetic AUC | **one protocol on all three sources** (repeated stratified group 5-fold × 20): synthetic **0.574 [0.568, 0.585]** vs Berka primary **0.721 [0.681, 0.770]** / secondary **0.859 [0.841, 0.880]** — gap 0.15 (primary) / 0.29 (secondary), **FINDING**, not retuned. The v1.0 headline (0.578 vs a single temporal split 0.901, gap 0.32) mixed protocols and is kept as a labelled leakage check. The §15 exclusion is **selective**: excluded accounts default at 2.6–3.4× the retained rate | [`eval/out/real_vs_synthetic.md`](eval/out/real_vs_synthetic.md), [`eval/out/exclusion_selectivity.md`](eval/out/exclusion_selectivity.md), [entry 19](DECISIONS.md) |
+| Real vs synthetic AUC | **one protocol on all three sources** (repeated stratified group 5-fold × 20): synthetic **0.570 [0.563, 0.580]** vs Berka primary **0.721 [0.681, 0.770]** / secondary **0.859 [0.841, 0.880]** — gap 0.15 (primary) / 0.29 (secondary), **FINDING**, not retuned. The v1.0 headline (0.578 vs a single temporal split 0.901, gap 0.32) mixed protocols and is kept as a labelled leakage check. The §15 exclusion is **selective**: excluded accounts default at 2.6–3.4× the retained rate | [`eval/out/real_vs_synthetic.md`](eval/out/real_vs_synthetic.md), [`eval/out/exclusion_selectivity.md`](eval/out/exclusion_selectivity.md), [entry 19](DECISIONS.md) |
 | Class-C features | sensitivity ranges only, never a single number | `eval/out/sensitivity_*.md` |
 
 The three-column evidence table is the honest answer to "you have no real
@@ -304,8 +304,8 @@ owners' lines are not signed.
   direct-debit or scheduled row does not add collections to `transactions.csv`,
   because that would move gate numbers (§9.3). Committed outflow can therefore
   exceed observed outflow for some businesses.
-- **The 0.1 tolerance on `real_vs_synthetic_signal_strength` was missed**: gap 0.147 on the
-  Berka primary label (0.574 vs 0.721) and 0.285 on the secondary, one protocol on both sides
+- **The 0.1 tolerance on `real_vs_synthetic_signal_strength` was missed**: gap 0.152 on the
+  Berka primary label (0.570 vs 0.721) and 0.289 on the secondary, one protocol on both sides
   (`eval/out/real_vs_synthetic.md`; the old "missed by 0.30" was the retired single-split comparison)
   in the direction of *more* real signal. The generator's ρ = 0.6 / σ = 0.2 is
   untouched; revisit only through a recorded §21 decision.

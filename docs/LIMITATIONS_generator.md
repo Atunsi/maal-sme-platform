@@ -37,8 +37,8 @@ years 2024–2025: 12 PASS, 8 BOUNDED, 0 FAIL, 16 NOT_APPLIED.
 
 **6. Real data carries more signal than the synthetic data.** Under one
 protocol and one 25-feature set, the engine reaches AUC 0.721 [0.681, 0.770]
-on Berka's primary label against 0.574 [0.568, 0.585] on synthetic labels. The
-pre-registered §21 tolerance was 0.10. The gap is 0.147, so the miss is
+on Berka's primary label against 0.570 [0.563, 0.580] on synthetic labels. The
+pre-registered §21 tolerance was 0.10. The gap is 0.152, so the miss is
 reported as a finding, and the generator was not tuned to close it (entry 19).
 
 **7. The synthetic labels have a ceiling by design.** Default labels are drawn
