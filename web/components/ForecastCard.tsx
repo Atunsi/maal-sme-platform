@@ -174,7 +174,7 @@ export function ForecastCard({ data, locale, m }: { data: ForecastResponse; loca
     <>
       <LensHead data={data} title={lastDay ? fill(n.pageTitle, { n: lastDay }) : n.title} aside={aside} locale={locale} m={m} />
       {!f ? (
-        <Refusal reason={data.lens_not_run_reason} m={m} />
+        <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
       ) : f.status === "not_computed" ? (
         <p role="status">
           {n.notComputed} {m.enums.lens_status[f.reason]} ({n.historyDays}: <Num>{formatInt(f.history_days, locale)}</Num>)

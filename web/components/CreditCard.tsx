@@ -100,7 +100,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
     return (
       <>
         <LensHead data={data} title={m.credit.title} locale={locale} m={m} />
-        <Refusal reason={data.lens_not_run_reason} m={m} />
+        <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
       </>
     );
   }

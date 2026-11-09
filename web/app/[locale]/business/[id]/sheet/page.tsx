@@ -45,7 +45,7 @@ function Loaded<T>({ result, m, children }: { result: ApiResult<T>; m: Messages;
 function Verdict({ data, locale, m }: { data: CreditResponse; locale: Locale; m: Messages }) {
   const { credit, credit_decision_detail: detail, credit_explanation: explanation } = data;
   const o = m.overview;
-  if (!credit || !detail) return <Refusal reason={data.lens_not_run_reason} m={m} />;
+  if (!credit || !detail) return <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />;
   const plate = decisionPlate(credit, detail, m);
   return (
     <>
@@ -82,7 +82,7 @@ function Verdict({ data, locale, m }: { data: CreditResponse; locale: Locale; m:
 function Zakat({ data, locale, m }: { data: ZakatResponse; locale: Locale; m: Messages }) {
   const z = data.zakat;
   const n = m.zakat;
-  if (!z) return <Refusal reason={data.lens_not_run_reason} m={m} />;
+  if (!z) return <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />;
   return (
     <>
       <dl>
@@ -104,7 +104,7 @@ function Zakat({ data, locale, m }: { data: ZakatResponse; locale: Locale; m: Me
 function Forecast({ data, locale, m }: { data: ForecastResponse; locale: Locale; m: Messages }) {
   const f = data.forecast;
   const n = m.forecast;
-  if (!f) return <Refusal reason={data.lens_not_run_reason} m={m} />;
+  if (!f) return <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />;
   if (f.status !== "computed") return <p>{n.notComputed} {m.enums.lens_status[f.reason]}</p>;
   const rows = [
     { label: n.model, series: f.model },
@@ -158,7 +158,7 @@ function Forecast({ data, locale, m }: { data: ForecastResponse; locale: Locale;
 
 function Review({ data, locale, m }: { data: AnomalyResponse; locale: Locale; m: Messages }) {
   const a = data.anomaly;
-  if (!a) return <Refusal reason={data.lens_not_run_reason} m={m} />;
+  if (!a) return <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />;
   if (a.status !== "computed") return <p>{m.anomaly.notComputed}</p>;
   const counts = new Map<string, number>();
   for (const flag of a.flags) counts.set(flag.flag_reason, (counts.get(flag.flag_reason) ?? 0) + 1);

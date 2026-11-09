@@ -74,7 +74,8 @@
   "refusal": {
     "title": "Not scored",
     "body": "This business has too little recent activity for any lens to run. This is a refusal to score. It is not a low result.",
-    "reason": "Reason"
+    "reason": "Reason",
+    "example": "See a business with enough data"
   },
   "partial": {
     "body": "Scored, but these features have no prior period to compare against:"
@@ -166,7 +167,8 @@
     "checked": "What was checked",
     "used": "Used",
     "recorded": "Recorded",
-    "notConfirmed": "Not yet confirmed"
+    "notConfirmed": "Not yet confirmed",
+    "noMccSector": "No merchant code was declared, so the screen used the registered sector, and the rule table triggers no rule for this sector when the code is missing."
   },
   "forecast": {
     "title": "Forecast",

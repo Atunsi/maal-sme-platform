@@ -59,6 +59,13 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
           result={<Plate variant={STATUS_VARIANT[s.sharia_screen_status]}>{m.enums.sharia[s.sharia_screen_status]}</Plate>}
           index={1}
         />
+        {/* C6: compliance/sharia.py, screen(), branch (a): with no MCC the screen falls back to the registered
+            sector, and a sector the rule table's no_mcc_by_sector marks compliant triggers no rule. */}
+        {s.declared_mcc === null && s.evidence_basis === "registered_sector" && s.sharia_screen_status === "compliant" && (
+          <p data-no-mcc className="border-t border-line2 px-7 py-4 text-sm">
+            {m.sharia.noMccSector}
+          </p>
+        )}
         <Checked label={m.sharia.ruleTableVersion} value={<Code>{s.rule_table_version}</Code>} result={m.sharia.recorded} index={2} />
         <Checked label={<Term id="rule-table-status" locale={locale}>{m.sharia.ruleTableStatus}</Term>} value={<Code>{s.rule_table_status}</Code>} result={m.sharia.notConfirmed} index={3} />
       </section>

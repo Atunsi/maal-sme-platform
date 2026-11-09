@@ -44,7 +44,7 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
     <>
       <LensHead data={data} title={n.title} aside={aside} locale={locale} m={m} />
       {!a ? (
-        <Refusal reason={data.lens_not_run_reason} m={m} />
+        <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
       ) : a.status === "not_computed" ? (
         <p role="status">
           {n.notComputed} {m.enums.lens_status[a.reason]}

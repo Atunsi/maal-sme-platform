@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
+import { RefusalLink } from "@/components/RefusalLink";
 import { RetryButton } from "@/components/RetryButton";
 import { localeOf, type Locale, type Messages } from "@/lib/i18n";
-import { formatDate, formatProbability } from "@/lib/format";
+import { formatDate, formatInt, formatProbability } from "@/lib/format";
 import { nisabPlate } from "@/lib/nisab";
 import type { ApiErrorKind, Provenance } from "@/lib/types";
 
@@ -108,7 +109,12 @@ export function ProvenanceLine({ value, locale, m }: { value: Provenance; locale
   );
 }
 
-export function Refusal({ reason, m }: { reason: "insufficient_data" | undefined; m: Messages }) {
+/**
+ * U10: the explicit refusal. C6: it also says how much recent activity the response counted (the threshold is
+ * not in the response, so none is printed) and links to a business with enough data.
+ */
+export function Refusal({ reason, coverage, m }: { reason: "insufficient_data" | undefined; coverage?: number | null; m: Messages }) {
+  const locale = localeOf(m);
   return (
     <div role="status" className="border border-line bg-grey p-4">
       <p className="font-semibold">
@@ -120,6 +126,12 @@ export function Refusal({ reason, m }: { reason: "insufficient_data" | undefined
           {m.refusal.reason}: {m.enums.lens_status[reason]} (<Code>{reason}</Code>)
         </p>
       )}
+      {coverage !== undefined && coverage !== null && (
+        <p className="mt-1 text-sm" data-refusal-coverage>
+          {m.common.coverage}: <Num>{formatInt(coverage, locale)}</Num>
+        </p>
+      )}
+      <RefusalLink locale={locale} label={m.refusal.example} />
     </div>
   );
 }

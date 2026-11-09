@@ -208,7 +208,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
     <>
       <LensHead data={data} title={n.pageTitle} aside={aside} locale={locale} m={m} />
       {!z ? (
-        <Refusal reason={data.lens_not_run_reason} m={m} />
+        <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
       ) : (
         <>
           {z.status !== "computed" && z.reason && (

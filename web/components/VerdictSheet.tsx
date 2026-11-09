@@ -64,7 +64,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
             <h2 id="verdict" className="heading text-[52px]">
               {o.notRun}
             </h2>
-            <Refusal reason={data.lens_not_run_reason} m={m} />
+            <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
           </>
         ) : (
           <>
