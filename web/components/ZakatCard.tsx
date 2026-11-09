@@ -3,7 +3,7 @@ import { LensHead } from "@/components/BusinessHeader";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
 import { TipButton } from "@/components/TipButton";
-import { BackendText, Code, Field, Fields, Num, Plate, Refusal } from "@/components/ui";
+import { BackendText, Code, Field, Fields, NisabPlate, Num, Plate, Refusal } from "@/components/ui";
 import { formatDate, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ZakatResponse } from "@/lib/types";
@@ -183,7 +183,6 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
 export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Locale; m: Messages }) {
   const z = data.zakat;
   const n = m.zakat;
-  const placeholder = z?.nisab_source_status === "placeholder_unverified";
   const aside = z && (
     <div className="flex flex-col gap-2 sm:items-end">
       <div className="flex items-center gap-3">
@@ -194,7 +193,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
           </span>
         )}
       </div>
-      {placeholder && <Plate variant="warn">{n.placeholder}</Plate>}
+      <NisabPlate status={z.nisab_source_status} m={m} />
     </div>
   );
   return (

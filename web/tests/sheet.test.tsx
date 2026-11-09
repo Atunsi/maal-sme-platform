@@ -24,7 +24,7 @@ describe("print sheet", () => {
     expect(text).toContain(en.overview.lateValue); // U2
     expect(text).toContain(en.sharia.label); // U6
     expect(text).toContain(credit.sharia_screen.rule_table_status);
-    if (zakat.zakat?.nisab_source_status === "placeholder_unverified") expect(text).toContain(en.zakat.placeholder); // U7
+    expect(text).toContain(en.zakat.nisabStatus[zakat.zakat!.nisab_source_status as keyof typeof en.zakat.nisabStatus]); // U7, the fixture's own status
     expect(text).toContain(en.zakat.asReturned); // Not a ZATCA assessment
     expect(text).toContain(`${en.common.population}: ${en.enums.population.serving}`); // U11
     expect(text).toContain(credit.receipt.scope!); // U13, verbatim

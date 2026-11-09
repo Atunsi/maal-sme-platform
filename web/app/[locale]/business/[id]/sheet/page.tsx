@@ -4,7 +4,7 @@ import { ArabicLogo, EnglishWordmark } from "@/components/brand/Logos";
 import { NotServing } from "@/components/LensPage";
 import { PrintButton } from "@/components/PrintButton";
 import { ShariaLabel } from "@/components/ShariaPanel";
-import { ApiError, BackendText, Code, Num, Plate, ProvenanceLine, Refusal, TableScroll, TD, TH } from "@/components/ui";
+import { ApiError, BackendText, Code, NisabPlate, Num, Plate, ProvenanceLine, Refusal, TableScroll, TD, TH } from "@/components/ui";
 import { getAnomaly, getCredit, getForecast, getZakat } from "@/lib/api";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
@@ -93,7 +93,7 @@ function Zakat({ data, locale, m }: { data: ZakatResponse; locale: Locale; m: Me
           </Row>
         )}
       </dl>
-      {z.nisab_source_status === "placeholder_unverified" && <Plate variant="warn">{n.placeholder}</Plate>}
+      <NisabPlate status={z.nisab_source_status} m={m} />
       <p className="text-[13px] text-muted">{n.asReturned}</p>
     </>
   );

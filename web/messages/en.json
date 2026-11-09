@@ -234,7 +234,12 @@
     "liabilities": "Deductible liabilities",
     "nisab": "Nisab value",
     "nisabBasis": "Nisab basis",
-    "placeholder": "Nisab price is a placeholder, unverified",
+    "nisabStatus": {
+      "placeholder_unverified": "Nisab price is a placeholder, unverified",
+      "commercial_quote_documented_pending_independent_verification": "Nisab price is a commercial quote, pending independent verification"
+    },
+    "nisabUnknown": "Nisab price not independently verified",
+    "nisabVerified": [],
     "rate": "Rate",
     "thresholdMet": "Nisab threshold met",
     "snapshot": "Balance-sheet snapshot",
@@ -531,7 +536,7 @@
       },
       {
         "title": "Zakat you can follow",
-        "text": "The amount is built in front of you from the balance sheet, with the nisab source marked when it is still a placeholder."
+        "text": "The amount is built in front of you from the balance sheet, with a plate showing whether the gold price behind the nisab has been verified."
       },
       {
         "title": "Model numbers on the receipt",

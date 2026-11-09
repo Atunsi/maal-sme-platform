@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ShariaLabel } from "@/components/ShariaPanel";
-import { Num, Plate, ProvenanceLine, Refusal, SubHeading, TableScroll, TH } from "@/components/ui";
+import { NisabPlate, Num, Plate, ProvenanceLine, Refusal, SubHeading, TableScroll, TH } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import { scenarioName } from "@/lib/scenario-label";
@@ -122,7 +122,8 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
   ];
   const left = column(baseline, locale, m);
   const right = column(chosen, locale, m);
-  const placeholder = [baseline, chosen].some((o) => o.zakat?.nisab_source_status === "placeholder_unverified");
+  // U7: one plate per distinct status across the two objects, so neither object's status goes unshown.
+  const nisabStatuses = [...new Set([baseline, chosen].flatMap((o) => (o.zakat ? [o.zakat.nisab_source_status] : [])))];
   const note = <p className="mb-2 text-sm">{s.receiptNote}</p>;
   return (
     <div data-testid="scenario-compare" data-tour="diff" className="flex flex-col gap-4">
@@ -177,7 +178,9 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
       </div>
       <div className="flex flex-wrap gap-2">
         <ShariaLabel m={m} />
-        {placeholder && <Plate variant="warn">{m.zakat.placeholder}</Plate>}
+        {nisabStatuses.map((status) => (
+          <NisabPlate key={status} status={status} m={m} />
+        ))}
       </div>
       <p className="text-sm">{m.anomaly.queue}</p>
       <SubHeading>{s.receipts}</SubHeading>

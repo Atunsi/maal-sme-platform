@@ -65,7 +65,7 @@ describe("scenario comparison", () => {
   it("U6 U7 U8 the Sharia label, the nisab badge and the review-queue line appear", () => {
     compare("severe_collapse");
     expect(screen.getByText(en.sharia.label)).toBeTruthy();
-    expect(screen.getByText(en.zakat.placeholder)).toBeTruthy();
+    expect(screen.getByText(en.zakat.nisabStatus.placeholder_unverified)).toBeTruthy();
     expect(screen.getByText(en.anomaly.queue)).toBeTruthy();
   });
 

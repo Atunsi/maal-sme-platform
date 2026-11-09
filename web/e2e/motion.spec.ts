@@ -51,9 +51,9 @@ test("reduced motion: U6 the Sharia frame and its outline stand without animatio
   expect(await outline.evaluate((el) => getComputedStyle(el).strokeDashoffset)).toMatch(/^0(px)?$/);
 });
 
-test("reduced motion: U7 zakat shows the placeholder plate, the bars and the nisab marker", async ({ page }) => {
+test("reduced motion: U7 zakat shows the nisab plate, the bars and the nisab marker", async ({ page }) => {
   await settledWithoutMotion(page, "/en/business/10001/zakat");
-  await expect(page.getByText("Nisab price is a placeholder, unverified")).toBeVisible();
+  await expect(page.getByText("Nisab price is a commercial quote, pending independent verification")).toBeVisible();
   expect(await widthOf(page, ".fill-bar")).toBeGreaterThan(100);
   await expect(page.getByText(/^nisab /)).toBeVisible();
 });

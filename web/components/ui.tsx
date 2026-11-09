@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { RetryButton } from "@/components/RetryButton";
 import type { Locale, Messages } from "@/lib/i18n";
 import { formatDate } from "@/lib/format";
+import { nisabPlate } from "@/lib/nisab";
 import type { ApiErrorKind, Provenance } from "@/lib/types";
 
 export type PlateVariant = "ok" | "bad" | "warn" | "ink" | "accent" | "line";
@@ -11,6 +12,18 @@ export function Plate({ variant, className, style, children }: { variant: PlateV
   return (
     <span className={`plate plate-${variant}${className ? ` ${className}` : ""}`} style={style}>
       {children}
+    </span>
+  );
+}
+
+/** U7: the nisab price's verification status, beside the raw code when the catalogue has no words for it. */
+export function NisabPlate({ status, m }: { status: string; m: Messages }) {
+  const plate = nisabPlate(status, m);
+  if (!plate) return null;
+  return (
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <Plate variant="warn">{plate.words}</Plate>
+      {plate.code && <Code>{plate.code}</Code>}
     </span>
   );
 }

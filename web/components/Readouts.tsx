@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Num, Plate, type PlateVariant } from "@/components/ui";
 import { formatInt, formatRaw, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { nisabPlate } from "@/lib/nisab";
 import type { AnomalyResponse, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
 
 const SHARIA_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
@@ -46,7 +47,7 @@ export const zakatReadout: Fn<ZakatResponse> = (data, locale, m) => {
     variant: ZAKAT_VARIANT[z.status],
     state: m.enums.zakat_status[z.status],
     figure: shown ? <Num>{formatSar(z.liability_sar!, locale)}</Num> : m.common.dash,
-    note: z.nisab_source_status === "placeholder_unverified" ? m.zakat.placeholder : m.zakat.nisab,
+    note: nisabPlate(z.nisab_source_status, m)?.words ?? m.zakat.nisab,
   };
 };
 

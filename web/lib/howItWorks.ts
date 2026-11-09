@@ -115,7 +115,8 @@ export const HOW_SECTIONS: HowSection[] = [
       draft: true,
     },
   },
-  // Schema §7 (balance-sheet snapshot, zakatable assets less short-term liabilities), §17 (nisab and hawl), DECISIONS 41 (U7).
+  // Schema §7 (balance-sheet snapshot, zakatable assets less short-term liabilities), §17 (nisab and hawl), DECISIONS Zakat
+  // section (nisab source status), 41 (U7) and 45 (U7 widened).
   {
     id: "zakat",
     link: "/business/{id}/zakat",
@@ -123,7 +124,7 @@ export const HOW_SECTIONS: HowSection[] = [
       title: "Zakat",
       body: [
         "Reads the balance-sheet snapshot, not the transactions: [[zakatable-assets|zakatable assets]] less deductible liabilities give the Zakat base, which is checked against the [[nisab|nisab]] and the hawl.",
-        "The gold price behind the nisab is a placeholder, not verified, and the result is not a ZATCA assessment.",
+        "A plate shows the verification status of the gold price behind the nisab, and the result is not a ZATCA assessment.",
       ],
       linkLabel: "Open the Zakat page",
     },
@@ -131,7 +132,7 @@ export const HOW_SECTIONS: HowSection[] = [
       title: "الزكاة",
       body: [
         "تقرأ لقطة الميزانية لا المعاملات: [[zakatable-assets|الأصول الزكوية]] مطروحًا منها الالتزامات المخصومة تعطي وعاء الزكاة، ويُقارن بـ[[nisab|النصاب]] والحول.",
-        "سعر الذهب وراء النصاب قيمة مؤقتة غير موثقة، والنتيجة ليست تقييمًا من هيئة الزكاة والضريبة والجمارك.",
+        "تبيّن لوحة حالة التحقق من سعر الذهب وراء النصاب، والنتيجة ليست تقييمًا من هيئة الزكاة والضريبة والجمارك.",
       ],
       linkLabel: "افتح صفحة الزكاة",
       draft: true,

@@ -53,8 +53,8 @@ export const TOUR_STEPS: TourStep[] = [
     id: "waterfall",
     path: `${biz}/zakat`,
     target: "waterfall",
-    en: { title: "Zakat, step by step", caption: "Follow the bars from zakatable assets to the Zakat base, and the marker where the nisab sits. The plate says the nisab price is a placeholder." },
-    ar: { title: "الزكاة خطوة بخطوة", caption: "تتبّع الأشرطة من الأصول الزكوية إلى وعاء الزكاة، والعلامة حيث يقع النصاب. وتقول اللوحة إن سعر النصاب قيمة مؤقتة.", draft: true },
+    en: { title: "Zakat, step by step", caption: "Follow the bars from zakatable assets to the Zakat base, and the marker where the nisab sits. The plate says whether the nisab price has been verified." },
+    ar: { title: "الزكاة خطوة بخطوة", caption: "تتبّع الأشرطة من الأصول الزكوية إلى وعاء الزكاة، والعلامة حيث يقع النصاب. وتبيّن اللوحة هل جرى التحقق من سعر النصاب.", draft: true },
   },
   {
     id: "runway",

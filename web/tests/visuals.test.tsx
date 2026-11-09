@@ -249,7 +249,7 @@ describe("overview", () => {
   });
 
   it("U7 the Zakat card carries the placeholder line", () => {
-    expect(zakatReadout(fixture("zakat_10001", ZakatResponse), "en", en).note).toBe(en.zakat.placeholder);
+    expect(zakatReadout(fixture("zakat_10001", ZakatResponse), "en", en).note).toBe(en.zakat.nisabStatus.placeholder_unverified);
   });
 });
 

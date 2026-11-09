@@ -68,9 +68,9 @@ export const GLOSSARY = [
   },
   {
     id: "nisab",
-    en: { term: "Nisab", definition: "The minimum wealth on which Zakat is due, set by a weight of gold. In this demo the gold price behind it is a placeholder, not verified." },
-    ar: { term: "النصاب", definition: "الحد الأدنى من المال الذي تجب فيه الزكاة، ويُقدّر بوزن من الذهب. سعر الذهب في هذا العرض قيمة مؤقتة غير موثقة.", draft: true },
-    source: "docs/Behavioral_Profile_Feature_Schema.md §17; DECISIONS.md entry 41 (U7)",
+    en: { term: "Nisab", definition: "The minimum wealth on which Zakat is due, set by a weight of gold. A plate on the Zakat page shows whether the gold price behind it has been verified." },
+    ar: { term: "النصاب", definition: "الحد الأدنى من المال الذي تجب فيه الزكاة، ويُقدّر بوزن من الذهب. تبيّن لوحة في صفحة الزكاة هل جرى التحقق من سعر الذهب وراءه.", draft: true },
+    source: "docs/Behavioral_Profile_Feature_Schema.md §17; DECISIONS.md Zakat section and entries 41 (U7) and 45",
   },
   {
     id: "zakatable-assets",
