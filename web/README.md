@@ -1,4 +1,4 @@
-# Web UI — redesign, PROPOSED (DECISIONS entries 41 and 42)
+# Web UI — redesign, PROPOSED (DECISIONS entries 41 to 45)
 
 **Schema:** §8, §10, §11, §13, §15, §29, §36 · **Due:** Weeks 9 and 10 (§19) · **Owner:** open (entry 41)
 
@@ -35,6 +35,28 @@ Enhancements (DECISIONS 43):
 - **Phones and tablets.** Below 768 px the page links fold into a Menu; no page scrolls sideways at 360 px. Playwright projects `phone-360`, `phone-390`, `tablet-768` and `laptop-1280` run `e2e/mobile.spec.ts`; the rest of the suite runs as `desktop`.
 - **Play all** on the scenario page, one scenario every 8 seconds, with Pause.
 - **Custom scenarios** and the **admin list** call the DECISIONS 44 routes through the same queue.
+
+Review fixes (DECISIONS 45):
+
+- **Business switcher.** A "Business" button in the header on business pages (in the Menu on phones) opens a
+  combobox: the five demo businesses with their decision plates, or two or more digits to search serving IDs.
+  Choosing keeps the lens page and `?as=`. Its calls are server actions in `app/actions.ts`, through the queue.
+- **Search.** A "Search" button, or Ctrl+K / Cmd+K, opens a dialog over fixed lists: this business's pages, the
+  scenarios, the glossary terms, and "Open business <ID>" for a serving ID. No API call.
+- **Review queue.** One lane per flag reason, equal marks, clusters where marks sit closer than 44 px; legend
+  items filter lanes and rows (`?reason=`); the table sorts by any column (`?sort=&dir=`), oldest first by default.
+- **Tour.** Step dots, a Collapse button (`?tourMin=1`) and, after End tour, a "Resume tour" link in the header
+  (`?tourEnded=<step>`). Nothing is stored.
+- **Scenarios.** "Changed rows only" (`?changed=1`), arrow keys in the menu, a native select below 768 px, and a
+  progress bar while Play all runs. The custom builder can start from a library scenario and pairs every number
+  with a slider.
+- **Local fonts.** The IBM Plex families are self-hosted from `app/fonts/` (`next/font/local`, Fontsource 5.3.0
+  woff2 files, SIL Open Font License beside them). The build makes no call to Google.
+- **Motion cap.** Outside the landing page and sign-in, no entrance waits more than 0.4 s or runs longer than
+  0.6 s: named steps `--d-0` to `--d-4` in `globals.css` and `delay()` in `lib/motion.ts`.
+- **Visual snapshots.** `e2e/visual.spec.ts` keeps Playwright screenshot baselines in
+  `e2e/visual.spec.ts-snapshots/`. After an intended visual change, refresh them with
+  `npx playwright test --project=desktop e2e/visual.spec.ts --update-snapshots` and look at every changed image.
 
 The design reference is in `docs/design/` (read its README first). Its mockups are a spec, not code.
 
