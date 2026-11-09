@@ -340,6 +340,10 @@
     "fixed": "Fixed at the library value:",
     "range": "{min} to {max} {unit}",
     "back": "Back to the scenario library",
+    "startFrom": "Start from a library scenario",
+    "startNone": "Your own shocks",
+    "summary": "Chosen: {list}",
+    "resultTitle": "Custom scenario next to the baseline",
     "types": {
       "cash_crunch": "Revenue drop",
       "large_transfer": "Large transfer out",

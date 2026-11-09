@@ -69,3 +69,17 @@ test("custom builder handles 422 and 503", async ({ page }) => {
   await page.getByRole("button", { name: "Run scenario" }).click();
   await expect(page.getByText("Pick at least one shock.")).toBeVisible();
 });
+
+test("builder focuses the result after a run", async ({ page }) => {
+  // I5: start from a library scenario, run it, and land on the result heading with a copyable link.
+  test.setTimeout(120_000);
+  await page.goto("/en/scenarios/custom", { waitUntil: "networkidle" });
+  await page.locator("select[data-start-from]").selectOption("mild_slowdown");
+  await expect(page.locator('input[name="include"][value="cash_crunch"]')).toBeChecked();
+  await page.getByRole("button", { name: "Run scenario" }).click();
+  const heading = page.locator("#custom-result");
+  await expect(heading).toBeFocused({ timeout: 60_000 });
+  await expect(page).toHaveURL(/shock=cash_crunch.18.15/); // mild_slowdown's own shock
+  await expect(page).not.toHaveURL(/ran=1/);
+  await expect(page.locator("[data-copy-link] button")).toBeVisible();
+});

@@ -41,8 +41,10 @@ describe("custom builder form", () => {
 
   it("U1 the builder's inputs are only shock parameters and checkboxes, none naming a term", () => {
     const { container } = render(<CustomScenarioForm catalog={catalog} chosen={[]} action={async () => {}} hidden={{ locale: "en", as: "" }} m={en} />);
-    // The two hidden fields carry the page's locale and the demo role to the server action.
-    const allowed = new Set(["include", "locale", "as", ...Object.entries(catalog.shock_types).flatMap(([t, s]) => Object.keys(s.params).map((p) => `${t}.${p}`))]);
+    // The two hidden fields carry the page's locale and the demo role to the server action. I5 (DECISIONS 45):
+    // each number has a range slider on the same value, named "<type>.<parameter>.slider"; the action ignores it.
+    const params = Object.entries(catalog.shock_types).flatMap(([t, s]) => Object.keys(s.params).map((p) => `${t}.${p}`));
+    const allowed = new Set(["include", "locale", "as", ...params, ...params.map((p) => `${p}.slider`)]);
     const names = [...container.querySelectorAll("input")].map((i) => i.getAttribute("name")!);
     expect(names.every((n) => allowed.has(n))).toBe(true);
     expect(names.filter((n) => TERMS.test(n))).toEqual([]);

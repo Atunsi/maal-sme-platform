@@ -78,7 +78,8 @@ describe("credit contract guards", () => {
     // them can reach a term. DECISIONS 45: ScenarioControls' phone select (I4) picks one of the library's
     // fixed scenarios and only navigates to its page, so it cannot reach a term either. BusinessSwitcher (I1,
     // 1a.9) takes digits of a business ID, searches serving IDs and opens that business: it names a business,
-    // never a term.
+    // never a term. CustomScenarioForm's range sliders (I5, 1a.9) edit the same bounded shock values as its
+    // number fields, so they reach no term either.
     expect(withInput.sort()).toEqual([
       "BusinessPicker.tsx",
       "BusinessSearch.tsx",

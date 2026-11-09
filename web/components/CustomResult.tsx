@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { CustomResultHead } from "@/components/CustomResultHead";
+import { copyLabels } from "@/components/ReceiptPanel";
 import { ScenarioCompare } from "@/components/ScenarioCompare";
 import { ApiError, BackendText, Plate } from "@/components/ui";
 import { runCustomScenario } from "@/lib/api";
@@ -29,7 +31,8 @@ export async function CustomResult({ shocks, locale, m, retry }: { shocks: Shock
   }
   if (!baseline.ok) return <ApiError kind="contract" detail={baseline.detail} m={m} />;
   return (
-    <section aria-label={c.title} className="flex flex-col gap-4" data-custom-result>
+    <section aria-labelledby="custom-result" className="flex flex-col gap-4" data-custom-result>
+      <CustomResultHead title={c.resultTitle} path={retry} copy={copyLabels(m)} />
       <div className="flex flex-wrap gap-2">
         <Plate variant="warn">{c.plate}</Plate>
       </div>

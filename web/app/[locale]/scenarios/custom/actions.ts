@@ -32,5 +32,6 @@ export async function runCustomScenarioForm(form: FormData) {
   if (picked.length > catalog.data.max_shocks) redirect(withRole(new URLSearchParams({ error: "many" })));
   const params = new URLSearchParams();
   for (const shock of picked) params.append("shock", encodeShock(catalog.data, shock));
+  params.set("ran", "1"); // I5: the result page focuses its heading once, then drops this marker
   redirect(withRole(params));
 }

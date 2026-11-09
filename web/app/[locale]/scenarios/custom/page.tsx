@@ -8,6 +8,9 @@ import { ApiError, Page } from "@/components/ui";
 import { getScenarioCatalog } from "@/lib/api";
 import { roleQuery } from "@/lib/businesses";
 import { decodeShocks, encodeShock, type Shock } from "@/lib/custom-scenario";
+import { scenarioName } from "@/lib/scenario-label";
+import { getScenario, getScenarioIndex } from "@/lib/scenarios";
+import { libraryShocks } from "@/lib/start-from";
 import { runCustomScenarioForm } from "./actions";
 import { fill, getMessages, isLocale } from "@/lib/i18n";
 
@@ -34,6 +37,14 @@ export default async function CustomScenarioPage({ params, searchParams }: Props
     );
   }
   const shocks = decodeShocks(catalog.data, search.shock);
+  // I5: library scenarios whose own shocks the builder can express, read from the exported objects.
+  const index = await getScenarioIndex();
+  const starts = [];
+  for (const entry of index.ok ? index.data.scenarios : []) {
+    const object = await getScenario(entry.name);
+    const list = object.ok ? libraryShocks(object.data.scenario.overrides, catalog.data) : null;
+    if (list) starts.push({ name: entry.name, label: scenarioName(entry.label).name, shocks: list });
+  }
   const error = Array.isArray(search.error) ? search.error[0] : search.error;
   const here = (list: Shock[]) => {
     const p = new URLSearchParams();
@@ -57,7 +68,7 @@ export default async function CustomScenarioPage({ params, searchParams }: Props
       </div>
       {error === "none" && <p role="alert" className="font-medium text-bad">{c.noneChosen}</p>}
       {error === "many" && <p role="alert" className="font-medium text-bad">{fill(c.tooMany, { n: String(catalog.data.max_shocks) })}</p>}
-      <CustomScenarioForm catalog={catalog.data} chosen={shocks} action={runCustomScenarioForm} hidden={{ locale, as: query.replace("?as=", "") }} m={m} />
+      <CustomScenarioForm catalog={catalog.data} chosen={shocks} action={runCustomScenarioForm} hidden={{ locale, as: query.replace("?as=", "") }} starts={starts} m={m} />
       {shocks.length > 0 && (
         <Suspense fallback={<p role="status" className="text-muted">{c.running}</p>}>
           <CustomResult shocks={shocks} locale={locale} m={m} retry={here(shocks)} />
