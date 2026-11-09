@@ -117,7 +117,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           {children}
         </main>
         <footer className="border-t border-line">
-          <div className="mx-auto flex max-w-[1240px] flex-col gap-1 px-6 py-4">
+          <div className="mx-auto flex max-w-[1240px] flex-col gap-1 px-4 py-4 sm:px-6">
             <Suspense>
               <FooterLinks locale={locale} footer={m.footer} />
             </Suspense>

@@ -4,7 +4,7 @@ import { ComplianceView } from "@/components/ComplianceView";
 import { FactorDetails } from "@/components/FactorDetails";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
 import { Term as GlossaryTerm } from "@/components/Term";
-import { BackendText, Num, Plate, Refusal, SubHeading } from "@/components/ui";
+import { BackendText, figureFont, Num, Plate, Refusal, SubHeading } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatPct, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
@@ -30,7 +30,7 @@ type Factors = { businessId: number; names: Record<string, string> };
 function LineText({ line, factors, locale, m }: { line: Line; factors: Factors; locale: Locale; m: Messages }) {
   const feature = line.feature_id === null ? undefined : factors.names[String(line.feature_id)];
   return (
-    <span className="block min-w-0 text-base">
+    <span className="axis-words block min-w-0 text-base">
       <BackendText locale={locale} m={m}>
         {line.text}
       </BackendText>
@@ -57,13 +57,15 @@ function AxisRow({ line, index, factors, locale, m }: { line: Line; index: numbe
   const words = <LineText line={line} factors={factors} locale={locale} m={m} />;
   const against = line.direction === "against";
   const either = line.direction === "either";
+  // axis-row, axis-half: on phones (globals.css) the reason spans the full width and the bar sits on the axis
+  // below it, instead of the reason being squeezed into one half.
   return (
-    <div className="grid min-h-[88px] grid-cols-2 items-stretch border-t border-line2">
-      <div className="flex items-center justify-end gap-4 border-e-[3px] border-ink py-3 pe-0 ps-2">
+    <div className="axis-row grid min-h-[88px] grid-cols-2 items-stretch border-t border-line2">
+      <div className="axis-half axis-left flex items-center justify-end gap-4 border-e-[3px] border-ink py-3 pe-0 ps-2">
         {against && words}
         {(against || either) && <Bar line={line} from="end" index={index} />}
       </div>
-      <div className="flex items-center gap-4 py-3 pe-2">
+      <div className="axis-half axis-right flex items-center gap-4 py-3 pe-2">
         {!against && <Bar line={line} from="start" index={index} />}
         {!against && words}
       </div>
@@ -100,9 +102,9 @@ function PublicTier({ lines, factors, locale, m }: { lines: Line[]; factors: Fac
 
 function Term({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
-    <div className="min-w-0 p-5">
+    <div className="min-w-0 py-3 sm:p-5">
       <dt className="text-[13px] text-muted">{label}</dt>
-      <dd className="font-mono text-xl">{children}</dd>
+      <dd className={`${figureFont(children)} text-xl`}>{children}</dd>
     </div>
   );
 }

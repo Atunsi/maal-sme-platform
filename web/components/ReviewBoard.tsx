@@ -214,7 +214,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
 
       <section aria-label={n.title} className="rise border border-line bg-card" style={{ animationDelay: delay(4) }}>
         <TableScroll label={n.title}>
-          <table className="w-full min-w-[860px]">
+          <table className="stack-sm w-full md:min-w-[860px]">
             <thead>
               <tr>
                 {SORT_COLUMNS.map((column) => {
@@ -242,7 +242,7 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                     scrollTo(`button.tick[data-ids~="${flag.transaction_id}"]`);
                   }}
                 >
-                  <td className={TD}>
+                  <td className={TD} data-label={headings.date}>
                     {/* B8, R4: the row's click has a keyboard path. The button's name is the date and the reason. */}
                     <button
                       type="button"
@@ -258,20 +258,24 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
                       <bdi>{formatDate(flag.date, locale)}</bdi>
                     </button>
                   </td>
-                  <td className={TD}>
+                  <td className={TD} data-label={headings.hour}>
                     <Num>{hourText(flag.hour)}</Num>
                   </td>
-                  <td className={TD}>{labels.enums.flow[flag.direction]}</td>
-                  <td className={TD}>
+                  <td className={TD} data-label={headings.direction}>
+                    {labels.enums.flow[flag.direction]}
+                  </td>
+                  <td className={TD} data-label={headings.amount}>
                     <Num>{formatSar(flag.amount_sar, locale)}</Num>
                   </td>
-                  <td className={TD}>
+                  <td className={TD} data-label={headings.counterparty}>
                     {label("counterparty_type", flag.counterparty_type, labels)}
                   </td>
-                  <td className={TD}>
+                  <td className={TD} data-label={headings.category}>
                     {label("category", flag.category, labels)}
                   </td>
-                  <td className={TD}>{labels.enums.flag_reason[flag.flag_reason]}</td>
+                  <td className={TD} data-label={headings.reason}>
+                    {labels.enums.flag_reason[flag.flag_reason]}
+                  </td>
                 </tr>
               ))}
             </tbody>

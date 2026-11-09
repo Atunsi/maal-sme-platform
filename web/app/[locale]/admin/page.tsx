@@ -1,4 +1,3 @@
-import { searchOf, STATIC } from "@/lib/static-data";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -10,23 +9,14 @@ import { Num, Page, Plate, TableScroll } from "@/components/ui";
 import { getBusinesses, getCredit } from "@/lib/api";
 import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
 import { creditPlate } from "@/lib/decision";
-import {
-  fill,
-  getMessages,
-  isLocale,
-  type Locale,
-  type Messages,
-} from "@/lib/i18n";
+import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
+import { nameOf } from "@/lib/business-names";
+import { searchOf, STATIC } from "@/lib/static-data";
 import { SERVING_ID_MAX, SERVING_ID_MIN } from "@/lib/population";
 import type { ApiResult, CreditResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
-import { nameOf } from "@/lib/business-names";
 
-const STATUS_VARIANT = {
-  scored: "ink",
-  partial_profile: "warn",
-  insufficient_data: "warn",
-} as const;
+const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
 
 /** What each row demonstrates, read from the response. Nothing here is typed per business. */
 function shows(data: CreditResponse, m: Messages): string {
@@ -34,23 +24,11 @@ function shows(data: CreditResponse, m: Messages): string {
   const detail = data.credit_decision_detail;
   if (!data.credit || !detail) return a.showsRefused;
   if (data.status === "partial_profile") return a.showsPartial;
-  if (detail.decline_reason)
-    return fill(a.showsDeclined, {
-      reason: m.enums.decline_reason[detail.decline_reason],
-    });
-  return detail.offer_status === "conditional_on_sharia_review"
-    ? a.showsConditional
-    : a.showsUnconditional;
+  if (detail.decline_reason) return fill(a.showsDeclined, { reason: m.enums.decline_reason[detail.decline_reason] });
+  return detail.offer_status === "conditional_on_sharia_review" ? a.showsConditional : a.showsUnconditional;
 }
 
-type RowProps = {
-  id: number;
-  result: Promise<ApiResult<CreditResponse>>;
-  locale: Locale;
-  m: Messages;
-  index: number;
-  query: string;
-};
+type RowProps = { id: number; result: Promise<ApiResult<CreditResponse>>; locale: Locale; m: Messages; index: number; query: string };
 
 async function Row({ id, result, locale, m, index, query }: RowProps) {
   const r = await result;
@@ -58,10 +36,7 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
   const cell = "px-6 py-4.5";
   const plate = r.ok ? creditPlate(r.data, m) : null;
   return (
-    <tr
-      className="row-pick rise border-t border-line2"
-      style={{ animationDelay: delay(2 + index) }}
-    >
+    <tr className="row-pick rise border-t border-line2" style={{ animationDelay: delay(2 + index) }}>
       {/* The admin sees both: the business's display name, and its ID, which the API, receipts and search use. */}
       <th scope="row" className={`${cell} text-start font-normal`}>
         <span className="block font-semibold">{nameOf(id, locale)}</span>
@@ -71,15 +46,15 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
       </th>
       {r.ok ? (
         <>
-          <td className={cell}>
-            <Plate variant={STATUS_VARIANT[r.data.status]}>
-              {m.enums.status[r.data.status]}
-            </Plate>
+          <td className={cell} data-label={a.profile}>
+            <Plate variant={STATUS_VARIANT[r.data.status]}>{m.enums.status[r.data.status]}</Plate>
           </td>
-          <td className={cell}>
+          <td className={cell} data-label={a.credit}>
             <Plate variant={plate!.variant}>{plate!.word}</Plate>
           </td>
-          <td className={`${cell} text-sm text-muted`}>{shows(r.data, m)}</td>
+          <td className={`${cell} text-sm text-muted`} data-label={a.shows}>
+            {shows(r.data, m)}
+          </td>
         </>
       ) : (
         <td colSpan={3} className={`${cell} text-sm text-bad`}>
@@ -87,11 +62,7 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
         </td>
       )}
       <td className={`${cell} text-end`}>
-        <Link
-          href={`/${locale}/business/${id}${query}`}
-          data-latin
-          className="textlink font-semibold"
-        >
+        <Link href={`/${locale}/business/${id}${query}`} data-latin className="textlink font-semibold">
           {fill(a.open, { id, name: nameOf(id, locale) })}
         </Link>
       </td>
@@ -99,17 +70,11 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
   );
 }
 
-const one = (v: string | string[] | undefined) =>
-  (Array.isArray(v) ? v[0] : v) ?? "";
+const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{
-    as?: string | string[];
-    q?: string | string[];
-    sector?: string | string[];
-    page?: string | string[];
-  }>;
+  searchParams: Promise<{ as?: string | string[]; q?: string | string[]; sector?: string | string[]; page?: string | string[] }>;
 };
 
 export default async function AdminPage({ params, searchParams }: Props) {
@@ -138,23 +103,9 @@ export default async function AdminPage({ params, searchParams }: Props) {
   // streamed boundary would stay hidden without JavaScript. The five demo rows then stream in. Each row's
   // status and decision come from the API, never from this file.
   // The online snapshot holds a few dozen businesses and cannot search on a server: one page, all of them.
-  const list = STATIC
-    ? getBusinesses({ offset: 0, limit: 50 })
-    : getBusinesses({
-        offset: (page - 1) * PAGE_SIZE,
-        limit: PAGE_SIZE,
-        sector: sector || undefined,
-        q: q || undefined,
-      });
+  const list = STATIC ? getBusinesses({ offset: 0, limit: 50 }) : getBusinesses({ offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE, sector: sector || undefined, q: q || undefined });
   const rows = DEMO_BUSINESSES.map((id) => ({ id, result: getCredit(id) }));
-  const listView = await AllBusinesses({
-    result: list,
-    locale,
-    m,
-    query,
-    links,
-    page,
-  });
+  const listView = await AllBusinesses({ result: list, locale, m, query, links, page });
   const range = { min: String(SERVING_ID_MIN), max: String(SERVING_ID_MAX) };
   const th = "px-6 py-4 font-medium";
   return (
@@ -166,73 +117,54 @@ export default async function AdminPage({ params, searchParams }: Props) {
             <span className="eyebrow">{a.eyebrow}</span>
           </div>
           <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{a.title}</h1>
-          <span
-            aria-hidden="true"
-            className="verdict-rule mt-3.5 w-[120px] text-gold"
-            style={{ height: 5, animationDelay: delay(3) }}
-          />
+          <span aria-hidden="true" className="verdict-rule mt-3.5 w-[120px] text-gold" style={{ height: 5, animationDelay: delay(3) }} />
         </div>
         <BusinessPicker
           locale={locale}
           query={query}
-          labels={{
-            input: p.inputLabel,
-            help: fill(p.inputHelp, range),
-            submit: p.submit,
-            invalid: fill(p.invalid, range),
-          }}
+          labels={{ input: p.inputLabel, help: fill(p.inputHelp, range), submit: p.submit, invalid: fill(p.invalid, range) }}
         />
       </div>
 
-      <div
-        className="rise border border-line bg-card"
-        style={{ animationDelay: delay(2) }}
-      >
+      <div className="rise border border-line bg-card" style={{ animationDelay: delay(2) }}>
         <TableScroll label={a.tableLabel}>
-          <table className="w-full min-w-[820px] border-collapse">
-            <thead>
-              <tr className="text-start text-[13px] text-muted">
-                <th scope="col" className={`${th} text-start`}>
-                  {a.business}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {a.profile}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {a.credit}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {a.shows}
-                </th>
-                <th scope="col" className={th}>
-                  <span className="sr-only">{a.openColumn}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(({ id, result }, index) => (
-                <Suspense
-                  key={id}
-                  fallback={
-                    <tr>
-                      <td colSpan={5} className="px-6 py-4 text-muted">
-                        {m.common.loading}
-                      </td>
-                    </tr>
-                  }
-                >
-                  <Row
-                    id={id}
-                    result={result}
-                    locale={locale}
-                    m={m}
-                    index={index}
-                    query={query}
-                  />
-                </Suspense>
-              ))}
-            </tbody>
-          </table>
+        <table className="stack-sm w-full border-collapse md:min-w-[820px]">
+          <thead>
+            <tr className="text-start text-[13px] text-muted">
+              <th scope="col" className={`${th} text-start`}>
+                {a.business}
+              </th>
+              <th scope="col" className={`${th} text-start`}>
+                {a.profile}
+              </th>
+              <th scope="col" className={`${th} text-start`}>
+                {a.credit}
+              </th>
+              <th scope="col" className={`${th} text-start`}>
+                {a.shows}
+              </th>
+              <th scope="col" className={th}>
+                <span className="sr-only">{a.openColumn}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ id, result }, index) => (
+              <Suspense
+                key={id}
+                fallback={
+                  <tr>
+                    <td colSpan={5} className="px-6 py-4 text-muted">
+                      {m.common.loading}
+                    </td>
+                  </tr>
+                }
+              >
+                <Row id={id} result={result} locale={locale} m={m} index={index} query={query} />
+              </Suspense>
+            ))}
+          </tbody>
+        </table>
         </TableScroll>
       </div>
 
@@ -246,18 +178,8 @@ export default async function AdminPage({ params, searchParams }: Props) {
             role={role}
             q={q}
             sector={sector}
-            sectors={Object.entries(m.enums.sector).map(([value, label]) => ({
-              value,
-              label,
-            }))}
-            labels={{
-              search: a.search,
-              searchLabel: a.searchLabel,
-              searchHelp: a.searchHelp,
-              sectorLabel: a.sectorLabel,
-              anySector: a.anySector,
-              clear: a.clear,
-            }}
+            sectors={Object.entries(m.enums.sector).map(([value, label]) => ({ value, label }))}
+            labels={{ search: a.search, searchLabel: a.searchLabel, searchHelp: a.searchHelp, sectorLabel: a.sectorLabel, anySector: a.anySector, clear: a.clear }}
           />
         )}
         {listView}

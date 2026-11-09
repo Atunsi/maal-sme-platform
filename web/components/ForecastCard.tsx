@@ -3,7 +3,7 @@ import { LensHead } from "@/components/BusinessHeader";
 import { ForecastChart, type ForecastPoint } from "@/components/ForecastChart";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
-import { BackendText, Num, Plate, Probability, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
+import { BackendText, figureFont, Num, Plate, Probability, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import { formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
 import type { ForecastResponse } from "@/lib/types";
@@ -27,9 +27,9 @@ function points(f: Computed): ForecastPoint[] {
 
 function Figure({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="min-w-0 p-5">
+    <div className="min-w-0 py-3 sm:p-5">
       <dt className="text-[13px] text-muted">{label}</dt>
-      <dd className="font-mono text-[22px]">{children}</dd>
+      <dd className={`${figureFont(children)} text-[22px]`}>{children}</dd>
     </div>
   );
 }
@@ -114,7 +114,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
       </section>
       <section aria-label={n.tableLabel} className="rise border border-line bg-card" style={{ animationDelay: delay(3) }}>
         <TableScroll label={n.chartTitle}>
-          <table className="w-full min-w-[720px]">
+          <table className="stack-sm w-full md:min-w-[720px]">
             <thead>
               <tr>
                 {[n.series, n.horizon, n.projected, n.minimum, n.netFlow].map((label) => (
@@ -128,17 +128,19 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
               {series.flatMap(({ label, rows }) =>
                 rows.map((row) => (
                   <tr key={`${label}-${row.horizon_days}`}>
-                    <td className={`${TD} font-sans`}>{label}</td>
-                    <td className={TD}>
+                    <td className={`${TD} font-sans`} data-label={n.series}>
+                      {label}
+                    </td>
+                    <td className={TD} data-label={n.horizon}>
                       <Num>{fill(n.dayN, { n: row.horizon_days })}</Num>
                     </td>
-                    <td className={TD}>
+                    <td className={TD} data-label={n.projected}>
                       <Num>{formatSar(row.projected_balance_sar, locale)}</Num>
                     </td>
-                    <td className={TD}>
+                    <td className={TD} data-label={n.minimum}>
                       <Num>{formatSar(row.min_projected_balance_sar, locale)}</Num>
                     </td>
-                    <td className={TD}>
+                    <td className={TD} data-label={n.netFlow}>
                       <Num>{formatSar(row.projected_net_flow_sar, locale)}</Num>
                     </td>
                   </tr>

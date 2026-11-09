@@ -21,7 +21,6 @@ export type ForecastLabels = {
 type Props = { data: ForecastPoint[]; locale: Locale; labels: ForecastLabels };
 
 const W = 700;
-const H = 260;
 const LEFT = 40;
 const RIGHT = 660;
 const TOP = 30;
@@ -33,13 +32,13 @@ const MONO_EM = 0.6; // IBM Plex Mono advance, in em
 const ANNOUNCE_MS = 400;
 
 /** Scales come from the response alone: the x axis from the horizons, the y axis from the balances and SAR 0. */
-function scales(data: ForecastPoint[]) {
+function scales(data: ForecastPoint[], bottom = BOTTOM) {
   const values = [0, ...data.flatMap((d) => [d.model, d.baseline])];
   const [min, max] = [Math.min(...values), Math.max(...values)];
   const lastDay = Math.max(...data.map((d) => d.day), 1);
   return {
     x: (day: number) => LEFT + (day / lastDay) * (RIGHT - LEFT),
-    y: (value: number) => BOTTOM - ((value - min) / (max - min || 1)) * (BOTTOM - TOP),
+    y: (value: number) => bottom - ((value - min) / (max - min || 1)) * (bottom - TOP),
   };
 }
 
@@ -71,12 +70,12 @@ function overlaps(a: Box, b: Box): boolean {
  * above is not clear of both data lines and the end-value labels. Computed from the response every time;
  * no position is typed in for any business.
  */
-export function floorLabelPlacement(lines: Pt[][], others: Box[], zero: number, text: string): { y: number; box: Box; clear: boolean } {
+export function floorLabelPlacement(lines: Pt[][], others: Box[], zero: number, text: string, font = FONT): { y: number; box: Box; clear: boolean } {
   const xEnd = RIGHT - 4;
-  const candidates = [zero - 6, zero + FONT + 6];
+  const candidates = [zero - 6, zero + font + 6];
   let best: { y: number; box: Box; clear: boolean; hits: number } | null = null;
   for (const y of candidates) {
-    const box = endBox(xEnd, y, text, FONT);
+    const box = endBox(xEnd, y, text, font);
     let hits = 0;
     for (const line of lines) for (let i = 1; i < line.length; i++) if (crosses(line[i - 1]!, line[i]!, box, 3)) hits += 1;
     for (const other of others) if (overlaps(box, other)) hits += 1;
@@ -87,7 +86,12 @@ export function floorLabelPlacement(lines: Pt[][], others: Box[], zero: number, 
 }
 
 export function ForecastChart({ data, locale, labels }: Props) {
-  const { x, y } = scales(data);
+  // How much smaller than its 700 units the chart renders (1 on a laptop, about 2 on a phone).
+  const [k, setK] = useState(1);
+  // Phones also get a taller plot (by the same factor), so the larger labels have room between the lines.
+  const plotBottom = TOP + (BOTTOM - TOP) * k;
+  const floorBottom = plotBottom + (FLOOR_BOTTOM - BOTTOM) * k;
+  const { x, y } = scales(data, plotBottom);
   const zero = y(0);
   const pts = (key: "model" | "baseline"): Pt[] => data.map((d) => [x(d.day), y(d[key])]);
   const line = (key: "model" | "baseline") => pts(key).map(([px, py]) => `${px.toFixed(1)},${py.toFixed(1)}`).join(" ");
@@ -97,25 +101,44 @@ export function ForecastChart({ data, locale, labels }: Props) {
   const sar = (value: number) => formatSar(value, locale);
   const floorValue = sar(0);
   const dayLabel = (day: number) => (day === 0 ? labels.today : fill(labels.day, { n: formatInt(day, locale) }));
-  const text = { fontFamily: "var(--font-mono)", fontSize: FONT };
+  // Phones: the 700-unit drawing renders at half size or less, so labels and dots are drawn larger by the same
+  // factor and stay about 11 px on screen. The label row and the space above the lines grow to fit them.
+  const font = FONT * k;
+  const endFont = END_FONT * k;
+  const padTop = (k - 1) * END_FONT * 1.6;
+  const dayY = floorBottom + 6 + font;
+  const height = dayY + 8;
+  const dot = 5 * Math.sqrt(k);
+  const text = { fontFamily: "var(--font-mono)", fontSize: font };
   // The higher line is labelled above its end and the lower line below, clear of both lines.
   const modelHigher = last.model >= last.baseline;
-  const labelY = (own: number, upper: boolean) => (upper ? own - 12 : own + 20);
+  const labelY = (own: number, upper: boolean) => (upper ? own - 12 * k : own + 20 * k);
   const endLabels = [
     { value: sar(last.model), y: labelY(y(last.model), modelHigher) },
     { value: sar(last.baseline), y: labelY(y(last.baseline), !modelHigher) },
   ];
   const floor = floorLabelPlacement(
     [pts("model"), pts("baseline")],
-    endLabels.map((l) => endBox(RIGHT - 12, l.y, l.value, END_FONT)),
+    endLabels.map((l) => endBox(RIGHT - 12, l.y, l.value, endFont)),
     zero,
     labels.floor,
+    font,
   );
 
   // The readout steps between the points the response holds: today and each horizon (no values in between).
   const [index, setIndex] = useState<number | null>(null);
   const [announced, setAnnounced] = useState("");
   const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry?.contentRect.width ?? 0;
+      if (width > 0) setK(Math.min(2.2, Math.max(1, W / width)));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   const readout = (i: number) => {
     const d = data[i]!;
     return {
@@ -195,17 +218,17 @@ export function ForecastChart({ data, locale, labels }: Props) {
           if (event.pointerType === "mouse") setIndex(null);
         }}
       >
-        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={labels.alt} className="h-auto w-full">
-          {below && <rect x={LEFT} y={zero} width={RIGHT - LEFT} height={FLOOR_BOTTOM - zero} rx={4} fill="var(--badSoft)" />}
+        <svg viewBox={`0 ${-padTop} ${W} ${height + padTop}`} role="img" aria-label={labels.alt} className="h-auto w-full">
+          {below && <rect x={LEFT} y={zero} width={RIGHT - LEFT} height={floorBottom - zero} rx={4} fill="var(--badSoft)" />}
           {data.slice(1, -1).map((d) => (
-            <line key={d.day} x1={x(d.day)} x2={x(d.day)} y1={TOP} y2={FLOOR_BOTTOM} stroke="var(--rule)" />
+            <line key={d.day} x1={x(d.day)} x2={x(d.day)} y1={TOP} y2={floorBottom} stroke="var(--rule)" />
           ))}
           <line x1={LEFT} x2={RIGHT} y1={zero} y2={zero} stroke="var(--ink)" strokeWidth={2} />
           <text data-floor-label x={RIGHT - 4} y={floor.y} textAnchor="end" fill="var(--ink)" style={text}>
             {labels.floor}
           </text>
           {below && (
-            <text x={LEFT + 6} y={Math.min(FLOOR_BOTTOM - 6, zero + 20)} fill="var(--bad)" style={text}>
+            <text x={LEFT + 6} y={Math.min(floorBottom - 6, zero + 20 * k)} fill="var(--bad)" style={text}>
               {labels.below}
             </text>
           )}
@@ -215,27 +238,27 @@ export function ForecastChart({ data, locale, labels }: Props) {
             <polyline data-series="model" points={line("model")} fill="none" stroke="var(--accent)" strokeWidth={3.5} strokeDasharray="1 7" strokeLinecap="round" />
             <polyline data-series="baseline" points={line("baseline")} fill="none" stroke="var(--ochre)" strokeWidth={3.5} strokeDasharray="9 7" />
             {data.slice(1).flatMap((d) => [
-              <circle key={`m${d.day}`} cx={x(d.day)} cy={y(d.model)} r={5} fill="var(--accent)" />,
-              <circle key={`b${d.day}`} cx={x(d.day)} cy={y(d.baseline)} r={5} fill="var(--ochre)" />,
+              <circle key={`m${d.day}`} cx={x(d.day)} cy={y(d.model)} r={dot} fill="var(--accent)" />,
+              <circle key={`b${d.day}`} cx={x(d.day)} cy={y(d.baseline)} r={dot} fill="var(--ochre)" />,
             ])}
           </g>
           <circle className="pulse-ring" cx={x(first.day)} cy={y(first.model)} r={6} fill="none" stroke="var(--accent)" strokeWidth={2} />
           <circle cx={x(first.day)} cy={y(first.model)} r={6} fill="var(--accent)" />
           <g className="fade-late">
             {endLabels.map((l) => (
-              <text key={l.value + l.y} x={RIGHT - 12} y={l.y} textAnchor="end" fill="var(--ink)" style={{ ...text, fontSize: END_FONT }}>
+              <text key={l.value + l.y} x={RIGHT - 12} y={l.y} textAnchor="end" fill="var(--ink)" style={{ ...text, fontSize: endFont }}>
                 {l.value}
               </text>
             ))}
           </g>
           {index !== null && (
-            <line data-guide x1={x(data[index]!.day)} x2={x(data[index]!.day)} y1={TOP - 12} y2={FLOOR_BOTTOM} stroke="var(--accent)" strokeWidth={1.5} strokeDasharray="4 4" />
+            <line data-guide x1={x(data[index]!.day)} x2={x(data[index]!.day)} y1={TOP - 12} y2={floorBottom} stroke="var(--accent)" strokeWidth={1.5} strokeDasharray="4 4" />
           )}
           {data.map((d, i) => (
             <text
               key={d.day}
               x={x(d.day)}
-              y={252}
+              y={dayY}
               textAnchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"}
               fill="var(--muted)"
               style={text}

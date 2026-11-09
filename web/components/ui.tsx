@@ -31,7 +31,8 @@ export function NisabPlate({ status, m }: { status: string; m: Messages }) {
 
 /** The page column: the design's 1240 px sheet, used by every page but the landing and sign-in. */
 export function Page({ children }: { children: ReactNode }) {
-  return <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-8 px-6 pb-16 pt-10">{children}</div>;
+  // Phones get a 16 px margin and tighter rhythm; the same column from a tablet up.
+  return <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pb-12 pt-6 sm:gap-8 sm:px-6 sm:pb-16 sm:pt-10">{children}</div>;
 }
 
 export function Card({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
@@ -58,6 +59,12 @@ export function Field({ label, children }: { label: ReactNode; children: ReactNo
       <dd className="break-words font-medium">{children}</dd>
     </div>
   );
+}
+
+/** A figure's font: monospace for numbers and IDs (the design's figure style), the text face for words such
+ * as "None projected" or "Yes", so a sentence never reads as code. */
+export function figureFont(children: ReactNode): string {
+  return typeof children === "string" && !/[0-9٠-٩]/.test(children) ? "font-sans font-semibold" : "font-mono";
 }
 
 /** Numbers and identifiers stay left-to-right inside Arabic text. */

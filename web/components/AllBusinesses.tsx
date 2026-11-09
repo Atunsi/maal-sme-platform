@@ -28,7 +28,7 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
       ) : (
         <div className="border border-line bg-card">
           <TableScroll label={a.allTable}>
-            <table className="w-full min-w-[480px] border-collapse">
+            <table className="stack-sm w-full border-collapse md:min-w-[480px]">
               <thead>
                 <tr>
                   <th scope="col" className={th}>
@@ -51,7 +51,9 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
                         <Num>{b.business_id}</Num>
                       </span>
                     </th>
-                    <td className="px-6 py-2 text-sm">{m.enums.sector[b.sector]}</td>
+                    <td className="px-6 py-2 text-sm" data-label={a.sector}>
+                      {m.enums.sector[b.sector]}
+                    </td>
                     <td className="px-6 py-2 text-end">
                       <Link href={`/${locale}/business/${b.business_id}${query}`} data-latin className="textlink font-semibold">
                         {fill(a.openRow, { id: b.business_id, name: nameOf(b.business_id, locale) })}
