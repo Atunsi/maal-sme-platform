@@ -29,9 +29,22 @@ ZAKATABLE = ("cash_and_equivalents_eom", "inventory_value_eom", "accounts_receiv
 DEDUCTIBLE = ("accounts_payable_eom", "short_term_liabilities_eom")
 
 
-def nisab_value_sar(zcfg: dict) -> float:
+def nisab_price(zcfg: dict, as_of: pd.Timestamp | None = None) -> tuple[float, str | None]:
+    """(SAR per gram, calculation month or None). An explicit price (a saved quotation, or a test) wins;
+    otherwise the price of the calculation month from the archived table (DECISIONS 48, 54)."""
     n = zcfg["nisab"]
-    return float(n["grams"]) * float(n["price_sar_per_gram"])
+    if n.get("price_sar_per_gram") is not None:
+        return float(n["price_sar_per_gram"]), None
+    if as_of is None:
+        raise ValueError("the nisab is valued at the calculation month's gold price: pass as_of")
+    from lenses.zakat.nisab_prices import price_for
+
+    month, price = price_for(as_of, n["price_table"])
+    return price, month
+
+
+def nisab_value_sar(zcfg: dict, as_of: pd.Timestamp | None = None) -> float:
+    return float(zcfg["nisab"]["grams"]) * nisab_price(zcfg, as_of)[0]
 
 
 def compute_zakat(
@@ -49,10 +62,13 @@ def compute_zakat(
                            otherwise the earliest date we have evidence for (`history_start`)
     opening_net_assets_sar net assets at hawl start, if known — needed for the start-of-hawl nisab check
     """
-    nisab = nisab_value_sar(zcfg)
+    price, price_month = nisab_price(zcfg, as_of)
+    nisab = float(zcfg["nisab"]["grams"]) * price
     base = {
         "liability_sar": 0.0,
         "nisab_value_sar": round(nisab, 2),
+        "nisab_price_sar_per_gram": round(price, 4),
+        "nisab_price_month": price_month,  # null when an explicit (quoted) price was used
         "nisab_basis": f"{zcfg['nisab']['grams']}g {zcfg['nisab']['basis']}",
         "nisab_source_status": zcfg["nisab"]["source_status"],
         "rate": zcfg["rate_lunar_year"],

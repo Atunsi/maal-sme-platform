@@ -20,7 +20,7 @@ and `insufficient_data` as a distinct state. No UI required to pass.
 
 | Document | Role |
 |---|---|
-| [`docs/Behavioral_Profile_Feature_Schema.md`](docs/Behavioral_Profile_Feature_Schema.md) | **v2.9 — the source of truth.** Feature contract, API read-paths, generator design, gate criteria. Its text defines features 1–59; the engine also computes 60–69, 18b and 62b (71 registry entries), and the credit lens reads 58. The schema edit that adds them is entry 33, still PROPOSED. |
+| [`docs/Behavioral_Profile_Feature_Schema.md`](docs/Behavioral_Profile_Feature_Schema.md) | **v2.10 — the source of truth.** Feature contract, API read-paths, generator design, gate criteria. Its text defines features 1–59; the engine also computes 60–69, 18b and 62b (71 registry entries), and the credit lens reads 58. The schema edit that adds them is entry 33, still PROPOSED. |
 | [`docs/SME_Platform_SOP.md`](docs/SME_Platform_SOP.md) | Working rules, roles, gates, build/cut order. **Defers to the schema wherever the two disagree.** |
 | `SOP_Data_Grounding_And_Dimensions.md` (v2.0, team copy) | Real-data grounding (Berka) and honest completion of the ungrounded dimensions. Executed 2026-09-15/16; every phase's evidence is in `DECISIONS.md` entries 7–11 and `eval/out/`. |
 | [`DECISIONS.md`](DECISIONS.md) | Change-control log (SOP §9). Every decision the schema doesn't pin down, plus every open question, with rationale and sign-off lines. |
@@ -58,7 +58,7 @@ write code that breaks one, stop and raise it.
 | Credit lens (Base Murabaha + SHAP) | [`lenses/credit/`](lenses/credit/) | credit lens owner | **v1, retrained 2026-11-07** — an L2 logistic regression (XGBoost was measured and lost, entry 49); CV AUC 0.591 (88.8% of ceiling); exact log-odds contributions. **§25 fairness audit not met** (entry 43). The customer explanation's first sentence is a sector effect for 834 of 943 serving businesses (entry 47, open) |
 | Forecast lens | [`lenses/forecast/`](lenses/forecast/) | forecast + anomaly owner | **v2 built** — `naive90` chosen on validation, **beats the naive baseline** on an untouched test (0.323 vs 0.376; entry 27); holdout shock: warns later than the baseline (median 15 vs 27 days) with half the false alarms (entry 36). Prophet and ARIMA, named in the SOP, were never evaluated (entry 49) |
 | Anomaly lens | [`lenses/anomaly/`](lenses/anomaly/) | forecast + anomaly owner | **v1 + seasonal gate + exact repeat check** — held-out round-trip recall 0.93; same-day exact duplicates caught (0.66, designed-for); re-sent and vendor-record duplicates missed (entries 23, 36, 37) |
-| Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; nisab at one commercial gold quotation (SAR 491.291/g, 8 Nov 2026), **unverified and dated after the calculation dates** (entry 48); no Sharia advisor review yet |
+| Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; nisab at the calculation month's gold price (World Bank monthly average × 3.75 SAR/USD, archived; July 2026 SAR 491.0625/g, nisab SAR 41,740.31; entry 54); no Sharia advisor review yet |
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | **Screening v1 built** — feature 24, deterministic rule table (PROPOSED, not certified); 85.1% compliant / 14.9% soft (entry 26) |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
 | API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 248 ms on all 1,000; anomaly max 1,028 ms; re-run 2026-11-09; entries 25–27). **Proposed additions** (entry 44): `GET /businesses`, `GET /scenarios`, `POST /scenarios/run`; the review cap in the anomaly response stopped (S9) |
@@ -296,14 +296,15 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
 19. **§25 fairness audit not met** (entry 43, FINDING) — the team line is still open.
 20. ~~Scenario findings restated for the retrained model~~ (entry 46).
 21. **Customer explanation states a sector effect** (entry 47) — **option A decided**: kept as
-    is and stated in the demo; the "cannot shortcut" comment in `lens_config.yaml` is still to be
-    edited at the next lens-config change.
-22. **Zakat nisab valuation date** (entry 48) — **decided**: the gold price on each calculation
-    date; **not implemented**. 491.291 SAR/g stays a labelled reference price; the Sharia advisor
-    line is open.
+    is and stated in the demo; the "cannot shortcut" comment is withdrawn (`81f2c4e`).
+22. ~~Zakat nisab valuation date~~ (entry 48) — **implemented** (entry 54, `185a57d`): the
+    calculation month's World Bank monthly average; compliance owner to confirm the monthly
+    average, Sharia advisor line open.
 23. **Prophet and ARIMA** (entry 49) — **option B decided**: evaluate them; **not done**.
-24. **Five class-A1 features have no usable value on Berka** (entry 50) — lines ticked; no option
-    (A–C) is recorded, so the registry rule is still undecided.
+    The protocol to run it is `docs/briefs/forecast_prophet_arima_requirements.md`.
+24. ~~Five class-A1 features have no usable value on Berka~~ (entry 50) — **option A** (classes
+    kept, narrower headline), chosen by the generator owner; profile engine owner to confirm (entry 55).
+25. ~~Schema text for 60–69 and 62b~~ (entry 33) — **applied: schema v2.10** (`74997c2`).
 
 Entry 43 is the §25 fairness finding. The web UI's entries are 41, 42, 44, 45 and 51 (its
 former 43, renumbered when the branch was merged on 2026-11-10).

@@ -8,7 +8,7 @@ refer to `DECISIONS.md` unless a file is named.
 
 | Entry | What is decided | What is blocking |
 |---|---|---|
-| 48 Nisab price and date | Price 491.291 SAR/g in use; no entry recorded it | Your choice A–C; Sharia advisor on basis and date |
+| 48 Nisab price and date | Implemented 2026-11-10 as the calculation month's price (entry 54) | Your confirmation of the monthly average; Sharia advisor on basis and date |
 | 26 Sharia rule table | Built, `proposed_unverified` | Your tick; Sharia advisor review; sources not archived |
 | 31 Feature 24 value + null | Profile engine owner chose (b) | Your tick, then the fix and a test |
 | 32 Where 24–26, 34, 35 live | Profile engine owner chose (b) | Your tick; team |

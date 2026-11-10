@@ -38,7 +38,7 @@ def test_zakat_computed_is_base_times_rate():
 
 
 def test_zakat_below_nisab_is_zero_with_reason():
-    out = compute_zakat(balances(nisab_value_sar(Z) - 1), AS_OF, Z, pd.Timestamp("2025-01-01"), 1e9, pd.Timestamp("2025-01-01"))
+    out = compute_zakat(balances(nisab_value_sar(Z, AS_OF) - 1), AS_OF, Z, pd.Timestamp("2025-01-01"), 1e9, pd.Timestamp("2025-01-01"))
     assert (out["liability_sar"], out["reason"]) == (0.0, "below_nisab")
 
 
@@ -48,7 +48,7 @@ def test_zakat_hawl_incomplete_is_zero_with_reason():
 
 
 def test_zakat_needs_nisab_at_hawl_start_too():
-    out = compute_zakat(balances(1e6), AS_OF, Z, pd.Timestamp("2025-01-01"), nisab_value_sar(Z) - 1, pd.Timestamp("2025-01-01"))
+    out = compute_zakat(balances(1e6), AS_OF, Z, pd.Timestamp("2025-01-01"), nisab_value_sar(Z, AS_OF) - 1, pd.Timestamp("2025-01-01"))
     assert (out["liability_sar"], out["reason"]) == (0.0, "below_nisab")
 
 

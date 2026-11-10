@@ -35,7 +35,7 @@ In `scratch_demo.json`: business 10001 has a computed Zakat liability (seeded ha
 ## 15–25 min: PROPOSED parameters (entries 23.3, 26)
 
 For each: keep, change through a new DECISIONS entry, or leave open for the Sharia advisor.
-- Zakat: 85 g gold basis; SAR 491.291/g (2026-11-08 quotation, dated after every calculation date);
+- Zakat: 85 g gold basis; the calculation month's World Bank monthly average gold price (entry 54);
   2.5% per 354-day lunar year; hawl = nisab at start and end; skipped for `insufficient_data`.
 - Sharia rule table v1.0 (`proposed_unverified`): hard and soft MCC lists; 5% financial-institution
   inflow threshold; retail with no MCC → soft flag; existing financing as a disclosure.
@@ -55,6 +55,6 @@ For each: keep, change through a new DECISIONS entry, or leave open for the Shar
 2. **The Sharia status is compliant in every scenario**, because the retail MCC never changes.
 3. **No generated business is ever hard-flagged** (0.0% of 10,000 research); that path is tested on
    crafted inputs only (NUMBERS §5).
-4. **The nisab uses one unverified quotation** dated after the calculation dates (entry 48).
+4. **The nisab uses the calculation month's monthly-average gold price** (entry 54), not the day's price, and no Sharia advisor has reviewed it.
 
 Decision brief and the Sharia-advisor question list: `docs/briefs/brief_compliance_mohammed.md`.

@@ -3853,10 +3853,10 @@ There is no Sharia advisor on the project yet. Outputs stay labelled "rule-based
 **A tick records agreement, not completed work.** Ticking does not change an entry's status heading, and several ticked entries describe changes that are
 not made. Still to do, with the owner who raised it:
 1. Entry 40 (line endings): canonical-LF hashing, `.gitattributes`, `data_sha256` line terminator. Approved, **not implemented**; existing Windows-made receipts will change once. (Faris Alsharifi, Ahmed Altunusi) **Update (2026-11-10): implemented in `00ae025`; see entry 40.**
-2. Entry 47: option A chosen. The sentence "the model cannot shortcut to the sector code" in `lenses/lens_config.yaml` is still to be edited, at the next lens-config change because it alters every receipt hash. (Abdulrahman Alharbi)
-3. Entry 48: the nisab is to be valued at the gold price on each business's calculation date. Needs an archivable price series, code, tests, and a decision on the daily workflow. Until then 491.291 SAR/g is a labelled reference price. (Mohammed Alshaibani)
-4. Entry 49: option B chosen, **evaluating Prophet and ARIMA is not done** and needs a new untouched test window written down first. Until it is run, the report states they were not evaluated. (Abdulelah Alsalamah)
-5. Entries 33 and 50: schema and registry edits approved in principle; check that each is actually applied before the report is written.
+2. Entry 47: option A chosen. The sentence "the model cannot shortcut to the sector code" in `lenses/lens_config.yaml` is still to be edited, at the next lens-config change because it alters every receipt hash. (Abdulrahman Alharbi) **Update: done in `81f2c4e` (entry 55).**
+3. Entry 48: the nisab is to be valued at the gold price on each business's calculation date. Needs an archivable price series, code, tests, and a decision on the daily workflow. Until then 491.291 SAR/g is a labelled reference price. (Mohammed Alshaibani) **Update: implemented, entry 54.**
+4. Entry 49: option B chosen, **evaluating Prophet and ARIMA is not done** and needs a new untouched test window written down first. Until it is run, the report states they were not evaluated. (Abdulelah Alsalamah) **Update: not run; protocol in `docs/briefs/forecast_prophet_arima_requirements.md` (entry 55).**
+5. Entries 33 and 50: schema and registry edits approved in principle; check that each is actually applied before the report is written. **Update: 33 applied as schema v2.10 (`74997c2`); 50 = option A (entry 55).**
 6. `python -m eval.demo_exposure` has not been re-run at full scale by anyone other than the branch author.
 7. Entry 41 to 45 and 51 (web UI): the sign-offs approve scope and wording as written; they do not replace a read-through of the Arabic copy by a speaker of Arabic who is not its author.
 
@@ -3865,3 +3865,86 @@ not made. Still to do, with the owner who raised it:
 **Sign-off:** ☐ team (confirmation of the above by each owner in writing)
 
 ---
+
+## 54. Entry 48 implemented: the nisab is valued at the calculation month's gold price, from archived official sources — RECORDED (2026-11-10)
+
+**Touches:** `lenses/zakat/zakat.py` (`nisab_price`), new `lenses/zakat/nisab_prices.py` and
+`lenses/zakat/gold_monthly_sar_per_gram.csv`, `lenses/lens_config.yaml` (`zakat.nisab`), `requirements.txt`
+(`xlrd==2.0.1`), new archives `sources/worldbank/CMO-Historical-Data-Monthly_2026-11-03.xlsx` and
+`sources/sama/fx_bulletin_2026-01.xls` … `-07.xls` (each with `.sha256` and `.meta.json`),
+`tests/test_nisab_prices.py`, `tests/test_lenses_unit.py`. The Zakat arithmetic (2.5% of the base) and
+the hawl rule are unchanged; no model and no LLM is involved (SOP §2).
+
+**What entry 48 decided:** the nisab is valued at the gold price on the calculation date, never a later
+one. **What is implemented, and how it differs:** the price of the calculation **month** (the business's
+`window_end` month), as the World Bank's monthly **average**. No archivable official daily SAR gold price
+was found for these dates; the monthly average is the closest official series. Chosen by the generator
+owner on 2026-11-10 before any Zakat result with it existed; the compliance owner is to confirm.
+
+**Source chain, every number from an archived file:**
+1. World Bank Commodity Price Data (Pink Sheet), "Updated on November 03, 2026", sheet "Monthly Prices",
+   column "Gold" ($/troy oz), sha256 `3c8d9d8d…cde2`.
+2. × 3.75 SAR per US dollar, the riyal's fixed dollar rate. **No official page stating 3.75 could be
+   archived:** SAMA's site does not state it in fetchable form and the IMF refuses automated downloads.
+   It is therefore checked, not cited: SAMA's own monthly rate bulletins (archived, one per calculation
+   month) list SAR per UAE dirham, and that × the dirham's 3.6725 dollar peg reproduces 3.75 within
+   0.0008 every month (3.74926 to 3.74988). The test tolerance is 0.001, about SAR 11 on the nisab at most.
+   The dirham's peg is stated, not archived: a limitation.
+3. ÷ 31.1034768 g per troy ounce.
+
+| month | gold US$/oz | SAMA-implied SAR/US$ | SAR per gram | nisab (85 g), SAR |
+|---|---|---|---|---|
+| 2026-01 | 4,753 | 3.74988 | 573.0469 | 48,708.99 |
+| 2026-07 | 4,073 | 3.74966 | 491.0625 | 41,740.31 |
+
+(February to June are in the table; no business has a calculation date in those months.)
+
+**Effect, measured on the full data (`data/`, 11,000 businesses, snapshot base at each `window_end`):**
+10,999 businesses have a July 2026 calculation date and one (demo 10002) January. Against the flat
+2026-11-08 quote (SAR 41,759.74): research, 7,309 → 7,310 businesses at or above nisab (1 of 10,000
+changes side, not met → met); serving 730 → 730 (none of 1,000). Demo 10001: nisab SAR 41,740.31, liability
+unchanged at SAR 5,963.26. Demo 10002: nisab SAR 48,708.99, liability unchanged at 0 (`hawl_incomplete`).
+`scenarios.run --check`: every scenario outcome, Zakat included, unchanged.
+
+**Behaviour.** A calculation month the table does not hold is refused, not filled. An explicit price
+from a saved quotation (`pipeline.week8 --gold-quote`, still refused if newer than the calculation
+date) takes precedence. Outputs carry `nisab_price_month`, `nisab_price_sar_per_gram` and
+`nisab_source_status: world_bank_monthly_average_pending_sharia_advisor`. The 2026-11-08 commercial quote
+(`sources/zakat_nisab_gold_price.md`) is kept as a record and no longer used.
+
+**Still open:** the start-of-hawl nisab check uses the same calculation-month price, not a price at the
+hawl start (for the Sharia advisor, with the hawl rule); the Sharia advisor's line on entry 48 (basis and
+valuation date); the daily GoldAPI workflow (`.github/workflows/update-gold-price.yml`) has no use on
+the synthetic population, and whether it stays is the compliance owner's decision. The web UI shows the
+new status through its generic "not independently verified" plate (no wording added to `web/messages`).
+
+**Sign-off:** ☐ compliance owner (monthly average in place of the day's price) ☐ Sharia advisor (basis, valuation date)
+
+---
+
+## 55. Submission close-out of 2026-11-10: entries 33, 47, 48, 49 and 50 — RECORDED
+
+What was decided earlier (entries 47–50, 53) and what was done on 2026-11-10 to close it:
+
+1. **Entry 47:** the comment "the model cannot shortcut to the sector code" in `lenses/lens_config.yaml`
+   is replaced by a sentence saying how sector does reach the model (entry 43), in `81f2c4e`. Comment only;
+   `lens_config_sha256` changes once in receipts.
+2. **Entry 48:** implemented as entry 54 (`185a57d`): the nisab is valued at the calculation month's World
+   Bank monthly average gold price. A monthly average in place of the day's price, for the compliance
+   owner to confirm.
+3. **Entry 33:** applied as schema v2.10 (`74997c2`): §38 and §39 for features 60–69 and 62b with the profile
+   engine owner's two wording fixes, entry 5's row-count text in §7 and §12, the §31 and §36 corrections,
+   and §35's v2 file name and ±3 clip (entries 35, 38). All 71 registry features now have a schema row.
+   `config.yaml` `schema_version` is "v2.10". Entry 5's own team line was not ticked; its text is applied
+   through entry 33, whose team line was (entry 53).
+4. **Entry 50: option A**, keep the A1/A2 classes and the narrower headline already in NUMBERS §1 (14 of
+   43 on the confirmed-default label). Chosen by Ahmed Altunusi (generator owner) on 2026-11-10 to close
+   the entry for submission; the profile engine owner's line in entry 53 was ticked without an option,
+   so his confirmation of A is asked for below.
+5. **Entry 49: not run.** No time window in the generated data is untouched, and Prophet needs an install
+   this machine could not hold. The protocol for running it elsewhere, with a fresh population (seed 44,
+   IDs 20001–21000) as the test, is `docs/briefs/forecast_prophet_arima_requirements.md`; it must be
+   committed as its own DECISIONS entry before anything is fitted. Until then the report states that
+   Prophet and ARIMA were not evaluated.
+
+**Sign-off:** ☐ profile engine owner (option A on entry 50) ☐ forecast + anomaly owner (the protocol for entry 49)

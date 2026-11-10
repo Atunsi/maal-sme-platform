@@ -1,0 +1,13 @@
+{
+  "file": "CMO-Historical-Data-Monthly_2026-11-03.xlsx",
+  "sha256": "3c8d9d8dbb48342fdbf24777c39a8ce8964cc2fd0958f72f6779e6e4ad99cde2",
+  "bytes": 587760,
+  "access_date": "2026-11-10",
+  "origin_body": "World Bank",
+  "publication": "Commodity Price Data (The Pink Sheet), monthly prices in nominal US dollars",
+  "retrieval": "direct download from the World Bank Commodity Markets page",
+  "retrieval_url": "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Historical-Data-Monthly.xlsx",
+  "dataset_page": "https://www.worldbank.org/en/research/commodity-markets",
+  "edition": "Updated on November 03, 2026 (row 4 of sheet 'Monthly Prices')",
+  "series_used": "Gold, ($/troy oz), sheet 'Monthly Prices', column header 'Gold'; monthly average"
+}
