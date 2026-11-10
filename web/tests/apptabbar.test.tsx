@@ -17,8 +17,8 @@ afterEach(() => {
   sessionStorage.clear();
 });
 
-const linksEn = { glossary: en.footer.glossary, how: en.footer.how };
-const linksAr = { glossary: ar.footer.glossary, how: ar.footer.how };
+const linksEn = { glossary: en.footer.glossary, how: en.footer.how, search: en.search.button };
+const linksAr = { glossary: ar.footer.glossary, how: ar.footer.how, search: ar.search.button };
 
 describe("app tab bar", () => {
   it("links four business pages, keeps the role, and marks the current one", () => {
@@ -40,7 +40,7 @@ describe("app tab bar", () => {
     expect(more.hasAttribute("data-current")).toBe(true);
     fireEvent.click(more);
     expect(more.getAttribute("aria-expanded")).toBe("true");
-    for (const label of [ar.nav.sharia, ar.nav.zakat, ar.nav.scenarios, ar.nav.admin, ar.footer.glossary, ar.footer.how]) expect(screen.getByRole("link", { name: label })).toBeTruthy();
+    for (const label of [ar.nav.review, ar.nav.sharia, ar.nav.zakat, ar.nav.scenarios, ar.footer.glossary, ar.footer.how]) expect(screen.getByRole("link", { name: label })).toBeTruthy();
     fireEvent.keyDown(document, { key: "Escape" });
     expect(more.getAttribute("aria-expanded")).toBe("false");
   });
@@ -53,7 +53,7 @@ describe("app tab bar", () => {
       unmount();
     }
     // Off the business pages the tabs point at the demo business, and More marks the page it lists.
-    for (const path of ["/en/scenarios", "/en/scenarios/s/severe_collapse", "/en/admin", "/en/glossary", "/en/how-it-works"]) {
+    for (const path of ["/en/scenarios", "/en/scenarios/s/severe_collapse", "/en/glossary", "/en/how-it-works"]) {
       nav.pathname = path;
       nav.params = new URLSearchParams("");
       const { unmount } = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
@@ -64,6 +64,28 @@ describe("app tab bar", () => {
     nav.pathname = "/en/business/10001/sheet";
     const { container } = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
     expect(container.querySelector("[data-app-tabbar]")).not.toBeNull();
+  });
+
+  it("an admin's first tab is the business list, and nothing points them at a business they did not open", () => {
+    nav.pathname = "/en/admin";
+    nav.params = new URLSearchParams("as=admin");
+    const list = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+    const tabs = [...document.querySelectorAll(".app-tabs a")].map((a) => a.getAttribute("href"));
+    expect(tabs).toEqual(["/en/admin?as=admin", "/en/scenarios?as=admin"]);
+    expect(screen.getByRole("link", { name: en.nav.businesses }).getAttribute("aria-current")).toBe("page");
+    expect(screen.queryByRole("link", { name: en.nav.overview })).toBeNull();
+    // Search opens the search dialog, which listens for this event.
+    const opened = vi.fn();
+    window.addEventListener("maal:search", opened);
+    fireEvent.click(screen.getByRole("button", { name: en.search.button }));
+    expect(opened).toHaveBeenCalledOnce();
+    window.removeEventListener("maal:search", opened);
+    list.unmount();
+
+    nav.pathname = "/en/business/10037/credit";
+    render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+    const onBusiness = [...document.querySelectorAll(".app-tabs a")].map((a) => a.getAttribute("href"));
+    expect(onBusiness).toEqual(["/en/admin?as=admin", "/en/business/10037?as=admin", "/en/business/10037/credit?as=admin", "/en/business/10037/forecast?as=admin"]);
   });
 });
 

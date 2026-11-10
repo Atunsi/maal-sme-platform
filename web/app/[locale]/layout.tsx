@@ -13,6 +13,7 @@ import { DIGITS_BOOT } from "@/lib/digits";
 import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
 import { scenarioName } from "@/lib/scenario-label";
 import { getScenarioIndex } from "@/lib/scenarios";
+import { STATIC, staticIds } from "@/lib/static-data";
 import { BAR_COLOUR, THEME_BOOT } from "@/lib/theme";
 import "../globals.css";
 // Phone-only rules, after the shared ones: every rule in it sits inside the phone media query.
@@ -92,6 +93,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   // I8: the search covers the scenario library, read from the exported index (a file, not the API).
   const index = await getScenarioIndex();
   const scenarios = index.ok ? index.data.scenarios.map((s) => ({ name: s.name, label: scenarioName(s.label).name })) : [];
+  // The online snapshot holds a few dozen businesses, so its search offers only those.
+  const businessIds = STATIC ? staticIds() : undefined;
   return (
     // The boot scripts add the theme class and the digits mark before hydration, so React must not object.
     <html
@@ -114,6 +117,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
             locale={locale}
             m={{ nav: m.nav, app: m.app, tour: m.tour, switcher: m.switcher, enums: m.enums, errors: m.errors, search: m.search, sheet: m.sheet }}
             scenarios={scenarios}
+            businessIds={businessIds}
           />
         </Suspense>
         <main id="main" className="w-full flex-1">
@@ -130,7 +134,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <HtmlState locale={locale} />
         {locale === "ar" && <DigitsSync />}
         <Suspense>
-          <AppTabBar locale={locale} nav={m.nav} links={{ glossary: m.footer.glossary, how: m.footer.how }} />
+          <AppTabBar locale={locale} nav={m.nav} links={{ glossary: m.footer.glossary, how: m.footer.how, search: m.search.button }} />
         </Suspense>
         <Suspense>
           <TourPanel

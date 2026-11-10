@@ -16,7 +16,8 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
   const a = m.admin;
   if (!r.ok) return <ApiError kind={r.kind} detail={r.detail} m={m} />;
   const { total, businesses } = r.data;
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  // One page when every match is already here (the online snapshot lists all of its few at once).
+  const pages = businesses.length >= total ? 1 : Math.max(1, Math.ceil(total / PAGE_SIZE));
   const th = "border-b border-line px-6 py-3 text-start text-[13px] font-medium text-muted";
   return (
     <>

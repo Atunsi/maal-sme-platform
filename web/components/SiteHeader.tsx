@@ -42,7 +42,7 @@ function navItems(rest: string, base: string, query: string, nav: Messages["nav"
   ];
 }
 
-export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<Messages, "nav" | "app" | "tour" | "switcher" | "enums" | "errors" | "search" | "sheet">; scenarios: PaletteScenario[] }) {
+export function SiteHeader({ locale, m, scenarios, businessIds }: { locale: Locale; m: Pick<Messages, "nav" | "app" | "tour" | "switcher" | "enums" | "errors" | "search" | "sheet">; scenarios: PaletteScenario[]; businessIds?: readonly number[] }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const role = params.get("as");
@@ -119,7 +119,7 @@ export function SiteHeader({ locale, m, scenarios }: { locale: Locale; m: Pick<M
                   {signedIn}
                 </span>
               )}
-              <CommandPalette locale={locale} m={m} scenarios={scenarios} />
+              <CommandPalette locale={locale} m={m} scenarios={scenarios} businessIds={businessIds} />
               {rest.startsWith("/business/") && <BusinessSwitcher locale={locale} m={m} />}
               {ended && rest.startsWith("/business") && (
                 <Link href={tourHref(locale, ended.step, role === "owner" || role === "admin" ? role : null)} prefetch={false} className="textlink font-semibold" data-tour-resume>

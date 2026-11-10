@@ -67,3 +67,8 @@ export function formatDate(iso: string, locale: Locale, digits: Digits = "latn")
     new Date(`${iso}T00:00:00Z`),
   );
 }
+
+/** A month's short name, for chart axes ("Feb"; in Arabic the month's name). */
+export function formatMonth(iso: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(TAGS[locale].latn, { month: "short", timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
+}

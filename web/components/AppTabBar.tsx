@@ -7,6 +7,10 @@ import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
 import type { Locale, Messages } from "@/lib/i18n";
 
 type Tab = { href: string; label: string; icon: ReactNode; current: boolean };
+type Labels = { glossary: string; how: string; search: string };
+
+/** The search dialog (CommandPalette) opens on this event, so a tab can open it without owning it. */
+export const OPEN_SEARCH = "maal:search";
 
 const stroke = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 const Icon = ({ children }: { children: ReactNode }) => (
@@ -40,6 +44,25 @@ const ICONS = {
       <circle cx="4.5" cy="18" r="1" />
     </Icon>
   ),
+  businesses: (
+    <Icon>
+      <rect x="4" y="4" width="7" height="7" rx="1.5" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" />
+      <rect x="13" y="13" width="7" height="7" rx="1.5" />
+    </Icon>
+  ),
+  search: (
+    <Icon>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4 4" />
+    </Icon>
+  ),
+  scenarios: (
+    <Icon>
+      <path d="M4 18h16M6 18V9M12 18V5M18 18v-6" />
+    </Icon>
+  ),
   more: (
     <Icon>
       <circle cx="5.5" cy="12" r="1.3" />
@@ -52,9 +75,12 @@ const ICONS = {
 /**
  * The app variant's bottom tab bar (lib/app-mode.ts): four business pages a thumb reaches without the header
  * menu, and More for the rest, in a sheet that rises from the bar. CSS shows it on phones only (app/phone.css),
- * so larger screens are unchanged. Every tab is a link, so a tap works before the page's script has taken over.
+ * so larger screens are unchanged. Every tab but Search is a link, so a tap works before the page's script runs.
+ * The admin reviews many businesses, not one, so their first tab is the business list: on a business page it
+ * sits beside that business's pages, and elsewhere beside Search and Scenarios. Nothing points an admin at a
+ * business they did not open.
  */
-export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Messages["nav"]; links: { glossary: string; how: string } }) {
+export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Messages["nav"]; links: Labels }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const [moreOn, setMoreOn] = useState<string | null>(null);
@@ -93,21 +119,40 @@ export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Message
   const page = match ? (match[2] ?? "") : null;
   const role = params.get("as");
   const query = roleQuery(role);
+  const admin = role === "admin" || rest === "/admin";
   const root = `/${locale}/business/${id}`;
   const tab = (path: string, label: string, icon: ReactNode): Tab => ({ href: `${root}${path}${query}`, label, icon, current: page === path });
-  const tabs = [tab("", nav.overview, ICONS.overview), tab("/credit", nav.credit, ICONS.credit), tab("/forecast", nav.forecast, ICONS.forecast), tab("/review", nav.review, ICONS.review)];
-  const extra = [
-    { href: `${root}/sharia${query}`, label: nav.sharia, current: page === "/sharia" },
-    { href: `${root}/zakat${query}`, label: nav.zakat, current: page === "/zakat" },
-    { href: `/${locale}/scenarios${query}`, label: nav.scenarios, current: rest.startsWith("/scenarios") },
-    ...(role === "admin" || rest === "/admin" ? [{ href: `/${locale}/admin${query}`, label: nav.admin, current: rest === "/admin" }] : []),
-    { href: `/${locale}/glossary${query}`, label: links.glossary, current: rest === "/glossary" },
-    { href: `/${locale}/how-it-works${query}`, label: links.how, current: rest === "/how-it-works" },
-  ];
+  const businesses: Tab = { href: `/${locale}/admin${query}`, label: nav.businesses, icon: ICONS.businesses, current: rest === "/admin" };
+  const scenarios: Tab = { href: `/${locale}/scenarios${query}`, label: nav.scenarios, icon: ICONS.scenarios, current: rest.startsWith("/scenarios") };
+  const pages = {
+    review: { href: `${root}/review${query}`, label: nav.review, current: page === "/review" },
+    sharia: { href: `${root}/sharia${query}`, label: nav.sharia, current: page === "/sharia" },
+    zakat: { href: `${root}/zakat${query}`, label: nav.zakat, current: page === "/zakat" },
+    scenarios: { href: scenarios.href, label: scenarios.label, current: scenarios.current },
+    glossary: { href: `/${locale}/glossary${query}`, label: links.glossary, current: rest === "/glossary" },
+    how: { href: `/${locale}/how-it-works${query}`, label: links.how, current: rest === "/how-it-works" },
+  };
+  // search: an admin away from any one business can open the search dialog from the bar.
+  let tabs: Tab[];
+  let extra: (typeof pages)[keyof typeof pages][];
+  let search = false;
+  if (admin && match) {
+    tabs = [businesses, tab("", nav.overview, ICONS.overview), tab("/credit", nav.credit, ICONS.credit), tab("/forecast", nav.forecast, ICONS.forecast)];
+    extra = [pages.review, pages.sharia, pages.zakat, pages.scenarios, pages.glossary, pages.how];
+  } else if (admin) {
+    tabs = [businesses, scenarios];
+    extra = [pages.glossary, pages.how];
+    search = true;
+  } else {
+    tabs = [tab("", nav.overview, ICONS.overview), tab("/credit", nav.credit, ICONS.credit), tab("/forecast", nav.forecast, ICONS.forecast), tab("/review", nav.review, ICONS.review)];
+    extra = [pages.sharia, pages.zakat, pages.scenarios, pages.glossary, pages.how];
+  }
   const moreCurrent = extra.some((item) => item.current);
+  const columns = tabs.length + (search ? 2 : 1);
 
   return (
     <nav aria-label={nav.appTabs} className="app-tabbar" data-app-tabbar>
+      {more && <div aria-hidden="true" className="app-more-scrim" />}
       {more && (
         <div ref={sheet} id={sheetId} className="app-more">
           <ul>
@@ -121,7 +166,7 @@ export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Message
           </ul>
         </div>
       )}
-      <ul className="app-tabs">
+      <ul className="app-tabs" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
         {tabs.map((t) => (
           <li key={t.href}>
             <Link href={t.href} prefetch={false} aria-current={t.current ? "page" : undefined} className="app-tab">
@@ -130,6 +175,14 @@ export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Message
             </Link>
           </li>
         ))}
+        {search && (
+          <li>
+            <button type="button" className="app-tab" aria-haspopup="dialog" onClick={() => window.dispatchEvent(new Event(OPEN_SEARCH))}>
+              {ICONS.search}
+              <span>{links.search}</span>
+            </button>
+          </li>
+        )}
         <li>
           <button
             ref={moreButton}

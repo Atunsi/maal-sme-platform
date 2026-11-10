@@ -107,7 +107,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
             {n.baseline}
           </span>
         </div>
-        <p className="text-[13px] text-muted">{n.chartNote}</p>
+        {/* One line: both lines are projections, joined between four points (the API sends no daily history). */}
         <p data-points-note className="text-[13px] text-muted">
           {n.pointsNote}
         </p>
@@ -150,12 +150,6 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
           </table>
         </TableScroll>
       </section>
-      <div className="text-sm">
-        <span className="text-muted">{n.method}</span>
-        <BackendText locale={locale} m={m}>
-          {f.method}
-        </BackendText>
-      </div>
     </>
   );
 }
@@ -187,7 +181,22 @@ export function ForecastCard({ data, locale, m }: { data: ForecastResponse; loca
       ) : (
         <Body f={f} locale={locale} m={m} />
       )}
-      <ReceiptPanel receipt={data.receipt} lens={n.title} m={m} />
+      {/* The method sits with the receipt, as on the review queue: there for whoever checks, out of the reader's way. */}
+      <ReceiptPanel
+        receipt={data.receipt}
+        lens={n.title}
+        m={m}
+        note={
+          computed && (
+            <div className="mb-2 text-sm">
+              <p className="font-semibold text-muted">{n.method}</p>
+              <BackendText locale={locale} m={m}>
+                {computed.method}
+              </BackendText>
+            </div>
+          )
+        }
+      />
     </>
   );
 }

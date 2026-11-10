@@ -758,18 +758,158 @@ a.themebtn {
   background: transparent;
   cursor: pointer;
 }
+/* A dot, one size for every transaction: the lane names the reason, and nothing here reads as a size. */
 .tick-bar {
   position: absolute;
-  bottom: 0;
-  left: 19px;
-  width: 6px;
-  transform-origin: bottom;
-  animation: growy 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50% !important;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--surface);
+  transition:
+    transform 0.15s ease-out,
+    background 0.15s;
+  animation: dotin 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.tick:hover .tick-bar,
+.tick:focus-visible .tick-bar {
+  transform: scale(1.25);
 }
 .tick[aria-pressed="true"] .tick-bar {
-  left: 17px;
-  width: 10px;
-  box-shadow: 0 0 0 4px var(--accentSoft2);
+  background: var(--ochre);
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 5px color-mix(in srgb, var(--ochre) 35%, transparent);
+  transform: scale(1.2);
+}
+@keyframes dotin {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+/* The review timeline: one lane per flag reason. Phones put the lane's name above its track; wider screens
+   give the names a column, on the reading side (right in Arabic). The tracks stay left to right. */
+.lanes {
+  display: flex;
+  flex-direction: column;
+}
+.lane {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.lane + .lane:not(.lane-axis) {
+  border-top: 1px solid var(--rule2);
+}
+.lane-head {
+  padding-bottom: 4px;
+}
+.lane-head + .lane {
+  border-top: 0 !important;
+}
+.lane-name {
+  justify-self: start;
+  text-align: start;
+}
+/* The lanes are pinned LTR, so "start" is the left; in Arabic the names belong on the right. */
+html[dir="rtl"] .lane > .lane-name {
+  justify-self: end;
+}
+.lanes .reason-toggle.lane-name {
+  min-height: 44px; /* E7: a 44 px target */
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  font-size: 14px;
+}
+.lanes .reason-toggle.lane-name:hover > span:first-child {
+  text-decoration: underline;
+}
+.lane-count {
+  display: inline-flex;
+  min-width: 24px;
+  justify-content: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accentSoft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.lane[data-off] .lane-count {
+  background: var(--bg);
+  color: var(--muted);
+}
+.lane-track {
+  position: relative;
+  height: 44px; /* E7: each dot is a 44 px target */
+  margin-inline: 8px;
+}
+.lane-track::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--rule);
+}
+.lane[data-off] .lane-track {
+  opacity: 0.45;
+}
+.lane-grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule2);
+}
+.lane-axis .lane-track {
+  height: 24px;
+}
+.lane-axis .lane-track::before {
+  display: none;
+}
+.lane-month {
+  position: absolute;
+  top: 4px;
+  padding-inline-start: 4px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.lane-axis .scan {
+  top: 0;
+  bottom: 0;
+}
+@media (min-width: 768px) {
+  .lane {
+    grid-template-columns: 250px minmax(0, 1fr);
+    column-gap: 16px;
+    align-items: center;
+  }
+  .lane-head {
+    padding-bottom: 0;
+  }
+  /* The tracks are pinned left to right, so in Arabic the names move to the right-hand column. */
+  html[dir="rtl"] .lane {
+    grid-template-columns: minmax(0, 1fr) 250px;
+  }
+  html[dir="rtl"] .lane > .lane-name {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  html[dir="rtl"] .lane > .lane-track {
+    grid-column: 1;
+    grid-row: 1;
+  }
 }
 .scan-fill {
   height: 6px;
@@ -1281,15 +1421,23 @@ details.phone-fold > summary::-webkit-details-marker {
   transition: scale 0.14s ease-out;
 }
 /* More: a sheet rising from the bar, list rows like AFC2027's menu. */
+/* Solid, never glass: its options must read clearly over any page. A scrim dims the page behind it. */
+.app-more-scrim {
+  position: fixed;
+  inset: 0;
+  bottom: var(--tabbar-h, 58px);
+  background: rgba(10, 12, 20, 0.38);
+  animation: fade 0.18s both;
+}
 .app-more {
   position: absolute;
   inset-inline: 8px;
   bottom: calc(100% + 8px);
   padding: 6px;
   border: 1px solid var(--rule);
-  border-radius: 14px;
+  border-radius: var(--r-box);
   background: var(--surface);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 18px 44px rgba(10, 12, 20, 0.28);
   transform-origin: bottom right;
   animation: moreup 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -1301,13 +1449,17 @@ details.phone-fold > summary::-webkit-details-marker {
   padding: 0;
   list-style: none;
 }
+.app-more li + li {
+  border-top: 1px solid var(--rule2);
+}
 .app-more a {
   display: flex;
   align-items: center;
-  min-height: 48px;
+  min-height: 50px;
   padding: 0 14px;
   border-radius: 10px;
   color: var(--ink);
+  font-size: 16px;
   font-weight: 500;
   text-decoration: none;
 }
@@ -1330,7 +1482,6 @@ details.phone-fold > summary::-webkit-details-marker {
   .switcher-panel,
   .palette,
   .term-tip,
-  .app-more,
   .app-tabbar {
     background: var(--glass);
     border-color: var(--glass-edge);
@@ -1342,6 +1493,9 @@ details.phone-fold > summary::-webkit-details-marker {
      keep their contrast whatever passes under them. (The tour panel is solid for the same reason.) */
   .app-tabbar {
     background: color-mix(in srgb, var(--surface) 95%, transparent);
+    /* No blur: at 95% it shows nothing, and a backdrop filter would trap the More sheet's scrim inside the bar. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
   /* Search opens over a dimmed, softly blurred page. */
   .palette-backdrop {
@@ -1607,6 +1761,21 @@ body > header:first-of-type {
 .switcher-option.is-active,
 .switcher-option:hover {
   background: var(--accentSoft);
+}
+/* The admin's "Find a business" matches: a solid list under the field. */
+.finder-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-box);
+  background: var(--surface);
+  box-shadow: 0 18px 44px rgba(10, 12, 20, 0.22);
+  animation: popin 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* I2: legend items toggle their reason. Off reads struck through as well as faded. */

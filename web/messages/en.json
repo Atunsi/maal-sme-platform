@@ -22,6 +22,7 @@
     "why": "Why Ma'al",
     "faq": "Questions",
     "admin": "All businesses",
+    "businesses": "Businesses",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "roleOwner": "Demo role: business owner",
@@ -106,10 +107,11 @@
     "body": "Scored, but these features have no prior period to compare against:"
   },
   "picker": {
-    "inputLabel": "Open a business by ID",
-    "inputHelp": "A serving ID from {min} to {max}.",
+    "inputLabel": "Find a business by name or ID",
+    "results": "Matching businesses",
     "submit": "Open",
-    "invalid": "Enter a whole number from {min} to {max}.",
+    "invalid": "No serving business matches. Try a name, or an ID from {min} to {max}.",
+    "invalidStatic": "No business in this online demo matches. It holds {n}, listed below.",
     "available": "Serving businesses in this store",
     "unavailable": "Could not read the store size from the API."
   },
@@ -207,7 +209,6 @@
     "ramadan": "Ramadan adjusted",
     "method": "Method",
     "chartTitle": "Projected balance, today to day 90",
-    "chartNote": "Both lines are projections. The API returns no daily history, so no actual line is drawn.",
     "chartAlt": "Line chart of projected balance for the model and the naive baseline. The table below gives the same values.",
     "day": "Day",
     "dayN": "Day {n}",
@@ -229,11 +230,11 @@
     "today": "today",
     "tableLabel": "Projection table",
     "noneProjected": "None projected",
-    "pointsNote": "Values at today and three horizons only; the lines between them are not daily values"
+    "pointsNote": "Both lines are projections, at today and three horizons only; the lines between them are not daily values."
   },
   "anomaly": {
     "title": "Review queue",
-    "queue": "A review queue: these transactions are for a person to look at. The lens fills its fixed cap for every business, so a full list is normal and proves nothing by itself.",
+    "queue": "For a person to check. A full list is normal: every business gets the same number of slots.",
     "window": "Scan window",
     "scanned": "Transactions scanned",
     "listed": "Listed for review",
@@ -250,6 +251,7 @@
     "windowValue": "{from} to {to}",
     "listedOf": "listed, from {n} transactions scanned",
     "timeline": "Timeline of queued transactions",
+    "chartTitle": "When they happened",
     "markLabel": "{date}, {reason}",
     "timelineAlt": "{n} transactions placed by date between {from} and {to}. The table gives the same list.",
     "slots": "{n} of {cap} review slots used",
@@ -697,7 +699,7 @@
     "showsPartial": "Some features unavailable",
     "note": "Five businesses chosen to show each state the API returns (serving population, N = {n}, synthetic data). A full list needs GET /businesses, a proposed API change.",
     "demoStates": "Demo states",
-    "allTitle": "Search every serving business",
+    "allTitle": "Every serving business",
     "allTable": "Serving business list",
     "total": "{n} serving businesses",
     "matches": "{n} match",

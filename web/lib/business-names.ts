@@ -112,3 +112,39 @@ export function businessName(id: number | string): BusinessName {
 export function nameOf(id: number | string, locale: Locale): string {
   return businessName(id)[locale];
 }
+
+/** Lower case, no accents or apostrophes, and one spelling for the Arabic letters people type either way. */
+function fold(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .replace(/ـ/g, "")
+    .replace(/['’‘`-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Businesses for a search box: by the start of the ID when the query is digits, otherwise by name, in either
+ * language, with every word of the query found in the name. `ids` is the set to search (the online snapshot
+ * holds only some); in ID order, at most `limit`.
+ */
+export function findBusinesses(query: string, ids: readonly number[], limit = 8): number[] {
+  const q = fold(query);
+  if (!q) return [];
+  if (/^[0-9]+$/.test(q)) return ids.filter((id) => String(id).startsWith(q)).slice(0, limit);
+  if (q.length < 2) return [];
+  const words = q.split(" ");
+  const found: number[] = [];
+  for (const id of ids) {
+    const { ar, en } = businessName(id);
+    const name = `${fold(en)} ${fold(ar)}`;
+    if (words.every((word) => name.includes(word))) found.push(id);
+    if (found.length === limit) break;
+  }
+  return found;
+}

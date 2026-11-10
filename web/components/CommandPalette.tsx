@@ -2,11 +2,13 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { createPortal } from "react-dom";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
 import { GLOSSARY } from "@/lib/glossary";
 import type { Locale, Messages } from "@/lib/i18n";
-import { isServingId } from "@/lib/population";
-import { nameOf } from "@/lib/business-names";
+import { isServingId, SERVING_IDS } from "@/lib/population";
+import { findBusinesses, nameOf } from "@/lib/business-names";
+import { OPEN_SEARCH } from "@/components/AppTabBar";
 import { fill } from "@/lib/i18n";
 
 export type PaletteScenario = { name: string; label: string };
@@ -29,22 +31,27 @@ export function paletteItems(locale: Locale, m: Pick<Messages, "nav" | "search" 
   ];
 }
 
-/** Items whose label holds the query, plus "Open business <ID>" when the query is a serving ID. */
-export function paletteMatches(items: Item[], query: string, locale: Locale, m: Pick<Messages, "search">, role: string | null): Item[] {
+/**
+ * Items whose label holds the query, plus "Open <name> (<ID>)" when the query is a serving ID, and businesses
+ * whose name holds it, after the pages and terms. `ids` limits the businesses (the online snapshot's few).
+ */
+export function paletteMatches(items: Item[], query: string, locale: Locale, m: Pick<Messages, "search">, role: string | null, ids: readonly number[] = SERVING_IDS): Item[] {
   const q = query.trim().toLowerCase();
   const found = q ? items.filter((i) => i.label.toLowerCase().includes(q)) : items;
+  const business = (id: number): Item => ({ id: `business-${id}`, label: fill(m.search.openBusiness, { id, name: nameOf(id, locale) }), group: m.search.groups.business, href: `/${locale}/business/${id}${roleQuery(role)}` });
   const id = /^[0-9]{5}$/.test(q) ? Number(q) : null;
-  const open = id !== null && isServingId(id) ? [{ id: `business-${id}`, label: fill(m.search.openBusiness, { id, name: nameOf(id, locale) }), group: m.search.groups.business, href: `/${locale}/business/${id}${roleQuery(role)}` }] : [];
-  return [...open, ...found];
+  const open = id !== null && isServingId(id) && ids.includes(id) ? [business(id)] : [];
+  const named = q && !/[0-9]/.test(q) ? findBusinesses(q, ids, 5).map(business) : [];
+  return [...open, ...found, ...named];
 }
 
 /**
  * I8 (DECISIONS 45): search the page's fixed lists. A "Search" button opens it; Ctrl+K and Cmd+K open it
  * too, never as the only way in. A dialog holding one combobox: focus stays inside while it is open, and
- * Escape closes it and returns focus to the button. U1: its one field matches page names, scenarios, terms
- * and serving IDs; it can reach no term of an offer.
+ * Escape closes it and returns focus to what opened it. U1: its one field matches page names, scenarios, terms,
+ * serving IDs and the fixed business names; it can reach no term of an offer. The phone tab bar opens it too.
  */
-export function CommandPalette({ locale, m, scenarios }: { locale: Locale; m: Pick<Messages, "nav" | "search" | "sheet">; scenarios: PaletteScenario[] }) {
+export function CommandPalette({ locale, m, scenarios, businessIds }: { locale: Locale; m: Pick<Messages, "nav" | "search" | "sheet">; scenarios: PaletteScenario[]; businessIds?: readonly number[] }) {
   const s = m.search;
   const router = useRouter();
   const pathname = usePathname();
@@ -58,17 +65,27 @@ export function CommandPalette({ locale, m, scenarios }: { locale: Locale; m: Pi
   const listId = useId();
   const titleId = useId();
   const business = /\/business\/(\d+)/.exec(pathname)?.[1] ?? String(DEMO_BUSINESS);
-  const matches = paletteMatches(paletteItems(locale, m, business, role, scenarios), query, locale, m, role);
+  const matches = paletteMatches(paletteItems(locale, m, business, role, scenarios), query, locale, m, role, businessIds);
+  // Focus goes back to whatever opened the dialog: the header button, a tab, or the page under Ctrl+K.
+  const returnTo = useRef<HTMLElement | null>(null);
+  const show = () => {
+    returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setOpen(true);
+  };
 
   useEffect(() => {
     const onKey = (event: globalThis.KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setOpen(true);
+        show();
       }
     };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    window.addEventListener(OPEN_SEARCH, show);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener(OPEN_SEARCH, show);
+    };
   }, []);
 
   useEffect(() => {
@@ -79,7 +96,8 @@ export function CommandPalette({ locale, m, scenarios }: { locale: Locale; m: Pi
     setOpen(false);
     setQuery("");
     setActive(0);
-    opener.current?.focus();
+    const back = returnTo.current;
+    (back?.isConnected && back.offsetParent !== null ? back : opener.current)?.focus();
   };
   const go = (item: Item | undefined) => {
     if (!item) return;
@@ -111,10 +129,12 @@ export function CommandPalette({ locale, m, scenarios }: { locale: Locale; m: Pi
 
   return (
     <>
-      <button ref={opener} type="button" className="themebtn" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" data-search-open onClick={() => setOpen(true)}>
+      <button ref={opener} type="button" className="themebtn" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" data-search-open onClick={show}>
         {s.button}
       </button>
-      {open && (
+      {/* In the body, not the header: on a phone the header menu holding the button may be closed. */}
+      {open &&
+        createPortal(
         <div className="palette-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()}>
           <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId} className="palette" onKeyDown={onKey} data-palette>
             <h2 id={titleId} className="heading text-xl">
@@ -159,8 +179,9 @@ export function CommandPalette({ locale, m, scenarios }: { locale: Locale; m: Pi
               {matches.length === 0 && <li className="px-2 py-2 text-sm text-muted">{s.none}</li>}
             </ul>
           </div>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </>
   );
 }

@@ -46,6 +46,13 @@
     transform-origin: top;
     animation: menudrop 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+  /* An open menu is solid, never glass, so its links read clearly over the page; a shadow lifts it off. */
+  body > header:first-of-type:has(.menu-drop) {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: 0 18px 44px rgba(10, 12, 20, 0.28);
+  }
 
   /* The bottom tab bar on every app page but the landing page and sign-in (components/AppTabBar.tsx). */
   .app-tabbar {

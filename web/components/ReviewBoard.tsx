@@ -4,8 +4,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Term } from "@/components/Term";
 import { Num, TableScroll, TD, TH } from "@/components/ui";
-import { formatDate, formatInt, formatSar } from "@/lib/format";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { formatDate, formatInt, formatMonth, formatSar } from "@/lib/format";
+import { dirOf, fill, type Locale, type Messages } from "@/lib/i18n";
 import { label, labelWord } from "@/lib/labels";
 import { delay } from "@/lib/motion";
 import type { AnomalyResponse } from "@/lib/types";
@@ -14,18 +14,19 @@ type Computed = Extract<NonNullable<AnomalyResponse["anomaly"]>, { status: "comp
 type Flag = Computed["flags"][number];
 type Reason = Flag["flag_reason"];
 
-// Colour and height both mark the reason, and the legend names it, so neither carries it alone.
-const LOOK: Record<Reason, { colour: string; height: number }> = {
-  amount_outlier: { colour: "var(--ink)", height: 100 },
-  new_counterparty_large_amount: { colour: "var(--ochre)", height: 82 },
-  multivariate_outlier: { colour: "var(--accent)", height: 64 },
-  repeat_payment: { colour: "var(--ok)", height: 74 },
-  counterparty_both_directions: { colour: "var(--muted)", height: 56 },
-  rare_category: { colour: "var(--warnText)", height: 38 },
-  unusual_hour: { colour: "var(--bad)", height: 46 },
-};
-
 const dayOf = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
+
+/** The first day of each month that starts inside the scan window: the chart's gridlines. */
+export function monthStarts(from: string, to: string): string[] {
+  const out: string[] = [];
+  const d = new Date(`${from.slice(0, 7)}-01T00:00:00Z`);
+  if (dayOf(from) > d.getTime()) d.setUTCMonth(d.getUTCMonth() + 1);
+  while (d.getTime() <= dayOf(to)) {
+    out.push(d.toISOString().slice(0, 10));
+    d.setUTCMonth(d.getUTCMonth() + 1);
+  }
+  return out;
+}
 
 // C5: the table sorts on the client, over the one response; nothing is fetched again. The sort lives in
 // ?sort=<column>&dir=asc|desc, written with replaceState, so a shared link opens sorted and Back still leaves.
@@ -49,8 +50,13 @@ export function readReasons<R extends string>(params: URLSearchParams | null, pr
 /** "03:00" from the hour the API returns. */
 export const hourText = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
 
-/** U8: reasons only, placed by date. One mark per listed transaction; a mark and its row select each other. */
-export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale; labels: Pick<Messages, "anomaly" | "enums"> }) {
+/**
+ * U8: reasons only, placed by date. One lane per flag reason, one dot per listed transaction on its lane, and
+ * the months as faint lines; a dot and its row select each other. A lane's name turns its dots and rows on
+ * and off (I2). Lanes carry the reason, so dots need no colour or height of their own: nothing on the chart
+ * looks like a size or a severity the API did not send.
+ */
+export function ReviewBoard({ a, locale, labels, intro }: { a: Computed; locale: Locale; labels: Pick<Messages, "anomaly" | "enums">; intro?: string }) {
   const [picked, setPicked] = useState<ReadonlySet<number>>(new Set());
   // E5: the mark whose date and reason are showing. Hover, focus or a tap shows it; Esc, leaving or a tap
   // elsewhere hides it. Picking (the highlight) is separate.
@@ -71,7 +77,8 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
   const n = labels.anomaly;
   const { from, to } = a.scan_window;
   const span = dayOf(to) - dayOf(from) || 1;
-  const middle = new Date((dayOf(from) + dayOf(to)) / 2).toISOString().slice(0, 10);
+  const months = monthStarts(from, to);
+  const pct = (at: number) => `${(at * 100).toFixed(2)}%`;
   const visible = a.flags.filter((f) => shownReasons.has(f.flag_reason));
   const position = (iso: string) => Math.min(1, Math.max(0, (dayOf(iso) - dayOf(from)) / span));
   const toggleReason = (reason: Reason) => {
@@ -136,74 +143,93 @@ export function ReviewBoard({ a, locale, labels }: { a: Computed; locale: Locale
 
   return (
     <>
-      <section aria-label={n.timeline} data-tour="timeline" className="flex flex-col gap-3 border border-line bg-card px-5 pb-6 pt-9 sm:px-9">
-        {/* Time runs left to right in Arabic too, so the track is pinned LTR. */}
-        <div dir="ltr" role="group" aria-label={fill(n.timelineAlt, { n: formatInt(a.flags.length, locale), from: formatDate(from, locale), to: formatDate(to, locale) })}>
-          <div className="relative h-[120px] border-b-2 border-ink" data-track>
-            <div aria-hidden="true" className="scan" />
-            {visible.map((flag) => {
-              const id = flag.transaction_id;
-              const at = position(flag.date);
-              const look = LOOK[flag.flag_reason];
-              const on = picked.has(id);
-              const readout = markText(flag);
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  className="tick"
-                  aria-pressed={on}
-                  aria-label={readout}
-                  data-ids={id}
-                  data-count={1}
-                  data-open={shown === id}
-                  onClick={() => {
-                    pick([id]);
-                    setShown(id);
-                    scrollTo(`tbody tr[data-id="${id}"]`);
-                  }}
-                  onFocus={() => setShown(id)}
-                  onBlur={() => setShown(null)}
-                  onMouseEnter={() => setShown(id)}
-                  onMouseLeave={() => setShown(null)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Escape") setShown(null);
-                  }}
-                  style={{ left: `${(at * 100).toFixed(2)}%` }}
-                >
-                  <span
-                    className="tick-bar"
-                    style={{ height: `${on ? Math.min(look.height + 18, 118) : look.height}%`, background: look.colour, animationDelay: delay(at * 4) }}
-                  />
-                  <span aria-hidden="true" className={`tip ${at > 0.6 ? "tip-end" : ""}`}>
-                    {readout}
+      <section aria-label={n.timeline} data-tour="timeline" className="flex flex-col gap-4 border border-line bg-card p-5 sm:p-8">
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 className="heading text-[22px] sm:text-[26px]">{n.chartTitle}</h2>
+            <span className="text-sm text-muted">
+              <bdi>{fill(n.windowValue, { from: formatDate(from, locale), to: formatDate(to, locale) })}</bdi>
+            </span>
+          </div>
+          {intro && <p className="text-sm text-muted">{intro}</p>}
+        </div>
+        {/* Time runs left to right in Arabic too, so the lanes are pinned LTR; their names keep the page's direction. */}
+        <div dir="ltr" role="group" aria-label={fill(n.timelineAlt, { n: formatInt(a.flags.length, locale), from: formatDate(from, locale), to: formatDate(to, locale) })} className="lanes" data-track>
+          <div className="lane lane-head">
+            <span dir={dirOf(locale)} className="lane-name text-xs text-muted">
+              <Term id="flag-reason" locale={locale}>
+                {n.reason}
+              </Term>
+            </span>
+          </div>
+          {present.map((reason) => {
+            const on = shownReasons.has(reason);
+            return (
+              <div key={reason} className="lane" data-off={!on || undefined}>
+                {/* I2: a lane's name turns its reason's dots and rows on and off. R3: fixed labels. */}
+                <button type="button" dir={dirOf(locale)} className="reason-toggle lane-name" aria-pressed={on} data-reason={reason} onClick={() => toggleReason(reason)}>
+                  <span>{labels.enums.flag_reason[reason]}</span>
+                  <span className="lane-count">
+                    <Num>{formatInt(counts.get(reason) ?? 0, locale)}</Num>
                   </span>
                 </button>
-              );
-            })}
-          </div>
-          <div className="mt-2 flex justify-between font-mono text-xs text-muted">
-            <span>{formatDate(from, locale)}</span>
-            <span>{formatDate(middle, locale)}</span>
-            <span>{formatDate(to, locale)}</span>
+                <div className="lane-track">
+                  {months.map((month) => (
+                    <span key={month} aria-hidden="true" className="lane-grid" style={{ left: pct(position(month)) }} />
+                  ))}
+                  {visible
+                    .filter((flag) => flag.flag_reason === reason)
+                    .map((flag) => {
+                      const id = flag.transaction_id;
+                      const at = position(flag.date);
+                      const readout = markText(flag);
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          className="tick"
+                          aria-pressed={picked.has(id)}
+                          aria-label={readout}
+                          data-ids={id}
+                          data-count={1}
+                          data-open={shown === id}
+                          onClick={() => {
+                            pick([id]);
+                            setShown(id);
+                            scrollTo(`tbody tr[data-id="${id}"]`);
+                          }}
+                          onFocus={() => setShown(id)}
+                          onBlur={() => setShown(null)}
+                          onMouseEnter={() => setShown(id)}
+                          onMouseLeave={() => setShown(null)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Escape") setShown(null);
+                          }}
+                          style={{ left: pct(at) }}
+                        >
+                          <span className="tick-bar" style={{ animationDelay: delay(at * 4) }} />
+                          <span aria-hidden="true" className={`tip ${at > 0.6 ? "tip-end" : ""}`}>
+                            {readout}
+                          </span>
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+            );
+          })}
+          <div className="lane lane-axis" aria-hidden="true">
+            <span className="lane-name" />
+            <div className="lane-track">
+              <div className="scan" />
+              {months.map((month) => (
+                <span key={month} className="lane-month" style={{ left: pct(position(month)) }}>
+                  {formatMonth(month, locale)}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-        <span className="mt-2 text-xs text-muted">
-          <Term id="flag-reason" locale={locale}>
-            {n.reason}
-          </Term>
-        </span>
-        {/* I2: each legend item turns its reason's marks and rows on and off. U8: reasons only. R3: fixed labels. */}
-        <ul className="flex flex-wrap gap-2 text-[13px]">
-          {[...counts].map(([reason, count]) => (
-            <li key={reason}>
-              <button type="button" className="reason-toggle" aria-pressed={shownReasons.has(reason)} data-reason={reason} onClick={() => toggleReason(reason)}>
-                <span aria-hidden="true" className="w-1.5" style={{ height: `${LOOK[reason].height * 0.22}px`, background: LOOK[reason].colour }} />
-                {labels.enums.flag_reason[reason]}, <Num>{formatInt(count, locale)}</Num>
-              </button>
-            </li>
-          ))}
-        </ul>
         {/* The cap's count (E11) is of every flag; with a filter on, the page says how many it shows. */}
         {visible.length !== a.flags.length && (
           <p role="status" className="text-sm text-muted" data-showing>

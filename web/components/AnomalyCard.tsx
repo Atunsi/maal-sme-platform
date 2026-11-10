@@ -51,20 +51,35 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
         </p>
       ) : (
         <>
-          <p className="max-w-[720px] text-base text-muted">{n.queue}</p>
-          <p className="text-sm text-muted">
-            {n.window}: <bdi>{fill(n.windowValue, { from: formatDate(a.scan_window.from, locale), to: formatDate(a.scan_window.to, locale) })}</bdi>
-          </p>
-          {a.flags.length === 0 ? <p>{n.noFlags}</p> : <ReviewBoard a={a} locale={locale} labels={{ anomaly: n, enums: m.enums }} />}
-          <div className="text-sm">
-            <span className="text-muted">{n.method}</span>
-            <BackendText locale={locale} m={m}>
-              {a.method}
-            </BackendText>
-          </div>
+          {/* The chart card carries the framing (U8) and the scan window; the method sits with the receipt. */}
+          {a.flags.length === 0 ? (
+            <>
+              <p className="text-sm text-muted">{n.queue}</p>
+              <p className="text-sm text-muted">
+                {n.window}: <bdi>{fill(n.windowValue, { from: formatDate(a.scan_window.from, locale), to: formatDate(a.scan_window.to, locale) })}</bdi>
+              </p>
+              <p>{n.noFlags}</p>
+            </>
+          ) : (
+            <ReviewBoard a={a} locale={locale} labels={{ anomaly: n, enums: m.enums }} intro={n.queue} />
+          )}
         </>
       )}
-      <ReceiptPanel receipt={data.receipt} lens={n.title} m={m} />
+      <ReceiptPanel
+        receipt={data.receipt}
+        lens={n.title}
+        m={m}
+        note={
+          computed && (
+            <div className="mb-2 text-sm">
+              <p className="font-semibold text-muted">{n.method}</p>
+              <BackendText locale={locale} m={m}>
+                {computed.method}
+              </BackendText>
+            </div>
+          )
+        }
+      />
     </>
   );
 }

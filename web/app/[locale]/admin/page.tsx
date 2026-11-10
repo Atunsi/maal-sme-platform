@@ -11,10 +11,11 @@ import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
 import { creditPlate } from "@/lib/decision";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { nameOf } from "@/lib/business-names";
-import { searchOf, STATIC } from "@/lib/static-data";
+import { searchOf, STATIC, staticIds } from "@/lib/static-data";
 import { SERVING_ID_MAX, SERVING_ID_MIN } from "@/lib/population";
 import type { ApiResult, CreditResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
+import { formatInt } from "@/lib/format";
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
 
@@ -107,10 +108,13 @@ export default async function AdminPage({ params, searchParams }: Props) {
   const rows = DEMO_BUSINESSES.map((id) => ({ id, result: getCredit(id) }));
   const listView = await AllBusinesses({ result: list, locale, m, query, links, page });
   const range = { min: String(SERVING_ID_MIN), max: String(SERVING_ID_MAX) };
+  // The online snapshot can open only the businesses it captured, so its finder offers only those.
+  const finderIds = STATIC ? staticIds() : undefined;
   const th = "px-6 py-4 font-medium";
   return (
     <Page>
-      <div className="rise flex flex-wrap items-end justify-between gap-5">
+      {/* Above the cards below it, so the finder's matches open over them. */}
+      <div className="rise relative z-10 flex flex-wrap items-end justify-between gap-5">
         <div>
           <div className="flex items-center gap-2.5 text-muted">
             <SectionMark />
@@ -122,7 +126,13 @@ export default async function AdminPage({ params, searchParams }: Props) {
         <BusinessPicker
           locale={locale}
           query={query}
-          labels={{ input: p.inputLabel, help: fill(p.inputHelp, range), submit: p.submit, invalid: fill(p.invalid, range) }}
+          ids={finderIds}
+          labels={{
+            input: p.inputLabel,
+            results: p.results,
+            submit: p.submit,
+            invalid: finderIds ? fill(p.invalidStatic, { n: formatInt(finderIds.length, locale) }) : fill(p.invalid, range),
+          }}
         />
       </div>
 
