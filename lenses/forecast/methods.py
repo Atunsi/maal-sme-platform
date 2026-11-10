@@ -14,6 +14,12 @@ The candidate list was fixed BEFORE any of them was evaluated (DECISIONS entry 2
   ols_damped  v1 model: OLS trend + day-of-week on 90 days, slope damped (v1 lost to naive30)
   structural  recurring outflows (rent, payroll, loans) replayed on the days they recur, plus
               the non-recurring net flow at its 30-day level with a 90-day day-of-week profile
+
+Two more were added later under their own protocol, also fixed before any fit (DECISIONS entry 56),
+and live in EXTRA_METHODS because their packages are optional:
+
+  arima       statsmodels ARIMA on the last 90 days, order by lowest AIC over 18 (p, d, q)
+  prophet     Prophet on the last 90 days, weekly seasonality only, MAP fit, library defaults
 """
 
 from __future__ import annotations
@@ -73,3 +79,80 @@ def structural(hist: pd.DataFrame, horizon: int, **_) -> np.ndarray:
 
 METHODS = {"naive30": naive30, "naive90": naive90, "blend": blend, "ewma": ewma, "ols_damped": ols_damped, "structural": structural}
 BASELINE = "naive30"
+
+
+# --------------------------------------------------------------------------- #
+# Prophet and ARIMA (DECISIONS entry 56; every setting was fixed there before any fit)
+#
+# Kept out of METHODS because `statsmodels` and `prophet` are not in requirements.txt unless one of
+# them is chosen on validation (entry 56.5): the shipped lens and the older harnesses must import
+# without them. The packages are imported inside the functions for the same reason.
+# --------------------------------------------------------------------------- #
+
+ARIMA_ORDERS = [(p, d, q) for p in (0, 1, 2) for d in (0, 1) for q in (0, 1, 2)]
+FALLBACKS = {"arima": 0, "prophet": 0}        # calls that returned naive90's projection, per process
+
+
+def _arima_one(y: np.ndarray, order: tuple, horizon: int) -> tuple[float, np.ndarray] | None:
+    """(AIC, forecast) for one order, or None when it does not converge (entry 56.6.1)."""
+    import warnings
+
+    from statsmodels.tsa.arima.model import ARIMA
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            res = ARIMA(y, order=order).fit()
+            if not bool((res.mle_retvals or {}).get("converged", False)):
+                return None
+            aic, out = float(res.aic), np.asarray(res.forecast(horizon), float)
+    except Exception:  # noqa: BLE001 — any failure of one order just removes that order
+        return None
+    return (aic, out) if np.isfinite(aic) and out.shape == (horizon,) and np.isfinite(out).all() else None
+
+
+def _arima_projection(y: np.ndarray, horizon: int) -> np.ndarray | None:
+    """Lowest-AIC converged order's forecast, or None when no order converges (entry 56.6.1)."""
+    best_aic, best = np.inf, None
+    for order in ARIMA_ORDERS:
+        fit = _arima_one(y, order, horizon)
+        if fit is not None and fit[0] < best_aic:      # strict <, so a tie keeps the earlier (p, d, q)
+            best_aic, best = fit
+    return best
+
+
+def arima(hist: pd.DataFrame, horizon: int, **_) -> np.ndarray:
+    out = _arima_projection(hist["net_flow"].to_numpy(float)[-90:], horizon)
+    if out is None:
+        FALLBACKS["arima"] += 1
+        return naive90(hist, horizon)
+    return out
+
+
+def _prophet_projection(fit: pd.DataFrame, horizon: int) -> np.ndarray | None:
+    """Prophet point forecast with the entry 56.6.2 arguments, or None when it fails."""
+    import logging
+
+    try:
+        from prophet import Prophet
+
+        for name in ("cmdstanpy", "prophet"):          # after the import: cmdstanpy resets its own level
+            logging.getLogger(name).setLevel(logging.CRITICAL)
+        m = Prophet(weekly_seasonality=True, yearly_seasonality=False, daily_seasonality=False,
+                    changepoint_prior_scale=0.05, mcmc_samples=0, uncertainty_samples=0)
+        m.fit(pd.DataFrame({"ds": pd.DatetimeIndex(fit["date"]), "y": fit["net_flow"].to_numpy(float)}))
+        out = m.predict(pd.DataFrame({"ds": _future_dates(fit, horizon)}))["yhat"].to_numpy(float)
+    except Exception:  # noqa: BLE001 — a failed fit is a counted fallback, not a crash
+        return None
+    return out if out.shape == (horizon,) and np.isfinite(out).all() else None
+
+
+def prophet(hist: pd.DataFrame, horizon: int, **_) -> np.ndarray:
+    out = _prophet_projection(hist.tail(90), horizon)
+    if out is None:
+        FALLBACKS["prophet"] += 1
+        return naive90(hist, horizon)
+    return out
+
+
+EXTRA_METHODS = {"arima": arima, "prophet": prophet}
