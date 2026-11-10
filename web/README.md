@@ -53,6 +53,12 @@ Review fixes (DECISIONS 45):
   with a slider.
 - **Local fonts.** The IBM Plex families are self-hosted from `app/fonts/` (`next/font/local`, Fontsource 5.3.0
   woff2 files, SIL Open Font License beside them). The build makes no call to Google.
+- **The Saudi riyal sign** (U+20C1, entry 57). No system font has it yet, so its two faces come from the
+  `riyal` npm package v1.2.1 (MIT, `app/fonts/MIT-riyal.txt`), copied as files, pinned by sha256 in
+  `tests/fonts.test.ts` and loaded with `next/font/local` for `unicode-range: U+20C1` only, first in every
+  stack (no fallback face, which would be Arial for every character). The package is not a dependency.
+  Amounts render through `<Sar>`: the sign is `aria-hidden` and a hidden word follows ("Saudi riyals",
+  «ريال سعودي»); attributes use `formatSarSpoken`. The character is written once, `RIYAL` in `lib/format.ts`.
 - **Motion cap.** Outside the landing page and sign-in, no entrance waits more than 0.4 s or runs longer than
   0.6 s: named steps `--d-0` to `--d-4` in `globals.css` and `delay()` in `lib/motion.ts`.
 - **Visual snapshots.** `e2e/visual.spec.ts` keeps Playwright screenshot baselines in
@@ -102,6 +108,10 @@ npm run e2e          # Playwright, in Microsoft Edge; needs the API and a finish
 `npm run e2e` takes a while: it runs axe on every page in both locales and both themes, and the 429
 test waits out the API's real one-minute rate window.
 
+`e2e/arabic.spec.ts` crawls every `/ar` route and fails on any Latin word outside its named allowlist
+(A4, entry 57), and checks the riyal sign (RS1 to RS3). Its recording mode lists every Latin word with
+the pages it is on, without asserting: `ARABIC_RECORD=<file.json> npx playwright test e2e/arabic.spec.ts -g records`.
+
 ## Constraints
 
 - **The API key stays on the server.** Only `lib/api.ts` reads it, and `server-only` makes a client
@@ -110,8 +120,11 @@ test waits out the API's real one-minute rate window.
   a time, because the store shares one DuckDB connection across request threads (entry 41). Each
   card still loads and fails on its own. Remove the queue after the fix, and the five requests run
   in parallel as §8 intends.
-- **The UI translates only its own text.** Backend templates stay in English in an LTR block,
-  labelled as pending an Arabic template. A UI translation would be a second, unreviewed version.
+- **The UI translates only its own text; Arabic backend text comes from the backend** (entry 57). Every
+  template the backend shows has an Arabic sibling (`text_ar`, `drivers_ar`, `scope_ar` and the like) from
+  fixed tables beside the English ones (`templates_ar.yaml`, `scenarios/library_ar.yaml`). `BackendText`
+  shows that field verbatim in Arabic; when it is absent the English stays in an LTR block, labelled as
+  pending an Arabic template. A UI translation would be a second, unreviewed version.
 - **Every number comes from an API response or an exported scenario object.** Nothing from
   `docs/NUMBERS.md` is hard-coded.
 - **Rules U1 to U15** are listed in entry 41, each with how it is enforced and tested. Entry 42 amends
