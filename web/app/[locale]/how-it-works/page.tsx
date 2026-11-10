@@ -1,5 +1,5 @@
 import { searchOf } from "@/lib/static-data";
-import Link from "next/link";
+import { RoleLink } from "@/components/RoleLink";
 import { notFound } from "next/navigation";
 import { SectionMark } from "@/components/brand/Logos";
 import { Flow } from "@/components/Flow";
@@ -63,9 +63,9 @@ export default async function HowItWorksPage({ params, searchParams }: Props) {
                   })}
                 </p>
               ))}
-              <Link href={`/${locale}${section.link.replace("{id}", String(DEMO_BUSINESS))}${query}`} className="textlink self-start font-semibold">
+              <RoleLink href={`/${locale}${section.link.replace("{id}", String(DEMO_BUSINESS))}${query}`} className="textlink self-start font-semibold">
                 {s.linkLabel}
-              </Link>
+              </RoleLink>
             </section>
           );
         })}

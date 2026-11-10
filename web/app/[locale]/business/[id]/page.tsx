@@ -1,6 +1,6 @@
 import { RoleHeading } from "@/components/RoleHeading";
 import { searchOf } from "@/lib/static-data";
-import Link from "next/link";
+import { RoleLink } from "@/components/RoleLink";
 import { notFound, redirect } from "next/navigation";
 import { Lens, NotServing } from "@/components/LensPage";
 import { PrintButton } from "@/components/PrintButton";
@@ -56,12 +56,12 @@ export default async function OverviewPage({ params, searchParams }: Props) {
           other={fill(m.overview.heading, { id, name: nameOf(id, locale) })}
         />
         <div data-phone="actions" className="flex flex-wrap items-center gap-3">
-          <Link href={`${root}?tour=${TOUR_STEPS[0]!.id}${query.replace("?", "&")}`} className="textlink font-semibold" data-tour-start data-print-hide>
+          <RoleLink href={`${root}?tour=${TOUR_STEPS[0]!.id}${query.replace("?", "&")}`} className="textlink font-semibold" data-tour-start data-print-hide>
             {m.tour.start}
-          </Link>
-          <Link href={`${root}/sheet${query}`} className="textlink font-semibold" data-print-hide>
+          </RoleLink>
+          <RoleLink href={`${root}/sheet${query}`} className="textlink font-semibold" data-print-hide>
             {m.sheet.open}
-          </Link>
+          </RoleLink>
           <PrintButton label={m.sheet.print} />
         </div>
       </div>

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useId, useState, type KeyboardEvent } from "react";
 import { findBusinesses, nameOf } from "@/lib/business-names";
 import { isServingId, SERVING_IDS } from "@/lib/population";
+import { withRole } from "@/components/RoleLink";
 import { Num } from "@/components/ui";
 
 type Props = {
@@ -29,7 +30,8 @@ export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels }
   const matches = findBusinesses(value, ids, 6);
   const listed = matches.length > 0;
 
-  const go = (id: number) => router.push(`/${locale}/business/${id}${query}`);
+  // The role is read from the address at the moment of opening: the online snapshot renders this page with none.
+  const go = (id: number) => router.push(withRole(`/${locale}/business/${id}${query}`, new URLSearchParams(window.location.search).get("as")));
   function open(event: React.FormEvent) {
     event.preventDefault();
     const text = value.trim();

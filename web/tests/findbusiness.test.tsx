@@ -77,3 +77,16 @@ describe("Find a business", () => {
     expect(push).toHaveBeenCalledWith("/en/business/10004");
   });
 });
+
+describe("links keep the demo role", () => {
+  it("withRole adds the page's ?as= to a link that has none, keeping the rest of the link", async () => {
+    const { withRole } = await import("@/components/RoleLink");
+    expect(withRole("/en/business/10004", "admin")).toBe("/en/business/10004?as=admin");
+    expect(withRole("/en/business/10001?tour=verdict", "admin")).toBe("/en/business/10001?tour=verdict&as=admin");
+    // A role the server already wrote stays.
+    expect(withRole("/en/business/10001?tour=verdict&as=owner", "admin")).toBe("/en/business/10001?tour=verdict&as=owner");
+    expect(withRole("/en/business/10001", null)).toBe("/en/business/10001");
+    expect(withRole("/en/glossary#hawl", "owner")).toBe("/en/glossary?as=owner#hawl");
+    expect(withRole("/en/business/10001", "root")).toBe("/en/business/10001"); // only the two demo roles
+  });
+});

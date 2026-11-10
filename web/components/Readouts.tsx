@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { RoleLink } from "@/components/RoleLink";
 import type { ReactNode } from "react";
 import { BackendText, figureFont, Num, Plate, Probability, type PlateVariant } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
@@ -104,7 +104,7 @@ type CardProps = { lens: string; href: string; readout: Readout; partial?: strin
 
 export function ReadoutCard({ lens, href, readout, partial, index, m }: CardProps) {
   return (
-    <Link
+    <RoleLink
       href={href}
       data-phone="readout"
       className="lift rise flex min-h-[200px] flex-col gap-2.5 border border-line bg-card p-5 text-ink no-underline"
@@ -120,6 +120,6 @@ export function ReadoutCard({ lens, href, readout, partial, index, m }: CardProp
       <span data-r="note" className="text-[13px] text-muted">{readout.note}</span>
       {partial && <span data-r="note" className="text-[13px] text-warn">{partial}</span>}
       <span data-r="open" className="mt-auto text-sm font-semibold text-accent">{fill(m.overview.open, { lens })}</span>
-    </Link>
+    </RoleLink>
   );
 }

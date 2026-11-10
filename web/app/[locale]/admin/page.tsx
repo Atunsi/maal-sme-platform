@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { SectionMark } from "@/components/brand/Logos";
 import { BusinessPicker } from "@/components/BusinessPicker";
+import { RoleLink } from "@/components/RoleLink";
 import { AllBusinesses, PAGE_SIZE } from "@/components/AllBusinesses";
 import { BusinessSearch } from "@/components/BusinessSearch";
 import { Num, Page, Plate, TableScroll } from "@/components/ui";
@@ -63,9 +63,9 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
         </td>
       )}
       <td className={`${cell} text-end`}>
-        <Link href={`/${locale}/business/${id}${query}`} data-latin className="textlink font-semibold">
+        <RoleLink href={`/${locale}/business/${id}${query}`} data-latin className="textlink font-semibold">
           {fill(a.open, { id, name: nameOf(id, locale) })}
-        </Link>
+        </RoleLink>
       </td>
     </tr>
   );
