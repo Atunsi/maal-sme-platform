@@ -34,8 +34,12 @@ from lenses.forecast.methods import BASELINE, METHODS
 H = 30
 
 
-def evaluate(daily: pd.DataFrame, origin_from_end: int) -> pd.DataFrame:
-    """Per business × method: end-of-horizon error and crunch outcome for one window."""
+def evaluate(daily: pd.DataFrame, origin_from_end: int, methods: dict | None = None) -> pd.DataFrame:
+    """Per business × method: end-of-horizon error and crunch outcome for one window.
+
+    `methods` defaults to the six entry-27 candidates; eval/forecast_prophet_arima.py passes eight.
+    """
+    methods = METHODS if methods is None else methods
     rows = []
     for b_id, g in daily.groupby("business_id", sort=False):
         g = g.reset_index(drop=True)
@@ -51,7 +55,7 @@ def evaluate(daily: pd.DataFrame, origin_from_end: int) -> pd.DataFrame:
         scale = max(float(fit["outflow_total"].sum()) / (len(fit) / 30.0), 500.0)
         actual = fut["eod_balance"].to_numpy(float)
         went_neg = bool((actual < 0).any())
-        for name, fn in METHODS.items():
+        for name, fn in methods.items():
             path = b0 + np.cumsum(fn(hist, H))
             rows.append({"business_id": b_id, "method": name, "err": abs(path[-1] - actual[-1]) / scale,
                          "actual": actual[-1], "proj": path[-1], "scale": scale,

@@ -278,10 +278,26 @@ def forecast_selection() -> list[tuple[str, str]]:
             ("forecast serving test errors", f"{rows[chosen]} vs {rows['naive30']} serving")]
 
 
+def forecast_prophet_arima() -> list[tuple[str, str]]:
+    """Entry 56. Rows are read from the report's four tables: validation, its cost, test, its cost."""
+    t = _read("eval/out/forecast_prophet_arima.md")
+    val, test = t.split("## 2. Test")[0], t.split("## 2. Test")[1]
+
+    def cells(block: str, which: int) -> dict[str, list[str]]:
+        tables = block.split("| method |")[1:]
+        return {r.split("|")[1].strip(): [c.strip() for c in r.split("|")[2:-1]] for r in tables[which].splitlines() if r.startswith("| ") and "---" not in r}
+
+    v, s, cost = cells(val, 0), cells(test, 0), cells(test, 1)
+    return [("forecast 56 validation errors", f"arima {v['arima'][0]}, prophet {v['prophet'][0]}, against naive90 {v['naive90'][0]} and naive30 {v['naive30'][0]}"),
+            ("forecast 56 fresh-population errors", f"naive90 {s['naive90'][0]}, arima {s['arima'][0]}, naive30 {s['naive30'][0]}, prophet {s['prophet'][0]}"),
+            ("forecast 56 fresh-population crunches", "; ".join(f"{m} {s[m][4]} / {s[m][5]}" for m in ("naive90", "arima", "naive30", "prophet"))),
+            ("forecast 56 fit cost", f"arima {float(cost['arima'][2]):.3f} s, prophet {float(cost['prophet'][2]):.3f} s")]
+
+
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, fairness_s25, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, demo_exposure, evidence_by_label, nisab, gate, selectivity, latency, sharia, forecast_selection):
+    for fn in (credit_model, fairness_s25, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, demo_exposure, evidence_by_label, nisab, gate, selectivity, latency, sharia, forecast_selection, forecast_prophet_arima):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

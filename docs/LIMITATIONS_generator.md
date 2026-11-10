@@ -110,8 +110,10 @@ median error (0.323 against 0.376, research, N = 9,495) but warns later: on a 30
 shock the median lead time is 15 days against the baseline's 27, and it detects
 88.9% of crunches against 96.3% (27 crunches), with about half the false alarms
 (3.8% against 8.3%, N = 636). A shock in the final three weeks is not seen at all
-(entry 29). Prophet and ARIMA, named in the project's working rules, were never
-evaluated (entry 49).
+(entry 29). Prophet and ARIMA, named in the project's working rules, were evaluated
+under a protocol committed beforehand and neither beats the moving average: on a
+fresh population (N = 944) the median error is 0.331 for the 90-day average, 0.348
+for ARIMA and 0.467 for Prophet, at untuned settings on 90 days of history (entry 56).
 
 **16. Anomaly flags are a review queue, not alarms.** 584 of 943 serving
 businesses return the cap of 10 flags and none returns fewer than 4. Recall on the
