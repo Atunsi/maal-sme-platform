@@ -5,7 +5,7 @@ import { ComplianceView } from "@/components/ComplianceView";
 import { byAbsoluteContribution, traceLine } from "@/lib/compliance";
 import { formatRaw } from "@/lib/format";
 import { CreditResponse } from "@/lib/schemas";
-import { en, fixture } from "./helpers";
+import { ar, en, fixture } from "./helpers";
 
 const data = fixture("credit_10001", CreditResponse);
 const explanation = data.credit_explanation!;
@@ -16,6 +16,28 @@ const view = (receipt = data.receipt) =>
   render(<ComplianceView explanation={explanation} detail={detail} receipt={receipt} locale="en" m={en} />);
 
 describe("Compliance View guard", () => {
+  // T3, T4 (DECISIONS 57): in Arabic the units, phrases and feature labels are the backend's Arabic, each raw key
+  // still beside it in a Code span; field names keep their Code next to the Arabic words.
+  it("arabic compliance view shows the backend's arabic phrases and labels beside the codes", () => {
+    const { container } = render(<ComplianceView explanation={explanation} detail={detail} receipt={data.receipt} locale="ar" m={ar} />);
+    const text = container.textContent!;
+    expect(text).toContain(tier.units_ar!);
+    expect(text).not.toContain(tier.units);
+    for (const [key, phrase] of Object.entries(tier.phrases_ar!)) {
+      expect(text).toContain(phrase);
+      expect(text).not.toContain(tier.phrases[key]!);
+      expect(screen.getAllByText(key, { selector: "code" }).length).toBeGreaterThan(0);
+    }
+    for (const row of tier.contributions) {
+      expect(text).toContain(tier.feature_labels_ar![row.feature]!);
+      expect(screen.getAllByText(row.feature, { selector: "code" }).length).toBeGreaterThan(0);
+    }
+    for (const code of ["pd", "logit", "risk_tier", "model_version", "model_sha256", "credit_model_cv_auc", "credit_model_oracle_ceiling_auc"]) {
+      expect(screen.getAllByText(code, { selector: "code" }).length).toBeGreaterThan(0);
+    }
+    expect(text).toContain(ar.compliance.pd);
+  });
+
   it("U4 snapshot for 10001", () => {
     const { container } = view();
     expect(container.textContent).toMatchSnapshot();

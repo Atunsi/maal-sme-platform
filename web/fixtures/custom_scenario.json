@@ -21,36 +21,39 @@
     "public_tier": [
       {
         "feature_id": 3,
-        "text": "Your inflow regularity score was the main factor working against approval.",
+        "text": "Your consistency of incoming payments was a major factor increasing the estimated credit risk.",
+        "text_ar": "«انتظام الدفعات الواردة» كان عاملًا رئيسيًا في رفع مخاطر التمويل المقدّرة.",
         "magnitude": "strongly",
         "direction": "against"
       },
       {
         "feature_id": 9,
-        "text": "Your expense growth rate 90d strongly supported approval.",
+        "text": "Your recent expense growth was a major factor supporting the credit assessment.",
+        "text_ar": "«نمو المصروفات في الفترة الأخيرة» كان عاملًا رئيسيًا في دعم تقييم التمويل.",
         "magnitude": "strongly",
         "direction": "supports"
       },
       {
         "feature_id": 15,
-        "text": "Your volatility index strongly supported approval.",
+        "text": "Your overall cash flow variability was a major factor supporting the credit assessment.",
+        "text_ar": "«التذبذب العام في التدفق النقدي» كان عاملًا رئيسيًا في دعم تقييم التمويل.",
         "magnitude": "strongly",
         "direction": "supports"
       }
     ],
     "compliance_tier": {
-      "units": "log-odds of default, relative to the training-mean business (exact SHAP for this linear model)",
+      "units": "log-odds of default, relative to the standardized training-mean baseline (exact additive linear-model contributions)",
       "threshold_table": {
         "strongly": "|c| > 0.3",
         "moderately": "0.1 <= |c| <= 0.3",
         "marginally": "|c| < 0.1"
       },
       "phrases": {
-        "strongly/supports": "strongly supported approval",
-        "strongly/against": "was the main factor working against approval",
-        "moderately/supports": "moderately supported approval",
-        "moderately/against": "moderately weighed against approval",
-        "marginally/either": "had only a small effect either way"
+        "strongly/supports": "was a major factor supporting the credit assessment",
+        "strongly/against": "was a major factor increasing the estimated credit risk",
+        "moderately/supports": "contributed to a lower estimated credit risk",
+        "moderately/against": "contributed to a higher estimated credit risk",
+        "marginally/either": "had only a small effect on the credit risk assessment"
       },
       "contributions": [
         {
@@ -401,7 +404,75 @@
           "contribution_logodds": 0.000338,
           "imputed": false
         }
-      ]
+      ],
+      "units_ar": "لوغاريتم نسبة الأرجحية للتعثر، مقارنةً بخط الأساس، وهو المنشأة المتوسطة في بيانات التدريب بعد التوحيد القياسي (مساهمات جمعية دقيقة لنموذج خطي)",
+      "phrases_ar": {
+        "strongly/supports": "كان عاملًا رئيسيًا في دعم تقييم التمويل",
+        "strongly/against": "كان عاملًا رئيسيًا في رفع مخاطر التمويل المقدّرة",
+        "moderately/supports": "أسهم في خفض مخاطر التمويل المقدّرة",
+        "moderately/against": "أسهم في رفع مخاطر التمويل المقدّرة",
+        "marginally/either": "كان أثره محدودًا في تقييم مخاطر التمويل"
+      },
+      "feature_labels_ar": {
+        "inflow_regularity_score": "انتظام الدفعات الواردة",
+        "expense_growth_rate_90d": "نمو المصروفات في الفترة الأخيرة",
+        "volatility_index": "التذبذب العام في التدفق النقدي",
+        "flow_asymmetry_ratio": "عدم التوازن بين مكاسب التدفق النقدي وخسائره",
+        "implied_dio_days": "المدة المقدّرة لبقاء المخزون",
+        "avg_monthly_outflow": "متوسط الإنفاق الشهري",
+        "sector_relative_volatility_z": "تذبذب التدفق النقدي مقارنةً بالمنشآت المماثلة",
+        "financing_outflow_ratio": "نسبة الدفعات الصادرة لسداد التمويل",
+        "liquidity_hazard_30d": "مخاطر نقص النقد المقدّرة على المدى القصير",
+        "liquidity_hazard_60d": "مخاطر نقص النقد المقدّرة على المدى المتوسط",
+        "fixed_obligation_coverage_months": "أشهر تغطية الالتزامات الثابتة",
+        "max_consecutive_overdraft_days": "أطول فترة رصيد سالب في الفترة الأخيرة",
+        "implied_dpo_days": "المدة المقدّرة للسداد للموردين",
+        "overdraft_events_90d": "حالات السحب على المكشوف في الفترة الأخيرة",
+        "top_expense_category_share": "تركّز المصروفات في فئة واحدة",
+        "revenue_shock_absorption_pct": "القدرة على تحمّل انخفاض الإيرادات",
+        "coverage_days_90d": "أيام سجل المعاملات المتاح",
+        "emergency_line_present": "توفر تمويل للطوارئ",
+        "days_negative_balance_90d": "أيام الرصيد السالب في الحساب",
+        "counterparty_concentration_index": "تركّز العلاقات مع الأطراف المتعامَل معها",
+        "implied_dso_days": "المدة المقدّرة لتحصيل مستحقات العملاء",
+        "inflow_break_recency_days": "المدة منذ آخر انقطاع في الدفعات الواردة",
+        "committed_monthly_outflow": "الدفعات الشهرية الملتزَم بها",
+        "ocr_forward_6m": "التغطية المتوقعة للالتزامات خلال ستة أشهر",
+        "sector_relative_regularity_z": "انتظام الدفعات مقارنةً بالمنشآت المماثلة",
+        "sector_relative_balance_z": "رصيد الحساب مقارنةً بالمنشآت المماثلة",
+        "downside_semideviation_90d": "تذبذب التغيرات غير المواتية في التدفق النقدي",
+        "revenue_growth_rate_90d": "نمو الإيرادات في الفترة الأخيرة",
+        "min_daily_balance_90d": "أدنى رصيد للحساب في الفترة الأخيرة",
+        "cash_flow_volatility": "استقرار التدفق النقدي",
+        "inflow_outflow_ratio": "التوازن بين الدفعات الواردة والصادرة",
+        "sector_relative_concentration_z": "تركّز الدفعات مقارنةً بالمنشآت المماثلة",
+        "data_gap_ratio": "الفجوات في سجل المعاملات",
+        "installment_capacity_sar": "القدرة المقدّرة على سداد قسط شهري",
+        "largest_single_source_ratio": "الاعتماد على أكبر مصدر للدخل",
+        "avg_monthly_inflow": "متوسط المبالغ المستلمة شهريًا",
+        "sector_relative_days_negative_z": "تكرار الرصيد السالب مقارنةً بالمنشآت المماثلة",
+        "avg_daily_balance": "متوسط الرصيد اليومي للحساب",
+        "balloon_exposure_sar": "التعرض القائم لدفعات كبيرة مجمّعة",
+        "liquidity_hazard_90d": "مخاطر نقص النقد المقدّرة خلال ثلاثة أشهر",
+        "cash_conversion_cycle_days": "دورة التحويل النقدي المقدّرة",
+        "current_runway_days": "المدة المقدّرة لكفاية النقد",
+        "runway_days_avg_balance": "مدة كفاية النقد بحسب متوسط الأرصدة",
+        "ocr_forward_3m": "التغطية المتوقعة للالتزامات خلال ثلاثة أشهر",
+        "obligation_coverage_ratio": "القدرة على تغطية الالتزامات المتكررة",
+        "mandate_cancellation_count_90d": "إلغاءات أوامر الدفع في الفترة الأخيرة",
+        "liquidity_trend_slope": "اتجاه النقد المتاح في الفترة الأخيرة",
+        "new_counterparty_ratio_30d": "نسبة العلاقات الجديدة مع الأطراف المتعامَل معها",
+        "inflow_count_per_month": "عدد الدفعات الواردة شهريًا",
+        "facility_utilisation": "نسبة المستخدم من التمويل المتاح",
+        "headroom_days_of_burn": "أيام الأموال المتاحة بمعدل الإنفاق الحالي",
+        "unique_counterparties_count": "عدد العملاء والأطراف المتعامَل معها",
+        "obligation_horizon_months": "الأشهر المتبقية من الالتزامات المحددة",
+        "outflow_count_per_month": "عدد الدفعات الصادرة شهريًا",
+        "net_flow_autocorr_lag7": "انتظام التدفق النقدي من أسبوع إلى آخر",
+        "counterparty_persistence_ratio": "استمرار العلاقات مع الأطراف المتعامَل معها",
+        "upside_semideviation_90d": "تذبذب التغيرات المواتية في التدفق النقدي",
+        "recurring_expense_ratio": "نسبة المصروفات المتكررة"
+      }
     }
   },
   "credit_decision_detail": {
@@ -468,10 +539,12 @@
         "60d": 0.008,
         "90d": 0.016
       },
-      "drivers": []
+      "drivers": [],
+      "drivers_ar": []
     },
     "ramadan_adjusted": false,
-    "method": "naive90: trailing-90-day mean; naive_baseline = trailing-30-day mean (the §10 baseline)"
+    "method": "naive90: trailing-90-day mean; naive_baseline = trailing-30-day mean (the §10 baseline)",
+    "method_ar": "naive90: متوسط آخر 90 يومًا؛ خط الأساس البسيط = متوسط آخر 30 يومًا (خط الأساس في §10)"
   },
   "anomaly": {
     "status": "computed",
@@ -582,13 +655,17 @@
         "flag_reason": "multivariate_outlier"
       }
     ],
-    "method": "per-business Isolation Forest + hard univariate rules; flag_reason only, scores and threshold withheld (§29)"
+    "method": "per-business Isolation Forest + hard univariate rules; flag_reason only, scores and threshold withheld (§29)",
+    "method_ar": "خوارزمية غابة العزل لكل منشأة على حدة، مع قواعد ثابتة أحادية المتغير؛ تُعرض أسباب التنبيه فقط، وتُحجب الدرجات والحد (§29)"
   },
   "zakat": {
     "liability_sar": 6881,
-    "nisab_value_sar": 41759.74,
+    "nisab_value_sar": 41740.31,
+    "nisab_price_sar_per_gram": 491.0625,
+    "nisab_price_month": "2026-07",
     "nisab_basis": "85g gold",
-    "nisab_source_status": "commercial_quote_documented_pending_independent_verification",
+    "nisab_basis_ar": "85 غرامًا من الذهب",
+    "nisab_source_status": "world_bank_monthly_average_pending_sharia_advisor",
     "rate": 0.025,
     "method": "net_working_capital",
     "hawl_rule": "nisab_at_start_and_end",
@@ -611,12 +688,14 @@
       "declared_mcc": 5331,
       "rules_triggered": [],
       "owner_prompts": [],
+      "owner_prompts_ar": [],
       "disclosures": [],
       "rule_table_version": "1.0",
       "rule_table_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
       "rule_table_status": "proposed_unverified",
       "deterministic": true,
-      "compliance_explanation": null
+      "compliance_explanation": null,
+      "compliance_explanation_ar": null
     }
   },
   "scenario": {
@@ -654,20 +733,21 @@
     ]
   },
   "receipt": {
-    "schema_version": "v2.9",
-    "config_sha256": "9d60db774d169931054cb48fd3f492557488ae413716b908913b367bd5479137",
-    "lens_config_sha256": "eb715f89b95a2d3287adb9217160b95dc994571748ed5cda53eb033c7f1b57e0",
+    "schema_version": "v2.10",
+    "config_sha256": "4964d746a1d503e1b235d458afff797c7cc5dd7511fbfea1cb9adabea173d953",
+    "lens_config_sha256": "0e7da017a93cc682bc07c90509a65c6bc7b8c0cd5dec10bb55f64039436580ea",
     "credit_model_version": "v1",
     "credit_model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
     "credit_model_cv_auc": 0.5911,
     "credit_model_oracle_ceiling_auc": 0.666,
     "reference_stats_sha256": "e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60",
     "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
-    "code_commit": "5db35a89b6f89751325a2b7f39d63537425589aa",
+    "code_commit": "a65d69faedfc32d2373a97a61828a98a6393681a",
     "generated_by": "api",
-    "data_sha256": "8f5ce0ac538a49ea069e6c6bc2523397cf84af9edbf044d10d0053b406ff476b",
-    "output_sha256": "35c99e06f157dcfb211d8b4233fb94b9041fee0881f9bafa4490b1c33efbd8d8",
+    "data_sha256": "00532298f767f52120ee038ffecf037724b5fe9d786fb8375f4352d3042a72b4",
+    "output_sha256": "0c540ceea0c5210baf39c8ae6668f227a201ffbbc97778a571c15223dcbec7c6",
     "scope": "Covers the deterministic core only: re-running with these inputs reproduces this object byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is outside its scope and cannot affect the decision (§36).",
+    "scope_ar": "يغطي هذا الإيصال الجزء الحتمي فقط: إعادة التشغيل بهذه المدخلات تُنتج هذا الكائن نفسه بايتًا ببايت (للتحقق: python -m pipeline.verify <file>). وأي نص إرشادي مولَّد يقع خارج نطاقه، ولا يمكن أن يؤثر في القرار (§36).",
     "scenario_library_sha256": "8f84b9175aac62b1e29445d710a16879d30731b9da0c0a4f6402ae05d9cc0e7d"
   }
 }

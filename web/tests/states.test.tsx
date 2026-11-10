@@ -10,6 +10,7 @@ import { ShariaPanel } from "@/components/ShariaPanel";
 import { ZakatCard } from "@/components/ZakatCard";
 import { AnomalyResponse, CreditResponse, ForecastResponse, ProfileResponse, ZakatResponse } from "@/lib/schemas";
 import { ar, en, fixture } from "./helpers";
+import { nisabPlate } from "@/lib/nisab";
 
 const credit = (name: string, locale: "en" | "ar" = "en") =>
   render(
@@ -72,9 +73,32 @@ describe("credit states", () => {
     expect(screen.getByText("insufficient_data")).toBeTruthy();
   });
 
-  it("Arabic: backend text stays English in an LTR block with the pending label", () => {
-    const data = fixture("credit_10001", CreditResponse);
-    credit("credit_10001", "ar");
+  // U4 as amended by DECISIONS 57: in Arabic the backend's own Arabic sibling, verbatim; English stays English.
+  it("credit page in arabic shows arabic reasons, conditions and compliance phrases", () => {
+    for (const name of ["credit_10001", "credit_10004", "credit_10037"]) {
+      const data = fixture(name, CreditResponse);
+      const { container, unmount } = credit(name, "ar");
+      for (const line of data.credit_explanation!.public_tier) {
+        expect(line.text_ar, name).toBeTruthy();
+        const shown = screen.getByText(line.text_ar!);
+        expect(shown.getAttribute("lang")).toBeNull();
+        expect(container.textContent).not.toContain(line.text);
+      }
+      for (const condition of data.credit_decision_detail!.conditions_ar ?? []) expect(screen.getByText(condition)).toBeTruthy();
+      expect(container.textContent).not.toContain(ar.common.englishTemplate);
+      unmount();
+    }
+    const english = fixture("credit_10001", CreditResponse);
+    credit("credit_10001", "en");
+    expect(screen.getByText(english.credit_explanation!.public_tier[0]!.text)).toBeTruthy();
+  });
+
+  it("backend text falls back to english with the pending label when arabic is missing", () => {
+    // The synthetic hard-flag state is an edited copy written in English only (scripts/make-synthetic-states.mjs),
+    // like an object from before DECISIONS 57: its compliance line has no text_ar.
+    const data = fixture("credit_hard_flag_synthetic_state", CreditResponse);
+    expect(data.credit_explanation!.public_tier[0]!.text_ar).toBeUndefined();
+    credit("credit_hard_flag_synthetic_state", "ar");
     const line = screen.getByText(data.credit_explanation!.public_tier[0]!.text);
     expect(line.getAttribute("lang")).toBe("en");
     expect(line.getAttribute("dir")).toBe("ltr");
@@ -127,7 +151,7 @@ describe("Zakat states", () => {
     const data = fixture("zakat_10001", ZakatResponse);
     const { container } = zakat("zakat_10001");
     expect(container.textContent).toContain(data.zakat!.liability_sar!.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-    expect(screen.getByText(en.zakat.nisabStatus.commercial_quote_documented_pending_independent_verification)).toBeTruthy();
+    expect(screen.getByText(nisabPlate(data.zakat!.nisab_source_status, en)!.words)).toBeTruthy(); // the fixture's own status (entry 54)
   });
 
   it("zero_liability, hawl_incomplete (10037): the reason and detail", () => {

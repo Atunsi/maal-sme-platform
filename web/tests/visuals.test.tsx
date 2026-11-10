@@ -16,6 +16,8 @@ import { DEMO_BUSINESSES } from "@/lib/businesses";
 import { scenarioName } from "@/lib/scenario-label";
 import { AnomalyResponse, CreditResponse, ForecastResponse, ScenarioObject, ZakatResponse } from "@/lib/schemas";
 import { ar, en, fixture, readJson, webRoot } from "./helpers";
+import { nisabPlate } from "@/lib/nisab";
+import { formatSarSpoken } from "@/lib/format";
 
 const source = (dir: string) =>
   readdirSync(join(webRoot, dir), { recursive: true, encoding: "utf8" })
@@ -92,7 +94,7 @@ describe("zakat visuals", () => {
     render(<ZakatCard data={zakat} locale="en" m={en} />);
     const [waterfall, hawl] = screen.getAllByRole("img");
     expect(waterfall!.getAttribute("aria-label")).toContain("638,310.41");
-    expect(waterfall!.getAttribute("aria-label")).toContain("41,759.74");
+    expect(waterfall!.getAttribute("aria-label")).toContain(formatSarSpoken(zakat.zakat!.nisab_value_sar, "en")); // the response's nisab, in words
     expect(hawl!.getAttribute("aria-label")).toContain("2025");
   });
 
@@ -266,7 +268,8 @@ describe("overview", () => {
   });
 
   it("U7 the Zakat card carries the nisab status line", () => {
-    expect(zakatReadout(fixture("zakat_10001", ZakatResponse), "en", en).note).toBe(en.zakat.nisabStatus.commercial_quote_documented_pending_independent_verification);
+    const data = fixture("zakat_10001", ZakatResponse);
+    expect(zakatReadout(data, "en", en).note).toBe(nisabPlate(data.zakat!.nisab_source_status, en)!.words);
   });
 });
 

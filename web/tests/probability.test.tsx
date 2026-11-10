@@ -85,9 +85,10 @@ describe("forecast readout", () => {
     for (const [locale, m] of [["en", en], ["ar", ar]] as const) {
       const { container, unmount } = render(<ReadoutCard lens="Forecast" href="#" readout={forecastReadout(forecast, locale, m)} index={0} m={m} />);
       const backend = container.querySelector("[data-backend]")!;
-      expect(backend.textContent).toBe(f.crunch_alert.drivers[0]); // verbatim (U4)
+      // Verbatim (U4): the English driver, or in Arabic the backend's own Arabic driver (DECISIONS 57).
+      expect(backend.textContent).toBe(locale === "ar" ? f.crunch_alert.drivers_ar![0] : f.crunch_alert.drivers[0]);
       expect(container.textContent).not.toContain(m.overview.noNegative);
-      if (locale === "ar") expect(container.textContent).toContain(ar.common.englishTemplate);
+      expect(container.textContent).not.toContain(ar.common.englishTemplate);
       unmount();
     }
     // With no alert, today's note stays.

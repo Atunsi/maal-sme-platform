@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import SheetPage from "@/app/[locale]/business/[id]/sheet/page";
 import { AnomalyResponse, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/schemas";
 import { ar, en, fixture } from "./helpers";
+import { nisabPlate } from "@/lib/nisab";
 
 vi.mock("@/lib/api", () => ({
   getCredit: async (id: number) => ({ ok: true, data: fixture(`credit_${id}`, CreditResponse) }),
@@ -24,7 +25,7 @@ describe("print sheet", () => {
     expect(text).toContain(en.overview.lateValue); // U2
     expect(text).toContain(en.sharia.label); // U6
     expect(text).toContain(credit.sharia_screen.rule_table_status);
-    expect(text).toContain(en.zakat.nisabStatus[zakat.zakat!.nisab_source_status as keyof typeof en.zakat.nisabStatus]); // U7, the fixture's own status
+    expect(text).toContain(nisabPlate(zakat.zakat!.nisab_source_status, en)!.words); // U7, the fixture's own status
     expect(text).toContain(en.zakat.asReturned); // Not a ZATCA assessment
     expect(text).toContain(`${en.common.population}: ${en.enums.population.serving}`); // U11
     expect(text).toContain(credit.receipt.scope!); // U13, verbatim

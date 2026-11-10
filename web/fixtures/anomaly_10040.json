@@ -121,22 +121,24 @@
         "flag_reason": "multivariate_outlier"
       }
     ],
-    "method": "per-business Isolation Forest + hard univariate rules; flag_reason only, scores and threshold withheld (§29)"
+    "method": "per-business Isolation Forest + hard univariate rules; flag_reason only, scores and threshold withheld (§29)",
+    "method_ar": "خوارزمية غابة العزل لكل منشأة على حدة، مع قواعد ثابتة أحادية المتغير؛ تُعرض أسباب التنبيه فقط، وتُحجب الدرجات والحد (§29)"
   },
   "receipt": {
-    "schema_version": "v2.9",
-    "config_sha256": "9d60db774d169931054cb48fd3f492557488ae413716b908913b367bd5479137",
-    "lens_config_sha256": "eb715f89b95a2d3287adb9217160b95dc994571748ed5cda53eb033c7f1b57e0",
+    "schema_version": "v2.10",
+    "config_sha256": "4964d746a1d503e1b235d458afff797c7cc5dd7511fbfea1cb9adabea173d953",
+    "lens_config_sha256": "0e7da017a93cc682bc07c90509a65c6bc7b8c0cd5dec10bb55f64039436580ea",
     "credit_model_version": "v1",
     "credit_model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
     "credit_model_cv_auc": 0.5911,
     "credit_model_oracle_ceiling_auc": 0.666,
     "reference_stats_sha256": "e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60",
     "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
-    "code_commit": "5db35a89b6f89751325a2b7f39d63537425589aa",
+    "code_commit": "a65d69faedfc32d2373a97a61828a98a6393681a",
     "generated_by": "api",
-    "data_sha256": "f8f3e836a92644979eee8e77c2919011ea39fe27ad61e616ff49bdb8f9296023",
-    "output_sha256": "07d103e8b87faba2ae252ae447a74749012476579d70b9ed43b19932ae98c560",
-    "scope": "Covers the deterministic core only: re-running with these inputs reproduces this object byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is outside its scope and cannot affect the decision (§36)."
+    "data_sha256": "cfeb1f81960797cfc7d9b44858b307c60459ff88b2c4a20602fb4abc997470fa",
+    "output_sha256": "69c7bb955f28ba15379c6791374a9f5e4dd34b83080948dc9fa47322a8ec8966",
+    "scope": "Covers the deterministic core only: re-running with these inputs reproduces this object byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is outside its scope and cannot affect the decision (§36).",
+    "scope_ar": "يغطي هذا الإيصال الجزء الحتمي فقط: إعادة التشغيل بهذه المدخلات تُنتج هذا الكائن نفسه بايتًا ببايت (للتحقق: python -m pipeline.verify <file>). وأي نص إرشادي مولَّد يقع خارج نطاقه، ولا يمكن أن يؤثر في القرار (§36)."
   }
 }
