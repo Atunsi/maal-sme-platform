@@ -63,4 +63,4 @@ repeated with five that compute nothing.
 When `faris/web-ui` was merged, its entry 43 (web UI enhancements) became **51**, as this brief had
 suggested; `main`'s 43 stays the §25 fairness finding (`DECISIONS.md`, entry 51's first line). All 31
 files under `web/` that cited it now say 51, and none cites 43. Entries 41, 42, 44 and 45 kept their
-numbers. Nothing is left to decide; the next free number is 52.
+numbers. Nothing is left to decide; the next free number is 53 (52 is the §14 re-run).

@@ -47,7 +47,7 @@ how bad the scenario is." **Evidence:** `eval/out/scenario_library_check.txt`, N
 ## 49 — the SOP says XGBoost (line 3276, sign-off 3308)
 
 **Question.** SOP §3 and §5 and schema §13 name XGBoost; the shipped model is L2 logistic, which won
-when measured (0.5959 vs 0.5865 early-stopped, 0.5568 untuned; NUMBERS §4, pre-fix measurement).
+when measured (0.5936 vs 0.5838 early-stopped, 0.5547 untuned; NUMBERS §4, re-run 2026-11-10).
 **Options:** A amend SOP/schema wording to what shipped; B evaluate again under a new protocol;
 C state it in the limitations only. A changes documents only. **Tick:** "☐ credit lens owner".
 **Risk:** a reader comparing the proposal with the code finds a different model.

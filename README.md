@@ -430,11 +430,12 @@ features:
 
 | ρ | 0.6 | 0.7 | 0.8 | 0.9 |
 |---|---|---|---|---|
-| logistic OOF AUC | 0.5959 | 0.6059 | 0.5983 | 0.6050 |
+| logistic OOF AUC | 0.5936 | 0.6040 | 0.6031 | 0.6087 |
 
-**The curve is flat** — spread 0.0100 against a standard error of 0.0144, and
-non-monotone. ρ is not the binding constraint; up to 93% of the
-oracle-to-measured gap is the economics pipeline.
+**The curve is nearly flat** — spread 0.0151, about one standard error (0.0144), and
+non-monotone. ρ is not the binding constraint; up to 92% of the
+oracle-to-measured gap is the economics pipeline (re-run 2026-11-10 after entries 30, 35
+and 38; entry 52).
 
 **AUC ≥ 0.85 (§14's circularity threshold) is not reached and cannot be.** The
 oracle ceiling — the AUC of the hidden latent itself, which no feature set can
@@ -445,6 +446,5 @@ Labels are identical at every ρ (asserted), so the sweep isolates observable
 cleanliness against fixed ground truth. Detail in
 [`DECISIONS.md`](DECISIONS.md) entry 21; the calibration decision it raises is
 entry 22, which was settled before the credit lens trained (Path A, 2026-10-31). These
-figures were measured before entries 30, 35 and 38 changed ten of the 71 features and have
-not been re-run; see `docs/NUMBERS.md` §4.
+figures were re-measured on 2026-11-10, after entries 30, 35 and 38 (`docs/NUMBERS.md` §4).
 

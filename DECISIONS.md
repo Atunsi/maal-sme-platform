@@ -3654,6 +3654,9 @@ the promised methods were not tried.
   becomes a second validation.
 - **C. Leave the documents and state the difference in the report's limitations only.**
 
+**Update (2026-11-10):** re-measured after entries 30, 35 and 38, the baseline is logistic 0.5936
+against 0.5838 and 0.5547 (entry 52); the comparison still goes the same way.
+
 **Sign-off:** ☐ credit lens owner ☐ forecast + anomaly owner ☐ team (SOP and schema wording)
 
 ---
@@ -3771,3 +3774,35 @@ glossary, tour and how-it-works entries carry `draft: true`. The Arabic-Indic se
 
 ---
 
+---
+
+## 52. §14 sweeps re-run after entries 30, 35 and 38 — RECORDED (measurement, 2026-11-10)
+
+**Touches:** `eval/out/section14_rho_sweep.md`, `eval/out/section14_noise_sweep.txt`, `docs/NUMBERS.md`
+§2 (A6), §4, §4b and §7. `config.yaml`, the lenses and the model are unchanged.
+
+**Why.** Both sweeps were measured before entries 30, 35 and 38 changed ten of the 71 features
+(5, 20–22, 45, 55–59), and NUMBERS carried a caveat saying so. Re-run unchanged:
+`python -m eval.run_section14` and `python -m eval.sweep_rho --param noise --values 0.0 0.2 0.5 1.0`,
+both exit 0, eight full-scale generations, on the same machine as the originals. Labels are identical
+at every value (asserted by the scripts). Research, scorable, N = 9,495, 449 defaults.
+
+**Result.**
+
+| | before | after |
+|---|---|---|
+| Logistic OOF AUC at ρ 0.6 / 0.7 / 0.8 / 0.9 | 0.5959 / 0.6059 / 0.5983 / 0.6050 | 0.5936 / 0.6040 / 0.6031 / 0.6087 |
+| Spread across ρ | 0.0100 (0.69 SE) | 0.0151 (1.05 SE) |
+| Economics pipeline share of the gap, at most | 93% | 92% (ρ = 0.9: 0.0527 of 0.0572) |
+| Baseline at ρ 0.6: logistic / best early-stopped XGB / untuned XGB | 0.5959 / 0.5865 / 0.5568 | 0.5936 / 0.5838 / 0.5547 |
+| Logistic OOF AUC at σ 0 / 0.2 / 0.5 / 1.0 | 0.6123 / 0.5959 / 0.5974 / 0.5882 | 0.6135 / 0.5936 / 0.5954 / 0.5921 |
+
+The standard error is Hanley–McNeil at AUC 0.5936 with 449 of 9,495 defaults: 0.0144, as before.
+
+**What changes in what is said.** Entry 21's "less than one standard error" no longer holds: the ρ
+spread is now about one standard error, still non-monotone, so "nearly flat" replaces "flat". The
+other conclusions hold: logistic still beats XGBoost; most of the gap is the pipeline, not ρ; the noise
+axis is shallow (0.021 from σ = 0 to 1.0); 0.85 is not reached. Entries 21 and 28 are not edited;
+the register carries the new values and retires the old ones. Nothing was retuned.
+
+**Sign-off:** none needed (a re-measurement); recorded for the team.

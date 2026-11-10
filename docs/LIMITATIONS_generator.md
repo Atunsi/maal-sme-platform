@@ -129,10 +129,11 @@ hard-flag path is exercised by unit tests only, never by a generated business.
 Four receipt hashes depend on line endings, so a Windows receipt fails
 verification on Linux or Mac although the decision is identical (entry 40, open).
 
-**19. Some numbers predate this month's engine changes.** The §14 sensitivity
-sweeps (NUMBERS §4, §4b, row A6) were measured before
-entries 30, 35 and 38 and have not been re-run. The one comparison re-run after
-the changes moved by 0.004.
+**19. Re-measured after the engine changes, the ρ curve is a little less flat.** The
+§14 sweeps were re-run on 2026-11-10, after entries 30, 35 and 38. Across ρ from 0.6 to
+0.9 the logistic AUC spreads by 0.0151, about one standard error (0.0144), where it was
+0.0100 before; the curve is still not monotone, and up to 92% of the gap to the ceiling is
+the feature pipeline, not ρ (NUMBERS §4, entry 52).
 
 **20. Several decisions are unsigned.** As of 2026-11-09 no sign-off line has
 been ticked by the forecast and anomaly owner, the compliance owner or a Sharia

@@ -62,6 +62,6 @@ scratch folder, because the scripts' defaults overwrite `eval/out/` and `lenses/
 
 Items 1–11 are the generator's; 12–20 (added 2026-11-09) belong to the lens and compliance owners.
 **Options:** A paste it whole and keep the file as the source; B split items 12–20 to their owners for
-wording; C cite the file and quote only the numbered headings. **Before any of them:** item 19 says
-the §14 sweeps were not re-run; update it from NUMBERS §4 if the re-run lands. **Risk:** the report's
+wording; C cite the file and quote only the numbered headings. Item 19 was updated on
+2026-11-10 from the §14 re-run (entry 52). **Risk:** the report's
 limitations drift from the register once numbers move again.
