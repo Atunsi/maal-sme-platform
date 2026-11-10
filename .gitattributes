@@ -1,1 +1,10 @@
+# DECISIONS entry 40: one line ending (LF) in git and on every checkout, so the receipt hashes of
+# committed files agree on Windows, Linux and Mac. Binary files are detected and left alone.
+* text=auto eol=lf
+
+# Archived external sources stay byte-exact. Their .sha256 sidecars hash the bytes as downloaded
+# (several SAMA CSVs have CRLF line endings), so git must never convert them (schema §21).
+sources/** -text
+
+# Entry 35: the pinned reference statistics (already covered by the first rule; kept explicit).
 profile_engine/sector_reference_stats_*.json text eol=lf

@@ -61,7 +61,7 @@ write code that breaks one, stop and raise it.
 | Zakat lens | [`lenses/zakat/`](lenses/zakat/) | compliance owner | **v1 built** — both §17 branches demoed; nisab at one commercial gold quotation (SAR 491.291/g, 8 Nov 2026), **unverified and dated after the calculation dates** (entry 48); no Sharia advisor review yet |
 | Sharia screening, PDPL | [`compliance/`](compliance/) | compliance owner | **Screening v1 built** — feature 24, deterministic rule table (PROPOSED, not certified); 85.1% compliant / 14.9% soft (entry 26) |
 | **Week 8 CLI** | [`pipeline/`](pipeline/) | — | **Built** — one JSON per business; `eval.week8_check` PASSED (43 objects, byte-identical re-run) |
-| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 252 ms on all 1,000; entries 25–27). **Proposed additions** (entry 44): `GET /businesses`, `GET /scenarios`, `POST /scenarios/run`; the review cap in the anomaly response stopped (S9) |
+| API read-paths | [`api/`](api/) | — | **v1 built** — five routes over a DuckDB serving store; **Week 7 latency test PASSED** (credit max 248 ms on all 1,000; anomaly max 1,028 ms; re-run 2026-11-09; entries 25–27). **Proposed additions** (entry 44): `GET /businesses`, `GET /scenarios`, `POST /scenarios/run`; the review cap in the anomaly response stopped (S9) |
 | Next.js UI | [`web/`](web/) | open (entry 41) | **Review fixes built, PROPOSED** (entry 45: defects B1 to B22, clarity C1 to C8, interactions I1 to I10, nisab plate for every unverified status, self-hosted fonts, visual snapshot tests; I6 waits for the store fix). **Enhancements built, PROPOSED** (entry 51: tour, print sheet, glossary, receipt tools, chart readouts, Arabic-Indic digits, phones and tablets, how-it-works, Play all, searchable admin list, custom scenarios), on the redesign (entry 42) — landing page, demo sign-in, admin list, overview, one page per lens, Compliance View, scenario diff sheet, light and dark themes, Arabic and English; API calls are queued until the store concurrency bug is fixed (entry 41). A phone design in its own stylesheet (`web/app/phone.css`), an installable app mode, and a static online snapshot for GitHub Pages (`web/scripts/build-static.mjs`). Own Week 10 gate. |
 
 Each component directory has a README stating its contract, the schema sections
@@ -288,34 +288,32 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
     and 42 with k = 0.15; nothing implemented and no number computed until the credit lens
     owner agrees.
 16. ~~Stale §35 reference statistics~~ (entry 35) — **rebuilt and pinned as v2**; the credit
-    model was retrained on 2026-11-07 (entry 38, fully signed). The credit lens owner and team
-    boxes on entry 35 itself are still unticked.
-17. **Two counts of `insufficient_data`** (entry 39) — generator owner to sign.
-18. **Receipt hashes depend on the operating system** (entry 40, PROPOSED) — not implemented;
-    profile engine owner, generator owner and team.
-19. **§25 fairness audit not met** (entry 43, FINDING) — team to accept the finding and the
-    limitations wording.
-20. **Scenario findings restated for the retrained model** (entry 46) — generator owner,
-    credit lens owner, team.
-21. **Customer explanation states a sector effect** (entry 47, PROPOSED, options only) —
-    credit lens owner, team.
-22. **Zakat nisab price changed outside change control; price dated after every calculation
-    date** (entry 48, PROPOSED, options only) — compliance owner, Sharia advisor, team.
-23. **SOP and schema name XGBoost and Prophet/ARIMA** (entry 49, PROPOSED) — credit lens
-    owner, forecast + anomaly owner, team.
-24. **Five class-A1 features have no usable value on Berka** (entry 50, PROPOSED) — profile
-    engine owner, team.
+    model was retrained on 2026-11-07 (entry 38).
+17. ~~Two counts of `insufficient_data`~~ (entry 39) — both windows labelled in NUMBERS.
+18. ~~Receipt hashes depend on the operating system~~ (entry 40) — **implemented 2026-11-10**
+    in `00ae025`: canonical-LF hashing and LF line endings repo-wide; archived `sources/` kept
+    byte-exact. Older Windows receipts name their config, lens-config and data hashes as changed.
+19. **§25 fairness audit not met** (entry 43, FINDING) — the team line is still open.
+20. ~~Scenario findings restated for the retrained model~~ (entry 46).
+21. **Customer explanation states a sector effect** (entry 47) — **option A decided**: kept as
+    is and stated in the demo; the "cannot shortcut" comment in `lens_config.yaml` is still to be
+    edited at the next lens-config change.
+22. **Zakat nisab valuation date** (entry 48) — **decided**: the gold price on each calculation
+    date; **not implemented**. 491.291 SAR/g stays a labelled reference price; the Sharia advisor
+    line is open.
+23. **Prophet and ARIMA** (entry 49) — **option B decided**: evaluate them; **not done**.
+24. **Five class-A1 features have no usable value on Berka** (entry 50) — lines ticked; no option
+    (A–C) is recorded, so the registry rule is still undecided.
 
-Entry number 43 is used twice: on `main` for the fairness finding and on the unmerged
-`origin/faris/web-ui` branch for a web UI entry (that branch also holds 41, 42, 44 and 45).
-One of the two has to be renumbered when the branch is merged.
+Entry 43 is the §25 fairness finding. The web UI's entries are 41, 42, 44, 45 and 51 (its
+former 43, renumbered when the branch was merged on 2026-11-10).
 
-Entry 22 (latent spread) is settled: Path A, confirmed 2026-10-31. Generator-owner
-lines on entries 13, 14, 15, 17, 18 and 20 are signed. Profile engine owner lines on
-entries 1b, 5, 8, 9, 10, 11, 13, 16, 30–35, 38 and 39 are signed. Credit lens owner lines
-on 1b, 10, 15, 19, 23, 26, 34, 38 and 43 are signed (2026-11-07 and 2026-11-08). **No line
-has been signed by the forecast + anomaly owner, the compliance owner or a Sharia advisor,
-and the API has no named owner.**
+**Sign-offs (2026-11-10, entry 53).** The generator owner ticked the remaining owner and team
+lines of entries 23 to 51 on the other owners' behalf, on their verbal agreement; each is marked
+"ticked by Ahmed Altunusi on his behalf", and written confirmation from each owner is pending. A
+tick records agreement, not finished work (entry 53 lists what is still to do). Still open: the
+three Sharia-advisor lines (entries 23, 26, 48), the team lines of entries 5 to 24, 34 and 43,
+and entry 53's own confirmation line.
 
 ## Known gaps
 
@@ -431,11 +429,12 @@ features:
 
 | ρ | 0.6 | 0.7 | 0.8 | 0.9 |
 |---|---|---|---|---|
-| logistic OOF AUC | 0.5959 | 0.6059 | 0.5983 | 0.6050 |
+| logistic OOF AUC | 0.5936 | 0.6040 | 0.6031 | 0.6087 |
 
-**The curve is flat** — spread 0.0100 against a standard error of 0.0144, and
-non-monotone. ρ is not the binding constraint; up to 93% of the
-oracle-to-measured gap is the economics pipeline.
+**The curve is nearly flat** — spread 0.0151, about one standard error (0.0144), and
+non-monotone. ρ is not the binding constraint; up to 92% of the
+oracle-to-measured gap is the economics pipeline (re-run 2026-11-10 after entries 30, 35
+and 38; entry 52).
 
 **AUC ≥ 0.85 (§14's circularity threshold) is not reached and cannot be.** The
 oracle ceiling — the AUC of the hidden latent itself, which no feature set can
@@ -446,6 +445,5 @@ Labels are identical at every ρ (asserted), so the sweep isolates observable
 cleanliness against fixed ground truth. Detail in
 [`DECISIONS.md`](DECISIONS.md) entry 21; the calibration decision it raises is
 entry 22, which was settled before the credit lens trained (Path A, 2026-10-31). These
-figures were measured before entries 30, 35 and 38 changed ten of the 71 features and have
-not been re-run; see `docs/NUMBERS.md` §4.
+figures were re-measured on 2026-11-10, after entries 30, 35 and 38 (`docs/NUMBERS.md` §4).
 

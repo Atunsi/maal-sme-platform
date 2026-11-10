@@ -22,7 +22,7 @@ Use these as written. Each carries the caveat that must travel with it.
 | **The credit lens reaches 88.8% of the best AUC any model could achieve on our synthetic data** (0.5911 of a 0.6660 ceiling). | The ceiling exists because the synthetic labels deliberately contain noise that nothing observable can predict (§14). That design is what makes the labels non-circular. |
 | **AUC ≥ 0.85 on the synthetic data is impossible by construction**, so a result that high would indicate leakage, not skill. | Applies to the *synthetic* labels only. Real-data AUCs (e.g. Berka secondary 0.859) are not subject to it. |
 | **14 of 43 real-computed features separate confirmed defaults on Berka** (univariate AUC, 95% interval excluding 0.5 on the primary label); 22 of 43 do so on at least one of the two label sets. | Univariate, on Berka, with no correction for testing 43 features on two label sets. 8 of the 22 hold only on the secondary label, which is censored. 5 of the 43 are constant or have no rows on Berka, so 38 carry a value that varies there (entry 50). Do not say "22 features predict real defaults" without the label. |
-| **Every decision is reproducible byte for byte**, and a saved decision can be verified: `python -m pipeline.verify`. | **On one operating system.** The receipt's lens-config, Sharia-rule, scenario-library and input-data hashes are taken from bytes whose line endings differ between a Windows and a Linux or Mac checkout, so a receipt made on one fails `pipeline.verify` on the other although the decision is identical (entry 40, open). Covers the deterministic core only. Generated advisory text (if ever added, §36) is outside the receipt. |
+| **Every decision is reproducible byte for byte**, and a saved decision can be verified: `python -m pipeline.verify`. | Receipt hashes are line-ending independent since `00ae025` (entry 40); a receipt made on Windows before that commit names its config, lens-config and data hashes as changed inputs, although the decision itself still reproduces. Covers the deterministic core only. Generated advisory text (if ever added, §36) is outside the receipt. |
 
 ---
 
@@ -35,12 +35,12 @@ Use these as written. Each carries the caveat that must travel with it.
 | **A3** | **0.721 [0.681, 0.770]** | Berka primary label | 209 / 22 | same 25 as A2 | same as A1 | `eval/out/real_vs_synthetic.md` | **Real-data performance (headline)** | Saudi calibration |
 | A4 | 0.859 [0.841, 0.880] | Berka secondary label (censored) | 615 / 59 | same 25 as A2 | same as A1 | `eval/out/real_vs_synthetic.md` | real-data performance, secondary label | the headline (label is censored) |
 | A5 | 0.628 [0.536, 0.710] | serving (never trained on) | 943 / 45 | same 58 as A1 | A1 model scored once out of sample | `lenses/credit/model_v1.json` | out-of-sample sanity check on the disjoint demo population | a precise estimate (45 defaults) |
-| A6 | 0.5959 | research, scorable | 9,495 / 449 | all 71 engine features incl. Zakat-only 27–31, + dummies | single stratified 5-fold | `eval/out/section14_rho_sweep.md` | the §14 sensitivity measurement at ρ = 0.6 | the credit lens (includes non-contract features) |
+| A6 | 0.5936 | research, scorable | 9,495 / 449 | all 71 engine features incl. Zakat-only 27–31, + dummies | single stratified 5-fold | `eval/out/section14_rho_sweep.md` | the §14 sensitivity measurement at ρ = 0.6 | the credit lens (includes non-contract features) |
 | A7 | 0.576 [0.550, 0.605] | research, scorable | 9,495 / 449 | same 25 as A2 | contiguous-ID entity 5-fold | `eval/out/real_vs_synthetic.md` | secondary protocol check | the headline |
 | A8 | 0.901 [0.835, 0.955] | Berka secondary, temporal test | test 328 / 25 | same 25 as A2 | single temporal split at 1997-01-01 | `eval/out/real_vs_synthetic.md` | **leakage check only** | performance (single split; mixing it with A2 created a spurious 0.32 gap) |
 | A9 | 0.610 | research only, scorable by the gate's own 60-day window (entry 39) | 9,016 | 6 observables + sector | **in-sample** | `eval/out/gate_week3_after_monshaat.txt` | Week 3 gate criterion 2 (signal exists, labels not recoverable) | any performance claim |
 
-**Why A1, A2 and A6 differ (0.591 / 0.570 / 0.596):** the same population, but 58 vs 25 vs 71 features. A2 drops absolute-currency features so the comparison with Berka is scale-free. A6 includes the balance-sheet features that §8 keeps out of the credit lens. The protocols are repeated vs single. None of the three is wrong; they answer different questions.
+**Why A1, A2 and A6 differ (0.591 / 0.570 / 0.594):** the same population, but 58 vs 25 vs 71 features. A2 drops absolute-currency features so the comparison with Berka is scale-free. A6 includes the balance-sheet features that §8 keeps out of the credit lens. The protocols are repeated vs single. None of the three is wrong; they answer different questions.
 
 ---
 
@@ -67,13 +67,13 @@ The analytic form is **an approximation, not an identity**. It agreed to 0.0010 
 
 Source: `eval/out/section14_rho_sweep.md` (`python -m eval.run_section14`). Protocol and features as A6. Labels identical at every ρ.
 
-> **Measured on 2026-10-11, before entries 30, 35 and 38 changed ten of the 71 features (5, 20–22, 45, 55–59). Not re-run since.** §4, §4b and row A6 are the pre-fix measurement. The one comparison that was re-run after the fix moved by 0.004 (A2, 0.574 → 0.570), so a small move is expected here too, but it has not been measured. Re-running needs eight full-scale generations (`python -m eval.run_section14`, then the noise sweep).
+> **Re-run 2026-11-10** after entries 30, 35 and 38 changed ten of the 71 features (5, 20–22, 45, 55–59): both sweeps, eight full-scale generations, on the same machine as the originals (DECISIONS entry 52). The values before the re-run are retired in §7.
 
 | ρ | 0.6 | 0.7 | 0.8 | 0.9 |
 |---|---|---|---|---|
-| logistic out-of-fold AUC | 0.5959 | 0.6059 | 0.5983 | 0.6050 |
+| logistic out-of-fold AUC | 0.5936 | 0.6040 | 0.6031 | 0.6087 |
 
-**Flat**: the spread of 0.0100 is less than one standard error (0.0144) and the curve is not monotone. Up to 93% of the oracle-to-measured gap is the economics pipeline, not ρ. Model baseline at ρ = 0.6 under the same protocol: logistic 0.5959 beats early-stopped XGBoost 0.5865 and untuned XGBoost 0.5568. These are the A6 features, not the credit lens's.
+**Nearly flat**: the spread is 0.0151, about one standard error (0.0144, Hanley–McNeil at this AUC and event count), and the curve is not monotone (0.6040 at ρ = 0.7, 0.6031 at 0.8). Before the engine changes the spread was 0.0100, under one standard error; say "about one standard error", not "less than". Up to 92% of the oracle-to-measured gap is the economics pipeline, not ρ (at ρ = 0.9: 0.0527 of 0.0572). Model baseline at ρ = 0.6 under the same protocol: logistic 0.5936 beats early-stopped XGBoost 0.5838 (best of the grid) and untuned XGBoost 0.5547. These are the A6 features, not the credit lens's.
 
 ## 4b. §14 sensitivity — AUC as a function of label noise
 
@@ -81,11 +81,11 @@ Source: `eval/out/section14_noise_sweep.txt` (`python -m eval.sweep_rho --param 
 
 | σ (label noise, logit units) | 0.0 | 0.2 | 0.5 | 1.0 |
 |---|---|---|---|---|
-| logistic out-of-fold AUC | 0.6123 | 0.5959 | 0.5974 | 0.5882 |
+| logistic out-of-fold AUC | 0.6135 | 0.5936 | 0.5954 | 0.5921 |
 | oracle ceiling (scorable research) | 0.6691 | 0.6660 | 0.6646 | 0.6502 |
 | research defaults (of 10,000) | 459 | 478 | 501 | 673 |
 
-**Shallow**: from σ = 0 to 1.0 the logistic AUC moves 0.024 (under two standard errors of 0.0144, §4) and the ceiling 0.019; measured AUC stays at 89–92% of the ceiling throughout. Most of the label's unpredictability is the Bernoulli draw at a ~5% event rate, not σ. More noise also raises the default rate (expit is convex), so the σ = 1.0 column is not at the same base rate. The §14 circularity flag (≥ 0.85) is not reached at any σ.
+**Shallow**: from σ = 0 to 1.0 the logistic AUC moves 0.021 (under two standard errors of 0.0144, §4; re-run 2026-11-10, entry 52) and the ceiling 0.019; measured AUC stays at 89–92% of the ceiling throughout. Most of the label's unpredictability is the Bernoulli draw at a ~5% event rate, not σ. More noise also raises the default rate (expit is convex), so the σ = 1.0 column is not at the same base rate. The §14 circularity flag (≥ 0.85) is not reached at any σ.
 
 ---
 
@@ -173,14 +173,14 @@ Source: `eval/out/holdout_shock.md` (`python -m eval.holdout_shock`). Serving, d
 
 ## 6b. Serving path — Week 7 latency (§19)
 
-Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`), re-run after Sharia screening and the forecast change (entries 26–27). **Not re-timed since 2026-10-11:** the anomaly route now also runs the seasonal gate and the exact repeat check (entries 36.7, 37.5), and the credit model was retrained. On a slower 2-core machine with both anomaly changes the anomaly route's maximum was 1,271 ms and the credit route's 626 ms (entry 37.6), under the 2 s target; the figures below are the older run on the original machine. Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
+Source: `eval/out/latency_week7.md` (`python -m eval.latency_test`). **Re-run 2026-11-09** on the same 20-CPU machine as the 2026-10-11 run, with the current code: retrained credit model, entries 30, 35 and 38 in the engine, the anomaly seasonal gate and exact repeat check (entries 36.7, 37.5). Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max. Serving store, 1,000 businesses (§23 serving scale); every request computes the profile and the lens from inputs — nothing cached. Timings vary run to run, so re-running the test means updating this section. Format: p50 / p95 / max.
 
 | Path | Value | n |
 |---|---|---|
-| `/lenses/credit` — full §19 path (store → profile engine → model → SHAP → §13 text) | **110 / 138 / 252 ms** | 1,000 (every serving business) |
-| `/lenses/credit` over real HTTP (uvicorn) | 110 / 136 / 158 ms | 50 |
-| `/lenses/anomaly` — slowest route (per-business Isolation Forest) | 287 / 427 / 964 ms | 100 |
-| SHAP explanation alone (exact log-odds, `coef × z`) | 0.156 / 0.168 / 0.177 ms | 194 |
+| `/lenses/credit` — full §19 path (store → profile engine → model → SHAP → §13 text) | **124 / 150 / 248 ms** | 1,000 (every serving business) |
+| `/lenses/credit` over real HTTP (uvicorn) | 131 / 152 / 169 ms | 50 |
+| `/lenses/anomaly` — slowest route (per-business Isolation Forest) | 314 / 478 / 1028 ms | 100 |
+| SHAP explanation alone (exact log-odds, `coef × z`) | 0.160 / 0.176 / 0.225 ms | 194 |
 | Targets (§19) | API < 2 s, SHAP < 1 s — **PASS on the maximum**, not just a percentile | — |
 | API vs Week 8 CLI decisions (demo businesses, all four lenses) | identical | 3 |
 
@@ -203,5 +203,7 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | Scenario PDs 0.0557 / 0.0690 / 0.0849 / 0.0483 / 0.0999 / 0.0953 / 0.0561, and "the collapses' PDs are no higher than the baseline's" | the model before the retrain of 2026-11-07; with the retrained model the combined crisis (0.0656) is above the baseline (0.0526) | §5b, entry 46 |
 | Held-out round-trip recall 0.92 (precision 0.2135 of 0.2297) | true before the seasonal gate was switched on (entry 36.7); with it, 0.93 | §5 anomaly rows |
 | Held-out duplicate payment recall 0.06 | true with no repeat detector; with the exact check (entry 37.5) the same-day type is designed-for and scores 0.66 | §5 anomaly rows |
+| §14: A6 0.5959; ρ curve 0.5959 / 0.6059 / 0.5983 / 0.6050 ("spread 0.0100, less than one SE"; "up to 93%"); baseline 0.5959 / 0.5865 / 0.5568; σ curve 0.6123 / 0.5959 / 0.5974 / 0.5882 | measured 2026-10-11 and 2026-10-31, before entries 30, 35 and 38 | §2 A6, §4, §4b (entry 52) |
+| Latency 110 / 138 / 252 ms (credit), 287 / 427 / 964 ms (anomaly), 0.156 / 0.168 / 0.177 ms (SHAP) | timed 2026-10-11, before the seasonal gate, the exact repeat check and the retrain | §6b, re-run 2026-11-09 |
 | "The forecast model loses to the naive baseline" (median error 0.455 vs 0.376; MAPE 18.1% vs 15.0%) | true of the v1 OLS-trend model, which was replaced (entry 27) | §5 forecast rows |
 | "Φ(sd/√2) is an identity / a proof" | agreement degraded to 0.0118 | "a good approximation" (§3) |

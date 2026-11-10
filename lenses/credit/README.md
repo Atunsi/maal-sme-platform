@@ -61,9 +61,9 @@ sweep's feature set (NUMBERS.md row A6), *not* this lens's 58 contract features:
 
 | model | OOF AUC | % of ceiling |
 |---|---|---|
-| logistic regression, L2 C=1.0 | **0.5959** | 89.5% |
-| XGBoost, early-stopped (best of grid) | 0.5865 | 88.1% |
-| XGBoost, untuned 400 trees | 0.5568 | 83.6% (in-sample 0.9918) |
+| logistic regression, L2 C=1.0 | **0.5936** | 89.1% |
+| XGBoost, early-stopped (best of grid) | 0.5838 | 87.7% |
+| XGBoost, untuned 400 trees | 0.5547 | 83.3% (in-sample 0.9923) |
 
 Regularised logistic **beats** tuned gradient boosting, and untuned XGBoost
 memorises almost completely (in-sample 0.99 vs 0.56 out-of-fold). Report the
@@ -72,10 +72,10 @@ result about what the feature set supports at this event rate, not a tuning
 failure. Re-measure if you add features beyond the engine's current 71.
 
 **3. Raising ρ will not help you.** AUC is flat across ρ ∈ {0.6, 0.7, 0.8, 0.9}
-(spread 0.0100 = 0.69 SE, non-monotone). Up to 93% of the oracle-to-measured
+(spread 0.0151 = 1.05 SE, non-monotone; re-run 2026-11-10). Up to 92% of the oracle-to-measured
 gap is the economics pipeline, not the latent-to-observable correlation. At
 ρ = 0.9 a single clean latent rank (0.6467) outperforms the whole 82-column
-model (0.6050) — the feature pipeline is the binding constraint.
+model (0.6087) — the feature pipeline is the binding constraint.
 
 ## Required, not optional
 
