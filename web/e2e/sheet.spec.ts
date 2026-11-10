@@ -6,12 +6,17 @@ test("print sheet shows the required labels", async ({ page }) => {
   await page.goto("/en/business/10001/sheet", { waitUntil: "networkidle" });
   const sheet = page.locator("article.sheet");
   await expect(sheet).toContainText("Rule-based screening, pending Sharia-advisor confirmation"); // U6
-  await expect(sheet).toContainText("Nisab price is a commercial quote, pending independent verification"); // U7
+  // U7: the plate for the response's own status. Since entry 54 the nisab uses the monthly gold price, a status the
+  // catalogue has no words for yet, so the plate reads "not independently verified" (it failed on main's stale text).
+  await expect(sheet).toContainText("Nisab price not independently verified");
   await expect(sheet).toContainText("Not a ZATCA assessment");
   await expect(sheet).toContainText("Base markup, fixed at signing"); // U1
   await expect(sheet).toContainText("go to charity"); // U2
   await expect(sheet).toContainText("Population: Serving"); // U11
-  await expect(sheet).toContainText("verify: python -m pipeline.verify <file>"); // U13, scope verbatim
+  // U13 as amended (DECISIONS 58): the scope prints verbatim on the admin's sheet; the public sheet prints the reference.
+  await expect(sheet.locator("[data-reference]")).toHaveText(/^M-10001-[0-9A-F]{8}$/);
+  await page.goto("/en/business/10001/sheet?as=admin", { waitUntil: "networkidle" });
+  await expect(sheet).toContainText("verify: python -m pipeline.verify <file>");
   await expect(page.locator("footer p")).toContainText("Synthetic data only. Population: serving."); // U11, U15 note
 });
 

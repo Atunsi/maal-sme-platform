@@ -119,7 +119,7 @@ test("a research ID in the URL is refused", async ({ page }) => {
 
 test("receipt panel opens and shows the scope verbatim", async ({ page }) => {
   await page.goto("/en/business/10010/zakat", { waitUntil: "networkidle" });
-  const summary = page.getByText("Receipt: Zakat");
+  const summary = page.getByText("Technical record: Zakat") // DECISIONS 58;
   const scope = page.locator("details", { has: summary }).getByText("Covers the deterministic core only", { exact: false });
   await expect(scope).toBeHidden();
   await summary.click();

@@ -7,7 +7,11 @@ import { writeFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { BUSINESSES, PAGES } from "./pages";
 
-const ROUTES = [...new Set([...PAGES, ...BUSINESSES.map((id) => `/business/${id}/sheet`)])];
+// DECISIONS 58: A4 covers every role, so the owner's plain card and the admin's open record are crawled too.
+const ROLE_ROUTES = ["owner", "admin"].flatMap((role) =>
+  [10001, 10037].flatMap((id) => ["", "/credit", "/sharia", "/zakat", "/forecast", "/review", "/sheet"].map((lens) => `/business/${id}${lens}?as=${role}`)),
+);
+const ROUTES = [...new Set([...PAGES, ...BUSINESSES.map((id) => `/business/${id}/sheet`), ...ROLE_ROUTES])];
 
 type Finding = { text: string; where: string };
 

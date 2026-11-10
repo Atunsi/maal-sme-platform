@@ -54,7 +54,7 @@ test("rerun command is shown verbatim from scope, and hash check reports match a
 
 test("profile receipt shows no rerun command; scenario receipts show their own", async ({ page }) => {
   await page.goto("/en/business/10001", { waitUntil: "networkidle" });
-  const profile = page.locator("details[data-receipt]").filter({ hasText: "Receipt: profile" });
+  const profile = page.locator("details[data-receipt]").filter({ hasText: "Technical record: profile" }) // DECISIONS 58;
   await profile.locator("summary").click();
   await expect(profile.locator("[data-rerun]")).toHaveCount(0);
   await page.goto("/en/scenarios?s=severe_collapse", { waitUntil: "networkidle" });
