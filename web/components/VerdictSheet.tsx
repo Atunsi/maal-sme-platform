@@ -1,16 +1,16 @@
 import { BusinessHeader } from "@/components/BusinessHeader";
-import { CopyButton } from "@/components/CopyButton";
 import { Term } from "@/components/Term";
-import { copyLabels, ReceiptPanel } from "@/components/ReceiptPanel";
+import { PlainCard } from "@/components/DecisionRecord";
+import { ReceiptPanel } from "@/components/ReceiptPanel";
+import { RoleRecord } from "@/components/RoleRecord";
 import { PhoneFold } from "@/components/PhoneFold";
 import { Num, Plate, Refusal, Sar } from "@/components/ui";
 import { decisionPlate, decisionWord } from "@/lib/decision";
 import { formatInt, formatPct } from "@/lib/format";
 import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
-import type { CreditResponse, Receipt } from "@/lib/types";
+import { recordInput } from "@/lib/record";
+import type { CreditResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
-
-const SHORT = 12;
 
 function Cell({ label, children, first }: { label: React.ReactNode; children: React.ReactNode; first?: boolean }) {
   return (
@@ -21,39 +21,30 @@ function Cell({ label, children, first }: { label: React.ReactNode; children: Re
   );
 }
 
-/** Plain text: output hash, model and commit, with the full receipt and scope on expand (U13). */
-function ReceiptAside({ receipt, lens, m }: { receipt: Receipt; lens: string; m: Messages }) {
-  const o = m.overview;
-  const rows = [
-    [o.output, receipt.output_sha256.slice(0, SHORT)],
-    [o.model, `${receipt.credit_model_version} ${receipt.credit_model_sha256.slice(0, SHORT)}`],
-    [o.commit, receipt.code_commit.replace(/^([0-9a-f]{7})[0-9a-f]*/, "$1")],
-  ];
+/**
+ * DECISIONS 58 (P4): the overview's record, in plain words for the credit result: what was looked at, how it was
+ * reached, same data same result, and the reference. The short hashes are gone from here for every role; their
+ * full values stay in the technical record under it (admin open, public demo closed, owner none).
+ */
+function RecordAside({ data, locale, m }: { data: CreditResponse; locale: Locale; m: Messages }) {
+  const title = m.record.title;
+  const technical = (open: boolean) => <ReceiptPanel receipt={data.receipt} lens={m.credit.title} m={m} open={open} />;
   return (
-    <aside aria-label={o.receiptEyebrow} data-tour="receipt" data-phone="receipt" className="panel square flex min-w-0 flex-[1_1_320px] flex-col gap-4 p-8">
-      {/* Phones show the receipt folded under the verdict (app/phone.css); larger screens show it in full. */}
+    <aside aria-label={title} data-tour="receipt" data-phone="receipt" className="panel square flex min-w-0 flex-[1_1_320px] flex-col gap-4 p-8">
+      {/* Phones show the record folded under the verdict (app/phone.css); larger screens show it in full. */}
       <PhoneFold
         className="mt-1.5 flex flex-col gap-4"
         summary={
           <span className="rise block" style={{ animationDelay: delay(2) }}>
-            <span className="eyebrow block text-gold">{o.receiptEyebrow}</span>
-            <span className="heading mt-1.5 block text-[26px]">{o.receiptTitle}</span>
+            <span className="heading block text-[26px]">{title}</span>
           </span>
         }
       >
-        <p className="text-sm text-muted">{o.receiptBody}</p>
-        <dl data-latin className="rise grid grid-cols-[auto_1fr] items-center gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: delay(3) }}>
-          {rows.map(([key, value]) => (
-            <div key={key} className="contents">
-              <dt className="text-muted">{key}</dt>
-              <dd dir="ltr" className="flex flex-wrap items-center gap-x-3 break-all text-start">
-                {value}
-                {key === o.output && <CopyButton value={receipt.output_sha256} name="output_sha256" labels={copyLabels(m)} />}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <ReceiptPanel receipt={receipt} lens={lens} m={m} />
+        <RoleRecord
+          card={<PlainCard input={recordInput("credit", data)} locale={locale} m={m} headless className="rise" />}
+          open={technical(true)}
+          closed={technical(false)}
+        />
       </PhoneFold>
     </aside>
   );
@@ -121,7 +112,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
           </>
         )}
       </div>
-      <ReceiptAside receipt={data.receipt} lens={m.credit.title} m={m} />
+      <RecordAside data={data} locale={locale} m={m} />
     </section>
   );
 }

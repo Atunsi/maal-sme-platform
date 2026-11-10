@@ -63,7 +63,7 @@ describe("arabic digits", () => {
     expect(westernDigitsLeft(main)).toEqual([]);
     // The markup and the readout cards' figures converted, sign and all.
     expect(main.textContent).toContain(formatPct(credit.credit!.base_markup_pct!, "ar", "arab"));
-    // N3 still holds: the receipt's shortened hashes stay Latin.
-    expect(main.querySelector("dl[data-latin]")!.textContent).toMatch(/[0-9a-f]{12}/);
+    // N3 still holds: the reference number (DECISIONS 58, in place of the aside's short hashes) stays Latin.
+    expect(main.querySelector("[data-reference]")!.textContent).toMatch(/^M-10001-[0-9A-F]{8}$/);
   });
 });

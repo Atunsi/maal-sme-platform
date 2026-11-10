@@ -14,6 +14,8 @@ import { isServingId } from "@/lib/population";
 import type { AnomalyResponse, ApiResult, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
 import { nameOf } from "@/lib/business-names";
 import { titleFor } from "@/lib/page-title";
+import { RoleRecord } from "@/components/RoleRecord";
+import { recordInput, recordLines } from "@/lib/record";
 
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
@@ -268,21 +270,47 @@ export default async function SheetPage({ params }: Props) {
           {(data) => <Review data={data} locale={locale} m={m} />}
         </Loaded>
       </Block>
-      <Block title={sh.receipt}>
+      {/* DECISIONS 58 (P6): the plain lines for everyone (what was looked at, same data same result, the reference);
+          the receipt's fields for the admin and the public demo; the verbatim scope for the admin only (U13 as amended). */}
+      <Block title={m.record.title}>
         <Loaded result={c} m={m}>
           {(data) => {
             const { scope, scope_ar: scopeAr, ...fields } = data.receipt;
+            const lines = recordLines(recordInput("credit", data), locale, m);
+            const plain = (
+              <div data-record className="flex flex-col gap-1 text-xs">
+                {lines.dataUsed && <p>{lines.dataUsed}</p>}
+                {lines.same && <p>{lines.same}</p>}
+                {lines.reference && (
+                  <p>
+                    {m.record.reference}:{" "}
+                    <bdi dir="ltr" data-latin data-reference className="font-mono font-semibold">
+                      {lines.reference}
+                    </bdi>
+                  </p>
+                )}
+              </div>
+            );
+            const technical = (
+              <dl className="text-xs" data-technical>
+                {Object.entries(fields).map(([key, value]) => (
+                  <Row key={key} label={<Code>{key}</Code>}>
+                    <Code>{String(value)}</Code>
+                  </Row>
+                ))}
+              </dl>
+            );
             return (
-              <>
-                <dl className="text-xs">
-                  {Object.entries(fields).map(([key, value]) => (
-                    <Row key={key} label={<Code>{key}</Code>}>
-                      <Code>{String(value)}</Code>
-                    </Row>
-                  ))}
-                </dl>
-                {scope && <ScopeText scope={scope} scopeAr={scopeAr} locale={locale} className="text-xs" />}
-              </>
+              <RoleRecord
+                card={plain}
+                open={
+                  <>
+                    {technical}
+                    {scope && <ScopeText scope={scope} scopeAr={scopeAr} locale={locale} className="text-xs" />}
+                  </>
+                }
+                closed={technical}
+              />
             );
           }}
         </Loaded>

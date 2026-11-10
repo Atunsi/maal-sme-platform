@@ -15,9 +15,10 @@ import { ZakatCard } from "@/components/ZakatCard";
 import { DEMO_BUSINESSES } from "@/lib/businesses";
 import { scenarioName } from "@/lib/scenario-label";
 import { AnomalyResponse, CreditResponse, ForecastResponse, ScenarioObject, ZakatResponse } from "@/lib/schemas";
-import { ar, en, fixture, readJson, webRoot } from "./helpers";
+import { ar, asRole, en, fixture, readJson, webRoot } from "./helpers";
 import { nisabPlate } from "@/lib/nisab";
 import { formatSarSpoken } from "@/lib/format";
+import { referenceFor } from "@/lib/reference";
 
 const source = (dir: string) =>
   readdirSync(join(webRoot, dir), { recursive: true, encoding: "utf8" })
@@ -235,12 +236,31 @@ describe("overview", () => {
     }
   });
 
+  // U13 as amended (DECISIONS 58): the scope stays verbatim in the technical record for the public demo and the
+  // admin; the owner sees the plain card instead. The short-hash rows are gone from the aside for every role.
   it("U13 the receipt panel is plain text with the scope verbatim", () => {
     const { container } = render(<VerdictSheet data={credit} locale="en" m={en} />);
-    expect(screen.getByText(en.overview.receiptTitle)).toBeTruthy();
-    expect(screen.getByText(credit.receipt.output_sha256.slice(0, 12))).toBeTruthy();
+    expect(screen.getAllByText(en.record.title).length).toBeGreaterThan(0);
     expect(screen.getByText(credit.receipt.scope!)).toBeTruthy();
+    expect(container.querySelector("details[data-receipt]")!.hasAttribute("open")).toBe(false);
+    expect(within(container).queryByText(credit.receipt.output_sha256.slice(0, 12))).toBeNull();
     expect(within(container).queryByRole("img")).toBeNull();
+  });
+
+  it("overview aside shows the plain card", () => {
+    asRole("owner");
+    const { container, unmount } = render(<VerdictSheet data={credit} locale="en" m={en} />);
+    const aside = container.querySelector("aside[data-tour=receipt]")!;
+    expect(aside.querySelector("[data-record]")).toBeTruthy();
+    expect(aside.textContent).toContain(referenceFor(credit.receipt, credit.business_id));
+    expect(aside.textContent).toContain(en.record.howBy.credit_approved_unconditional);
+    expect(aside.querySelector("details[data-receipt]")).toBeNull();
+    expect(aside.textContent).not.toContain(credit.receipt.scope!);
+    unmount();
+    asRole("admin");
+    const admin = render(<VerdictSheet data={credit} locale="en" m={en} />).container;
+    expect(admin.querySelector("details[data-receipt]")!.hasAttribute("open")).toBe(true);
+    expect(admin.textContent).toContain(credit.receipt.scope!);
   });
 
   it("U10 insufficient_data (10003): the sheet refuses and no card shows a figure", () => {

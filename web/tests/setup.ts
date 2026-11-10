@@ -4,7 +4,11 @@ import { afterEach, vi } from "vitest";
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
   usePathname: () => "/en",
-  useSearchParams: () => new URLSearchParams(),
+  // DECISIONS 58: a test can render a demo role with asRole() (tests/helpers.ts); the default is no query.
+  useSearchParams: () => new URLSearchParams((globalThis as { __search?: string }).__search ?? ""),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  (globalThis as { __search?: string }).__search = "";
+});

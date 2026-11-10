@@ -14,3 +14,8 @@ export function readJson(...path: string[]): unknown {
 export function fixture<S extends z.ZodType>(name: string, schema: S): z.output<S> {
   return schema.parse(readJson("fixtures", `${name}.json`));
 }
+
+/** DECISIONS 58: the query the next/navigation mock returns (tests/setup.ts), e.g. asRole("owner"); reset after each test. */
+export function asRole(role: "owner" | "admin" | null, extra = ""): void {
+  (globalThis as { __search?: string }).__search = [role ? `as=${role}` : "", extra].filter(Boolean).join("&");
+}
