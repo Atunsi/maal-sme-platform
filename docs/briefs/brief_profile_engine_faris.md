@@ -1,5 +1,8 @@
 # Decision brief — profile engine (Faris Alsharifi)
 
+> **Status 2026-11-10:** most lines in this brief were ticked on the owners' behalf on verbal agreement (DECISIONS entry 53), and entries 40, 47, 48 and 49 were decided; entry 40 is implemented (`00ae025`). Read entry 53 for what is still open. The brief below is kept as written.
+> DECISIONS.md line numbers below are as of commit `5ca3ba3` (read them with `git show 5ca3ba3:DECISIONS.md`); entries after 40 have moved since.
+
 Prepared 2026-11-10 from `DECISIONS.md` on `main`. Nothing here is decided for you. Line numbers refer to `DECISIONS.md` unless a file is named.
 
 | Entry | What is decided | What is blocking |
@@ -63,4 +66,4 @@ repeated with five that compute nothing.
 When `faris/web-ui` was merged, its entry 43 (web UI enhancements) became **51**, as this brief had
 suggested; `main`'s 43 stays the §25 fairness finding (`DECISIONS.md`, entry 51's first line). All 31
 files under `web/` that cited it now say 51, and none cites 43. Entries 41, 42, 44 and 45 kept their
-numbers. Nothing is left to decide; the next free number is 53 (52 is the §14 re-run).
+numbers. Nothing is left to decide; the next free number is 54 (52 is the §14 re-run, 53 the sign-off closure).

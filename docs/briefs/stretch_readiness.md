@@ -1,5 +1,7 @@
 # Stretch-goal readiness — what stands between the team and recourse
 
+> DECISIONS.md line numbers below are as of commit `5ca3ba3` (read them with `git show 5ca3ba3:DECISIONS.md`); entries after 40 have moved since.
+
 Prepared 2026-11-10. A check, not a plan: nothing here starts a stretch goal. Sources: schema §26–§28
 and §36.5, SOP §6, `DECISIONS.md`, `lenses/credit/model.py`, `eval/out/demo_exposure.md`.
 

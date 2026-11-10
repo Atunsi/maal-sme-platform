@@ -1,5 +1,8 @@
 # Decision brief — credit lens (Abdulrahman Alharbi)
 
+> **Status 2026-11-10:** most lines in this brief were ticked on the owners' behalf on verbal agreement (DECISIONS entry 53), and entries 40, 47, 48 and 49 were decided; entry 40 is implemented (`00ae025`). Read entry 53 for what is still open. The brief below is kept as written.
+> DECISIONS.md line numbers below are as of commit `5ca3ba3` (read them with `git show 5ca3ba3:DECISIONS.md`); entries after 40 have moved since.
+
 Prepared 2026-11-10 from `DECISIONS.md` on `main`. Nothing here is decided for you. Line numbers
 refer to `DECISIONS.md` unless a file is named. Numbers come from `docs/NUMBERS.md`.
 

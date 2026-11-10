@@ -125,9 +125,10 @@ it, and the compliance owner's line is unsigned (entry 26). Across 10,000 resear
 businesses it returns 85.1% compliant, 14.9% review and 0.0% hard flags, so the
 hard-flag path is exercised by unit tests only, never by a generated business.
 
-**18. A decision receipt verifies only on the operating system that made it.**
-Four receipt hashes depend on line endings, so a Windows receipt fails
-verification on Linux or Mac although the decision is identical (entry 40, open).
+**18. Receipts made before 2026-11-10 on Windows carry old input hashes.** Until
+entry 40 was implemented, four receipt hashes depended on line endings. They no
+longer do; a receipt made earlier on Windows still reproduces its decision, but
+`pipeline.verify` names its config, lens-config and data hashes as changed (entry 40).
 
 **19. Re-measured after the engine changes, the ρ curve is a little less flat.** The
 §14 sweeps were re-run on 2026-11-10, after entries 30, 35 and 38. Across ρ from 0.6 to
@@ -135,7 +136,8 @@ verification on Linux or Mac although the decision is identical (entry 40, open)
 0.0100 before; the curve is still not monotone, and up to 92% of the gap to the ceiling is
 the feature pipeline, not ρ (NUMBERS §4, entry 52).
 
-**20. Several decisions are unsigned.** As of 2026-11-09 no sign-off line has
-been ticked by the forecast and anomaly owner, the compliance owner or a Sharia
-advisor, and the API has no named owner. Their parameters are therefore still
-proposals (entries 23, 25, 26, 27, 36, 37, 48).
+**20. Most owner sign-offs rest on verbal agreement.** On 2026-11-10 the
+generator owner ticked the open owner and team lines of entries 23 to 51 on the
+other owners' behalf, each marked as such, and written confirmation from each owner
+is pending (entry 53). No Sharia advisor has signed anything (entries 23, 26, 48),
+and older team lines (entries 5 to 24, 34 and 43) are still open.

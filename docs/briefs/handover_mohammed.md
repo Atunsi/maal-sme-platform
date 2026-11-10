@@ -1,5 +1,7 @@
 # Handover walkthrough — Zakat and Sharia screening (Mohammed Alshaibani), 30 minutes
 
+> DECISIONS.md line numbers below are as of commit `5ca3ba3` (read them with `git show 5ca3ba3:DECISIONS.md`); entries after 40 have moved since.
+
 Run everything on your own machine, not on a screen share. Every command below was dry-run on
 `data/quick` on 2026-11-10. Quick data has 300 businesses per population, so its numbers are for
 seeing the code work, never for quoting; quote only `docs/NUMBERS.md`.

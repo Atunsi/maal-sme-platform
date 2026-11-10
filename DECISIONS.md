@@ -3028,6 +3028,24 @@ on Linux or Mac, and the other way round, although nothing in the decision diffe
    data, as the reference stats already did), so they no longer verify against new runs. The commit that
    makes the switch should be recorded here.
 
+**Implemented (2026-11-10), switch commit `00ae0259e08a1b96f406a46c365bdd150ecd4c98`** (option C: items 1 and 2 above,
+with item 3 accepted). `_sha` and `data_sha256` (`pipeline/week8.py`), `load_rules`
+(`compliance/sharia.py`) and `load_library` (`scenarios/run.py`) hash canonical LF; `data_sha256` writes
+CSV with `lineterminator="\n"`. `.gitattributes` has `* text=auto eol=lf`; 76 text files stored with CRLF,
+`config.yaml` among them, were renormalised to LF in git (line endings only). **One guard beyond the
+proposal:** `sources/** -text`. The archived SAMA CSVs are stored with CRLF and their `.sha256` sidecars
+hash those bytes, so renormalising them would have broken the source archive on every fresh checkout. With
+the guard, all 8 archived files with sidecars match in git and on disk. Before it, the three Monsha'at JSONs
+had been checked out CRLF on Windows and did not match their own sidecars.
+
+**What changed for receipts, measured on the demo businesses (Windows, before vs after):** `config_sha256`
+`9d60db77…` → `1c28576f…`, `lens_config_sha256` `b8d62751…` → `eb715f89…` (the value a Linux checkout
+already produced), `data_sha256` changed; `sharia_rules_sha256`, `credit_model_sha256`,
+`reference_stats_sha256` and `output_sha256` unchanged. `python -m pipeline.verify` on the receipts made
+before the switch still reproduces every decision byte-identical, and names `config_sha256`,
+`lens_config_sha256` and `data_sha256` (and `code_commit`) as changed inputs. New receipts verify with no
+changed input. `tests/test_receipt_line_endings.py`: the four strict xfails are now ordinary passing tests.
+
 **Sign-off:** ☑ profile engine owner [Faris Alsharifi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ generator owner [Ahmed Altunusi, 2026-11-10] ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ---
@@ -3834,7 +3852,7 @@ There is no Sharia advisor on the project yet. Outputs stay labelled "rule-based
 
 **A tick records agreement, not completed work.** Ticking does not change an entry's status heading, and several ticked entries describe changes that are
 not made. Still to do, with the owner who raised it:
-1. Entry 40 (line endings): canonical-LF hashing, `.gitattributes`, `data_sha256` line terminator. Approved, **not implemented**; existing Windows-made receipts will change once. (Faris Alsharifi, Ahmed Altunusi)
+1. Entry 40 (line endings): canonical-LF hashing, `.gitattributes`, `data_sha256` line terminator. Approved, **not implemented**; existing Windows-made receipts will change once. (Faris Alsharifi, Ahmed Altunusi) **Update (2026-11-10): implemented in `00ae025`; see entry 40.**
 2. Entry 47: option A chosen. The sentence "the model cannot shortcut to the sector code" in `lenses/lens_config.yaml` is still to be edited, at the next lens-config change because it alters every receipt hash. (Abdulrahman Alharbi)
 3. Entry 48: the nisab is to be valued at the gold price on each business's calculation date. Needs an archivable price series, code, tests, and a decision on the daily workflow. Until then 491.291 SAR/g is a labelled reference price. (Mohammed Alshaibani)
 4. Entry 49: option B chosen, **evaluating Prophet and ARIMA is not done** and needs a new untouched test window written down first. Until it is run, the report states they were not evaluated. (Abdulelah Alsalamah)
