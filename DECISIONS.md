@@ -3480,7 +3480,8 @@ page now says so in one fixed sentence, shown only for compliant, registered-sec
 **Numbering.** Numbers 41, 42, 44 and 45 are used on the unmerged branch `origin/faris/web-ui`, which
 also carries a different entry 43 (web UI enhancements) from the one on `main` (§25 fairness). This
 entry takes 46 so a third collision is not added. The two entries numbered 43 have to be renumbered
-when that branch is merged.
+when that branch is merged. **Update (2026-11-10):** resolved at the merge of `faris/web-ui`; its 43 is now 51 and every
+reference in `web/` follows (entry 51).
 
 **Why.** NUMBERS §5b and the report behind it were last produced on 2026-10-31, before entries 30, 35
 and 38 changed ten features and before the credit model was retrained (`79160cb`, 2026-11-07). Entry

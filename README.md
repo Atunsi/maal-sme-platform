@@ -306,9 +306,8 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
 24. **Five class-A1 features have no usable value on Berka** (entry 50, PROPOSED) — profile
     engine owner, team.
 
-Entry number 43 is used twice: on `main` for the fairness finding and on the unmerged
-`origin/faris/web-ui` branch for a web UI entry (that branch also holds 41, 42, 44 and 45).
-One of the two has to be renumbered when the branch is merged.
+Entry 43 is the §25 fairness finding. The web UI's entries are 41, 42, 44, 45 and 51 (its
+former 43, renumbered when the branch was merged on 2026-11-10).
 
 Entry 22 (latent spread) is settled: Path A, confirmed 2026-10-31. Generator-owner
 lines on entries 13, 14, 15, 17, 18 and 20 are signed. Profile engine owner lines on
