@@ -125,12 +125,17 @@
   --o-end: right;
 }
 
-/* Every box has rounded corners: cards and panels, then controls, plates and bars, in steps. */
+/* Every box has rounded corners: cards and panels, then controls, plates and bars, in steps. Cards float on a
+   soft shadow instead of an outline, the same on a phone and a laptop (see "One card language" below). */
 :root {
-  --r-box: 14px;
+  --r-box: 18px;
   --r-ctl: 10px;
   --r-plate: 6px;
   --r-bar: 4px;
+  --card-shadow: 0 1px 2px rgba(16, 20, 24, 0.05), 0 6px 18px rgba(16, 20, 24, 0.06);
+}
+.th-dark {
+  --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 22px rgba(0, 0, 0, 0.45);
 }
 .border,
 .bg-card,
@@ -592,6 +597,79 @@ a.themebtn {
 }
 .bar-from-end {
   transform-origin: var(--o-end);
+}
+
+/* Credit factors (components/CreditCard.tsx): the reason, then a diverging track of one fixed width with the
+   centre axis. The track stretches to the row's height, so the axis runs unbroken down the list; on a phone
+   (app/phone.css) the track goes under the reason. */
+.factor-legend,
+.factor-row {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 36px;
+}
+.factor-legend > :first-child,
+.factor-row > .factor-words {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+.factor-legend-track,
+.factor-track {
+  display: flex;
+  flex: 0 0 300px;
+}
+.factor-legend {
+  padding-bottom: 10px;
+}
+.factor-legend-track > span {
+  flex: 1;
+  padding-inline: 12px;
+}
+.factor-row {
+  border-top: 1px solid var(--rule2);
+}
+.factor-row > .factor-words {
+  padding-block: 18px;
+}
+.factor-track {
+  position: relative;
+  align-self: stretch;
+  min-height: 30px;
+}
+/* The track band, and the axis over it. */
+.factor-track::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 999px;
+  background: var(--rule2);
+}
+.factor-track::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 50%;
+  width: 2px;
+  margin-inline-start: -1px;
+  background: var(--ink);
+}
+.factor-half {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+.factor-half:first-child {
+  justify-content: flex-end;
+}
+.factor-track .bar-grow {
+  height: 10px;
+  border-radius: 999px;
 }
 
 /* Sharia: the rounded outline draws itself once round the frame, then the frame breathes. The outline
@@ -1068,6 +1146,82 @@ body {
     opacity: 0;
     transform: translateY(-6px);
   }
+}
+
+/* One card language, phone and laptop alike: a card floats on a soft shadow with no outline (a warning frame
+   keeps its coloured border, which carries meaning), and a card inside a card never casts a second shadow.
+   app/phone.css changes only spacing and layout. */
+main .border.bg-card:not(.frame),
+main .panel,
+main fieldset.border {
+  border-color: transparent;
+  box-shadow: var(--card-shadow);
+}
+main :is(.border.bg-card, .panel) :is(.border.bg-card, .panel) {
+  box-shadow: none;
+}
+main .border.bg-card:has(> [role="region"] > table) {
+  overflow: hidden;
+}
+/* A field list standing on the page (components/ui.tsx Fields) is a card, like everything else. */
+main dl[data-phone="fields"]:not(:is(.border.bg-card, .panel) *) {
+  padding: 20px 28px;
+  border-radius: var(--r-box);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+/* The head of every lens page is its summary card: business, title, verdict, provenance. */
+main [data-phone="lens-head"] {
+  padding: 24px 28px;
+  border-radius: var(--r-box);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+/* Receipts and the profile's raw values: one row with an arrow, a card of its own on the page and a hairline
+   row inside a card. */
+main details[data-receipt] {
+  margin-top: 0;
+  padding: 0 20px;
+  border-color: transparent;
+  border-radius: var(--r-box);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+main details[data-receipt][open] {
+  padding-bottom: 16px;
+}
+main :is(.border.bg-card, .panel) details[data-receipt] {
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--rule2);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+:is(main details[data-receipt], main #profile details) > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  list-style: none;
+  cursor: pointer;
+}
+:is(main details[data-receipt], main #profile details) > summary::-webkit-details-marker {
+  display: none;
+}
+:is(main details[data-receipt], main #profile details) > summary::after {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+:is(main details[data-receipt], main #profile details)[open] > summary::after {
+  transform: rotate(225deg);
 }
 
 /* PhoneFold (components/PhoneFold.tsx): above phone width the fold is always open and its summary is a plain

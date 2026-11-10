@@ -17,11 +17,14 @@ afterEach(() => {
   sessionStorage.clear();
 });
 
+const linksEn = { glossary: en.footer.glossary, how: en.footer.how };
+const linksAr = { glossary: ar.footer.glossary, how: ar.footer.how };
+
 describe("app tab bar", () => {
   it("links four business pages, keeps the role, and marks the current one", () => {
     nav.pathname = "/en/business/10037/forecast";
     nav.params = new URLSearchParams("as=owner");
-    render(<AppTabBar locale="en" nav={en.nav} />);
+    render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
     const bar = screen.getByRole("navigation", { name: en.nav.appTabs });
     const links = [...bar.querySelectorAll(".app-tabs a")].map((a) => a.getAttribute("href"));
     expect(links).toEqual(["/en/business/10037?as=owner", "/en/business/10037/credit?as=owner", "/en/business/10037/forecast?as=owner", "/en/business/10037/review?as=owner"]);
@@ -31,24 +34,36 @@ describe("app tab bar", () => {
   it("More opens the other pages and closes on Escape", () => {
     nav.pathname = "/ar/business/10001/zakat";
     nav.params = new URLSearchParams("as=admin");
-    render(<AppTabBar locale="ar" nav={ar.nav} />);
+    render(<AppTabBar locale="ar" nav={ar.nav} links={linksAr} />);
     const more = screen.getByRole("button", { name: ar.nav.more });
     // Zakat lives under More, so More carries the current mark.
     expect(more.hasAttribute("data-current")).toBe(true);
     fireEvent.click(more);
     expect(more.getAttribute("aria-expanded")).toBe("true");
-    for (const label of [ar.nav.sharia, ar.nav.zakat, ar.nav.scenarios, ar.nav.admin]) expect(screen.getByRole("link", { name: label })).toBeTruthy();
+    for (const label of [ar.nav.sharia, ar.nav.zakat, ar.nav.scenarios, ar.nav.admin, ar.footer.glossary, ar.footer.how]) expect(screen.getByRole("link", { name: label })).toBeTruthy();
     fireEvent.keyDown(document, { key: "Escape" });
     expect(more.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("shows nothing off the business pages or on the printable sheet", () => {
-    for (const path of ["/en", "/en/scenarios", "/en/admin", "/en/business/10001/sheet"]) {
+  it("is on every app page, and only the landing page and sign-in go without it", () => {
+    for (const path of ["/en", "/en/sign-in"]) {
       nav.pathname = path;
-      const { container, unmount } = render(<AppTabBar locale="en" nav={en.nav} />);
+      const { container, unmount } = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
       expect(container.innerHTML, path).toBe("");
       unmount();
     }
+    // Off the business pages the tabs point at the demo business, and More marks the page it lists.
+    for (const path of ["/en/scenarios", "/en/scenarios/s/severe_collapse", "/en/admin", "/en/glossary", "/en/how-it-works"]) {
+      nav.pathname = path;
+      nav.params = new URLSearchParams("");
+      const { unmount } = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+      expect(screen.getByRole("link", { name: en.nav.overview }).getAttribute("href"), path).toBe("/en/business/10001");
+      expect(screen.getByRole("button", { name: en.nav.more }).hasAttribute("data-current"), path).toBe(true);
+      unmount();
+    }
+    nav.pathname = "/en/business/10001/sheet";
+    const { container } = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+    expect(container.querySelector("[data-app-tabbar]")).not.toBeNull();
   });
 });
 

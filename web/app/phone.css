@@ -9,8 +9,9 @@
   :root {
     --ph-pad: 18px;
     --ph-gap: 12px;
-    --ph-radius: 20px;
-    --ph-shadow: 0 1px 2px rgba(16, 20, 24, 0.05), 0 6px 18px rgba(16, 20, 24, 0.06);
+    /* The card radius and shadow are the shared ones (globals.css), so phone and laptop cards match. */
+    --ph-radius: var(--r-box);
+    --ph-shadow: var(--card-shadow);
     --tabbar-h: calc(58px + env(safe-area-inset-bottom, 0px));
     /* The page's own colours, captured here (custom properties resolve where they are declared), so a block
        inside a dark .panel can be given the page's light-or-dark card colours back. */
@@ -20,9 +21,6 @@
     --ph-rule: var(--rule);
     --ph-rule2: var(--rule2);
     --ph-accent: var(--accent);
-  }
-  .th-dark {
-    --ph-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 22px rgba(0, 0, 0, 0.45);
   }
   /* Installed as an app: no rubber-band bounce or pull-to-refresh on the page itself. */
   html.app-mode {
@@ -79,15 +77,15 @@
     line-height: 1.25 !important;
   }
 
-  /* ---------- Floating cards ---------- */
+  /* ---------- Cards: the shared card (globals.css) with phone spacing ---------- */
 
   main .border.bg-card,
   main .panel,
   main .frame {
-    border-color: transparent !important;
-    border-radius: var(--ph-radius);
     padding: var(--ph-pad) !important;
-    box-shadow: var(--ph-shadow);
+  }
+  main [data-phone="lens-head"] {
+    padding: var(--ph-pad);
   }
   /* A card that holds a table keeps the table's own row spacing. */
   main .border.bg-card:has(> [role="region"] > table),
@@ -119,9 +117,8 @@
 
   /* ---------- Folded detail (components/PhoneFold.tsx) ---------- */
 
-  details.phone-fold > summary,
-  main details[data-receipt] > summary,
-  main #profile details > summary {
+  /* On a phone the fold is a toggle, drawn like the receipt rows (globals.css): a row with an arrow. */
+  details.phone-fold > summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -130,13 +127,7 @@
     cursor: pointer;
     pointer-events: auto;
   }
-  :is(details.phone-fold, main details[data-receipt], main #profile details) > summary::-webkit-details-marker {
-    display: none;
-  }
-  :is(details.phone-fold, main details[data-receipt], main #profile details) > summary {
-    list-style: none;
-  }
-  :is(details.phone-fold, main details[data-receipt], main #profile details) > summary::after {
+  details.phone-fold > summary::after {
     content: "";
     flex: none;
     width: 9px;
@@ -147,27 +138,11 @@
     transform: rotate(45deg);
     transition: transform 0.2s ease;
   }
-  :is(details.phone-fold, main details[data-receipt], main #profile details)[open] > summary::after {
+  details.phone-fold[open] > summary::after {
     transform: rotate(225deg);
   }
-  /* A receipt on its own is a floating card row; inside a card it is a row under a hairline. */
-  main details[data-receipt] {
-    margin-top: 0 !important;
-    padding: 0 var(--ph-pad) !important;
-    border: 0 !important;
-    border-radius: var(--ph-radius);
-    background: var(--surface);
-    box-shadow: var(--ph-shadow);
-  }
-  main :is(.border.bg-card, .panel) details[data-receipt] {
-    padding: 0 !important;
-    border-top: 1px solid var(--rule2) !important;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-  }
-  main details[data-receipt][open] {
-    padding-bottom: 14px !important;
+  main details[data-receipt]:not(:is(.border.bg-card, .panel) *) {
+    padding-inline: var(--ph-pad);
   }
 
   /* Until the fold has closed itself, its body stays hidden, so it never flashes open on load. */
@@ -399,12 +374,9 @@
   /* ---------- Lens pages ---------- */
 
   /* The head of every lens page is its summary card: business, title, verdict, provenance. */
+  /* The lens head is the shared summary card (globals.css), set a little tighter. */
   [data-phone="lens-head"] {
     gap: 10px !important;
-    padding: var(--ph-pad);
-    border-radius: var(--ph-radius);
-    background: var(--surface);
-    box-shadow: var(--ph-shadow);
   }
   [data-phone="lens-head"] > div:first-child {
     gap: 12px !important;
@@ -453,9 +425,6 @@
   }
   main dl[data-phone="fields"]:not(:is(.border.bg-card, .panel) *) {
     padding: 4px var(--ph-pad);
-    border-radius: var(--ph-radius);
-    background: var(--surface);
-    box-shadow: var(--ph-shadow);
   }
 
   /* Sharia: the checks list inside its card, without a second indent. */
@@ -669,31 +638,19 @@
 
   /* ---------- Credit factors (components/CreditCard.tsx) ---------- */
 
-  /* The reason across the full width, its bar on the axis below. */
-  .axis-row {
-    min-height: 0 !important;
-    grid-template-rows: auto 22px;
-    row-gap: 10px;
-    padding: 14px 0;
-    background: linear-gradient(var(--ink), var(--ink)) 50% 100% / 3px 22px no-repeat;
+  /* The track goes under the reason, across the card; the legend sits over it. */
+  .factor-legend > :first-child {
+    display: none;
   }
-  .axis-row .axis-half {
-    display: contents;
+  .factor-legend-track,
+  .factor-track {
+    flex-basis: 100%;
   }
-  .axis-row .axis-words {
-    grid-column: 1 / -1;
-    grid-row: 1;
+  .factor-row > .factor-words {
+    padding-block: 16px 10px;
   }
-  .axis-row .axis-left > .bar-grow {
-    grid-column: 1;
-    grid-row: 2;
-    justify-self: end;
-    align-self: center;
-  }
-  .axis-row .axis-right > .bar-grow {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: start;
-    align-self: center;
+  .factor-track {
+    min-height: 26px;
+    margin-bottom: 16px;
   }
 }

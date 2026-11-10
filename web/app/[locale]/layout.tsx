@@ -130,7 +130,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <HtmlState locale={locale} />
         {locale === "ar" && <DigitsSync />}
         <Suspense>
-          <AppTabBar locale={locale} nav={m.nav} />
+          <AppTabBar locale={locale} nav={m.nav} links={{ glossary: m.footer.glossary, how: m.footer.how }} />
         </Suspense>
         <Suspense>
           <TourPanel

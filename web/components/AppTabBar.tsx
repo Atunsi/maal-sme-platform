@@ -2,11 +2,23 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
 import type { Locale, Messages } from "@/lib/i18n";
 
 type Tab = { href: string; label: string; icon: ReactNode; current: boolean };
+
+/** The business the tabs point at on a page that is not about one business: the last one opened in this tab. */
+const LAST_KEY = "maal-last-business";
+const noSubscribe = () => () => {};
+const demoId = () => String(DEMO_BUSINESS);
+function lastBusiness(): string {
+  try {
+    return sessionStorage.getItem(LAST_KEY) ?? demoId();
+  } catch {
+    return demoId();
+  }
+}
 
 const stroke = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 const Icon = ({ children }: { children: ReactNode }) => (
@@ -54,7 +66,7 @@ const ICONS = {
  * menu, and More for the rest, in a sheet that rises from the bar. CSS shows it only in app mode on a phone,
  * so the website is unchanged. Every tab is a link, so a tap works before the page's script has taken over.
  */
-export function AppTabBar({ locale, nav }: { locale: Locale; nav: Messages["nav"] }) {
+export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Messages["nav"]; links: { glossary: string; how: string } }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const [moreOn, setMoreOn] = useState<string | null>(null);
@@ -85,9 +97,21 @@ export function AppTabBar({ locale, nav }: { locale: Locale; nav: Messages["nav"
 
   const rest = pathname.replace(/^\/(en|ar)/, "").replace(/\/$/, "");
   const match = /^\/business\/(\d+)(\/[a-z]+)?/.exec(rest);
-  if (!match || match[2] === "/sheet") return null;
-  const id = match[1] ?? String(DEMO_BUSINESS);
-  const page = match[2] ?? "";
+  const onBusiness = match?.[1] ?? null;
+  useEffect(() => {
+    if (!onBusiness) return;
+    try {
+      sessionStorage.setItem(LAST_KEY, onBusiness);
+    } catch {
+      // Storage refused: other pages fall back to the demo business.
+    }
+  }, [onBusiness]);
+  const remembered = useSyncExternalStore(noSubscribe, lastBusiness, demoId);
+  // Every app page has the bar; the landing page and sign-in are the way in, not the app.
+  if (rest === "" || rest === "/sign-in") return null;
+  const id = onBusiness ?? remembered;
+  // null off the business pages, so no business tab is marked there.
+  const page = match ? (match[2] ?? "") : null;
   const role = params.get("as");
   const query = roleQuery(role);
   const root = `/${locale}/business/${id}`;
@@ -96,8 +120,10 @@ export function AppTabBar({ locale, nav }: { locale: Locale; nav: Messages["nav"
   const extra = [
     { href: `${root}/sharia${query}`, label: nav.sharia, current: page === "/sharia" },
     { href: `${root}/zakat${query}`, label: nav.zakat, current: page === "/zakat" },
-    { href: `/${locale}/scenarios${query}`, label: nav.scenarios, current: false },
-    ...(role === "admin" ? [{ href: `/${locale}/admin${query}`, label: nav.admin, current: false }] : []),
+    { href: `/${locale}/scenarios${query}`, label: nav.scenarios, current: rest.startsWith("/scenarios") },
+    ...(role === "admin" || rest === "/admin" ? [{ href: `/${locale}/admin${query}`, label: nav.admin, current: rest === "/admin" }] : []),
+    { href: `/${locale}/glossary${query}`, label: links.glossary, current: rest === "/glossary" },
+    { href: `/${locale}/how-it-works${query}`, label: links.how, current: rest === "/how-it-works" },
   ];
   const moreCurrent = extra.some((item) => item.current);
 

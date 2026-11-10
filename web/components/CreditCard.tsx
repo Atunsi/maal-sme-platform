@@ -15,12 +15,13 @@ import { delay } from "@/lib/motion";
 type Line = CreditExplanation["public_tier"][number];
 
 // Bar length comes from the magnitude word alone. The word is all the public tier carries (U4).
-const BAR_PX = { strongly: 220, moderately: 132, marginally: 56 } as const;
+/** A bar's share of its half of the track: the magnitude word alone sets it, never a number. */
+const BAR_SHARE = { strongly: 92, moderately: 58, marginally: 26 } as const;
 const DIRECTION_VARIANT = { supports: "ok", against: "bad", either: "ink" } as const;
 const BAR_COLOUR = { supports: "bg-ok", against: "bg-bad", either: "bg-ink" } as const;
 
 function Bar({ line, from, index }: { line: Line; from: "start" | "end"; index: number }) {
-  const style: CSSProperties = { width: `min(${BAR_PX[line.magnitude!]}px, 45%)`, animationDelay: delay(3 + index) };
+  const style: CSSProperties = { width: `${BAR_SHARE[line.magnitude!]}%`, animationDelay: delay(3 + index) };
   return <span aria-hidden="true" className={`bar-grow bar-from-${from} ${BAR_COLOUR[line.direction!]}`} style={style} />;
 }
 
@@ -30,7 +31,7 @@ type Factors = { businessId: number; names: Record<string, string> };
 function LineText({ line, factors, locale, m }: { line: Line; factors: Factors; locale: Locale; m: Messages }) {
   const feature = line.feature_id === null ? undefined : factors.names[String(line.feature_id)];
   return (
-    <span className="axis-words block min-w-0 text-base">
+    <span className="factor-words block min-w-0 text-base">
       <BackendText locale={locale} m={m}>
         {line.text}
       </BackendText>
@@ -52,22 +53,20 @@ function LineText({ line, factors, locale, m }: { line: Line; factors: Factors; 
   );
 }
 
-/** One row on the centre axis: against on one side, supports on the other, either across both. */
+/**
+ * One factor: the reason, and beside it (under it on a phone) a diverging track with the centre axis. Against
+ * grows from the axis toward the start side, supports toward the end side, either across both. Every row's
+ * track has the same width, so the axis runs straight down the list (globals.css, .factor-*).
+ */
 function AxisRow({ line, index, factors, locale, m }: { line: Line; index: number; factors: Factors; locale: Locale; m: Messages }) {
-  const words = <LineText line={line} factors={factors} locale={locale} m={m} />;
   const against = line.direction === "against";
   const either = line.direction === "either";
-  // axis-row, axis-half: on phones (globals.css) the reason spans the full width and the bar sits on the axis
-  // below it, instead of the reason being squeezed into one half.
   return (
-    <div className="axis-row grid min-h-[88px] grid-cols-2 items-stretch border-t border-line2">
-      <div className="axis-half axis-left flex items-center justify-end gap-4 border-e-[3px] border-ink py-3 pe-0 ps-2">
-        {against && words}
-        {(against || either) && <Bar line={line} from="end" index={index} />}
-      </div>
-      <div className="axis-half axis-right flex items-center gap-4 py-3 pe-2">
-        {!against && <Bar line={line} from="start" index={index} />}
-        {!against && words}
+    <div className="factor-row" data-factor-row data-side={against ? "against" : either ? "either" : "supports"}>
+      <LineText line={line} factors={factors} locale={locale} m={m} />
+      <div className="factor-track" aria-hidden="true">
+        <span className="factor-half">{(against || either) && <Bar line={line} from="end" index={index} />}</span>
+        <span className="factor-half">{!against && <Bar line={line} from="start" index={index} />}</span>
       </div>
     </div>
   );
@@ -77,7 +76,7 @@ function PublicTier({ lines, factors, locale, m }: { lines: Line[]; factors: Fac
   const onAxis = lines.filter((line) => line.magnitude && line.direction);
   const plain = lines.filter((line) => !line.magnitude || !line.direction);
   return (
-    <section aria-label={m.credit.factors} data-tour="factors" className="slidein flex flex-col gap-1.5 border border-line bg-card p-5 sm:p-9">
+    <section aria-label={m.credit.factors} data-tour="factors" className="slidein flex flex-col border border-line bg-card p-5 sm:p-8">
       {plain.map((line, i) => (
         // A compliance decline has one template line and no factors, so it takes no axis.
         <BackendText key={line.feature_id ?? `line-${i}`} locale={locale} m={m}>
@@ -86,9 +85,13 @@ function PublicTier({ lines, factors, locale, m }: { lines: Line[]; factors: Fac
       ))}
       {onAxis.length > 0 && (
         <>
-          <div className="heading caps grid grid-cols-2 pb-2.5 text-sm">
-            <span className="pe-5 text-end text-bad">{m.credit.against}</span>
-            <span className="ps-5 text-ok">{m.credit.supports}</span>
+          {/* The legend sits over the tracks, one label to each side of the axis. */}
+          <div className="factor-legend heading caps text-[13px]">
+            <span aria-hidden="true" />
+            <span className="factor-legend-track">
+              <span className="text-end text-bad">{m.credit.against}</span>
+              <span className="text-ok">{m.credit.supports}</span>
+            </span>
           </div>
           {onAxis.map((line, i) => (
             <AxisRow key={line.feature_id ?? `line-${i}`} line={line} index={i} factors={factors} locale={locale} m={m} />

@@ -63,8 +63,9 @@ describe("credit factors", () => {
 
   it("an against line sits on the other side of the axis from a supports line", () => {
     const { container } = view();
-    const rows = [...container.querySelectorAll("section[aria-label=Factors] .grid.min-h-\\[88px\\]")];
-    const sideOf = (row: Element) => (row.children[0]!.textContent ? "first" : "second");
+    const rows = [...container.querySelectorAll("section[aria-label=Factors] [data-factor-row]")];
+    // The track's first half (the start side of the axis) holds an against bar; its second half a supports bar.
+    const sideOf = (row: Element) => (row.querySelector(".factor-track")!.children[0]!.querySelector(".bar-grow") ? "first" : "second");
     const lines = credit.credit_explanation!.public_tier;
     expect(rows.map(sideOf)).toEqual(lines.map((line) => (line.direction === "against" ? "first" : "second")));
   });

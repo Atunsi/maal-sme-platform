@@ -33,7 +33,7 @@ function ReceiptAside({ receipt, lens, m }: { receipt: Receipt; lens: string; m:
     <aside aria-label={o.receiptEyebrow} data-tour="receipt" data-phone="receipt" className="panel square flex min-w-0 flex-[1_1_320px] flex-col gap-4 p-8">
       {/* Phones show the receipt folded under the verdict (app/phone.css); larger screens show it in full. */}
       <PhoneFold
-        className="flex flex-col gap-4"
+        className="mt-1.5 flex flex-col gap-4"
         summary={
           <span className="rise block" style={{ animationDelay: delay(2) }}>
             <span className="eyebrow block text-gold">{o.receiptEyebrow}</span>
@@ -41,8 +41,8 @@ function ReceiptAside({ receipt, lens, m }: { receipt: Receipt; lens: string; m:
           </span>
         }
       >
-        <p className="-mt-2.5 text-sm text-muted">{o.receiptBody}</p>
-        <dl data-latin className="rise grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: delay(3) }}>
+        <p className="text-sm text-muted">{o.receiptBody}</p>
+        <dl data-latin className="rise grid grid-cols-[auto_1fr] items-center gap-x-3.5 gap-y-1.5 font-mono text-xs" style={{ animationDelay: delay(3) }}>
           {rows.map(([key, value]) => (
             <div key={key} className="contents">
               <dt className="text-muted">{key}</dt>

@@ -31,9 +31,10 @@ export function PhoneFold({ summary, children, className = "", ...rest }: { summ
     return () => phone.removeEventListener("change", widen);
   }, []);
   return (
-    <details ref={ref} open className={`phone-fold ${className}`} {...rest}>
+    // The body sits in its own box: a <details> does not lay its children out reliably as a flex column.
+    <details ref={ref} open className="phone-fold" {...rest}>
       <summary className="phone-fold-summary">{summary}</summary>
-      {children}
+      <div className={className}>{children}</div>
     </details>
   );
 }
