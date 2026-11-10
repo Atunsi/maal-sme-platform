@@ -1,0 +1,54 @@
+# Arabic drafts, fixed template text only, never generated. Pending review by the owner named in DECISIONS 57.
+#
+# Arabic siblings of every template compliance/sharia.py formats: the prompts and explanations of
+# compliance/sharia_rules.yaml, its MCC labels, and the detail lines written in sharia.py itself. This file
+# is separate on purpose: sharia_rules.yaml is untouched, so rule_table_sha256 does not move. Nothing here
+# changes a status, a rule or a threshold; it only fills the additive `_ar` fields.
+# Formal Arabic (DECISIONS 57, 1a.5). Placeholders stay Latin and are filled with the same values as the
+# English templates ({share} and {threshold} with the same formatted percentages).
+version: "1.0"
+status: draft_pending_review
+
+# Same keys as sharia_rules.yaml `prompts`.
+prompts:
+  soft_mcc: "رمز فئة التاجر المسجّل لمنشأتك {mcc} ({label}) لا يبيّن بدقة ما تبيعه أو تقدّمه. هل يأتي أي جزء من إيراداتك من منتجات أو خدمات تخالف الضوابط الشرعية؟ وإن كان كذلك، فما نسبته التقريبية؟"
+  no_mcc_retail: "لم نجد رمز فئة التاجر لمنشأتك. يُرجى تأكيد السلع الرئيسية التي تبيعها، وهل يأتي أي جزء من إيراداتك من منتجات تخالف الضوابط الشرعية."
+  fi_income: "نحو {share} من دفعاتك الواردة مصدرها مؤسسات مالية. هل يشمل ذلك فوائد أو دخلًا آخر يخالف الضوابط الشرعية؟"
+  existing_financing: "تسدّد منشأتك دفعات منتظمة لمؤسسة مالية. هل هذا التمويل متوافق مع الضوابط الشرعية (مثل المرابحة أو الإجارة)، أم أنه تمويل بفائدة؟"
+
+# Same keys as sharia_rules.yaml `explanations`.
+explanations:
+  hard_flag: "لا يمكن تمويل هذا الطلب: النشاط المسجّل للمنشأة ({detail}) يخالف الضوابط الشرعية (القاعدة {rule_id})."
+  soft_flag: "قبل أن يصبح أي عرض تمويل نهائيًا، يجب أن يجيب المالك عن الأسئلة أعلاه (القاعدة {rule_id})."
+
+# Same codes as sharia_rules.yaml activity.hard_flag_mcc and soft_flag_mcc. Where the English label has a
+# bracketed note, the Arabic keeps it after " (", so the owner prompt takes the same short form.
+mcc_labels:
+  5813: "أماكن تقديم المشروبات (المشروبات الكحولية)"
+  5921: "متاجر بيع البيرة والنبيذ والخمور المعبأة"
+  7995: "المراهنات، بما فيها تذاكر اليانصيب وألعاب القمار"
+  7800: "اليانصيب المملوك للحكومة"
+  7801: "الكازينوهات الإلكترونية المرخّصة حكوميًا"
+  7802: "سباقات الخيل والكلاب المرخّصة حكوميًا"
+  7273: "خدمات المواعدة والمرافقة"
+  5999: "متاجر التجزئة المتنوعة والمتخصصة (تجارة عامة، مزيج السلع غير معروف)"
+  5399: "البضائع العامة المتنوعة (مزيج السلع غير معروف)"
+  5993: "متاجر السيجار وأكشاكه (التبغ، ويختلف العلماء في حكمه)"
+  6012: "المؤسسات المالية (شروطها التقليدية أو الإسلامية غير معروفة)"
+  6051: "صرف العملات والحوالات المالية (شروط الصرف غير معروفة)"
+  7929: "الفرق الموسيقية والفنانون (المحتوى غير معروف)"
+  8999: "الخدمات المهنية غير المصنفة في موضع آخر (النشاط غير معروف)"
+
+# Same keys as sharia_rules.yaml activity.no_mcc_by_sector (the terms of enums.sector in web/messages/ar.json).
+sector_labels:
+  construction: "التشييد"
+  professional_services: "الخدمات المهنية"
+  food_beverage: "الأغذية والمشروبات"
+  retail_trade: "تجارة التجزئة"
+
+# The detail lines sharia.py writes itself (rules_triggered[].detail, disclosures[].detail).
+details:
+  mcc: "رمز فئة التاجر {mcc}: {label}"
+  no_mcc: "لا يوجد رمز فئة التاجر، والقطاع المسجّل «{sector}» لا يحدد السلع المبيعة"
+  fi_share: "{share} من قيمة التدفقات الواردة مصدرها مؤسسات مالية (الحد {threshold})"
+  existing_financing: "دفعات سداد منتظمة لمؤسسة مالية، ونوع التمويل غير معروف"

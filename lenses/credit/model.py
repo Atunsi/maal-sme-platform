@@ -254,7 +254,7 @@ def decide(row: pd.Series, ccfg: dict, art: dict) -> dict:
     return {"credit": credit, "explanation": explain(contribs, ccfg), "internals": internals}
 
 
-def apply_sharia_gate(result: dict, scr: dict, compliance_text: str | None) -> dict:
+def apply_sharia_gate(result: dict, scr: dict, compliance_text: str | None, compliance_text_ar: str | None = None) -> dict:
     """Apply feature 24 to a risk decision (§27, SOP §2). Deterministic; template text only.
 
     hard_flag         -> a COMPLIANCE decline: no amount, no rate, explanation is the compliance
@@ -271,7 +271,8 @@ def apply_sharia_gate(result: dict, scr: dict, compliance_text: str | None) -> d
         credit.update({"decision": "declined", "amount_sar": None, "base_markup_pct": None, "repayment_months": None, "recourse": None})
         internals.update({"decline_reason": "sharia_hard_flag", "decline_origin": "compliance", "risk_tier": None,
                           "offer_status": None, "risk_assessment_used_for_decision": False})
-        expl["public_tier"] = [{"feature_id": None, "text": compliance_text, "magnitude": None, "direction": None, "source": "compliance"}]
+        expl["public_tier"] = [{"feature_id": None, "text": compliance_text, "text_ar": compliance_text_ar, "magnitude": None, "direction": None,
+                                "source": "compliance"}]
     else:
         reason = internals.get("decline_reason")
         internals["decline_origin"] = None if reason is None else ("risk_model" if reason == "risk_model" else "affordability")
@@ -282,5 +283,6 @@ def apply_sharia_gate(result: dict, scr: dict, compliance_text: str | None) -> d
         internals["risk_assessment_used_for_decision"] = True
     if status == "soft_flag_review":
         internals["conditions"] = list(scr["owner_prompts"])
+        internals["conditions_ar"] = list(scr["owner_prompts_ar"])
     assert tuple(credit) == CONTRACT_KEYS
     return {"credit": credit, "explanation": expl, "internals": internals}

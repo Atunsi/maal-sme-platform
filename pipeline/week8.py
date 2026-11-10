@@ -30,7 +30,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from compliance.sharia import compliance_explanation, load_rules, screen
+from compliance.sharia import compliance_explanation, compliance_explanation_ar, load_rules, screen
 from generator.generate import load_config
 from lenses import LENS_CONFIG_PATH, load_lens_config
 from lenses.anomaly.anomaly import detect
@@ -210,12 +210,12 @@ def scorable(p: Prepared, b_id: int) -> bool:
 
 def sharia_section(p: Prepared, b_id: int) -> dict:
     scr = p.screens[b_id]
-    return {**scr, "compliance_explanation": compliance_explanation(scr)}
+    return {**scr, "compliance_explanation": compliance_explanation(scr), "compliance_explanation_ar": compliance_explanation_ar(scr)}
 
 
 def credit_section(ctx: Context, p: Prepared, b_id: int) -> dict:
     scr = p.screens[b_id]
-    c = apply_sharia_gate(decide(p.feats.loc[b_id], ctx.lc["credit"], ctx.art), scr, compliance_explanation(scr))
+    c = apply_sharia_gate(decide(p.feats.loc[b_id], ctx.lc["credit"], ctx.art), scr, compliance_explanation(scr), compliance_explanation_ar(scr))
     return {"credit": c["credit"], "credit_explanation": c["explanation"], "credit_decision_detail": c["internals"]}
 
 
