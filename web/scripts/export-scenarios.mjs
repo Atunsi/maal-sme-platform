@@ -24,11 +24,15 @@ function python(args) {
 
 const LIBRARY = `
 import json
+from pathlib import Path
+import yaml
 from scenarios.run import load_library
 lib, sha = load_library()
+ar = yaml.safe_load(Path("scenarios/library_ar.yaml").read_bytes().decode("utf-8"))["scenarios"]  # DECISIONS 57
 print(json.dumps({"library_version": lib["version"], "library_status": lib["status"], "library_sha256": sha,
     "base_business": lib["base_business"],
-    "scenarios": [{"name": n, "label": s["label"], "story": s["story"]} for n, s in lib["scenarios"].items()]}))
+    "scenarios": [{"name": n, "label": s["label"], "story": s["story"], "label_ar": ar[n]["label"], "story_ar": ar[n]["story"]}
+                  for n, s in lib["scenarios"].items()]}, ensure_ascii=False))
 `;
 
 const INTEGRITY = `

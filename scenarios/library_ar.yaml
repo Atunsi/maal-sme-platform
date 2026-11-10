@@ -1,0 +1,41 @@
+# Arabic drafts, fixed template text only, never generated. Pending review by the owner named in DECISIONS 57.
+#
+# The Arabic label and story of every scenario in scenarios/library.yaml, for the web UI only. This file is
+# separate on purpose: scenarios.run and scenario_library_sha256 never read it, so the library hash and every
+# scenario's overrides are unchanged. Every number in an English label or story appears, as the same digits,
+# in its Arabic (rule A2). Formal Arabic (DECISIONS 57, 1a.5).
+version: "1.0"
+status: draft_pending_review
+
+scenarios:
+  baseline:
+    label: "خط الأساس: المنشأة 10001 كما ضُبطت تمامًا"
+    story: "حالة المقارنة: تراجع التدفقات الواردة 30% من الأسبوع 18، وتحويل كبير واحد، وعملية بيع واحدة في ساعة غير معتادة."
+
+  calm_counterfactual:
+    label: "نصف سنة هادئ: لا صدمة ولا معاملات غير معتادة"
+    story: "المنشأة نفسها لو لم يحدث أي خلل."
+
+  mild_slowdown:
+    label: "تباطؤ معتدل: تراجع التدفقات الواردة 15% من الأسبوع 18"
+    story: "سوق ضعيفة: ينفق العملاء أقل قليلًا في الشهرين الأخيرين."
+
+  severe_collapse:
+    label: "انهيار حاد في الإيرادات: تراجع التدفقات الواردة 60% من الأسبوع 14"
+    story: "تختفي شريحة رئيسية من العملاء قبل تاريخ القرار بثلاثة أشهر."
+
+  late_sudden_shock:
+    label: "صدمة مفاجئة متأخرة: تراجع التدفقات الواردة 70% في الأسابيع الثلاثة الأخيرة"
+    story: "تقع الصدمة قبيل تاريخ القرار مباشرةً: هل يستطيع أي شيء أن يرصدها بعد؟"
+
+  fraud_pattern:
+    label: "نشاط مريب: تحويلات كبيرة متكررة ومبيعات في ساعات الليل"
+    story: "الإيرادات طبيعية، لكن الأموال تتحرك بطرق لم تعهدها المنشأة من قبل."
+
+  combined_crisis:
+    label: "أزمة مركّبة: انهيار الإيرادات 60% من الأسبوع 12 مع تحويلات كبيرة إلى خارج المنشأة"
+    story: "تنهار الإيرادات ويُنقل النقد إلى خارج المنشأة في الوقت نفسه."
+
+  thin_file_newcomer:
+    label: "منشأة جديدة: تمارس نشاطها منذ نحو 40 يومًا فقط"
+    story: "منشأة أحدث من أن يُحكم عليها: على النظام أن يرفض، لا أن يخمّن."

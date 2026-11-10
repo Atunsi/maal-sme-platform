@@ -276,6 +276,37 @@ def test_nisab_basis_arabic_uses_the_configured_grams():
             assert z["nisab_basis_ar"] == expected
 
 
+# ---- scenario labels (B6) --------------------------------------------------------------------------------
+
+def _library_ar():
+    return load_templates("scenarios/library_ar.yaml")["scenarios"]
+
+
+def test_every_english_template_has_an_arabic_template_scenarios():
+    from scenarios.run import load_library
+
+    lib, _ = load_library()
+    assert set(_library_ar()) == set(lib["scenarios"])
+    for name, s in _library_ar().items():
+        assert s["label"].strip() and s["story"].strip(), name
+
+
+def test_arabic_templates_keep_the_english_placeholders_and_numbers_scenarios():
+    from scenarios.run import load_library
+
+    lib, _ = load_library()
+    for name, en in lib["scenarios"].items():
+        for part in ("label", "story"):
+            assert_pair(en[part], _library_ar()[name][part], f"{name}.{part}")
+            assert re.findall(r"\d+", en[part]) == re.findall(r"\d+", _library_ar()[name][part]), f"{name}.{part}: numbers differ"
+
+
+def test_scenario_library_hash_is_unchanged():
+    from scenarios.run import load_library
+
+    assert load_library()[1] == "8f84b9175aac62b1e29445d710a16879d30731b9da0c0a4f6402ae05d9cc0e7d"
+
+
 # ---- A3 on real output -----------------------------------------------------------------------------------
 
 @pytest.fixture(scope="module")
