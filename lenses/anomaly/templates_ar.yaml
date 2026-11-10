@@ -1,0 +1,8 @@
+# Arabic drafts, fixed template text only, never generated. Pending review by the owner named in DECISIONS 57.
+#
+# Arabic sibling of the anomaly lens's method line (lenses/anomaly/anomaly.py). It fills method_ar only; the
+# English is unchanged. No score or threshold appears here either (§29). Formal Arabic (DECISIONS 57, 1a.5).
+version: "1.0"
+status: draft_pending_review
+
+method: "خوارزمية غابة العزل لكل منشأة على حدة، مع قواعد ثابتة أحادية المتغير؛ تُعرض أسباب التنبيه فقط، وتُحجب الدرجات والحد (§29)"

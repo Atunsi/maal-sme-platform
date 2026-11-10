@@ -39,9 +39,16 @@ type had been defined there, so the evaluation still has unseen types to score.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
+
+from lenses.arabic import load_templates
+
+# Arabic sibling of the method line (DECISIONS 57); it fills method_ar only.
+TEMPLATES_AR_PATH = str(Path(__file__).with_name("templates_ar.yaml"))
 
 FEATURES = ["amount_z", "hour_rarity", "category_rarity", "new_counterparty", "both_directions", "direction"]
 
@@ -239,4 +246,5 @@ def detect(tx: pd.DataFrame, as_of: pd.Timestamp, acfg: dict, seasonal_windows: 
         "transactions_scanned": n,
         "flags": flags,
         "method": "per-business Isolation Forest + hard univariate rules; flag_reason only, scores and threshold withheld (§29)",
+        "method_ar": load_templates(TEMPLATES_AR_PATH)["method"],
     }

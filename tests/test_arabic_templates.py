@@ -16,7 +16,10 @@ import pandas as pd
 import pytest
 
 from compliance import sharia
+from lenses.anomaly import anomaly as anomaly_mod
+from lenses.arabic import PLURAL_CATEGORIES, ar_plural, load_templates, plural
 from lenses.credit import model as credit
+from lenses.forecast import forecast as forecast_mod
 
 QUICK = Path("data/quick")
 
@@ -171,6 +174,63 @@ def test_rule_table_hash_is_unchanged():
     assert sharia.load_rules()[1] == "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3"
 
 
+# ---- forecast and anomaly (B3) ---------------------------------------------------------------------------
+
+FORECAST_DRIVERS_EN = {
+    "balance_below_zero": "projected balance falls below zero in {days} days",
+    "liquidity_hazard_30d": "30-day liquidity hazard {value}",
+}
+FORECAST_METHOD_EN = "{method}: {label}; naive_baseline = {baseline}"
+
+
+def _forecast_ar():
+    return load_templates(forecast_mod.TEMPLATES_AR_PATH)
+
+
+def test_every_english_template_has_an_arabic_template_forecast_and_anomaly():
+    ar = _forecast_ar()
+    assert set(ar["drivers"]) == set(FORECAST_DRIVERS_EN)
+    assert set(ar["method_labels"]) == set(forecast_mod.METHOD_LABELS)
+    assert set(ar["days"]) == set(PLURAL_CATEGORIES)
+    assert load_templates(anomaly_mod.TEMPLATES_AR_PATH)["method"].strip()
+
+
+def test_arabic_templates_keep_the_english_placeholders_and_numbers_forecast_and_anomaly():
+    ar = _forecast_ar()
+    for key, en in FORECAST_DRIVERS_EN.items():
+        assert_pair(en, ar["drivers"][key], f"drivers.{key}")
+    assert_pair(FORECAST_METHOD_EN, ar["method"], "method")
+    for key, en in forecast_mod.METHOD_LABELS.items():
+        assert_pair(en, ar["method_labels"][key], f"method_labels.{key}")
+    for cat, form in ar["days"].items():
+        assert placeholders(form) <= {"n"} and not digits(form), f"days.{cat}"
+    assert_pair("per-business Isolation Forest + hard univariate rules; flag_reason only, scores and threshold withheld (§29)",
+                load_templates(anomaly_mod.TEMPLATES_AR_PATH)["method"], "anomaly method")
+
+
+# CLDR's Arabic examples (unicode.org/cldr/charts, plural rules): each category's sample integers.
+CLDR_AR = {"zero": [0], "one": [1], "two": [2], "few": [3, 4, 10, 103, 110], "many": [11, 26, 99, 111, 199], "other": [100, 101, 102, 200]}
+
+
+def test_arabic_plural_category_matches_cldr_for_0_to_120():
+    for cat, samples in CLDR_AR.items():
+        for n in samples:
+            assert ar_plural(n) == cat, n
+    expected = {0: "zero", 1: "one", 2: "two"} | {n: "few" for n in range(3, 11)} | {n: "many" for n in range(11, 100)} | {100: "other", 101: "other", 102: "other"}
+    expected |= {n: "few" for n in range(103, 111)} | {n: "many" for n in range(111, 121)}
+    assert {n: ar_plural(n) for n in range(121)} == expected
+
+
+def test_forecast_arabic_drivers_mirror_the_english_drivers():
+    ar = _forecast_ar()
+    for days in (1, 2, 3, 10, 11, 29, 100):
+        en = FORECAST_DRIVERS_EN["balance_below_zero"].replace("{days}", str(days))
+        line = ar["drivers"]["balance_below_zero"].format(days=plural(days, ar["days"]))
+        assert (str(days) in line) == (days > 2), (en, line)
+    assert plural(1, ar["days"]) == "يوم واحد" and plural(2, ar["days"]) == "يومين"
+    assert plural(5, ar["days"]) == "5 أيام" and plural(15, ar["days"]) == "15 يومًا"
+
+
 # ---- A3 on real output -----------------------------------------------------------------------------------
 
 @pytest.fixture(scope="module")
@@ -194,3 +254,13 @@ def test_arabic_fields_change_no_english_field(objects):
         if o["receipt"]["data_sha256"] != data_hash:
             pytest.skip(f"{o['business_id']}: quick data differs from the reference run")
         assert output_sha256(strip_ar(o)) == before, f"{o['business_id']}: an English field moved"
+
+
+def test_forecast_and_anomaly_arabic_fields_on_real_output(objects):
+    for o in objects[0]:
+        fc, an = o["forecast"], o["anomaly"]
+        if fc and fc["status"] == "computed":
+            assert len(fc["crunch_alert"]["drivers_ar"]) == len(fc["crunch_alert"]["drivers"])
+            assert fc["method_ar"].startswith(fc["method"].split(":")[0] + ":")
+        if an and an["status"] == "computed":
+            assert an["method_ar"]

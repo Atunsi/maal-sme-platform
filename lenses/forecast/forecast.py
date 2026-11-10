@@ -28,11 +28,16 @@ credit lens read the same number and neither depends on the other's output (§8,
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+from lenses.arabic import load_templates, plural
 from lenses.forecast.methods import BASELINE, METHODS
+
+# Arabic siblings of the drivers and METHOD_LABELS (DECISIONS 57); they fill drivers_ar and method_ar only.
+TEMPLATES_AR_PATH = str(Path(__file__).with_name("templates_ar.yaml"))
 
 METHOD_LABELS = {
     "naive30": "trailing-30-day mean (the §10 baseline)",
@@ -92,11 +97,14 @@ def forecast(daily: pd.DataFrame, as_of: pd.Timestamp, profile_row: pd.Series, f
     else:
         level = "none"
 
-    drivers = []
+    ar = load_templates(TEMPLATES_AR_PATH)
+    drivers, drivers_ar = [], []
     if days_to_crunch is not None:
         drivers.append(f"projected balance falls below zero in {days_to_crunch} days")
+        drivers_ar.append(ar["drivers"]["balance_below_zero"].format(days=plural(days_to_crunch, ar["days"])))
     if hz30 >= fcfg["hazard_watch_threshold"]:
         drivers.append(f"30-day liquidity hazard {hz30:.2f}")
+        drivers_ar.append(ar["drivers"]["liquidity_hazard_30d"].format(value=f"{hz30:.2f}"))
 
     ram = profile_row.get("ramadan_adjusted")
     return {
@@ -110,7 +118,9 @@ def forecast(daily: pd.DataFrame, as_of: pd.Timestamp, profile_row: pd.Series, f
             "days_to_projected_negative_balance": days_to_crunch,
             "liquidity_hazard": {f"{h}d": (round(v, 4) if v is not None else None) for h, v in hazard.items()},
             "drivers": drivers,
+            "drivers_ar": drivers_ar,
         },
         "ramadan_adjusted": bool(ram) if ram in (True, False) else (ram == "True" if isinstance(ram, str) else None),
         "method": f"{method}: {METHOD_LABELS[method]}; naive_baseline = {METHOD_LABELS[BASELINE]}",
+        "method_ar": ar["method"].format(method=method, label=ar["method_labels"][method], baseline=ar["method_labels"][BASELINE]),
     }

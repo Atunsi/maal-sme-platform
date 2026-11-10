@@ -1,0 +1,31 @@
+# Arabic drafts, fixed template text only, never generated. Pending review by the owner named in DECISIONS 57.
+#
+# Arabic siblings of the forecast lens templates in lenses/forecast/forecast.py: the two crunch-alert drivers,
+# METHOD_LABELS and the method line. They fill drivers_ar and method_ar only; the English is unchanged and every
+# number is formatted exactly as in the English line. Formal Arabic (DECISIONS 57, 1a.5).
+version: "1.0"
+status: draft_pending_review
+
+drivers:
+  # {days} is filled with the count phrase below, in the genitive because it follows «خلال».
+  balance_below_zero: "يُتوقع أن ينخفض الرصيد دون الصفر خلال {days}"
+  liquidity_hazard_30d: "خطر السيولة خلال 30 يومًا: {value}"
+
+# CLDR plural forms for a number of days after a preposition (lenses.arabic.plural).
+days:
+  zero: "{n} يوم"
+  one: "يوم واحد"
+  two: "يومين"
+  few: "{n} أيام"
+  many: "{n} يومًا"
+  other: "{n} يوم"
+
+method: "{method}: {label}؛ خط الأساس البسيط = {baseline}"
+
+method_labels:
+  naive30: "متوسط آخر 30 يومًا (خط الأساس في §10)"
+  naive90: "متوسط آخر 90 يومًا"
+  blend: "متوسط المتوسطين لآخر 30 و90 يومًا"
+  ewma: "متوسط مرجّح أُسيًّا، بعمر نصفي قدره 21 يومًا"
+  ols_damped: "اتجاه بطريقة المربعات الصغرى مع أثر يوم الأسبوع، بميل مخمَّد"
+  structural: "الدفعات المتكررة في أيامها، ومستوى غير متكرر موزّع بحسب أيام الأسبوع"
