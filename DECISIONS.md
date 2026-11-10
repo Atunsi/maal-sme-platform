@@ -3865,3 +3865,57 @@ not made. Still to do, with the owner who raised it:
 **Sign-off:** ☐ team (confirmation of the above by each owner in writing)
 
 ---
+
+## 54. Entry 48 implemented: the nisab is valued at the calculation month's gold price, from archived official sources — RECORDED (2026-11-10)
+
+**Touches:** `lenses/zakat/zakat.py` (`nisab_price`), new `lenses/zakat/nisab_prices.py` and
+`lenses/zakat/gold_monthly_sar_per_gram.csv`, `lenses/lens_config.yaml` (`zakat.nisab`), `requirements.txt`
+(`xlrd==2.0.1`), new archives `sources/worldbank/CMO-Historical-Data-Monthly_2026-11-03.xlsx` and
+`sources/sama/fx_bulletin_2026-01.xls` … `-07.xls` (each with `.sha256` and `.meta.json`),
+`tests/test_nisab_prices.py`, `tests/test_lenses_unit.py`. The Zakat arithmetic (2.5% of the base) and
+the hawl rule are unchanged; no model and no LLM is involved (SOP §2).
+
+**What entry 48 decided:** the nisab is valued at the gold price on the calculation date, never a later
+one. **What is implemented, and how it differs:** the price of the calculation **month** (the business's
+`window_end` month), as the World Bank's monthly **average**. No archivable official daily SAR gold price
+was found for these dates; the monthly average is the closest official series. Chosen by the generator
+owner on 2026-11-10 before any Zakat result with it existed; the compliance owner is to confirm.
+
+**Source chain, every number from an archived file:**
+1. World Bank Commodity Price Data (Pink Sheet), "Updated on November 03, 2026", sheet "Monthly Prices",
+   column "Gold" ($/troy oz), sha256 `3c8d9d8d…cde2`.
+2. × 3.75 SAR per US dollar, the riyal's fixed dollar rate. **No official page stating 3.75 could be
+   archived:** SAMA's site does not state it in fetchable form and the IMF refuses automated downloads.
+   It is therefore checked, not cited: SAMA's own monthly rate bulletins (archived, one per calculation
+   month) list SAR per UAE dirham, and that × the dirham's 3.6725 dollar peg reproduces 3.75 within
+   0.0008 every month (3.74926 to 3.74988). The test tolerance is 0.001, about SAR 11 on the nisab at most.
+   The dirham's peg is stated, not archived: a limitation.
+3. ÷ 31.1034768 g per troy ounce.
+
+| month | gold US$/oz | SAMA-implied SAR/US$ | SAR per gram | nisab (85 g), SAR |
+|---|---|---|---|---|
+| 2026-01 | 4,753 | 3.74988 | 573.0469 | 48,708.99 |
+| 2026-07 | 4,073 | 3.74966 | 491.0625 | 41,740.31 |
+
+(February to June are in the table; no business has a calculation date in those months.)
+
+**Effect, measured on the full data (`data/`, 11,000 businesses, snapshot base at each `window_end`):**
+10,999 businesses have a July 2026 calculation date and one (demo 10002) January. Against the flat
+2026-11-08 quote (SAR 41,759.74): research, 7,309 → 7,310 businesses at or above nisab (1 of 10,000
+changes side, not met → met); serving 730 → 730 (none of 1,000). Demo 10001: nisab SAR 41,740.31, liability
+unchanged at SAR 5,963.26. Demo 10002: nisab SAR 48,708.99, liability unchanged at 0 (`hawl_incomplete`).
+`scenarios.run --check`: every scenario outcome, Zakat included, unchanged.
+
+**Behaviour.** A calculation month the table does not hold is refused, not filled. An explicit price
+from a saved quotation (`pipeline.week8 --gold-quote`, still refused if newer than the calculation
+date) takes precedence. Outputs carry `nisab_price_month`, `nisab_price_sar_per_gram` and
+`nisab_source_status: world_bank_monthly_average_pending_sharia_advisor`. The 2026-11-08 commercial quote
+(`sources/zakat_nisab_gold_price.md`) is kept as a record and no longer used.
+
+**Still open:** the start-of-hawl nisab check uses the same calculation-month price, not a price at the
+hawl start (for the Sharia advisor, with the hawl rule); the Sharia advisor's line on entry 48 (basis and
+valuation date); the daily GoldAPI workflow (`.github/workflows/update-gold-price.yml`) has no use on
+the synthetic population, and whether it stays is the compliance owner's decision. The web UI shows the
+new status through its generic "not independently verified" plate (no wording added to `web/messages`).
+
+**Sign-off:** ☐ compliance owner (monthly average in place of the day's price) ☐ Sharia advisor (basis, valuation date)

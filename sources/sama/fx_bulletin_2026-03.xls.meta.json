@@ -1,0 +1,14 @@
+{
+  "file": "fx_bulletin_2026-03.xls",
+  "sha256": "8fa780fa9af141a723851e4eda0c6cf7b81e8c66f15d0ce9fca506ccde055873",
+  "bytes": 53760,
+  "access_date": "2026-11-10",
+  "origin_body": "Saudi Central Bank (SAMA), Banking Operations Department",
+  "publication": "Bulletin of foreign currency (transfer) rates against the Saudi riyal, for government use",
+  "retrieval": "direct download from SAMA 'Monthly Exchange Rates' (ExchangeRatesGregorian.aspx)",
+  "retrieval_url": "https://www.sama.gov.sa/en-US/Currency/FinExc/ExchangeRatesHijri/March%202026.xls",
+  "dataset_page": "https://www.sama.gov.sa/en-US/Currency/FinExc/Pages/ExchangeRatesGregorian.aspx",
+  "edition": "SAMA file 'March 2026.xls' as served on the access date",
+  "used_for": "cross-check of the 3.75 SAR/USD peg: SAR per UAE dirham x 3.6725 (DECISIONS 48, entry 54)",
+  "note": "The bulletin lists no US dollar row; the dirham's own 3.6725 dollar peg is stated, not archived."
+}

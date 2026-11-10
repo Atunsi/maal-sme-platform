@@ -50,12 +50,14 @@ zakat:
   nisab:
     basis: gold
     grams: 85
-    # Commercial 24K gold quotation from LivePriceOfGold.
-    # Quoted 8 November 2026 at 19:06 UTC.
-    # Source evidence: sources/zakat_nisab_gold_price.md
-    # Pending independent verification and Sharia advisor review.
-    price_sar_per_gram: 491.291
-    source_status: commercial_quote_documented_pending_independent_verification
+    # Valued at the gold price of the calculation month (the business's window_end month), never a
+    # later date (DECISIONS 48, 54): World Bank monthly average × 3.75 SAR/USD ÷ 31.1034768 g, built
+    # by `python -m lenses.zakat.nisab_prices --build` from the archives in sources/. A month the table
+    # does not hold is refused. A saved quotation (`pipeline.week8 --gold-quote`) sets an explicit
+    # price instead. The 2026-11-08 commercial quote (sources/zakat_nisab_gold_price.md) is no longer
+    # used: it is dated after every calculation date. Pending Sharia advisor review.
+    price_table: lenses/zakat/gold_monthly_sar_per_gram.csv
+    source_status: world_bank_monthly_average_pending_sharia_advisor
   # Hawl rule applied: nisab must be met at the START and the END of the lunar
   # year (the Hanafi position). Intermediate dips are not tracked — the data has
   # no balance history before the generated window. PROPOSED for the Sharia
