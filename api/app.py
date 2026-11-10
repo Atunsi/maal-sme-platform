@@ -10,6 +10,9 @@
     GET /lenses/forecast?business_id=...         30/60/90-day projection + crunch alert
     GET /lenses/anomaly?business_id=...          flags with flag_reason only — never scores (§29)
     GET /lenses/zakat?business_id=...            Zakat liability from the balance-sheet snapshot (§7)
+    GET /businesses?offset=&limit=&sector=&q=   the serving businesses, paged; no lens runs (DECISIONS 44)
+    GET /scenarios                               the scenario library and the custom-scenario bounds (DECISIONS 44)
+    POST /scenarios/run                          one custom scenario on the library's business (DECISIONS 44)
 
 Every request computes from inputs — the profile engine and the lens run each time; the
 serving store holds input rows only (api/store.py). The lenses read the same profile and
@@ -24,8 +27,12 @@ authorisation (a business may only read its own profile); that is stated, not bu
 
 from __future__ import annotations
 
+import contextlib
+import copy
+import io
 import math
 import os
+import re
 import secrets
 import threading
 import time
@@ -34,14 +41,17 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 
 import numpy as np
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi import Body, Depends, FastAPI, Header, HTTPException, Query, Request
 
+from api import scenario_bounds
 from api.store import DEFAULT_STORE, ServingStore
+from generator.generate import generate
 from pipeline.week8 import (
     Context,
     Prepared,
     anomaly_section,
     credit_section,
+    decision_object,
     forecast_section,
     header,
     make_context,
@@ -53,6 +63,7 @@ from pipeline.week8 import (
     zakat_section,
 )
 from profile_engine.registry import FEATURE_NAMES, PROFILE_FEATURE_IDS
+from scenarios.run import BUDGET_S, scenario_config
 
 RATE_LIMIT_PER_MIN = int(os.environ.get("MAAL_RATE_LIMIT_PER_MIN", "60"))
 
@@ -181,3 +192,108 @@ def anomaly(business_id: BusinessId, s: Authorised) -> dict:
 @app.get("/lenses/zakat")
 def zakat(business_id: BusinessId, s: Authorised) -> dict:
     return _lens_response(s, business_id, zakat_section, "zakat")
+
+
+# --- DECISIONS 44: the business list and custom scenarios (Faris Alsharifi acted for the API owner) ------
+
+# The rate limiter counts per business; routes not about one business count against these buckets.
+LIST_BUCKET, SCENARIO_BUCKET = -1, -2
+LIST_PARAMS = {"offset", "limit", "sector", "q"}
+LIST_LIMIT_MAX, LIST_LIMIT_DEFAULT = 50, 25
+CUSTOM_LABEL = "Custom scenario"
+
+
+def _int_param(params, name: str, default: int, lo: int, hi: int | None) -> int:
+    raw = params.get(name)
+    if raw is None:
+        return default
+    if not re.fullmatch(r"\d{1,6}", raw) or int(raw) < lo or (hi is not None and int(raw) > hi):
+        upper = f" to {hi}" if hi is not None else " up"
+        raise HTTPException(status_code=422, detail=f"{name} must be a whole number from {lo}{upper}")
+    return int(raw)
+
+
+@app.get("/businesses")
+def businesses(request: Request, s: Authorised) -> dict:
+    """The serving businesses, by ID, paged. Reads the store only; no lens runs on this route."""
+    unknown = set(request.query_params) - LIST_PARAMS
+    if unknown:
+        raise HTTPException(status_code=422, detail=f"unknown query parameter(s): {sorted(unknown)}")
+    params = request.query_params
+    offset = _int_param(params, "offset", 0, 0, None)
+    limit = _int_param(params, "limit", LIST_LIMIT_DEFAULT, 1, LIST_LIMIT_MAX)
+    lo, hi = s.ctx.cfg["populations"]["serving"]["id_range"]
+    rows = [r for r in s.store.business_list() if lo <= r[0] <= hi and r[2] == "serving"]  # serving only, twice over
+    sector, q = params.get("sector"), params.get("q")
+    if sector is not None and sector not in {r[1] for r in rows}:
+        raise HTTPException(status_code=422, detail=f"sector must be one of {sorted({r[1] for r in rows})}")
+    if q is not None and not re.fullmatch(r"\d{1,9}", q):
+        raise HTTPException(status_code=422, detail="q must be digits only (the start of a business ID)")
+    s.limiter.check(LIST_BUCKET)
+    rows = [r for r in rows if (sector is None or r[1] == sector) and (q is None or str(r[0]).startswith(q))]
+    sources = {r[3] for r in rows} or {"synthetic"}
+    return {
+        "population": "serving",
+        "data_source": sources.pop() if len(sources) == 1 else "mixed",
+        "total": len(rows),
+        "offset": offset,
+        "limit": limit,
+        "businesses": [{"business_id": r[0], "sector": r[1]} for r in rows[offset : offset + limit]],
+    }
+
+
+@app.get("/scenarios")
+def scenarios_list(s: Authorised) -> dict:
+    """The scenario library, and the bounds a custom scenario must keep (api/scenario_bounds.py)."""
+    s.limiter.check(SCENARIO_BUCKET)
+    lib = scenario_bounds.LIB
+    return {
+        "library_version": lib["version"],
+        "library_status": lib["status"],
+        "base_business": int(lib["base_business"]),
+        "scenario_library_sha256": scenario_bounds.LIB_SHA,
+        "scenarios": [{"name": n, "label": v["label"], "story": v["story"]} for n, v in lib["scenarios"].items()],
+        "max_shocks": scenario_bounds.MAX_SHOCKS,
+        "shock_types": scenario_bounds.describe(),
+    }
+
+
+@app.post("/scenarios/run")
+def scenarios_run(s: Authorised, body: Annotated[object, Body()] = None) -> dict:
+    """One custom scenario on the library's business, built by the same functions as scenarios.run.
+
+    Nothing is stored or cached. The object has the shape of an exported scenario object, with
+    scenario.source "custom", the shocks echoed back, and a receipt whose output_sha256 the object
+    hashes to (DECISIONS 41's integrity rule). The same request gives the same bytes. It never reads
+    the serving store, so it does not touch the store's shared connection.
+    """
+    s.limiter.check(SCENARIO_BUCKET)
+    if not isinstance(body, dict) or set(body) != {"shocks"}:
+        raise HTTPException(status_code=422, detail='body must be {"shocks": [...]} and nothing else')
+    try:
+        overrides = scenario_bounds.overrides_for(body["shocks"])
+    except scenario_bounds.ShockError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    lib = copy.deepcopy(scenario_bounds.LIB)
+    lib["scenarios"]["custom"] = {"label": CUSTOM_LABEL, "story": "", "overrides": overrides}
+    b_id = int(lib["base_business"])
+    t0 = time.perf_counter()
+    with contextlib.redirect_stdout(io.StringIO()):  # the generator's progress lines
+        tables = generate(scenario_config(s.ctx.cfg, lib, "custom"))
+    p = prepare(s.ctx, tables)
+    obj = decision_object(s.ctx, p, b_id)
+    obj.pop("receipt")
+    obj["scenario"] = {
+        "id": "custom",
+        "label": CUSTOM_LABEL,
+        "source": "custom",
+        "library_version": lib["version"],
+        "library_status": lib["status"],
+        "overrides": overrides,
+        "shocks": body["shocks"],
+    }
+    obj = _clean(obj)
+    obj["receipt"] = {**receipt(s.ctx, p, b_id, obj), "scenario_library_sha256": scenario_bounds.LIB_SHA}
+    if time.perf_counter() - t0 > BUDGET_S:
+        raise HTTPException(status_code=503, detail=f"the custom scenario took longer than the {BUDGET_S:.0f} s budget")
+    return _clean(obj)

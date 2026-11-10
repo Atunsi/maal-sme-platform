@@ -1,0 +1,108 @@
+// The app variant's bottom tab bar (lib/app-mode.ts).
+import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { AppTabBar } from "@/components/AppTabBar";
+import { APP_BOOT } from "@/lib/app-mode";
+import { ar, en } from "./helpers";
+
+const nav = { params: new URLSearchParams(), pathname: "/en/business/10001" };
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => nav.params,
+  usePathname: () => nav.pathname,
+}));
+
+afterEach(() => {
+  document.body.innerHTML = "";
+  document.documentElement.className = "";
+  sessionStorage.clear();
+});
+
+const linksEn = { glossary: en.footer.glossary, how: en.footer.how, search: en.search.button };
+const linksAr = { glossary: ar.footer.glossary, how: ar.footer.how, search: ar.search.button };
+
+describe("app tab bar", () => {
+  it("links four business pages, keeps the role, and marks the current one", () => {
+    nav.pathname = "/en/business/10037/forecast";
+    nav.params = new URLSearchParams("as=owner");
+    render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+    const bar = screen.getByRole("navigation", { name: en.nav.appTabs });
+    const links = [...bar.querySelectorAll(".app-tabs a")].map((a) => a.getAttribute("href"));
+    expect(links).toEqual(["/en/business/10037?as=owner", "/en/business/10037/credit?as=owner", "/en/business/10037/forecast?as=owner", "/en/business/10037/review?as=owner"]);
+    expect(screen.getByRole("link", { name: en.nav.forecast }).getAttribute("aria-current")).toBe("page");
+  });
+
+  it("More opens the other pages and closes on Escape", () => {
+    nav.pathname = "/ar/business/10001/zakat";
+    nav.params = new URLSearchParams("as=admin");
+    render(<AppTabBar locale="ar" nav={ar.nav} links={linksAr} />);
+    const more = screen.getByRole("button", { name: ar.nav.more });
+    // Zakat lives under More, so More carries the current mark.
+    expect(more.hasAttribute("data-current")).toBe(true);
+    fireEvent.click(more);
+    expect(more.getAttribute("aria-expanded")).toBe("true");
+    for (const label of [ar.nav.review, ar.nav.sharia, ar.nav.zakat, ar.nav.scenarios, ar.footer.glossary, ar.footer.how]) expect(screen.getByRole("link", { name: label })).toBeTruthy();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(more.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("is on every app page, and only the landing page and sign-in go without it", () => {
+    for (const path of ["/en", "/en/sign-in"]) {
+      nav.pathname = path;
+      const { container, unmount } = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+      expect(container.innerHTML, path).toBe("");
+      unmount();
+    }
+    // Off the business pages the tabs point at the demo business, and More marks the page it lists.
+    for (const path of ["/en/scenarios", "/en/scenarios/s/severe_collapse", "/en/glossary", "/en/how-it-works"]) {
+      nav.pathname = path;
+      nav.params = new URLSearchParams("");
+      const { unmount } = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+      expect(screen.getByRole("link", { name: en.nav.overview }).getAttribute("href"), path).toBe("/en/business/10001");
+      expect(screen.getByRole("button", { name: en.nav.more }).hasAttribute("data-current"), path).toBe(true);
+      unmount();
+    }
+    nav.pathname = "/en/business/10001/sheet";
+    const { container } = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+    expect(container.querySelector("[data-app-tabbar]")).not.toBeNull();
+  });
+
+  it("an admin's first tab is the business list, and nothing points them at a business they did not open", () => {
+    nav.pathname = "/en/admin";
+    nav.params = new URLSearchParams("as=admin");
+    const list = render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+    const tabs = [...document.querySelectorAll(".app-tabs a")].map((a) => a.getAttribute("href"));
+    expect(tabs).toEqual(["/en/admin?as=admin", "/en/scenarios?as=admin"]);
+    expect(screen.getByRole("link", { name: en.nav.businesses }).getAttribute("aria-current")).toBe("page");
+    expect(screen.queryByRole("link", { name: en.nav.overview })).toBeNull();
+    // Search opens the search dialog, which listens for this event.
+    const opened = vi.fn();
+    window.addEventListener("maal:search", opened);
+    fireEvent.click(screen.getByRole("button", { name: en.search.button }));
+    expect(opened).toHaveBeenCalledOnce();
+    window.removeEventListener("maal:search", opened);
+    list.unmount();
+
+    nav.pathname = "/en/business/10037/credit";
+    render(<AppTabBar locale="en" nav={en.nav} links={linksEn} />);
+    const onBusiness = [...document.querySelectorAll(".app-tabs a")].map((a) => a.getAttribute("href"));
+    expect(onBusiness).toEqual(["/en/admin?as=admin", "/en/business/10037?as=admin", "/en/business/10037/credit?as=admin", "/en/business/10037/forecast?as=admin"]);
+  });
+});
+
+describe("app mode boot", () => {
+  const boot = (search: string) => {
+    window.history.replaceState(null, "", `/en${search}`);
+    document.documentElement.className = "";
+    window.matchMedia ??= ((query: string) => ({ matches: false, media: query })) as unknown as typeof window.matchMedia;
+    new Function(APP_BOOT)();
+    return document.documentElement.classList.contains("app-mode");
+  };
+
+  it("?app=1 previews the app for the tab, ?app=0 turns it off, and a plain visit is the website", () => {
+    expect(boot("")).toBe(false);
+    expect(boot("?app=1")).toBe(true);
+    expect(boot("")).toBe(true);
+    expect(boot("?app=0")).toBe(false);
+    expect(boot("")).toBe(false);
+  });
+});

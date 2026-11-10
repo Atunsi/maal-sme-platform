@@ -1,0 +1,654 @@
+{
+  "business_id": 10001,
+  "population": "serving",
+  "data_source": "synthetic",
+  "sector": "retail_trade",
+  "as_of": "2026-07-30",
+  "status": "scored",
+  "coverage_days_90d": 90,
+  "credit": {
+    "decision": "approved",
+    "amount_sar": 47000.0,
+    "base_markup_pct": 6.5,
+    "adjusted_markup_pct": null,
+    "markup_fixed_at_inception": true,
+    "late_penalty_policy": "charity_directed",
+    "repayment_months": 12,
+    "recourse": null,
+    "stress": null
+  },
+  "credit_explanation": {
+    "public_tier": [
+      {
+        "feature_id": 3,
+        "text": "Your inflow regularity score was the main factor working against approval.",
+        "magnitude": "strongly",
+        "direction": "against"
+      },
+      {
+        "feature_id": 6,
+        "text": "Your avg monthly outflow was the main factor working against approval.",
+        "magnitude": "strongly",
+        "direction": "against"
+      },
+      {
+        "feature_id": 14,
+        "text": "Your overdraft events 90d strongly supported approval.",
+        "magnitude": "strongly",
+        "direction": "supports"
+      }
+    ],
+    "compliance_tier": {
+      "units": "log-odds of default, relative to the training-mean business (exact SHAP for this linear model)",
+      "threshold_table": {
+        "strongly": "|c| > 0.3",
+        "moderately": "0.1 <= |c| <= 0.3",
+        "marginally": "|c| < 0.1"
+      },
+      "phrases": {
+        "strongly/supports": "strongly supported approval",
+        "strongly/against": "was the main factor working against approval",
+        "moderately/supports": "moderately supported approval",
+        "moderately/against": "moderately weighed against approval",
+        "marginally/either": "had only a small effect either way"
+      },
+      "contributions": [
+        {
+          "feature_id": 3,
+          "feature": "inflow_regularity_score",
+          "contribution_logodds": 1.027583,
+          "imputed": false
+        },
+        {
+          "feature_id": 6,
+          "feature": "avg_monthly_outflow",
+          "contribution_logodds": 0.407065,
+          "imputed": false
+        },
+        {
+          "feature_id": 14,
+          "feature": "overdraft_events_90d",
+          "contribution_logodds": -0.365295,
+          "imputed": false
+        },
+        {
+          "feature_id": 41,
+          "feature": "financing_outflow_ratio",
+          "contribution_logodds": -0.359601,
+          "imputed": false
+        },
+        {
+          "feature_id": 49,
+          "feature": "flow_asymmetry_ratio",
+          "contribution_logodds": -0.35488,
+          "imputed": false
+        },
+        {
+          "feature_id": 9,
+          "feature": "expense_growth_rate_90d",
+          "contribution_logodds": -0.29194,
+          "imputed": false
+        },
+        {
+          "feature_id": 15,
+          "feature": "volatility_index",
+          "contribution_logodds": 0.261973,
+          "imputed": false
+        },
+        {
+          "feature_id": 56,
+          "feature": "sector_relative_volatility_z",
+          "contribution_logodds": -0.197381,
+          "imputed": false
+        },
+        {
+          "feature_id": 53,
+          "feature": "liquidity_hazard_60d",
+          "contribution_logodds": 0.191639,
+          "imputed": false
+        },
+        {
+          "feature_id": 52,
+          "feature": "liquidity_hazard_30d",
+          "contribution_logodds": -0.172475,
+          "imputed": false
+        },
+        {
+          "feature_id": 38,
+          "feature": "implied_dio_days",
+          "contribution_logodds": 0.170554,
+          "imputed": false
+        },
+        {
+          "feature_id": 17,
+          "feature": "min_daily_balance_90d",
+          "contribution_logodds": 0.159392,
+          "imputed": false
+        },
+        {
+          "feature_id": 50,
+          "feature": "revenue_shock_absorption_pct",
+          "contribution_logodds": -0.143631,
+          "imputed": false
+        },
+        {
+          "feature_id": 60,
+          "feature": "committed_monthly_outflow",
+          "contribution_logodds": -0.126064,
+          "imputed": false
+        },
+        {
+          "feature_id": 51,
+          "feature": "fixed_obligation_coverage_months",
+          "contribution_logodds": 0.121711,
+          "imputed": false
+        },
+        {
+          "feature_id": 20,
+          "feature": "unique_counterparties_count",
+          "contribution_logodds": -0.08201,
+          "imputed": false
+        },
+        {
+          "feature_id": 58,
+          "feature": "sector_relative_balance_z",
+          "contribution_logodds": 0.07814,
+          "imputed": false
+        },
+        {
+          "feature_id": "18b",
+          "feature": "runway_days_avg_balance",
+          "contribution_logodds": -0.063867,
+          "imputed": false
+        },
+        {
+          "feature_id": 59,
+          "feature": "sector_relative_concentration_z",
+          "contribution_logodds": -0.057391,
+          "imputed": false
+        },
+        {
+          "feature_id": 32,
+          "feature": "coverage_days_90d",
+          "contribution_logodds": 0.050893,
+          "imputed": false
+        },
+        {
+          "feature_id": 21,
+          "feature": "counterparty_concentration_index",
+          "contribution_logodds": -0.049916,
+          "imputed": false
+        },
+        {
+          "feature_id": 69,
+          "feature": "emergency_line_present",
+          "contribution_logodds": 0.0499,
+          "imputed": false
+        },
+        {
+          "feature_id": 12,
+          "feature": "inflow_outflow_ratio",
+          "contribution_logodds": 0.046291,
+          "imputed": false
+        },
+        {
+          "feature_id": 10,
+          "feature": "top_expense_category_share",
+          "contribution_logodds": -0.04556,
+          "imputed": false
+        },
+        {
+          "feature_id": 37,
+          "feature": "implied_dso_days",
+          "contribution_logodds": -0.041366,
+          "imputed": false
+        },
+        {
+          "feature_id": 47,
+          "feature": "downside_semideviation_90d",
+          "contribution_logodds": 0.032791,
+          "imputed": false
+        },
+        {
+          "feature_id": 43,
+          "feature": "inflow_break_recency_days",
+          "contribution_logodds": 0.032743,
+          "imputed": false
+        },
+        {
+          "feature_id": 55,
+          "feature": "sector_relative_regularity_z",
+          "contribution_logodds": -0.032473,
+          "imputed": false
+        },
+        {
+          "feature_id": 68,
+          "feature": "max_consecutive_overdraft_days",
+          "contribution_logodds": 0.025845,
+          "imputed": false
+        },
+        {
+          "feature_id": "62b",
+          "feature": "ocr_forward_6m",
+          "contribution_logodds": -0.021903,
+          "imputed": false
+        },
+        {
+          "feature_id": 11,
+          "feature": "cash_flow_volatility",
+          "contribution_logodds": -0.019518,
+          "imputed": false
+        },
+        {
+          "feature_id": 1,
+          "feature": "avg_monthly_inflow",
+          "contribution_logodds": 0.018475,
+          "imputed": false
+        },
+        {
+          "feature_id": 54,
+          "feature": "liquidity_hazard_90d",
+          "contribution_logodds": 0.018358,
+          "imputed": false
+        },
+        {
+          "feature_id": 5,
+          "feature": "largest_single_source_ratio",
+          "contribution_logodds": -0.017117,
+          "imputed": false
+        },
+        {
+          "feature_id": 33,
+          "feature": "data_gap_ratio",
+          "contribution_logodds": 0.016192,
+          "imputed": false
+        },
+        {
+          "feature_id": 39,
+          "feature": "implied_dpo_days",
+          "contribution_logodds": -0.015354,
+          "imputed": false
+        },
+        {
+          "feature_id": 18,
+          "feature": "current_runway_days",
+          "contribution_logodds": 0.013632,
+          "imputed": false
+        },
+        {
+          "feature_id": 13,
+          "feature": "days_negative_balance_90d",
+          "contribution_logodds": 0.013135,
+          "imputed": false
+        },
+        {
+          "feature_id": 4,
+          "feature": "revenue_growth_rate_90d",
+          "contribution_logodds": -0.010047,
+          "imputed": false
+        },
+        {
+          "feature_id": 42,
+          "feature": "installment_capacity_sar",
+          "contribution_logodds": 0.009729,
+          "imputed": false
+        },
+        {
+          "feature_id": 65,
+          "feature": "balloon_exposure_sar",
+          "contribution_logodds": -0.009629,
+          "imputed": false
+        },
+        {
+          "feature_id": 57,
+          "feature": "sector_relative_days_negative_z",
+          "contribution_logodds": -0.009318,
+          "imputed": false
+        },
+        {
+          "feature_id": 40,
+          "feature": "cash_conversion_cycle_days",
+          "contribution_logodds": -0.007176,
+          "imputed": false
+        },
+        {
+          "feature_id": 7,
+          "feature": "outflow_count_per_month",
+          "contribution_logodds": 0.006541,
+          "imputed": false
+        },
+        {
+          "feature_id": 64,
+          "feature": "mandate_cancellation_count_90d",
+          "contribution_logodds": -0.005944,
+          "imputed": false
+        },
+        {
+          "feature_id": 2,
+          "feature": "inflow_count_per_month",
+          "contribution_logodds": -0.005392,
+          "imputed": false
+        },
+        {
+          "feature_id": 62,
+          "feature": "ocr_forward_3m",
+          "contribution_logodds": 0.005005,
+          "imputed": false
+        },
+        {
+          "feature_id": 22,
+          "feature": "new_counterparty_ratio_30d",
+          "contribution_logodds": 0.004779,
+          "imputed": false
+        },
+        {
+          "feature_id": 19,
+          "feature": "liquidity_trend_slope",
+          "contribution_logodds": -0.004624,
+          "imputed": false
+        },
+        {
+          "feature_id": 61,
+          "feature": "obligation_coverage_ratio",
+          "contribution_logodds": -0.003781,
+          "imputed": false
+        },
+        {
+          "feature_id": 66,
+          "feature": "facility_utilisation",
+          "contribution_logodds": 0.002708,
+          "imputed": true
+        },
+        {
+          "feature_id": 16,
+          "feature": "avg_daily_balance",
+          "contribution_logodds": 0.002458,
+          "imputed": false
+        },
+        {
+          "feature_id": 63,
+          "feature": "obligation_horizon_months",
+          "contribution_logodds": 0.002229,
+          "imputed": false
+        },
+        {
+          "feature_id": 67,
+          "feature": "headroom_days_of_burn",
+          "contribution_logodds": -0.002064,
+          "imputed": true
+        },
+        {
+          "feature_id": 44,
+          "feature": "net_flow_autocorr_lag7",
+          "contribution_logodds": -0.001285,
+          "imputed": false
+        },
+        {
+          "feature_id": 45,
+          "feature": "counterparty_persistence_ratio",
+          "contribution_logodds": -0.000614,
+          "imputed": false
+        },
+        {
+          "feature_id": 8,
+          "feature": "recurring_expense_ratio",
+          "contribution_logodds": -0.000555,
+          "imputed": false
+        },
+        {
+          "feature_id": 48,
+          "feature": "upside_semideviation_90d",
+          "contribution_logodds": -0.000237,
+          "imputed": false
+        }
+      ]
+    }
+  },
+  "credit_decision_detail": {
+    "decline_reason": null,
+    "pd": 0.052612,
+    "logit": -2.890765,
+    "risk_tier": "B",
+    "model_version": "v1",
+    "model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
+    "sharia_screen_status": "compliant",
+    "decline_origin": null,
+    "offer_status": "unconditional",
+    "risk_assessment_used_for_decision": true
+  },
+  "forecast": {
+    "status": "computed",
+    "as_of": "2026-07-30",
+    "balance_today_sar": 33019.81,
+    "model": [
+      {
+        "horizon_days": 30,
+        "projected_net_flow_sar": 14563.93,
+        "projected_balance_sar": 47583.74,
+        "min_projected_balance_sar": 33505.27
+      },
+      {
+        "horizon_days": 60,
+        "projected_net_flow_sar": 29127.86,
+        "projected_balance_sar": 62147.67,
+        "min_projected_balance_sar": 33505.27
+      },
+      {
+        "horizon_days": 90,
+        "projected_net_flow_sar": 43691.79,
+        "projected_balance_sar": 76711.6,
+        "min_projected_balance_sar": 33505.27
+      }
+    ],
+    "naive_baseline": [
+      {
+        "horizon_days": 30,
+        "projected_net_flow_sar": -28037.28,
+        "projected_balance_sar": 4982.53,
+        "min_projected_balance_sar": 4982.53
+      },
+      {
+        "horizon_days": 60,
+        "projected_net_flow_sar": -56074.56,
+        "projected_balance_sar": -23054.75,
+        "min_projected_balance_sar": -23054.75
+      },
+      {
+        "horizon_days": 90,
+        "projected_net_flow_sar": -84111.84,
+        "projected_balance_sar": -51092.03,
+        "min_projected_balance_sar": -51092.03
+      }
+    ],
+    "crunch_alert": {
+      "level": "watch",
+      "days_to_projected_negative_balance": null,
+      "liquidity_hazard": {
+        "30d": 0.346,
+        "60d": 0.44,
+        "90d": 0.484
+      },
+      "drivers": [
+        "30-day liquidity hazard 0.35"
+      ]
+    },
+    "ramadan_adjusted": false,
+    "method": "naive90: trailing-90-day mean; naive_baseline = trailing-30-day mean (the §10 baseline)"
+  },
+  "anomaly": {
+    "status": "computed",
+    "scan_window": {
+      "from": "2026-02-01",
+      "to": "2026-07-30"
+    },
+    "transactions_scanned": 2650,
+    "flags": [
+      {
+        "transaction_id": 841,
+        "date": "2026-03-29",
+        "hour": 14,
+        "direction": "out",
+        "amount_sar": 61021.53,
+        "counterparty_type": "other",
+        "category": "transfer",
+        "flag_reason": "amount_outlier"
+      },
+      {
+        "transaction_id": 1289,
+        "date": "2026-05-04",
+        "hour": 15,
+        "direction": "out",
+        "amount_sar": 15122.4,
+        "counterparty_type": "supplier",
+        "category": "supplier",
+        "flag_reason": "amount_outlier"
+      },
+      {
+        "transaction_id": 957,
+        "date": "2026-04-06",
+        "hour": 21,
+        "direction": "in",
+        "amount_sar": 144.22,
+        "counterparty_type": "customer",
+        "category": "sales",
+        "flag_reason": "amount_outlier"
+      },
+      {
+        "transaction_id": 2372,
+        "date": "2026-07-10",
+        "hour": 19,
+        "direction": "in",
+        "amount_sar": 151.82,
+        "counterparty_type": "customer",
+        "category": "sales",
+        "flag_reason": "amount_outlier"
+      },
+      {
+        "transaction_id": 1012,
+        "date": "2026-04-12",
+        "hour": 3,
+        "direction": "in",
+        "amount_sar": 61.5,
+        "counterparty_type": "customer",
+        "category": "sales",
+        "flag_reason": "unusual_hour"
+      },
+      {
+        "transaction_id": 1127,
+        "date": "2026-04-21",
+        "hour": 20,
+        "direction": "in",
+        "amount_sar": 153.21,
+        "counterparty_type": "customer",
+        "category": "sales",
+        "flag_reason": "amount_outlier"
+      },
+      {
+        "transaction_id": 859,
+        "date": "2026-03-30",
+        "hour": 21,
+        "direction": "in",
+        "amount_sar": 110.61,
+        "counterparty_type": "customer",
+        "category": "sales",
+        "flag_reason": "new_counterparty_large_amount"
+      },
+      {
+        "transaction_id": 27,
+        "date": "2026-02-02",
+        "hour": 12,
+        "direction": "out",
+        "amount_sar": 352.86,
+        "counterparty_type": "supplier",
+        "category": "supplier",
+        "flag_reason": "multivariate_outlier"
+      },
+      {
+        "transaction_id": 1374,
+        "date": "2026-05-07",
+        "hour": 21,
+        "direction": "in",
+        "amount_sar": 79.76,
+        "counterparty_type": "customer",
+        "category": "sales",
+        "flag_reason": "multivariate_outlier"
+      },
+      {
+        "transaction_id": 724,
+        "date": "2026-03-21",
+        "hour": 8,
+        "direction": "in",
+        "amount_sar": 36.18,
+        "counterparty_type": "customer",
+        "category": "sales",
+        "flag_reason": "multivariate_outlier"
+      }
+    ],
+    "method": "per-business Isolation Forest + hard univariate rules; flag_reason only, scores and threshold withheld (§29)"
+  },
+  "zakat": {
+    "liability_sar": 5963.26,
+    "nisab_value_sar": 41759.74,
+    "nisab_basis": "85g gold",
+    "nisab_source_status": "commercial_quote_documented_pending_independent_verification",
+    "rate": 0.025,
+    "method": "net_working_capital",
+    "hawl_rule": "nisab_at_start_and_end",
+    "deterministic": true,
+    "snapshot_month_end": "2026-06-30",
+    "zakatable_assets_sar": 638310.41,
+    "deductible_liabilities_sar": 399779.95,
+    "zakat_base_sar": 238530.46,
+    "nisab_threshold_met": true,
+    "hawl_start_date": "2025-08-01",
+    "hawl_completion_date": "2026-07-21",
+    "hawl_start_source": "seeded_opening_state",
+    "status": "computed",
+    "reason": null
+  },
+  "governance": {
+    "sharia_screen": {
+      "sharia_screen_status": "compliant",
+      "evidence_basis": "declared_mcc",
+      "declared_mcc": 5331,
+      "rules_triggered": [],
+      "owner_prompts": [],
+      "disclosures": [
+        {
+          "disclosure_id": "DISC-EXISTING-FINANCING",
+          "detail": "regular repayments to a financial institution; financing type unknown",
+          "prompt": "You make regular repayments to a financial institution. Is this financing Sharia-compliant (for example Murabaha or Ijara), or interest-based?"
+        }
+      ],
+      "rule_table_version": "1.0",
+      "rule_table_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
+      "rule_table_status": "proposed_unverified",
+      "deterministic": true,
+      "compliance_explanation": null
+    }
+  },
+  "scenario": {
+    "id": "baseline",
+    "label": "Baseline — business 10001 exactly as configured",
+    "library_version": "1.0",
+    "library_status": "proposed",
+    "overrides": {}
+  },
+  "receipt": {
+    "schema_version": "v2.9",
+    "config_sha256": "9d60db774d169931054cb48fd3f492557488ae413716b908913b367bd5479137",
+    "lens_config_sha256": "eb715f89b95a2d3287adb9217160b95dc994571748ed5cda53eb033c7f1b57e0",
+    "credit_model_version": "v1",
+    "credit_model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
+    "credit_model_cv_auc": 0.5911,
+    "credit_model_oracle_ceiling_auc": 0.666,
+    "reference_stats_sha256": "e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60",
+    "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
+    "code_commit": "32a3285b67a96f0465f71a2ad631bc86de8c089e",
+    "generated_by": "scenarios.run",
+    "data_sha256": "4a7a63834bf38a25c9d342e3543176f4c7aac797dced55fc9a2f28c4fdf8615d",
+    "output_sha256": "d71bb342729e41ec3ba84d8f4fddab9f534198a80482284fff899b8247b44c78",
+    "scope": "Covers the deterministic core only: re-running with these inputs reproduces this object byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is outside its scope and cannot affect the decision (§36).",
+    "scenario_library_sha256": "8f84b9175aac62b1e29445d710a16879d30731b9da0c0a4f6402ae05d9cc0e7d"
+  }
+}

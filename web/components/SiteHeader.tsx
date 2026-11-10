@@ -1,0 +1,150 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useRef, useState } from "react";
+import { ArabicLogo, EnglishWordmark, LogoBand } from "@/components/brand/Logos";
+import { BusinessSwitcher } from "@/components/BusinessSwitcher";
+import { CommandPalette, type PaletteScenario } from "@/components/CommandPalette";
+import { DigitsToggle } from "@/components/DigitsToggle";
+import { DisplayMenu } from "@/components/DisplayMenu";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
+import { tourHref, tourStep, withTourEnded } from "@/lib/tour";
+import type { Locale, Messages } from "@/lib/i18n";
+
+type Item = { href: string; label: string; current?: boolean };
+
+const LENSES = ["credit", "sharia", "zakat", "forecast", "review"] as const;
+
+function navItems(rest: string, base: string, query: string, nav: Messages["nav"], admin: boolean): Item[] {
+  const scenarios = { href: `${base}/scenarios${query}`, label: nav.scenarios, current: rest === "/scenarios" };
+  if (rest === "") {
+    return [
+      { href: "#how", label: nav.how },
+      { href: "#lenses", label: nav.lenses },
+      { href: "#different", label: nav.why },
+      scenarios,
+      { href: "#faq", label: nav.faq },
+    ];
+  }
+  const all = { href: `${base}/admin${query}`, label: nav.admin, current: rest === "/admin" };
+  if (admin && !rest.startsWith("/business")) return [all, scenarios];
+  const id = /^\/business\/(\d+)/.exec(rest)?.[1] ?? DEMO_BUSINESS;
+  const root = `${base}/business/${id}`;
+  return [
+    // An admin who opened a business can always get back to the list.
+    ...(admin ? [all] : []),
+    { href: `${root}${query}`, label: nav.overview, current: rest === `/business/${id}` },
+    ...LENSES.map((lens) => ({ href: `${root}/${lens}${query}`, label: nav[lens], current: rest === `/business/${id}/${lens}` })),
+    scenarios,
+  ];
+}
+
+export function SiteHeader({ locale, m, scenarios, businessIds }: { locale: Locale; m: Pick<Messages, "nav" | "app" | "tour" | "switcher" | "enums" | "errors" | "search" | "sheet">; scenarios: PaletteScenario[]; businessIds?: readonly number[] }) {
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const role = params.get("as");
+  // The phone menu is open on the page it was opened on, so moving to another page closes it.
+  const [openOn, setOpenOn] = useState<string | null>(null);
+  const open = openOn === pathname;
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const rest = pathname.replace(/^\/(en|ar)/, "").replace(/\/$/, "");
+  if (rest === "/sign-in") return null; // the sign-in page carries its own brand panel
+
+  const { nav } = m;
+  const base = `/${locale}`;
+  // I10: after End tour, ?tourEnded=<step> rides along on the page links, like the role, for the visit.
+  const ended = tourStep(params.get("tourEnded"));
+  const query = withTourEnded(roleQuery(role), ended?.step.id ?? null);
+  const admin = role === "admin" || rest === "/admin";
+  // X5: a demo role, not access control, so the label names no business.
+  const signedIn = role === "admin" ? nav.roleAdmin : role === "owner" ? nav.roleOwner : null;
+
+  const items = navItems(rest, base, query, nav, admin);
+  const close = () => setOpenOn(null);
+  return (
+    <>
+      <header className="bleed border-b border-line bg-card">
+        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-2 gap-y-3 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3.5">
+            <Link href={base} aria-label={nav.home} className="flex min-h-11 min-w-11 items-center gap-3.5 text-accent no-underline">
+              {/* E7: below 390 px the Arabic logo stands alone at 32 px, as the design rule allows. */}
+              <ArabicLogo height={46} animate className="h-8 w-auto min-[390px]:h-[46px]" />
+              <span className="hidden min-[390px]:inline-flex">
+                <EnglishWordmark height={20} animate />
+              </span>
+            </Link>
+            {/* Beside the link, not in it: visible text must be part of a link's accessible name. */}
+            {!signedIn && <span className="hidden max-w-[120px] border-s border-line ps-3.5 text-xs leading-tight text-muted lg:block">{m.app.tagline}</span>}
+          </div>
+          {/* The language and theme icons stay in the header row at every width, last on laptops. E7: below
+              768 px the page links and the other buttons fold into the menu. */}
+          <div className="flex items-center gap-1.5 md:order-last">
+            <LanguageToggle locale={locale} label={nav.language} />
+            <ThemeToggle label={nav.themeDark} />
+            <button
+              ref={menuButton}
+              type="button"
+              className="themebtn md:hidden"
+              aria-expanded={open}
+              aria-controls="site-menu"
+              onClick={() => setOpenOn(open ? null : pathname)}
+            >
+              {nav.menu}
+            </button>
+          </div>
+          <div
+            id="site-menu"
+            className={`${open ? "menu-drop flex" : "hidden"} w-full flex-col gap-3 border-t border-line pt-3 md:contents`}
+            onKeyDown={(event) => {
+              if (event.key !== "Escape") return;
+              close();
+              menuButton.current?.focus();
+            }}
+          >
+            <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-1.5 text-[15px] md:ms-auto md:flex-row md:flex-wrap md:text-sm">
+              {items.map((item) => (
+                // No prefetch: a prefetch renders the page on the server, and its API calls would join the queue
+                // (lib/api.ts) ahead of the page the visitor actually opens next.
+                <Link key={item.href} href={item.href} prefetch={false} aria-current={item.current ? "page" : undefined} className="navlink" onClick={close}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="flex flex-wrap items-center gap-1.5 md:ms-auto">
+              {signedIn && (
+                <span className="max-w-[6.5rem] text-xs font-semibold leading-tight" data-demo-role>
+                  {signedIn}
+                </span>
+              )}
+              <CommandPalette locale={locale} m={m} scenarios={scenarios} businessIds={businessIds} />
+              {rest.startsWith("/business/") && <BusinessSwitcher locale={locale} m={m} />}
+              {ended && rest.startsWith("/business") && (
+                <Link href={tourHref(locale, ended.step, role === "owner" || role === "admin" ? role : null)} prefetch={false} className="textlink font-semibold" data-tour-resume>
+                  {m.tour.resume}
+                </Link>
+              )}
+              {locale === "ar" && (
+                <DisplayMenu label={nav.display}>
+                  <DigitsToggle label={nav.digitsArab} />
+                </DisplayMenu>
+              )}
+              {signedIn ? (
+                <Link href={`${base}/sign-in`} prefetch={false} className="textlink">
+                  {nav.signOut}
+                </Link>
+              ) : (
+                <Link href={`${base}/sign-in`} prefetch={false} className="solid-btn min-h-11">
+                  {nav.signIn}
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+      <LogoBand />
+    </>
+  );
+}

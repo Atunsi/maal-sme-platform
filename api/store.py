@@ -96,6 +96,15 @@ class ServingStore:
     def __contains__(self, b_id: int) -> bool:
         return int(b_id) in self.ids
 
+    def business_list(self) -> list[tuple[int, str, str, str]]:
+        """(business_id, sector, population, data_source) for every business in the store, by ID.
+
+        GET /businesses (DECISIONS 44). Reads through the same single connection as load(), so the
+        open concurrency issue (one DuckDB connection shared across request threads) applies to it too.
+        """
+        rows = self.con.execute("SELECT business_id, sector, population, data_source FROM businesses ORDER BY business_id").fetchall()
+        return [(int(b), str(s), str(p), str(d)) for b, s, p, d in rows]
+
     def load(self, business_ids: list[int]) -> dict[str, pd.DataFrame]:
         ids = [int(b) for b in business_ids]
         out = {}

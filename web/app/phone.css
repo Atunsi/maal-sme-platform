@@ -1,0 +1,667 @@
+/*
+ * Ma'al on a phone. Every rule here sits inside the one phone query, so nothing in this file can touch a
+ * tablet or a laptop (those keep globals.css alone). The phone design: an app shell (a glass top bar and a
+ * bottom tab bar), floating cards with one padding, radius and shadow, the summary of each page first and
+ * its detail folded (components/PhoneFold.tsx), and lists instead of tables. Markup opts in with
+ * data-phone="..." hooks where a page needs more than the shared rules.
+ */
+@media (max-width: 767.98px) {
+  :root {
+    --ph-pad: 18px;
+    --ph-gap: 12px;
+    /* The card radius and shadow are the shared ones (globals.css), so phone and laptop cards match. */
+    --ph-radius: var(--r-box);
+    --ph-shadow: var(--card-shadow);
+    --tabbar-h: calc(58px + env(safe-area-inset-bottom, 0px));
+    /* The page's own colours, captured here (custom properties resolve where they are declared), so a block
+       inside a dark .panel can be given the page's light-or-dark card colours back. */
+    --ph-surface: var(--surface);
+    --ph-ink: var(--ink);
+    --ph-muted: var(--muted);
+    --ph-rule: var(--rule);
+    --ph-rule2: var(--rule2);
+    --ph-accent: var(--accent);
+  }
+  /* Installed as an app: no rubber-band bounce or pull-to-refresh on the page itself. */
+  html.app-mode {
+    overscroll-behavior-y: none;
+  }
+
+  /* ---------- App shell ---------- */
+
+  /* A glass top bar that stays put; the decorative logo band under it is a laptop flourish. */
+  body > header:first-of-type {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--glass);
+    border-bottom: 1px solid var(--glass-edge);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  body > header:first-of-type + .weave {
+    display: none;
+  }
+  .menu-drop {
+    transform-origin: top;
+    animation: menudrop 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  /* An open menu is solid, never glass, so its links read clearly over the page; a shadow lifts it off. */
+  body > header:first-of-type:has(.menu-drop) {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: 0 18px 44px rgba(10, 12, 20, 0.28);
+  }
+
+  /* The bottom tab bar on every app page but the landing page and sign-in (components/AppTabBar.tsx). */
+  .app-tabbar {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 45;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--glass-edge);
+  }
+  body:has([data-app-tabbar]) {
+    padding-bottom: calc(var(--tour-h, 0px) + var(--tabbar-h));
+  }
+  body:has([data-app-tabbar]) .tour-panel {
+    bottom: var(--tabbar-h);
+    padding-bottom: 0;
+  }
+
+  /* ---------- Type ---------- */
+
+  main h1.heading:not(.on-hero *) {
+    font-size: 26px !important;
+    line-height: 1.2 !important;
+  }
+  /* A section heading standing on the page (not a card's title, not an eyebrow) has one size too. */
+  main h2.heading:not(.caps):not(:is(.border.bg-card, .panel, .on-hero, [data-phone]) *) {
+    font-size: 22px !important;
+    line-height: 1.25 !important;
+  }
+
+  /* ---------- Cards: the shared card (globals.css) with phone spacing ---------- */
+
+  main .border.bg-card,
+  main .panel,
+  main .frame {
+    padding: var(--ph-pad) !important;
+  }
+  main [data-phone="lens-head"] {
+    padding: var(--ph-pad);
+  }
+  /* A card that holds a table keeps the table's own row spacing. */
+  main .border.bg-card:has(> [role="region"] > table),
+  main .border.bg-card:has(> table) {
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  /* ...but a heading in such a card keeps the card's inset. */
+  main .border.bg-card:has(> [role="region"] > table) > :not([role="region"]) {
+    margin: 0;
+    padding: 16px var(--ph-pad) 0;
+  }
+  /* A card inside a card loses its frame, so frames never stack two deep. */
+  main :is(.border.bg-card, .panel) :is(.border.bg-card, .panel) {
+    border: 0 !important;
+    border-radius: 0;
+    padding: 0 !important;
+    background: transparent;
+    box-shadow: none;
+  }
+  main .grid.gap-4 {
+    gap: var(--ph-gap);
+  }
+  /* One size for a card's own title. */
+  main :is(.border.bg-card, .panel) > h2.heading {
+    margin-bottom: 6px;
+    font-size: 19px !important;
+  }
+
+  /* ---------- Folded detail (components/PhoneFold.tsx) ---------- */
+
+  /* On a phone the fold is a toggle, drawn like the receipt rows (globals.css): a row with an arrow. */
+  details.phone-fold > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 52px;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  details.phone-fold > summary::after {
+    content: "";
+    flex: none;
+    width: 9px;
+    height: 9px;
+    /* Physical sides: a fold opens downwards in either reading direction. */
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+  details.phone-fold[open] > summary::after {
+    transform: rotate(225deg);
+  }
+  main details[data-receipt]:not(:is(.border.bg-card, .panel) *) {
+    padding-inline: var(--ph-pad);
+  }
+
+  /* Until the fold has closed itself, its body stays hidden, so it never flashes open on load. */
+  details.phone-fold:not([data-ready]) > :not(summary) {
+    display: none;
+  }
+
+  /* ---------- Business overview ---------- */
+
+  /* Take the tour and Decision sheet as pills; printing is a laptop task. */
+  [data-phone="actions"] {
+    gap: 8px;
+  }
+  [data-phone="actions"] > a {
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--ph-shadow);
+    font-size: 14px;
+    text-decoration: none;
+  }
+  [data-phone="actions"] > button {
+    display: none;
+  }
+
+  /* The verdict: one summary card. */
+  main [data-phone="verdict"] {
+    padding: 0 !important;
+    border: 0 !important;
+  }
+  [data-phone="verdict"] > div:first-child {
+    padding: var(--ph-pad) !important;
+    gap: 12px;
+  }
+  [data-phone="verdict"] .stamp {
+    font-size: 44px !important;
+  }
+  [data-phone="verdict"] h2 .font-mono {
+    font-size: 26px !important;
+  }
+  /* Repayment, markup and late payments as label-and-value rows. */
+  [data-phone="verdict"] .border-t:has(> [data-phone="term"]) {
+    border-top: 0;
+  }
+  [data-phone="term"] {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 0 !important;
+    border: 0 !important;
+    border-top: 1px solid var(--rule2) !important;
+  }
+  [data-phone="term"] > :last-child {
+    font-size: 17px !important;
+    text-align: end;
+  }
+  /* The receipt: a folded row at the foot of the verdict card, in the card's own colours. */
+  main [data-phone="receipt"] {
+    --surface: var(--ph-surface);
+    --ink: var(--ph-ink);
+    --muted: var(--ph-muted);
+    --rule: var(--ph-rule);
+    --rule2: var(--ph-rule2);
+    --accent: var(--ph-accent);
+    flex-basis: 100% !important;
+    gap: 0 !important;
+    padding: 0 var(--ph-pad) !important;
+    border-top: 1px solid var(--rule2) !important;
+    background: var(--surface) !important;
+    color: var(--ink);
+  }
+  /* The gold eyebrow is made for the dark panel; on this light row it takes the theme's darker ochre. */
+  [data-phone="receipt"] .eyebrow {
+    color: var(--ochre) !important;
+  }
+  [data-phone="receipt"] .phone-fold > summary .heading {
+    margin-top: 2px;
+    font-size: 16px !important;
+  }
+  [data-phone="receipt"] .phone-fold[open] {
+    padding-bottom: var(--ph-pad);
+  }
+
+  /* The five readouts: one tappable row each, state on the right, a chevron to open the lens. */
+  [data-phone="readout"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto 10px;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 2px;
+    min-height: 0 !important;
+    padding: 14px var(--ph-pad) !important;
+  }
+  [data-phone="readout"] [data-r="lens"] {
+    grid-column: 1;
+    grid-row: 1;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  [data-phone="readout"] [data-r="figure"] {
+    grid-column: 1;
+    grid-row: 2;
+    font-size: 15px;
+  }
+  [data-phone="readout"] [data-r="note"] {
+    grid-column: 1 / 3;
+    font-size: 13px;
+  }
+  [data-phone="readout"] [data-r="plate"] {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+  [data-phone="readout"] [data-r="open"] {
+    display: none;
+  }
+  [data-phone="readout"]::after {
+    content: "";
+    grid-column: 3;
+    grid-row: 1 / 3;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--muted);
+    border-inline-end: 2px solid var(--muted);
+    transform: rotate(45deg);
+  }
+  [dir="rtl"] [data-phone="readout"]::after {
+    transform: rotate(-45deg);
+  }
+
+  /* ---------- Landing page ---------- */
+
+  /* Long sections breathe less on a phone. */
+  [data-phone="band"] {
+    gap: 24px !important;
+    padding: 40px 16px !important;
+  }
+  /* Try a business: one row per business, its plates under the name, a chevron. */
+  [data-phone="try"] {
+    position: relative;
+    min-height: 0 !important;
+    padding: 14px 40px 14px var(--ph-pad) !important;
+  }
+  [data-phone="try"] > :last-child {
+    display: none;
+  }
+  [data-phone="try"]::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: 18px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    border-top: 2px solid var(--muted);
+    border-inline-end: 2px solid var(--muted);
+    transform: rotate(45deg);
+  }
+  [dir="rtl"] [data-phone="try"]::after {
+    transform: rotate(-45deg);
+  }
+  /* The lens cards: the app's floating card, sized to their words. */
+  [data-phone="lens-card"] {
+    min-height: 0 !important;
+    padding: var(--ph-pad) !important;
+    border-color: transparent !important;
+    border-radius: var(--ph-radius);
+    background: var(--surface) !important;
+    box-shadow: var(--ph-shadow);
+  }
+  [data-phone="lens-card"] .heading {
+    font-size: 21px !important;
+  }
+  [data-phone="lens-card"] > :last-child {
+    margin-top: 4px;
+  }
+  /* Ma'al in numbers: two by two, not one number per screen. */
+  [data-phone="counts"] {
+    grid-template-columns: 1fr 1fr !important;
+    overflow: hidden;
+    border-radius: var(--ph-radius);
+    box-shadow: var(--ph-shadow);
+  }
+  [data-phone="counts"] > * {
+    padding: 18px !important;
+  }
+  [data-phone="counts"] .heading {
+    font-size: 48px !important;
+  }
+
+  /* A fieldset drawn as a card keeps its legend inside the card, not on its top edge. */
+  main fieldset:is(.border, .bg-card) > legend {
+    float: inline-start;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 0;
+    font-size: 18px;
+  }
+  main fieldset:is(.border, .bg-card) > legend + * {
+    clear: both;
+  }
+
+  /* ---------- Sign-in ---------- */
+
+  /* The brand panel is a short header, so the form is on the first screen. */
+  [data-phone="signin"] {
+    min-height: 0 !important;
+  }
+  [data-phone="signin-brand"] {
+    flex-basis: 100% !important;
+    gap: 14px !important;
+    padding: 44px 16px 22px !important;
+  }
+  [data-phone="signin-brand"] > :is([aria-hidden="true"], .eyebrow),
+  [data-phone="signin-brand"] > a,
+  [data-phone="signin-brand"] h1 > :last-child,
+  [data-phone="signin-brand"] .verdict-rule,
+  [data-phone="signin-brand"] p + p {
+    display: none !important;
+  }
+  [data-phone="signin-brand"] h1 svg {
+    width: auto !important;
+    height: 72px !important;
+  }
+  [data-phone="signin-brand"] > div {
+    gap: 12px !important;
+  }
+  [data-phone="signin-brand"] p {
+    font-size: 15px !important;
+  }
+
+  /* ---------- Lens pages ---------- */
+
+  /* The head of every lens page is its summary card: business, title, verdict, provenance. */
+  /* The lens head is the shared summary card (globals.css), set a little tighter. */
+  [data-phone="lens-head"] {
+    gap: 10px !important;
+  }
+  [data-phone="lens-head"] > div:first-child {
+    gap: 12px !important;
+  }
+
+  /* Term lists (credit terms, forecast key figures): label and value on one row. */
+  [data-phone="terms"] {
+    display: block !important;
+    padding-block: 4px !important;
+  }
+  [data-phone="terms"] > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 12px 0 !important;
+    border-top: 1px solid var(--rule2);
+  }
+  [data-phone="terms"] > div:first-child {
+    border-top: 0;
+  }
+  [data-phone="terms"] dd {
+    font-size: 17px !important;
+    text-align: end;
+  }
+
+  /* Field lists (components/ui.tsx Fields): label and value rows; a list standing on the page is a card. */
+  dl[data-phone="fields"] {
+    display: block !important;
+  }
+  dl[data-phone="fields"] > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 12px;
+    padding: 11px 0;
+    border-top: 1px solid var(--rule2);
+  }
+  dl[data-phone="fields"] > div:first-child {
+    border-top: 0;
+  }
+  dl[data-phone="fields"] dd {
+    text-align: end;
+  }
+  main dl[data-phone="fields"]:not(:is(.border.bg-card, .panel) *) {
+    padding: 4px var(--ph-pad);
+  }
+
+  /* Sharia: the checks list inside its card, without a second indent. */
+  [data-phone="checked"] > :is(h2, div, p) {
+    padding-inline: 0 !important;
+  }
+  [data-phone="checked"] > h2 {
+    padding-top: 0 !important;
+    padding-bottom: 12px !important;
+    border-bottom-width: 1px !important;
+    font-size: 19px !important;
+  }
+  [data-phone="checked"] > div {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    column-gap: 12px;
+  }
+  [data-phone="checked"] > div > :first-child {
+    flex: 1 1 100%;
+  }
+  /* The owner's questions: readable, not a poster. */
+  [data-phone="ask"] li {
+    font-size: 17px !important;
+  }
+
+  /* A refusal's "Lens not run" in the verdict card, at the verdict word's size. */
+  [data-phone="verdict"] h2.heading {
+    font-size: 34px !important;
+  }
+
+  /* Admin lists: one tappable row per business. The row's own link covers the whole row; its text stays for
+     screen readers, and a chevron shows it opens. */
+  table.stack-sm[data-phone="link-rows"] tr {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 10px;
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 6px;
+  }
+  table.stack-sm[data-phone="link-rows"] :is(td, th) {
+    display: block;
+    grid-column: 1 / 3;
+  }
+  table.stack-sm[data-phone="link-rows"] :is(td, th)::before {
+    display: none;
+  }
+  table.stack-sm[data-phone="link-rows"] th {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  table.stack-sm[data-phone="link-rows"] td[data-label]:not(:has(.plate)) {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  table.stack-sm[data-phone="link-rows"] tr > :nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  table.stack-sm[data-phone="link-rows"] td:has(.plate) {
+    display: inline-block;
+  }
+  /* The link's own text is kept for screen readers but not shown; the chevron is drawn beside it. The cell is
+     never transformed, or it would trap the link's full-row hit area inside it. */
+  table.stack-sm[data-phone="link-rows"] td:last-child {
+    position: static;
+    grid-column: 3;
+    grid-row: 1 / span 3;
+    align-self: center;
+    padding: 0 !important;
+    font-size: 0;
+  }
+  table.stack-sm[data-phone="link-rows"] td:last-child::before {
+    content: "";
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--muted);
+    border-inline-end: 2px solid var(--muted);
+    transform: rotate(45deg);
+  }
+  [dir="rtl"] table.stack-sm[data-phone="link-rows"] td:last-child::before {
+    transform: rotate(-45deg);
+  }
+  table.stack-sm[data-phone="link-rows"] td:last-child a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  /* The review queue: one compact card per transaction. Date and amount on top, the flag reason under them,
+     then hour, direction and category in one quiet line. */
+  table.stack-sm[data-phone="review-list"] tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 10px;
+    row-gap: 2px;
+  }
+  table.stack-sm[data-phone="review-list"] td {
+    display: block;
+    padding: 0 !important;
+  }
+  table.stack-sm[data-phone="review-list"] td::before {
+    display: none;
+  }
+  table.stack-sm[data-phone="review-list"] [data-col="date"] {
+    flex: 1 1 55%;
+    font-weight: 600;
+  }
+  table.stack-sm[data-phone="review-list"] [data-col="amount"] {
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+    order: 1;
+    font-family: var(--font-mono);
+  }
+  table.stack-sm[data-phone="review-list"] [data-col="reason"] {
+    flex: 1 1 100%;
+    order: 2;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  table.stack-sm[data-phone="review-list"] :is([data-col="hour"], [data-col="direction"], [data-col="category"]) {
+    order: 3;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  table.stack-sm[data-phone="review-list"] :is([data-col="direction"], [data-col="category"])::before {
+    content: "·";
+    display: inline;
+    margin-inline-end: 10px;
+    color: var(--muted);
+  }
+  table.stack-sm[data-phone="review-list"] [data-col="counterparty"] {
+    display: none;
+  }
+
+  /* The forecast table: one card per projection, "Model · Day 30" over its balance. */
+  table.stack-sm[data-phone="forecast-list"] tr {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: baseline;
+    column-gap: 8px;
+  }
+  table.stack-sm[data-phone="forecast-list"] :is([data-col="series"], [data-col="horizon"]) {
+    display: block;
+    grid-row: 1;
+    font-weight: 600;
+  }
+  table.stack-sm[data-phone="forecast-list"] :is([data-col="series"], [data-col="horizon"])::before {
+    display: none;
+  }
+  table.stack-sm[data-phone="forecast-list"] [data-col="horizon"]::after {
+    content: "";
+  }
+  table.stack-sm[data-phone="forecast-list"] [data-col="projected"] {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: flex-end;
+    font-size: 17px;
+  }
+  table.stack-sm[data-phone="forecast-list"] [data-col="projected"]::before {
+    display: none;
+  }
+  table.stack-sm[data-phone="forecast-list"] :is([data-col="minimum"], [data-col="net"]) {
+    grid-column: 1 / -1;
+    font-size: 13px;
+  }
+
+  /* ---------- Tables become labelled rows ---------- */
+
+  table.stack-sm thead {
+    display: none;
+  }
+  table.stack-sm,
+  table.stack-sm tbody,
+  table.stack-sm tr {
+    display: block;
+    width: 100%;
+  }
+  table.stack-sm tr {
+    padding: 12px var(--ph-pad);
+    border-top: 1px solid var(--rule2);
+  }
+  table.stack-sm tr:first-child {
+    border-top: 0;
+  }
+  table.stack-sm :is(td, th) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0 !important;
+    border: 0 !important;
+    text-align: start;
+  }
+  table.stack-sm :is(td, th)[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    max-width: 45%;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: 13px;
+  }
+  table.stack-sm :is(td, th):not([data-label]) {
+    display: block;
+  }
+
+  /* ---------- Credit factors (components/CreditCard.tsx) ---------- */
+
+  /* The track goes under the reason, across the card; the legend sits over it. */
+  .factor-legend > :first-child {
+    display: none;
+  }
+  .factor-legend-track,
+  .factor-track {
+    flex-basis: 100%;
+  }
+  .factor-row > .factor-words {
+    padding-block: 16px 10px;
+  }
+  .factor-track {
+    min-height: 26px;
+    margin-bottom: 16px;
+  }
+}

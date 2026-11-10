@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ma'al Sharia screen, business 10001</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans+Condensed:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Reem+Kufi:wght@600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:#1C1E66}
+a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes growx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes growy{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes breathe{0%,100%{background:var(--warnBg)}50%{background:var(--warnBg2)}}
+.rise{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+.plate{display:inline-block;padding:5px 10px;font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.ok{background:#0B6E63;color:#FFFFFF}
+.navlink{text-decoration:none;color:var(--ink);padding:12px 2px;border-bottom:2px solid transparent}
+.navlink[aria-current="page"]{border-bottom-color:var(--accent);font-weight:600}
+.weave{height:28px;background-image:url(../assets/maal-logo-tile-light.svg);background-size:28px 28px;background-repeat:repeat-x;animation:weave 40s linear infinite}
+.th-dark .weave,.weave.ondark{background-image:url(../assets/maal-logo-tile-dark.svg)}
+.mk{display:inline-block;flex:none;width:22px;height:22px;background-image:url(../assets/maal-logo-tile-light.svg);background-size:22px 22px;vertical-align:-5px}
+.th-dark .mk,.mk.ondark{background-image:url(../assets/maal-logo-tile-dark.svg)}
+@keyframes weave{from{background-position:0 0}to{background-position:-560px 0}}
+@keyframes fan{from{transform:translate(0,40px) rotate(0deg);opacity:0}to{transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:1}}
+@keyframes bloom{from{opacity:0;transform:scale(0.2)}to{opacity:1}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes land{from{transform:translateY(-16px) scale(0);opacity:0}to{transform:none;opacity:1}}
+.d1{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .8s .2s cubic-bezier(.6,0,.3,1) forwards}
+.d2{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .7s .95s cubic-bezier(.6,0,.3,1) forwards}
+.d3{transform-box:fill-box;transform-origin:center;animation:land .55s 1.6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes lgrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes lgland{0%{opacity:0;transform:translateY(-26px)}70%{opacity:1;transform:translateY(2px)}100%{transform:none}}
+.lg-body{transform-box:fill-box;animation:lgrise .6s .1s cubic-bezier(.2,.7,.2,1) both}
+.lg-madda{transform-box:fill-box;animation:lgland .55s .6s cubic-bezier(.2,.7,.2,1) both}
+.lg-body.lg-late{animation-delay:.3s}.lg-madda.lg-late{animation-delay:.8s}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}.d1,.d2{stroke-dashoffset:0}}
+
+.th-light{--bg:#F3F4F1;--surface:#FFFFFF;--ink:#101418;--muted:#5A6470;--rule:#D9DDE0;--rule2:#EEF0F1;--accent:#2E3192;--accentSoft:#EEEFFB;--accentSoft2:#CFD3F2;--ok:#0B6E63;--bad:#B0361F;--badSoft:#FBF3F1;--warnText:#7A4F00;--warnBg:#FBEFD6;--warnBg2:#F6E0B0;--ochre:#8A5A00;--panel:#101418;--panelText:#F3F4F1;--panelMuted:#B8C0C8;--panelRule:#2A3038;--grey:#FAFAF8;--fieldLine:#9AA3AC}
+.th-dark{--bg:#0B0E13;--surface:#141922;--ink:#E8EAED;--muted:#9AA4AE;--rule:#2A313B;--rule2:#1E242D;--accent:#A3A6FF;--accentSoft:#23264A;--accentSoft2:#33377A;--ok:#4CC7B3;--bad:#F08A72;--badSoft:#2A1714;--warnText:#F2C46B;--warnBg:#2E2512;--warnBg2:#45381A;--ochre:#D9A441;--panel:#1C2230;--panelText:#E8EAED;--panelMuted:#9AA4AE;--panelRule:#2E3644;--grey:#10141A;--fieldLine:#4A5360}
+.th-light,.th-dark{transition:background-color .35s ease,color .35s ease}
+.themebtn{min-height:44px;padding:0 14px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:500 14px 'IBM Plex Sans','IBM Plex Sans Arabic',sans-serif;cursor:pointer}
+.signout{min-height:44px;display:inline-flex;align-items:center;padding:0 4px;color:var(--accent)}
+</style>
+</helmet>
+<div class="{{themeClass}}" style="font-family: 'IBM Plex Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); min-height: 100vh">
+<div class="weave" aria-hidden="true"></div>
+<header style="max-width: 1240px; margin: 0 auto; padding: 16px 24px 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; border-bottom: 1px solid var(--rule)">
+<a href="Main.dc.html" aria-label="Ma'al home" style="display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); padding-bottom: 12px"><svg width="42.3" height="46" viewBox="0 0 140.25 152.4" aria-hidden="true" style="flex: none; overflow: visible"><path class="lg-body" fill-rule="evenodd" style="fill: var(--accent)" d="M62.6,24.5 L62.2,24.9 L62.2,123.8 L62.8,124.6 L63.1,125.0 L64.9,125.9 L65.2,125.9 L65.4,126.0 L66.4,126.0 L66.5,126.1 L119.9,126.1 L120.0,126.0 L121.5,126.0 L121.6,125.9 L122.0,125.9 L122.1,125.8 L122.8,125.6 L123.5,125.2 L124.8,125.1 L124.9,125.0 L125.8,124.9 L126.6,124.2 L126.9,124.2 L128.1,123.8 L128.5,123.4 L129.6,122.9 L130.0,122.5 L131.2,121.8 L131.9,121.1 L132.6,120.6 L135.6,117.5 L135.8,117.1 L136.4,116.4 L137.0,115.2 L137.2,115.0 L137.4,114.6 L137.6,114.4 L138.1,113.4 L138.1,113.1 L138.6,112.4 L139.2,110.2 L139.6,109.5 L139.6,109.0 L139.8,108.9 L139.8,108.4 L139.9,108.2 L139.9,107.6 L140.0,107.5 L140.1,105.4 L140.2,105.2 L140.2,102.1 L140.1,102.0 L140.0,99.9 L139.9,99.8 L139.9,99.1 L139.8,99.0 L139.6,97.9 L139.2,97.1 L138.6,95.0 L138.1,94.2 L138.1,94.0 L136.9,91.8 L135.4,89.6 L132.6,86.8 L132.5,86.8 L131.0,85.5 L130.1,85.0 L129.6,84.5 L128.6,84.1 L127.6,83.4 L126.5,83.1 L125.2,82.4 L123.4,82.1 L123.2,82.0 L122.6,81.9 L122.2,81.6 L121.4,81.5 L121.2,81.4 L119.8,81.4 L119.6,81.2 L115.1,81.4 L115.0,81.5 L114.0,81.6 L112.9,82.1 L111.0,82.4 L109.4,83.2 L108.6,83.4 L107.4,84.2 L107.1,84.2 L106.6,84.5 L103.9,86.5 L101.6,88.6 L101.0,89.5 L100.2,90.2 L98.4,93.0 L97.2,95.2 L97.2,95.5 L97.0,95.9 L96.9,96.6 L96.2,98.0 L96.1,99.0 L96.0,99.1 L96.0,99.8 L95.9,99.9 L95.9,101.0 L95.8,101.1 L95.8,102.2 L95.6,102.4 L95.6,105.1 L95.8,105.2 L95.8,106.9 L95.2,107.5 L95.0,107.6 L91.2,107.6 L91.1,107.5 L90.5,107.5 L90.4,107.4 L86.5,107.4 L86.4,107.5 L85.8,107.5 L85.6,107.6 L82.4,107.6 L82.2,107.8 L81.9,107.8 L81.8,107.6 L81.1,107.5 L80.6,107.0 L80.5,106.8 L80.5,21.4 L80.4,21.2 L80.4,21.0 L80.1,20.8 L79.4,20.8 L79.2,20.9 L78.9,20.9 L77.9,21.2 L76.8,21.2 L76.6,21.4 L75.4,21.5 L74.0,22.1 L71.4,22.4 L69.5,23.1 L66.9,23.4 L65.0,24.1 L64.5,24.1 L64.4,24.2 L63.4,24.2 L63.2,24.4 Z M115.8,100.2 L116.8,99.9 L117.1,99.9 L117.2,99.8 L118.9,99.8 L119.0,99.9 L119.8,100.0 L120.5,100.4 L121.2,101.2 L121.8,102.0 L121.8,102.2 L122.0,102.8 L122.1,103.9 L122.0,104.0 L122.0,104.8 L121.9,104.9 L121.8,105.5 L120.6,107.0 L119.5,107.5 L117.9,107.8 L117.8,107.6 L117.1,107.6 L117.0,107.5 L116.6,107.5 L116.5,107.4 L115.9,107.2 L114.6,106.1 L114.1,105.4 L114.1,105.1 L113.9,104.6 L113.9,104.0 L113.8,103.9 L113.9,102.8 L114.5,101.5 Z M54.8,20.8 L53.9,20.8 L53.5,21.0 L52.6,21.1 L52.5,21.2 L50.6,21.4 L50.5,21.5 L50.1,21.5 L49.4,21.9 L49.1,21.9 L48.6,22.1 L48.1,22.1 L48.0,22.2 L46.1,22.4 L44.1,23.1 L41.6,23.4 L39.6,24.1 L37.5,24.4 L37.2,24.5 L37.0,24.9 L37.0,123.6 L36.9,123.8 L36.8,127.1 L36.6,127.2 L36.6,127.9 L36.5,128.0 L36.5,128.5 L36.4,128.6 L36.4,129.4 L36.2,129.5 L36.2,130.2 L36.1,130.4 L36.1,131.1 L36.0,131.2 L36.0,132.0 L35.9,132.1 L35.8,133.1 L35.4,134.0 L35.4,134.4 L35.1,134.9 L34.9,136.1 L34.2,137.2 L34.2,137.5 L34.0,137.9 L34.0,138.1 L33.8,138.6 L33.2,139.2 L32.9,140.0 L32.0,141.0 L32.0,141.1 L30.2,142.9 L28.1,144.2 L27.2,144.4 L26.0,145.0 L25.0,145.1 L24.9,145.2 L20.4,145.2 L20.2,145.1 L19.6,145.1 L17.8,144.4 L16.4,144.1 L15.8,143.6 L14.2,143.0 L11.8,141.1 L9.8,139.1 L9.8,139.0 L8.4,137.4 L7.9,136.6 L7.5,135.8 L7.0,135.1 L6.9,134.6 L6.6,134.2 L6.6,134.0 L6.1,133.1 L6.1,132.9 L5.9,132.4 L5.9,132.0 L5.8,131.9 L5.8,131.5 L5.6,131.4 L5.6,131.0 L5.5,130.9 L5.5,130.5 L5.4,130.4 L5.4,130.0 L5.2,129.9 L5.2,129.5 L5.1,129.4 L5.1,128.0 L5.0,127.9 L5.0,126.6 L4.9,126.4 L5.0,126.2 L5.0,124.8 L5.1,124.6 L5.1,123.8 L5.2,123.6 L5.2,123.2 L5.4,123.1 L5.8,121.8 L6.1,121.0 L6.5,120.6 L7.0,119.8 L8.6,118.1 L9.6,117.4 L10.5,117.0 L10.9,117.0 L12.2,116.4 L13.8,116.4 L13.9,116.5 L14.5,116.6 L14.9,116.9 L15.1,116.9 L15.5,117.1 L15.8,117.1 L17.1,117.9 L17.6,117.6 L17.6,115.4 L17.5,115.2 L17.4,114.4 L17.1,113.9 L17.1,113.5 L17.0,113.4 L16.6,112.0 L16.1,111.2 L16.1,111.0 L15.6,110.1 L14.2,108.8 L14.0,108.1 L14.1,107.5 L14.6,106.9 L15.8,104.6 L15.9,103.6 L16.0,103.5 L16.0,102.9 L16.1,102.8 L16.1,102.2 L16.2,102.1 L16.2,100.0 L16.1,99.8 L15.9,99.6 L15.4,99.6 L14.1,100.5 L13.4,101.2 L13.2,101.2 L11.6,102.8 L11.5,102.8 L8.6,105.6 L8.0,106.5 L7.2,107.2 L7.2,107.4 L5.5,109.5 L4.9,110.6 L4.1,111.6 L3.8,112.5 L3.2,113.1 L3.1,113.6 L2.0,115.8 L2.0,116.0 L1.8,116.4 L1.8,116.6 L1.1,118.0 L0.8,119.9 L0.6,120.0 L0.4,121.2 L0.2,121.4 L0.1,123.1 L0.0,123.2 L0.0,128.8 L0.1,128.9 L0.1,130.2 L0.2,130.4 L0.4,131.8 L0.5,131.9 L0.6,132.9 L0.9,133.5 L0.9,134.1 L1.0,134.2 L1.0,134.8 L1.1,134.9 L1.2,135.8 L1.9,137.0 L2.2,138.4 L3.0,139.8 L3.0,140.0 L3.5,141.0 L3.8,141.2 L4.1,142.1 L4.8,142.9 L5.1,143.6 L5.9,144.6 L9.2,147.9 L12.5,150.0 L13.1,150.1 L14.6,151.0 L16.2,151.2 L18.0,152.0 L18.8,152.0 L18.9,152.1 L20.9,152.1 L21.0,152.2 L22.0,152.2 L22.1,152.4 L28.5,152.4 L28.6,152.2 L29.4,152.2 L29.5,152.1 L32.0,152.1 L32.1,152.0 L33.1,152.0 L33.2,151.9 L33.8,151.9 L34.5,151.5 L34.8,151.5 L35.2,151.2 L35.6,151.2 L35.8,151.1 L37.2,151.0 L38.6,150.2 L40.1,149.9 L40.8,149.4 L42.1,148.9 L42.8,148.4 L43.6,148.0 L44.5,147.2 L45.4,146.8 L45.9,146.2 L46.5,145.9 L47.4,145.0 L47.5,145.0 L49.6,142.8 L50.8,141.2 L51.0,140.6 L51.6,139.9 L52.2,138.5 L52.5,138.2 L52.9,137.5 L53.0,136.9 L53.8,135.2 L54.0,134.0 L54.4,133.1 L54.4,132.8 L54.6,132.1 L54.6,131.5 L54.8,131.4 L54.8,130.6 L54.9,130.5 L54.9,129.6 L55.0,129.5 L55.0,127.9 L55.1,127.8 L55.1,21.8 L55.0,21.6 L55.0,21.1 Z"></path><path class="lg-madda" style="fill: var(--accent)" d="M52.9,14.9 L53.2,15.4 L53.5,15.4 L54.0,15.6 L54.8,15.6 L54.9,15.5 L55.2,15.5 L55.9,15.2 L57.2,15.1 L58.0,14.8 L59.8,13.1 L60.5,11.6 L60.5,11.4 L60.9,10.5 L61.5,10.1 L91.2,10.1 L91.4,10.0 L91.6,10.0 L91.9,9.8 L91.9,9.2 L90.8,7.6 L90.5,7.0 L90.2,6.8 L89.6,5.5 L89.0,4.6 L88.5,3.5 L88.0,2.8 L87.5,2.2 L86.9,2.4 L86.4,2.9 L85.8,3.2 L85.5,3.2 L85.0,3.5 L84.6,3.5 L84.5,3.6 L61.8,3.6 L61.1,3.1 L60.9,2.5 L61.0,1.0 L60.9,0.9 L60.9,0.5 L60.6,0.1 L60.4,0.0 L59.8,0.0 L59.6,0.1 L59.0,0.1 L58.9,0.2 L57.1,0.2 L57.0,0.4 L56.0,0.4 L55.9,0.5 L55.2,0.6 L54.8,1.1 L54.8,1.4 L54.6,1.5 L54.6,10.9 L54.5,11.0 L54.4,12.4 L54.2,12.5 L54.1,13.4 Z"></path></svg><svg width="46.8" height="20" viewBox="0 0 356 152" aria-hidden="true" style="flex: none; overflow: visible"><path class="lg-body lg-late" fill-rule="evenodd" style="fill: var(--accent)" d="M0,130 L0,96 Q0,78 18,78 L72,78 Q90,78 90,96 L90,130 L72,130 L72,97 Q72,95 70,95 L54,95 L54,130 L36,130 L36,95 L20,95 Q18,95 18,97 L18,130 Z M104,130 L104,100 Q104,78 126,78 L156,78 L156,74 L174,67 L174,130 Z M123,106 A9,9 0 1 0 141,106 A9,9 0 1 0 123,106 Z M220,130 L220,100 Q220,78 242,78 L272,78 L272,74 L290,67 L290,130 Z M239,106 A9,9 0 1 0 257,106 A9,9 0 1 0 239,106 Z M302,22 L320,14 L320,120 Q320,130 328,130 Q336,130 340,120 L350,98 L352,124 Q352,148 326,148 Q302,148 302,124 Z"></path><path class="lg-madda lg-late" style="fill: var(--accent)" d="M182,66 L182,52 Q182,46 188,46 L212,42 L212,50 L192,53 L192,66 Z"></path></svg><span style="font-size: 12px; color: var(--muted); max-width: 120px; line-height: 1.3; border-inline-start: 1px solid var(--rule); padding-inline-start: 14px">where your business is heading</span></a>
+<nav aria-label="Pages" style="display: flex; flex-wrap: wrap; gap: 22px; font-size: 15px">
+<a class="navlink" href="Main.dc.html">Overview</a>
+<a class="navlink" href="Credit.dc.html">Credit</a>
+<a class="navlink" href="Sharia.dc.html" aria-current="page">Sharia screen</a>
+<a class="navlink" href="Zakat.dc.html">Zakat</a>
+<a class="navlink" href="Forecast.dc.html">Forecast</a>
+<a class="navlink" href="Review.dc.html">Review queue</a>
+<a class="navlink" href="Scenarios.dc.html">Scenarios</a>
+<a class="navlink" href="Arabic.dc.html" lang="ar">العربية</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px; padding-bottom: 12px"><span style="display: flex; flex-direction: column; line-height: 1.2"><span style="font-size: 12px; color: var(--muted)">Signed in as</span><span style="font-weight: 600; font-size: 14px">Owner of business 10001</span></span><button type="button" class="themebtn" aria-pressed="{{darkPressed}}" onClick="{{toggleTheme}}">{{themeLabel}}</button><a class="signout" href="Login.dc.html">Sign out</a></div>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-direction: column; gap: 28px">
+<div class="rise" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 20px"><span class="mk" aria-hidden="true"></span><span>BUSINESS 10001</span><span>Retail trade</span><span>as of 30 July 2026</span></div>
+<h1 style="margin: 8px 0 0; font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 600; font-size: 52px; line-height: 1.05">Sharia screen</h1>
+</div>
+<span class="plate ok" style="font-size: 16px; padding: 8px 14px">Compliant</span>
+</div>
+
+<div style="position: relative; padding: 22px 26px; animation: breathe 4s 1.4s ease-in-out infinite; background: var(--warnBg)">
+<span style="position: absolute; left: 0; top: 0; right: 0; height: 3px; background: var(--warnText); transform-origin: left; animation: growx .5s .2s ease both"></span>
+<span style="position: absolute; top: 0; right: 0; bottom: 0; width: 3px; background: var(--warnText); transform-origin: top; animation: growy .4s .7s ease both"></span>
+<span style="position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--warnText); transform-origin: right; animation: growx .5s 1.1s ease both"></span>
+<span style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--warnText); transform-origin: bottom; animation: growy .4s 1.6s ease both"></span>
+<div style="font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 600; font-size: 24px; color: var(--warnText)">Rule-based screening, pending Sharia-advisor confirmation</div>
+<div style="font-size: 14px; color: var(--muted); margin-top: 4px">This screen applies a rule table. It is not a Sharia determination.</div>
+</div>
+
+<section aria-labelledby="rules" style="background: var(--surface); border: 1px solid var(--rule)">
+<h2 id="rules" style="margin: 0; padding: 22px 28px; font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 600; font-size: 22px; border-bottom: 2px solid var(--ink)">What was checked</h2>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+<div class="rise" style="{{r.style}}">
+<span style="font-size: 13px; color: var(--muted)">{{r.k}}</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px">{{r.v}}</span>
+<span style="{{r.resStyle}}">{{r.res}}</span>
+</div>
+</sc-for>
+</section>
+
+<section class="rise" aria-labelledby="ask" style="background: var(--panel); color: var(--panelText); padding: 32px; display: flex; flex-direction: column; gap: 12px; animation-delay: 1.4s">
+<h2 id="ask" style="margin: 0; font-family: 'IBM Plex Sans Condensed', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--panelMuted)">Question for the owner. Shown for information, not collected.</h2>
+<p style="margin: 0; font-size: 22px; line-height: 1.45; max-width: 860px">You make regular repayments to a financial institution. Is this financing Sharia-compliant (for example Murabaha or Ijara), or interest-based?</p>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1050}}'>
+class Component extends DCLogic {
+  pageVals() {
+    const row = (k, v, res, good, i) => ({
+      k, v, res,
+      style: 'display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;gap:16px;padding:18px 28px;border-top:1px solid var(--rule2);animation-delay:' + (0.5 + i * 0.18).toFixed(2) + 's',
+      resStyle: good ? 'justify-self:end;font-family:IBM Plex Sans Condensed,sans-serif;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;padding:5px 10px;background:var(--ok);color:#FFFFFF' : 'justify-self:end;font-size:14px;color:var(--muted)'
+    });
+    return {
+      rows: [
+        row('Evidence basis', 'Declared merchant code', 'Used', false, 0),
+        row('Declared MCC', '5331', 'Compliant', true, 1),
+        row('Rule table version', '1.0', 'Recorded', false, 2),
+        row('Rule table status', 'proposed_unverified', 'Not yet confirmed', false, 3)
+      ]
+    };
+  }
+
+  brandMark() {
+    const hex = 'daf29fc32c9f9149c795399af6444d8a973f47c412248cf462dff93c3d3a8534';
+    const cols = ['#2E3192', '#5B5FD1', '#C9A227', '#2E3192'];
+    const out = [];
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const qr = r < 4 ? r : 7 - r, qc = c < 4 ? c : 7 - c;
+      const v = parseInt(hex[qr * 4 + qc], 16), shape = v % 4, col = cols[v >> 2];
+      const v2 = r < 4 ? 'top' : 'bottom', h2 = c < 4 ? 'left' : 'right';
+      let s = 'aspect-ratio:1/1;animation:bloom .45s ' + Math.round((Math.abs(r - 3.5) + Math.abs(c - 3.5)) * 45) + 'ms cubic-bezier(.2,.7,.2,1) both;';
+      if (shape === 1) s += 'background:' + col + ';';
+      if (shape === 2) s += 'background:' + col + ';clip-path:polygon(50% 8%,92% 50%,50% 92%,8% 50%);';
+      if (shape === 3) s += 'background:' + col + ';border-' + v2 + '-' + h2 + '-radius:100%;';
+      out.push({ style: s });
+    }
+    return out;
+  }
+  themeVals() {
+    const dark = (this.state && this.state.dark !== undefined) ? this.state.dark : (this.props.theme === 'dark');
+    return {
+      themeClass: dark ? 'th-dark' : 'th-light',
+      themeLabel: dark ? 'Light theme' : 'Dark theme',
+      darkPressed: dark ? 'true' : 'false',
+      toggleTheme: () => this.setState({ dark: !dark }),
+      mark: this.brandMark()
+    };
+  }
+  renderVals() { return Object.assign({}, this.pageVals(), this.themeVals()); }
+}
+</script>
+</body>
+</html>

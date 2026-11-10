@@ -25,3 +25,17 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Web UI
+web/node_modules/
+web/.next/
+# The online demo build (web/scripts/build-static.mjs)
+web/.next-static/
+web/out/
+# Written by `next dev` (agent instructions); not project content
+web/AGENTS.md
+web/.env*.local
+web/test-results/
+web/playwright-report/
+web/next-env.d.ts
+web/tsconfig.tsbuildinfo

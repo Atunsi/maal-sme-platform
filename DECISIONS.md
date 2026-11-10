@@ -3030,6 +3030,182 @@ on Linux or Mac, and the other way round, although nothing in the decision diffe
 
 **Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
 
+---
+
+## 41. Web UI first pass: Next.js app over the five read-paths; scenario objects verified by integrity + `scenarios.run --check` — PROPOSED (2026-11-06)
+
+**Touches:** new `web/`; `.gitignore`; the README status row. `api/`, `pipeline/`, `lenses/`,
+`profile_engine/`, `compliance/`, `scenarios/`, `config.yaml` and the schema are unchanged.
+
+**What was built.** The first pass of the Weeks 9 and 10 UI (§19): a business picker, a dashboard
+(credit, Sharia screen, Zakat, forecast, anomaly, profile, a receipt per lens), the §10 Compliance View
+toggle, a scenario page for the 8 entries of the entry 29 library next to the baseline, and English and
+Arabic with RTL. Next.js App Router, TypeScript strict, Tailwind; run instructions in `web/README.md`.
+The Arabic is a first draft, not yet reviewed.
+
+**The API key stays server-side.** The browser talks only to the Next.js server. `web/lib/api.ts` is the
+only reader of `MAAL_API_KEY` and imports `server-only`, so no CORS change to `api/` was needed.
+
+**Rules, and how each is enforced and tested** (`web/tests/`, `web/e2e/`):
+
+| # | Rule | Enforced by | Test |
+|---|---|---|---|
+| U1 | Markup fixed at signing | Strict `credit` schema; `markup_fixed_at_inception` can only be true; no input exists | `U1 a stressed markup field fails the schema`; `U1 the only input in the app is the business picker` |
+| U2 | Late penalty charity-directed | Schema accepts only `charity_directed`; shown as returned | `U2 any other late-penalty policy fails the schema` |
+| U3 | Zakat and Sharia deterministic | Values as returned; SAR at 2 decimals | `U3 SAR keeps exactly 2 decimals and changes nothing` |
+| U4 | No generated text in the Compliance View | The component renders response fields and column labels only | `U4 every table cell is a value from the response`; `U4 snapshot for 10001` |
+| U5 | No `eligible` field on a navigator | No navigator built | none needed |
+| U6 | Sharia screen is not a determination (entry 26) | One fixed label component | `U6 fixed label and rule_table_status on every state` |
+| U7 | Nisab price is a placeholder | Badge from `nisab_source_status` | `U3 U7 computed (10001)` |
+| U8 | `flag_reason` only | Strict flag schema; review-queue wording | `U8 a flag carrying a score fails the schema`; `U8 the flags table never says fraud or score` |
+| U9 | No peer benchmarking (§36.4) | Features 55–59 listed as raw names and values | `U9 features 55-59 appear as raw names` |
+| U10 | `insufficient_data` is explicit (§15) | Schema requires the refusal; one `Refusal` component | `insufficient_data (10003)`; `U10 not_computed (synthetic state)` |
+| U11 | Every number carries its population | Line on every card, permanent banner; schema accepts only `serving` | `U11 population and data source are shown`; `renders and passes axe` |
+| U12 | Model honesty | AUC and ceiling read from the receipt; findings panel | `U12 AUC and ceiling come from the receipt`; `U12 quotes no number` |
+| U13 | Receipt scope | Verbatim where present; `/profile` says it has none | `U13 lens receipt shows scope verbatim`; `U13 /profile receipt says it has no scope field` |
+| U14 | WCAG 2.1 AA | Semantic HTML, keyboard toggles, status as glyph plus words, table beside the chart | `renders and passes axe` (axe, 30 pages across both locales) |
+| U15 | No personal data, demo scope stated | No accounts or tracking; footer (§18, §29) | `U15 the footer states the demo scope` |
+
+Results: 104 vitest and 48 Playwright tests pass. Eight deliberate breakages each failed the expected
+test. Repo pytest and ruff are unchanged (98 passed, 1 xfailed; clean).
+
+**Scenario verification rule.** A scenario object counts as verified when (a) it hashes to its own
+`receipt.output_sha256` (`pipeline.week8.output_sha256`), and (b) `python -m scenarios.run --check`
+exits 0 (contract, byte-identical re-run, time budget). `pipeline.verify` cannot apply: it re-runs a
+decision from the generated `data/`, and a scenario is an in-memory overlay on business 10001, so
+its `data_sha256` can never match. All 8 failed it, as expected, including the baseline, because a
+single-business run numbers its surrogate IDs from 1 (entry 29). The 8 exported objects pass both checks
+(N = 1 each; library sha256 `8f84b917…cc0e7d`, code commit `c571185`).
+
+**Scenario receipts carry a misleading line, for the generator owner.** Their `scope` says
+`verify: python -m pipeline.verify <file>`, which does not work on them. The UI shows the scope
+verbatim and adds a note under it. Better to change the wording at the source.
+
+**Backend templates are not translated.** `public_tier[].text`, owner prompts, disclosures, conditions,
+drivers, rule details, `compliance_explanation` and every `method` string stay in English in an LTR block
+in Arabic mode, labelled as pending an Arabic template. They are deterministic templates owned by the
+credit and compliance owners (SOP §7 lists Arabic templates as their own work item), and a UI translation
+would be a second, unreviewed version. Enum keys with a fixed meaning are UI labels and are translated.
+
+**Finding: the serving store is not safe under concurrent requests.** `api/store.py` shares one DuckDB
+connection across request threads. Concurrent requests fail, and some return HTTP 200 computed from
+another request's rows. The Week 7 latency result does not cover this.
+
+| Measured | Population, N | Result |
+|---|---|---|
+| UI run: concurrent `/lenses/zakat` | Quick store (300 serving), 48 requests over 8 businesses, 1 run | 41 HTTP 500; 4 HTTP 200 with a `data_sha256` different from the sequential answer; 3 correct |
+| Faris: concurrent Zakat requests | Quick store (300 serving), 48 per run, 3 runs | 41 to 43 HTTP 500 per run |
+| Faris: threaded store loads | Quick store (300 serving), 200 loads | 1 load held another business's rows |
+| Faris: per-call `cursor()` | Quick store (300 serving), 200 loads, 1 run | 200 of 200 correct |
+| Through the UI queue | Quick store, 15 concurrent page loads over 5 businesses | 60 of 60 lens hashes matched; 0 API errors |
+
+The UI works around this: `web/lib/api.ts` sends one API request at a time, and each card still loads
+and fails on its own. This makes the dashboard sequential until the store is fixed, which is not what §8
+intends. **The fix is the API owner's.** Remove the queue after it.
+
+**Entry 29, one wording correction for its owners.** Finding 1 says the collapse PDs are "no higher than
+the baseline's". On the exported objects `combined_crisis` is 0.056133 and the baseline 0.055732, so that
+one is slightly higher. The finding's point stands (N = 1 each, and both are declined by affordability,
+not by the risk model), and nothing was changed.
+
+**API additions proposed, not built:** the store fix above; `GET /businesses` (id, sector, status) for
+the picker; a scenarios route so the page can run them live; daily history for the §10 model vs baseline vs
+actual chart, which today draws no actual line; `scope` on `/profile` receipts.
+
+**Open: UI ownership.** SOP §3 names no UI owner.
+
+**Sign-off:** ☐ team (UI ownership and scope) ☐ API owner (store fix, proposed routes) ☐ generator owner (scenario verification rule, receipt scope wording) ☐ credit lens owner (Compliance View) ☐ compliance owner (Sharia and Zakat panels, Arabic templates)
+
+---
+
+## 42. Web UI redesign to the design bundle; U11 and U15 amended for the demo — PROPOSED (2026-11-06)
+
+**Touches:** `web/` and the README status row. `api/`, `pipeline/`, `lenses/`, `profile_engine/`, `compliance/`,
+`scenarios/`, `config.yaml` and the schema are unchanged. Builds on entry 41; rules U1 to U15 are as listed
+there, with the two amendments below.
+
+**What changed and why.** The first pass read as generic: every card the same weight, everything on one
+long page, no brand on the first screen. The design bundle (`web/docs/design/`) replaces that with Faris's
+Arabic logo and an English companion wordmark in every header, light and dark themes, one page per lens
+plus an overview, lens visuals with motion, a scenario diff sheet, a public landing page, a demo sign-in and
+an admin list. The bundle's competitor review found three things worth acting on: Saudi lenders sell speed
+and trust but never show why; underwriting tools show evidence visually; and brand-led fintechs repeat
+one motif. So the pages lead with the reason for a decision, and "pending Sharia-advisor confirmation"
+is shown more prominently, not less. The landing page uses counts of what the demo contains, not
+performance claims.
+
+**U11 amended, word for word.** The yellow synthetic-data banner is removed. Instead, every page shows
+population and data source: the footer of every page reads "Synthetic data only. Population: serving." (and
+its Arabic), and the landing, sign-in and admin pages say "synthetic data" in their body copy. Every number
+still carries its population where the old rule required it.
+
+**U15 amended, word for word.** A demo sign-in page is allowed, front-end only: it chooses a role (Business
+owner or Admin) and routes to the right page. Both roles need the demo password `pass`, compared in the
+browser only; the registration number and username are not read, and the username is any text, not an
+email. It creates no account or session, stores nothing, sets no cookie and sends nothing to the API. The
+password is in the page's code, so it keeps out nobody. The page says so in plain words. Everything
+else in U15 stands (no tracking, analytics or logging of business data; the PDPL and SAMA Open Banking
+footer note).
+
+**New rules.**
+- No symbol characters in UI text: no check marks, crosses, exclamation marks, arrows, delta signs, middle
+  dots, ellipses or em dashes in any rendered text, in either language. Status is a word on a plate.
+- No hash-derived visual patterns ("seals" or "fingerprints") anywhere. Receipts stay plain text.
+- Theme preference may be kept in `localStorage` only (no cookie), defaulting to the system
+  `prefers-color-scheme`.
+
+**Logo files.** `web/docs/design/logo/maal-ar.svg` (sha256 `75d20f0cc5bbdffb8f2eec20612f05522a83714a834a41beb1a32b2f40263311`)
+and `web/docs/design/logo/maal-en.svg` (sha256 `3e103bda95aee4c0745566147a6d389fcb124bacd6ca64d273a4265180229771`).
+`tests/brand.test.tsx` checks both hashes, and that the React components hold the same path data
+coordinate for coordinate. `maal-ar.svg` is one compound path, not the two paths the bundle README
+describes; the app splits it at its last subpath (the madda) so the two parts can animate. No coordinate
+changes.
+
+**Figures.** Every figure comes from an API response or an exported scenario object. Positions, widths and
+dates in the visuals are computed from the response at render time. The landing card reads the exported
+`baseline` scenario object; its counts come from code (the lens list, the scenario index, the locale list).
+`tests/visuals.test.tsx` fails if any of the mockups' 10001 figures appears in a source file.
+
+**Could not be built as designed.**
+
+| Element | What happens instead | Why |
+|---|---|---|
+| "N of cap" on the review queue ("10 of 10 slots") | The count and the transactions scanned; no cap | The cap is `max_flags` in `lens_config.yaml`, and no response carries it. Hard-coding it is not allowed. Proposed: add it to the anomaly response |
+| Legend text "Model, naive90" and "Naive baseline, trailing 30-day mean" | "Model" and "Naive baseline"; the page shows the API's `method` string verbatim under the table | Those details exist only inside that free-text string, and parsing it for a legend would be fragile |
+| Reem Kufi for Arabic accents in the mockups | IBM Plex Sans Arabic | SOP lists four IBM Plex families only |
+| Mockup wording "Every result is signed with a receipt" | "Every result carries a receipt" | A receipt is a list of hashes, not a signature |
+| The `.ink` plate's white text; the forecast cover rectangle | Plate text uses the page ground colour; a clip reveals the lines | Mockup defects: white on `--ink` fails contrast in the dark theme, and the cover would hide the chart under reduced motion |
+
+**Where the symbol rule stops.** Backend text is verbatim by U4 and U13 and is not UI text. One real
+template holds an em dash: the Sharia rule detail for MCC 5921 ("package stores — beer, wine, liquor"), reached
+only by a hard flag, which no demo business has (it appears in a synthetic-state fixture). It stays as
+returned. Scenario labels hold one too ("Severe revenue collapse — inflows down 60% from week 14"); the
+dash there is a separator, so the UI shows the two parts on separate lines, as the design does, and drops no
+word. The generator owner may prefer to change the source label.
+
+**Time axes stay left to right in Arabic** (forecast chart, review timeline, hawl track), following entry
+41's chart rule. Non-time bars mirror, so credit and zakat bars grow from the right.
+
+**One rule test had to widen.** `U1 the only input in the app is the business picker` now also allows
+`SignInForm.tsx`, because the U15 amendment adds inputs. U1's point stands: no input can change terms. New
+tests check that the sign-in fields have no name, that only the password is read, that a wrong password
+stays on the page, and that the form sends and stores nothing.
+
+**The demo role proves nothing.** It rides in the URL (`?as=`) and gates nothing, so `/admin` is open to any
+visitor. That is fine for synthetic data and would not be for real data.
+
+**The request queue stays** (entry 41). The overview makes the five requests of the first-pass dashboard, and
+each lens page makes one.
+
+**Follow-up (2026-11-08).** One rule-test change from the `788bcef` follow-ups was not listed above. The
+reduced-motion test `U6 the Sharia frame and its outline stand without animation` used to check four
+separate edge pieces; the frame is now one rounded outline drawn as an SVG rectangle, so the test checks that
+outline is visible with its stroke fully drawn (`stroke-dashoffset` 0) under reduced motion. U6 is unchanged:
+the fixed label and its frame still stand on the page with every animation off.
+
+**Sign-off:** ☐ team (redesign, U11 and U15 amendments) ☐ compliance owner (Sharia and Zakat pages, Arabic copy) ☐ credit lens owner (Credit and Compliance views)
+
+---
 
 ## 43. §25 within-sector fairness: construction's top attributions are not liquidity / working-capital features — FINDING (2026-11-08)
 
@@ -3123,6 +3299,178 @@ within volatile sectors."
 approval) ☐ team (the finding and the limitations wording)
 
 ---
+
+## 44. API additions: GET /businesses, anomaly max_flags, GET /scenarios and POST /scenarios/run — PROPOSED (2026-11-09)
+
+**Faris Alsharifi acted for the API owner for this work** (SOP_web_ui_enhancements section 1a). The API owner
+should review this entry and the code (`api/app.py`, `api/store.py`, `api/scenario_bounds.py`) before it counts
+as the API's own. Nothing outside `api/` and `tests/` changed; `pipeline/`, `lenses/`, `scenarios/`, `generator/`,
+`config.yaml` and the schema are untouched, and no existing route's logic or output changed.
+
+**`GET /businesses`.** Query `offset` (whole number from 0, default 0), `limit` (1 to 50, default 25), `sector`
+(one of the sectors in the store), `q` (digits: the start of a business ID). Any other parameter, or a bad value,
+is a 422 in the existing `{"detail": "<reason>"}` format. Response:
+`{"population": "serving", "data_source": "synthetic", "total", "offset", "limit", "businesses": [{"business_id", "sector"}]}`,
+in ID order; `total` counts after filters. No lens runs. Serving only, twice over: the store holds the serving
+population, and the route also keeps only IDs inside config's serving `id_range` whose stored population is
+serving. Same key check as every route; the per-business rate limiter counts it against one bucket of its own.
+
+**`max_flags` in the anomaly response: stopped (S9).** The cap comes from `lenses/lens_config.yaml` (`max_flags`).
+`receipt.output_sha256` hashes the whole response except the `receipt` key (`pipeline.week8.output_sha256`), so
+no envelope sits outside the hash: a `limits` object anywhere at the top level changes the anomaly response's
+`output_sha256` and every captured anomaly fixture hash. The SOP says to stop there. Options for the API owner:
+(a) accept the new hashes once and record the switch here; (b) put the cap inside the receipt, which is outside
+the hash, and say so in the receipt contract; (c) serve it from a small separate route (for example
+`GET /limits`), which changes no hash. The UI already reads `limits.max_flags` when present.
+
+**`GET /scenarios`.** The library entries (name, label, story), `scenario_library_sha256`, `max_shocks` (3), and for
+each shock type its parameters with `min`, `max`, `step` and `unit`, plus any fixed value.
+
+**`POST /scenarios/run`.** Body `{"shocks": [{"type", "params"}]}`, one to three shocks; anything else is a 422.
+The scenario is built on the library's base business by the same functions `scenarios.run` uses
+(`scenario_config`, `generate`, `prepare`, `decision_object`, `receipt`) on an in-memory copy of the library;
+`scenarios/` is not edited. The result has the shape of an exported scenario object, with
+`scenario.source: "custom"`, `scenario.label: "Custom scenario"`, the shocks echoed back, and a receipt carrying
+`scenario_library_sha256` and an `output_sha256` the object hashes to (entry 41's integrity rule). The same
+request gives the same bytes; nothing is stored or cached. Past the `scenarios.run` budget (30 s) it answers 503.
+A lever no shock names keeps the base business's own demo spec, as library scenarios do.
+
+**Bounds** (`api/scenario_bounds.py`, read from `scenarios/library.yaml` at import; nothing typed in):
+
+| Shock type | Parameter | Library values | Bound | Reason |
+|---|---|---|---|---|
+| `cash_crunch` | `week` | 12, 14, 18, 24 | 12 to 24, step 1 | smallest and largest in the library |
+| `cash_crunch` | `severity_pct` | 15, 60, 70 | 15 to 70 percent, step 1 | smallest and largest in the library |
+| `large_transfer` | `week` | 6, 13, 16, 22, 23 | 6 to 23, step 1 | smallest and largest in the library |
+| `odd_hours_transaction` | `week` | 9, 17 | 9 to 17, step 1 | smallest and largest in the library |
+| `newcomer` | `operating_start_date` | 2026-06-20 | fixed | not numeric; fixed at the library value |
+
+At most one `cash_crunch` and one `newcomer`. Only the anomaly types the library uses are offered, so held-out
+types never appear. No parameter names a term of an offer (asserted at import; U1). The generator owner should
+confirm or change these bounds.
+
+**N6, receipts stay reproducible.** `pipeline.verify` on the business 10001 decision object (quick data,
+N = 300 serving businesses) before and after this work: both "REPRODUCED byte-identical", output hash
+`ed7d4de3…` unchanged. `scenarios.run --check` exits 0; `eval.check_numbers` reports the register current.
+
+**The store bug is still open.** `ServingStore` shares one DuckDB connection across request threads.
+`GET /businesses` reads through that same connection (a new `business_list()` on the store, like `load()`), so it
+shares the connection exactly as the existing routes do and adds no new way to hit the bug. `GET /scenarios` and
+`POST /scenarios/run` never read the store. The UI still queues every call (entry 41).
+
+**Tests.** `tests/test_api_businesses.py`: `new routes require the api key`, `businesses route returns serving ids
+only`, `businesses pagination totals add up`, `businesses sector and q filters`, `businesses bad params return 422`,
+`businesses runs no lens`. `tests/test_api_scenarios.py`: `scenarios route lists the library with bounds`, `custom
+scenario rejects out of bound params`, `custom scenario rejects unknown shock types`, `custom scenario integrity hash
+matches its receipt`, `custom scenario is byte identical on re-run`, `custom scenario result is labelled custom`,
+`custom scenario has the shape of a library object`, `custom scenario has no terms parameters`, `scenarios run
+check still exits 0`. 39 tests in all, every one passing.
+
+**Sign-off:** ☐ API owner (routes and contracts; Faris Alsharifi acted for this SOP) ☐ generator owner (custom scenario bounds and labelling) ☐ team
+
+## 45. Web UI review fixes: defects B1 to B22, clarity C1 to C8, interactions I1 to I10, U7 widened, N3 enforcement changed — PROPOSED (2026-11-09)
+
+**What this is.** The fixes from the review "Ma'al web UI review: errors, improvements and interactivity"
+(2026-11-09, made at `faris/web-ui` `5e6599f`), built on `faris/web-ui` under `SOP_web_ui_review_fixes.md` v1.
+Everything changed is under `web/`, apart from this entry, the README row and the merge of `main`. Rules U1 to U15
+(as amended in entry 42) and N1 to N7 (entry 51) still apply to every page.
+
+**The merge of `main` (B22).** `origin/main` at `812fe41` (7 commits: GoldAPI nisab price, hawl review note, MCC
+validation in `compliance/sharia.py`, `pipeline/week8.py`, `lenses/lens_config.yaml`, this file) was merged with a
+normal merge commit (`bfca14a`), with no conflicts. Before it, branch `faris/web-ui-pre-review-merge` and tag
+`pre-review-merge` were pushed at `5e6599f`. What it changed for the UI:
+- `nisab_source_status` is now `commercial_quote_documented_pending_independent_verification` (nisab 85 g gold ×
+  SAR 491.291/g = SAR 41,759.74). The UI compared the status with `placeholder_unverified`, so the U7 plate
+  disappeared. B22 fixed that first (below).
+- A receipt carries `gold_quote` only when `pipeline.week8 --gold-quote` is given. The API calls `make_context()`
+  without one, so served receipts do not carry it; the UI's `Receipt` schema is a loose object and would parse it.
+- No response shape changed (`nisab_source_status` was already `z.string()`).
+- `_mcc()` now rejects anything that is not exactly four ASCII digits. None of the five demo states moved
+  (10001 approved unconditional, 10004 declined on affordability, 10037 conditional on Sharia review with one
+  owner prompt, 10040 partial profile, 10003 insufficient data), so `DEMO_BUSINESSES` is unchanged.
+- The 8 scenario objects were re-exported; all pass their integrity check, and `scenarios.run --check` exits 0.
+  The library sha256 is unchanged.
+
+**Decisions taken for this work (SOP section 1a), word for word.**
+1. **Merge `origin/main` first.** `origin/main` is at `812fe41` with 7 commits the branch lacks (GoldAPI nisab price, hawl review note, MCC validation in `compliance/sharia.py`, `pipeline/week8.py`, `lenses/lens_config.yaml`, `DECISIONS.md`). Phase A0 merges it with a normal merge commit, the same way the enhancements SOP did.
+2. **U7 is widened, never narrowed.** The nisab plate shows for every `nisab_source_status` that is not an explicitly verified value. Each known status gets its own words from the catalogue. An unknown status shows a generic plate ("Nisab price not independently verified") with the raw code beside it. Only a status named in the catalogue as verified hides the plate, and no such status exists today.
+3. **Demo sign-in (B1).** The page shows the demo password in plain text next to the field. The field and the browser-only check stay as DECISIONS 42 describes.
+4. **Conditional approval word (B2).** "Approved, conditional" (Arabic draft: «موافقة مشروطة»), on every plate and heading that shows a credit decision.
+5. **Digits (B3, B20).** The choice stays in `localStorage` only (DECISIONS 51, decision 3, unchanged). N3 keeps its effect: hashes, commands, URLs and business IDs inside links stay Latin. Its enforcement changes from "skip every `a` element" to "skip what is marked `data-latin`, plus `code`, `pre`, `[lang=en]` and form fields". Business IDs inside links get `data-latin`.
+6. **Probabilities (C3).** Shown as a percentage with one decimal, followed by the exact value as returned in a smaller mono span: `34.6% (0.346)`. `formatRaw` and its test stay unchanged. The Compliance View and receipts keep the exact value only.
+7. **Motion (M1).** On every page except the landing page and sign-in, no entrance delay is longer than 0.4 s and no entrance duration longer than 0.6 s. The landing page and sign-in keep their full sequence. No new storage of any kind is added for motion.
+8. **No new storage.** Nothing in this SOP adds a cookie, `sessionStorage`, `localStorage` key or IndexedDB use. Theme and digits stay the only stored values.
+9. **New inputs are named in the U1 allowlist.** The business switcher (I1), the Ctrl+K search (I8) and the builder's range sliders (I5) are added to the named allowlist in `tests/wording.test.tsx`, each with one line saying why it can't reach a term. No general relaxation.
+10. **I6 (compare) is conditional.** Build it only if `origin/main` contains a fix for the shared DuckDB connection in `api/store.py` when Phase E starts. Otherwise skip it and say so in the report.
+11. **Fonts (B19).** Self-host the four IBM Plex families with `next/font/local`, using the woff2 files from the Fontsource npm packages (SIL Open Font License). Commit the font files and the licence text. No runtime or build-time call to Google.
+12. **Fixed text.** Every new string exists in English and Arabic, every new Arabic string is marked draft for review in the catalogue (existing convention), and no rendered text uses the banned symbol characters. N1 (no digits) still applies to the tour, glossary and how-it-works catalogues.
+
+**New rules R1 to R8, how each is enforced, and its test.**
+
+| # | Rule | Enforced by | Test |
+|---|---|---|---|
+| R1 | Different states never share a word; colour is never the only difference between two plates | `lib/decision.ts` (`decisionState`, `decisionWord`, `decisionPlate`, `creditPlate`) used by every decision plate and heading; catalogue groups with one word per state | `every plate state has its own word` (`tests/plates.test.tsx`: every plate group in both locales, plus a scan that no component indexes `m.enums.decision` directly) |
+| R2 | With Arabic-Indic digits on, every eligible number converts, including inside links and before `%` | `lib/digits.ts` (links no longer skipped; `data-latin` on ID links) and `formatPct` | `arabic digits convert every eligible number` (`tests/digits-render.test.tsx`; `e2e/digits.spec.ts` on overview, credit, zakat, review for 10001) |
+| R3 | A toggle with `aria-pressed` keeps one fixed label | `ThemeToggle`, `DigitsToggle`, the changed-rows and reason toggles; Play all dropped `aria-pressed` because its label says what a press does | `pressed toggles keep one label` (`tests/brand.test.tsx`) |
+| R4 | Every element with a click handler has a keyboard path | Buttons and links; the review row keeps its mouse click beside a date-cell button | `every click handler has a keyboard path` (`tests/keyboard.test.tsx`, a source scan with one named exception) |
+| R5 | No raw enum code in user-facing text outside receipts, the Compliance View, `BackendText` and the profile features table | `lib/labels.ts` `label()`, with a code fallback for unknown values | `no raw codes outside receipts` (`tests/labels.test.tsx`, credit, zakat and review for 10001, both locales) |
+| R6 | Entrance delay at most 0.4 s and duration at most 0.6 s outside the landing page and sign-in | `--d-0` to `--d-4` in `globals.css`, `lib/motion.ts` `delay()`, capped CSS durations; `data-motion="full"` restores the landing page and sign-in | `entrance motion stays under the cap` (`tests/motion.test.ts` source and CSS scan; `e2e/motion.spec.ts` animation timings on overview, zakat, review) |
+| R7 | The nisab plate shows for every status not named verified in the catalogue | `lib/nisab.ts` `nisabPlate()` and `NisabPlate`, used by `ZakatCard`, `Readouts`, `ScenarioCompare` and the print sheet; no component compares the status with a literal | `nisab plate shows for every unverified status` (`tests/nisab.test.tsx`) |
+| R8 | The header fits one row at 1280 px and 1440 px in both locales | Header layout: a "Display" button for the theme and digits toggles from 768 px up, a "Business" button for the switcher, slightly tighter header spacing | `header fits one row on laptops` (`e2e/header.spec.ts`) |
+
+R6 names one timer that is not an entrance: Play all's 8 s progress fill (I4), which the test checks equals
+`PLAY_STEP_MS`.
+
+**U7 widened.** Before, the plate showed for exactly one status string; any new status hid it. Now it shows for
+every status except one the catalogue names as verified (`zakat.nisabVerified`, empty today), with its own words
+for each known status and generic words plus the raw code for an unknown one. A new backend status can only add
+a plate, never remove one, so the rule is stronger.
+
+**N3 enforcement changed.** The rule is unchanged: hashes, commands, URLs and business IDs inside links stay Latin.
+Enforcement moves from skipping every `a` element (which also left readout-card figures and counts inside links
+Western, the B3 defect) to skipping `[data-latin]`, `code`, `pre`, `[lang=en]` and form fields, with `data-latin`
+on every link whose text shows a business ID (the admin demo table, the full business list, the landing strip,
+the switcher, the refusal link). The test of that name passes; its sample link now carries `data-latin`, like the
+app's own ID links. B20 also skips `[aria-live]` regions and watches the header and `<main>` (and regions mounted
+later into `<body>`) instead of every node.
+
+**U1 allowlist entries added (`tests/wording.test.tsx`).** Each is named, with its reason:
+- `BusinessSwitcher.tsx` (I1): digits of a business ID; it searches serving IDs and opens that business.
+- `CommandPalette.tsx` (I8): matches typed text against fixed lists of pages, scenarios, glossary terms and serving
+  IDs, and only navigates.
+- `CustomScenarioForm.tsx` sliders (I5): the file was already listed; its range sliders edit the same bounded shock
+  values as its number fields. `tests/custom.test.tsx`'s input names add `<type>.<parameter>.slider`.
+- `ScenarioControls.tsx` (I4): the phone `<select>` picks one of the library's fixed scenarios and only navigates.
+  This is a fourth entry beyond the three 1a.9 names; I4 step 3 requires the native select.
+None can reach a term of an offer.
+
+**Calls to the API.** Every new call (I1 plates and search, I3 profile, I9 strip) is made from the server through the
+queue in `lib/api.ts`. I1 and I3 use server actions in `app/actions.ts`; the key-leak guard stops its client import
+graph at a `"use server"` module (Next sends the browser a reference, never the code) and checks that every such
+module is marked.
+
+**Sharia with no MCC (C6).** `compliance/sharia.py` `screen()`, branch (a): with no merchant code the screen uses the
+registered sector, and a sector that the rule table's `no_mcc_by_sector` marks compliant triggers no rule. The Sharia
+page now says so in one fixed sentence, shown only for compliant, registered-sector screens with no MCC.
+
+**Items left out.**
+- **I6 (compare two businesses): skipped under 1a.10.** `origin/main` holds no fix for the shared DuckDB connection
+  in `api/store.py`. It can be built once the API owner's fix is merged.
+- **B10 and B11 (review lanes and clusters): built, then reverted at Faris's request (2026-11-09).** The review
+  timeline is back to one track with one mark per transaction, colour and height both marking the reason, as
+  before this work. Marks that sit close together can still overlap; the table lists the same transactions. The
+  legend filters, table sort, row buttons and mark-to-row scrolling stay.
+- No S2, S3, S4, S5, S6, S8 or S9 stop was hit. I3's feature mapping (`compliance_tier.contributions`), I5's
+  "Start from" shocks (`scenario.overrides` in the exported objects) and C6's sentence were all buildable from what
+  the API returns or what is under `web/`.
+
+**Next steps for other owners.**
+- **C4 (credit lens owner):** human factor names in the credit templates ("Your inflow regularity score..." reads
+  the raw feature name). Not built here; the UI shows the template verbatim (U4).
+- **Store concurrency fix (API owner):** `ServingStore` still shares one DuckDB connection across request threads.
+  Once fixed, I6 can be built and the request queue in `lib/api.ts` removed.
+
+**Sign-off:** ☐ team (fixes and scope) ☐ compliance owner (nisab plate wording, Sharia no-MCC sentence, Arabic copy) ☐ credit lens owner (conditional approval word, factor expanders)
 
 ## 46. Scenario library re-run on the retrained credit model; entry 29's findings 1–2 restated — RECORDED (measurement, 2026-11-09)
 
@@ -3337,3 +3685,88 @@ with 22 defaults, secondary label n = 615 with 59, censored):
 - **C. Require the primary label for A2**, so the headline count is 14.
 
 **Sign-off:** ☐ profile engine owner (registry rule) ☐ team (claim wording)
+
+---
+
+## 51. Web UI enhancements: tour, print sheet, glossary, receipts, readouts, digits, mobile, how-it-works, play all, admin list, review cap, custom scenarios — PROPOSED (2026-11-09)
+
+**Renumbered from 43 when `faris/web-ui` was merged into `main` (2026-11-10):** `main` had already given 43 to the §25 fairness finding. References to this entry in `web/` and in entries 41, 42, 44 and 45 now say 51.
+
+**Touches:** `web/` only (the API side is entry 44). Builds on entries 41 and 42; rules U1 to U15 as amended in 42
+still apply, with the rules below added. Done on `faris/web-ui` after merging `origin/main` at `f06639f`.
+
+**What each enhancement does.**
+- **E1 Guided tour** of business 10001: nine steps (verdict, credit factors, Compliance View, the pending Sharia
+  frame, the Zakat waterfall, the forecast runway, the review timeline, the `severe_collapse` diff sheet, the
+  receipt). The step is in the URL (`?tour=`); a non-modal panel at the bottom, focus on each step's title,
+  Escape ends it. Captions say what to look at, never a value. A step whose target does not load says so and
+  the tour goes on. Business and scenario are named once (`lib/tour.ts`).
+- **E2 Print sheet** at `/business/[id]/sheet`: header and provenance, the verdict with the fixed-markup and
+  charity lines, the public reasons verbatim, the Sharia screen with the U6 label and `rule_table_status`, Zakat
+  with the U7 plate and "Not a ZATCA assessment", forecast figures and table, the review count and reasons, the
+  credit receipt with the scope verbatim. A4 print CSS, light tokens, nothing interactive, no timestamp.
+- **E3 Glossary**: 25 terms, each with a repo source; `<Term>` buttons at a term's first appearance on a page;
+  `/glossary`. Murabaha is left out: the UI never shows the word.
+- **E4 Receipts**: Copy beside every full hash and the commit; the scope's `verify:` command shown verbatim
+  with Copy; "Check a hash" in the browser. Scenario receipts show `python -m scenarios.run --scenario <name>`.
+- **E5 Readouts**: the forecast chart takes focus and steps between today and each horizon; Zakat bars and
+  review marks show their value on hover, focus or tap; the cash-floor label is placed at render time.
+- **E6 Play all** on the scenario page, every 8 s, with Pause, stopping at the end, on a visitor's pick and when
+  the page is hidden.
+- **E7 Phones and tablets**: a Menu below 768 px, the Arabic logo alone below 390 px, no sideways scroll at 360 px,
+  the diff sheet stacked below 768 px, 44 px targets.
+- **E8 Arabic-Indic digits**: a switch in the Arabic locale only, in `localStorage`, never a cookie.
+- **E9 How Ma'al decides** at `/how-it-works`, each section linked to the matching page for 10001.
+- **E10 Admin list** from `GET /businesses`, searched and paged through the URL.
+- **E11 Review cap**: the UI shows "N of cap" when `limits.max_flags` is present and the count alone otherwise.
+  The API side stopped (S9, entry 44), so every response today takes the fallback.
+- **E12 Custom scenarios** at `/scenarios/custom`, built from `GET /scenarios`, run by `POST /scenarios/run`,
+  labelled "Custom scenario, not part of the library" with the N = 1 caveat and a full receipt.
+
+**Decisions Faris took for this work, word for word (SOP section 1a).**
+1. Faris acts as API owner for this SOP. E10, E11 and E12 may edit `api/` and add API tests under `tests/`. The DECISIONS entry for the API additions must say plainly that Faris acted for the API owner and that the API owner should review it. Claude still ticks nothing; Faris ticks his own boxes after reading the entry.
+2. The store concurrency bug is not fixed in this SOP. The request queue in `web/lib/api.ts` stays. Every new API call from the UI (including E10, E11 and E12) goes through the queue. New API routes must not make the bug worse: they use the store the same way existing routes do, and the report says whether they share the connection.
+3. Digits (E8): Western digits stay the default. The switch appears in the Arabic locale only. The English locale always shows Western digits. The choice is kept in `localStorage` only, never a cookie, like the theme.
+4. Fixed text only. Tour captions, glossary definitions, "How Ma'al decides" copy and any new labels are fixed UI text written by Claude, in both languages, with every new Arabic string marked draft for review in the catalogue (existing convention). No LLM call, no generated text, no machine translation.
+5. No digits in fixed text. The tour captions, glossary entries and "How Ma'al decides" copy contain no digits (Western or Arabic-Indic). Any number those pages show comes from the API, a scenario object, or code (for example the count of lenses from the lens list).
+6. Default locale stays English. Other open items from the redesign report (wordmark, looping motion, competitor claim, "Not scored" wording, PR timing, UI ownership) stay open and unchanged.
+
+**New rules, how each is enforced, and its test.**
+
+| # | Rule | Enforced by | Test |
+|---|---|---|---|
+| N1 | Fixed text has no digits | A catalogue check over the glossary, tour and how-it-works text in both languages | `fixed text catalogues contain no digits` (tests/glossary.test.tsx) |
+| N2 | Glossary entries have a repo source | Every entry carries `source`; the first file it names must exist | `every glossary entry names a repo source` |
+| N3 | Hashes, commands and IDs in code stay Latin | The digits rewrite skips `code`, `pre`, `a`, `[lang=en]`, form fields and `[data-latin]` | `arabic digits never touch hashes or commands` (unit and e2e) |
+| N4 | New API routes are serving-only and keyed | Entry 44 | `businesses route returns serving ids only`, `new routes require the api key` |
+| N5 | Custom scenarios are labelled and bounded | API validation (entry 44) and the warn plate | `custom scenario rejects out of bound params`, `custom scenario result is labelled custom` |
+| N6 | Receipts stay reproducible | `pipeline.verify` on 10001 before and after | 10001 verified byte-identical both times, output hash `ed7d4de3…` unchanged |
+| N7 | No page scrolls sideways on a phone | Playwright projects at 360 and 390 px | `no horizontal page scroll at mobile widths` |
+
+**The U1 input allowlist.** The test `U1 the only input in the app is the business picker` keeps its named list
+and gains four names: `CopyButton.tsx` (a read-only field holding a hash, shown only when the clipboard is
+blocked), `HashCheck.tsx` (a pasted hash compared in the browser), `BusinessSearch.tsx` (the admin search) and
+`CustomScenarioForm.tsx` (the builder: a checkbox and one bounded number per shock parameter; its own test fails
+on any other input name or any name that holds a term word). U1's point is unchanged: no input can reach markup,
+amount, months or any other term. The credit card and the Sharia panel still hold no input of any kind: their
+receipt panels, which now carry the hash check, sit just below them on the credit and Sharia pages.
+
+**Left out, and why.**
+- **S5, the forecast readout steps between horizons, not days.** The response holds today and each horizon only;
+  a value for any day in between would be invented.
+- **S5, no re-run command for `fraud_pattern`.** The command would put the scenario's own name on screen, and U8
+  keeps that word off it. Custom scenarios show no library command either: none re-runs them.
+- **S9, the review cap in the API** (entry 44). The UI keeps its fallback.
+- **The glossary is not in the Compliance View**: the U4 guard records exactly what that view composes.
+- **Without JavaScript**, the admin page shows its loading state: it streams (its five demo rows already did),
+  and streamed content needs a script to appear. Search, sector and paging are still handled on the server from
+  the URL; a test reads the server's HTML to show it.
+
+**Arabic.** Every new Arabic string is a draft: the catalogue's `_review` line names the new sections, and the
+glossary, tour and how-it-works entries carry `draft: true`. The Arabic-Indic separators (٫ and ٬) are what
+`Intl` produces with the `arab` numbering system.
+
+**Sign-off:** ☐ team (enhancements and scope) ☐ compliance owner (glossary and how-it-works wording on Sharia and Zakat, Arabic copy) ☐ credit lens owner (credit wording in the tour, glossary and print sheet)
+
+---
+

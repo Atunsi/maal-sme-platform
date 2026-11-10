@@ -1,0 +1,57 @@
+{
+  "library_version": "1.0",
+  "library_status": "proposed",
+  "library_sha256": "8f84b9175aac62b1e29445d710a16879d30731b9da0c0a4f6402ae05d9cc0e7d",
+  "base_business": 10001,
+  "scenarios": [
+    {
+      "name": "baseline",
+      "label": "Baseline — business 10001 exactly as configured",
+      "story": "The control: a 30% inflow drop from week 18, one large transfer and one odd-hours sale.",
+      "output_sha256": "d71bb342729e41ec3ba84d8f4fddab9f534198a80482284fff899b8247b44c78"
+    },
+    {
+      "name": "calm_counterfactual",
+      "label": "Calm half-year — no shock, no anomalies",
+      "story": "The same business if nothing had gone wrong.",
+      "output_sha256": "60f2ffd501c6461da99e4f11efcf72e316f8cdac34dea184009819a153d460a5"
+    },
+    {
+      "name": "mild_slowdown",
+      "label": "Mild slowdown — inflows down 15% from week 18",
+      "story": "A soft market: customers spend a little less for the last two months.",
+      "output_sha256": "486a26e2c5dc2bb2e371ac44e0bce0d9a65d5a0527804c04feefac28f8e1cf5b"
+    },
+    {
+      "name": "severe_collapse",
+      "label": "Severe revenue collapse — inflows down 60% from week 14",
+      "story": "A major customer segment disappears three months before the decision date.",
+      "output_sha256": "10303a3a4a9e59a231ee9ae50ee53425a8f8901c79734593b60dad0fd95eb083"
+    },
+    {
+      "name": "late_sudden_shock",
+      "label": "Late sudden shock — inflows down 70% in the final three weeks",
+      "story": "The shock lands just before the decision date: can anything see it yet?",
+      "output_sha256": "f3c90b457afaf604e039fa28ad6bf583cfc3737a1d6a9f16d2f899841459e9f7"
+    },
+    {
+      "name": "fraud_pattern",
+      "label": "Suspicious activity — repeated large transfers and night-time sales",
+      "story": "Revenue is normal, but money moves in ways the business never did before.",
+      "output_sha256": "d982b91b24dc3b26caa86afa7913b6967e75f9b736ce49f96f260e09b93893be"
+    },
+    {
+      "name": "combined_crisis",
+      "label": "Combined crisis — 60% revenue collapse from week 12 plus large transfers out",
+      "story": "Revenue collapses and cash is moved out of the business at the same time.",
+      "output_sha256": "32f8b01dbc80664b16e676b0e6135ca50cd4d24300fe98d5ec3ad039347f0c4a"
+    },
+    {
+      "name": "thin_file_newcomer",
+      "label": "Newcomer — trading for about 40 days only",
+      "story": "A business too new to judge: the system must refuse, not guess.",
+      "output_sha256": "904b1c5b458d459bc2f37e08a17f4196274e7940766c66eb768a2cfdd58f6674"
+    }
+  ],
+  "code_commit": "32a3285b67a96f0465f71a2ad631bc86de8c089e"
+}
