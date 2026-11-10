@@ -850,7 +850,7 @@
       "other": "{n} مطابقة"
     },
     "searchLabel": "رقم المنشأة يبدأ بـ",
-    "searchHelp": "أرقام فقط.",
+    "searchHelp": "أرقام فقط، أو رقم مرجعي.",
     "sectorLabel": "القطاع",
     "anySector": "أي قطاع",
     "search": "ابحث",

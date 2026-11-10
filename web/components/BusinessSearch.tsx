@@ -22,9 +22,9 @@ export function BusinessSearch({ locale, role, q, sector, sectors, labels }: { l
         <input
           name="q"
           defaultValue={q}
-          inputMode="numeric"
-          pattern="[0-9]*"
-          maxLength={9}
+          // DECISIONS 58: the start of a business ID, or the reference number an owner quotes (M-10001-7F3A9C2B).
+          pattern="[0-9]*|[Mm]-[0-9]+-[0-9A-Fa-f]{8}"
+          maxLength={24}
           dir="ltr"
           aria-describedby="search-help"
           autoComplete="off"

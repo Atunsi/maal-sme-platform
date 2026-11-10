@@ -15,6 +15,8 @@ import { isServingId } from "@/lib/population";
 import { TOUR_STEPS } from "@/lib/tour";
 import { nameOf } from "@/lib/business-names";
 import { titleFor } from "@/lib/page-title";
+import { ReferenceNote } from "@/components/ReferenceNote";
+import { referenceFor } from "@/lib/reference";
 
 
 type Props = {
@@ -68,6 +70,11 @@ export default async function OverviewPage({ params, searchParams }: Props) {
           <PrintButton label={m.sheet.print} />
         </div>
       </div>
+      <ReferenceNote
+        businessId={id}
+        current={first.ok ? referenceFor(first.data.receipt, id) : null}
+        labels={{ opened: m.record.referenceOpened, old: m.record.oldReference }}
+      />
       {first.ok ? (
         <VerdictSheet data={first.data} locale={locale} m={m} />
       ) : (

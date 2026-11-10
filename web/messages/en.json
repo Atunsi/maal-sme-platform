@@ -790,7 +790,7 @@
       "other": "{n} matches"
     },
     "searchLabel": "Business ID starts with",
-    "searchHelp": "Digits only.",
+    "searchHelp": "Digits only, or a reference number.",
     "sectorLabel": "Sector",
     "anySector": "Any sector",
     "search": "Search",

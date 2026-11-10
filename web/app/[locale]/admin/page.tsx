@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { SectionMark } from "@/components/brand/Logos";
 import { BusinessPicker } from "@/components/BusinessPicker";
@@ -12,11 +12,12 @@ import { creditPlate } from "@/lib/decision";
 import { fill, getMessages, isLocale, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { nameOf } from "@/lib/business-names";
 import { searchOf, STATIC, staticIds } from "@/lib/static-data";
-import { SERVING_ID_MAX, SERVING_ID_MIN } from "@/lib/population";
+import { isServingId, SERVING_ID_MAX, SERVING_ID_MIN } from "@/lib/population";
 import type { ApiResult, CreditResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
 import { formatInt } from "@/lib/format";
 import { titleFor } from "@/lib/page-title";
+import { parseReference } from "@/lib/reference";
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
 
@@ -90,6 +91,13 @@ export default async function AdminPage({ params, searchParams }: Props) {
   const search = await searchOf(searchParams);
   const query = roleQuery(search.as);
   const role = query ? query.replace("?as=", "") : null;
+  // DECISIONS 58 (P8): a reference number opens that business's overview as admin, with the reference beside
+  // the heading. A research ID inside a reference is refused, as everywhere (isServingId).
+  const ref = parseReference(one(search.q));
+  if (ref && isServingId(ref.businessId)) {
+    redirect(`/${locale}/business/${ref.businessId}?as=admin&ref=M-${ref.businessId}-${ref.prefix.toUpperCase()}`);
+  }
+  const refRefused = ref !== null;
   // E10: search, sector and page live in the URL and are handled here, so the list works without JS.
   const q = /^[0-9]{1,9}$/.test(one(search.q)) ? one(search.q) : "";
   const sector = one(search.sector) in m.enums.sector ? one(search.sector) : "";
@@ -194,6 +202,11 @@ export default async function AdminPage({ params, searchParams }: Props) {
             sectors={Object.entries(m.enums.sector).map(([value, label]) => ({ value, label }))}
             labels={{ search: a.search, searchLabel: a.searchLabel, searchHelp: a.searchHelp, sectorLabel: a.sectorLabel, anySector: a.anySector, clear: a.clear }}
           />
+        )}
+        {refRefused && (
+          <p role="alert" data-reference-refused className="font-medium text-bad">
+            {m.errors.not_found}
+          </p>
         )}
         {listView}
       </section>
