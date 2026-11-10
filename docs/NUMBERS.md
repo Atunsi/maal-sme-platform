@@ -107,7 +107,7 @@ Source: `eval/out/section14_noise_sweep.txt` (`python -m eval.sweep_rho --param 
 | Sharia screen (feature 24) — research | **85.1% compliant / 14.9% soft_flag_review / 0.0% hard_flag** (soft flags all retail: MCC 5999 or no MCC) | research, 10,000 | `eval/out/sharia_screen.md` |
 | Sharia screen — evidence basis / financing disclosure | declared MCC 60.3% · registered sector 39.7% · disclosure asked of 34.8% | research, 10,000 | same |
 | Zakat — demo 10001 liability | SAR 5,963.26 (base 238,530.46 × 2.5%) | demo | `python -m pipeline.week8 --demo` |
-| Zakat – nisab | 85 g gold × SAR 491.291/g = **SAR 41,759.74** (8 November 2026, 19:06 UTC) | – | `sources/zakat_nisab_gold_price.md`; LivePriceOfGold commercial quotation, pending independent verification and Sharia advisor review |
+| Zakat – nisab, valued at the calculation month (entry 54) | July 2026: 85 g × SAR 491.0625/g = **SAR 41,740.31**; January 2026 (demo 10002 only): SAR 48,708.99 | 10,999 of 11,000 businesses have a July 2026 calculation date | `lenses/zakat/gold_monthly_sar_per_gram.csv`: World Bank Pink Sheet monthly average (2026-11-03 edition) × 3.75 SAR/USD (checked against SAMA's archived bulletins, within 0.0008) ÷ 31.1034768 g; pending Sharia advisor review |
 
 ---
 
@@ -205,5 +205,6 @@ For comparison, the Week 8 CLI takes ~30 s a call because it streams the full `t
 | Held-out duplicate payment recall 0.06 | true with no repeat detector; with the exact check (entry 37.5) the same-day type is designed-for and scores 0.66 | §5 anomaly rows |
 | §14: A6 0.5959; ρ curve 0.5959 / 0.6059 / 0.5983 / 0.6050 ("spread 0.0100, less than one SE"; "up to 93%"); baseline 0.5959 / 0.5865 / 0.5568; σ curve 0.6123 / 0.5959 / 0.5974 / 0.5882 | measured 2026-10-11 and 2026-10-31, before entries 30, 35 and 38 | §2 A6, §4, §4b (entry 52) |
 | Latency 110 / 138 / 252 ms (credit), 287 / 427 / 964 ms (anomaly), 0.156 / 0.168 / 0.177 ms (SHAP) | timed 2026-10-11, before the seasonal gate, the exact repeat check and the retrain | §6b, re-run 2026-11-09 |
+| Nisab SAR 41,759.74 (SAR 491.291/g, LivePriceOfGold 2026-11-08) | dated after every calculation date (entry 48); replaced by the calculation month's price | §5 nisab row (entry 54) |
 | "The forecast model loses to the naive baseline" (median error 0.455 vs 0.376; MAPE 18.1% vs 15.0%) | true of the v1 OLS-trend model, which was replaced (entry 27) | §5 forecast rows |
 | "Φ(sd/√2) is an identity / a proof" | agreement degraded to 0.0118 | "a good approximation" (§3) |

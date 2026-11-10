@@ -10,7 +10,7 @@ docs/NUMBERS.md. Retraining the model or re-running an evaluation without updati
 the register therefore fails here.
 
 Needs no generated data: every source is committed or derived from config.yaml.
-Numbers it cannot recompute (e.g. the Zakat nisab gold quotation) are not listed;
+Numbers it cannot recompute (e.g. a single Zakat liability) are not listed;
 those rows cite their source and are maintained by hand.
 """
 
@@ -224,6 +224,16 @@ def evidence_by_label() -> list[tuple[str, str]]:
             ("A2 headline", f"{prim} of {len(cells)} real-computed features separate confirmed defaults on Berka")]
 
 
+def nisab() -> list[tuple[str, str]]:
+    """§5, DECISIONS 54: the July 2026 nisab from the archived monthly price table."""
+    import csv
+    import io
+
+    rows = {r["month"]: float(r["gold_sar_per_gram"]) for r in csv.DictReader(io.StringIO(_read("lenses/zakat/gold_monthly_sar_per_gram.csv")))}
+    return [("nisab July 2026", f"85 g × SAR {rows['2026-07']:.4f}/g = **SAR {85 * rows['2026-07']:,.2f}**"),
+            ("nisab January 2026", f"SAR {85 * rows['2026-01']:,.2f}")]
+
+
 def gate() -> list[tuple[str, str]]:
     t = _read("eval/out/gate_week3_after_monshaat.txt")
     d = re.search(r"construction\s+implied_dso_days: min ([0-9.]+)\s+median ([0-9.]+)\s+max ([0-9.]+)\s+\(n=(\d+)\)", t)
@@ -271,7 +281,7 @@ def forecast_selection() -> list[tuple[str, str]]:
 def main() -> int:
     reg = REGISTER.read_text(encoding="utf-8")
     checks, missing_sources = [], []
-    for fn in (credit_model, fairness_s25, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, demo_exposure, evidence_by_label, gate, selectivity, latency, sharia, forecast_selection):
+    for fn in (credit_model, fairness_s25, real_vs_synthetic, anomaly, forecast, holdout_shock, latents, section14, noise_sweep, scenarios, demo_exposure, evidence_by_label, nisab, gate, selectivity, latency, sharia, forecast_selection):
         try:
             checks += fn()
         except (FileNotFoundError, AttributeError, KeyError, StopIteration, ValueError) as e:

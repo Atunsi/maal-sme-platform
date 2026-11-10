@@ -3853,10 +3853,10 @@ There is no Sharia advisor on the project yet. Outputs stay labelled "rule-based
 **A tick records agreement, not completed work.** Ticking does not change an entry's status heading, and several ticked entries describe changes that are
 not made. Still to do, with the owner who raised it:
 1. Entry 40 (line endings): canonical-LF hashing, `.gitattributes`, `data_sha256` line terminator. Approved, **not implemented**; existing Windows-made receipts will change once. (Faris Alsharifi, Ahmed Altunusi) **Update (2026-11-10): implemented in `00ae025`; see entry 40.**
-2. Entry 47: option A chosen. The sentence "the model cannot shortcut to the sector code" in `lenses/lens_config.yaml` is still to be edited, at the next lens-config change because it alters every receipt hash. (Abdulrahman Alharbi)
-3. Entry 48: the nisab is to be valued at the gold price on each business's calculation date. Needs an archivable price series, code, tests, and a decision on the daily workflow. Until then 491.291 SAR/g is a labelled reference price. (Mohammed Alshaibani)
-4. Entry 49: option B chosen, **evaluating Prophet and ARIMA is not done** and needs a new untouched test window written down first. Until it is run, the report states they were not evaluated. (Abdulelah Alsalamah)
-5. Entries 33 and 50: schema and registry edits approved in principle; check that each is actually applied before the report is written.
+2. Entry 47: option A chosen. The sentence "the model cannot shortcut to the sector code" in `lenses/lens_config.yaml` is still to be edited, at the next lens-config change because it alters every receipt hash. (Abdulrahman Alharbi) **Update: done in `81f2c4e` (entry 55).**
+3. Entry 48: the nisab is to be valued at the gold price on each business's calculation date. Needs an archivable price series, code, tests, and a decision on the daily workflow. Until then 491.291 SAR/g is a labelled reference price. (Mohammed Alshaibani) **Update: implemented, entry 54.**
+4. Entry 49: option B chosen, **evaluating Prophet and ARIMA is not done** and needs a new untouched test window written down first. Until it is run, the report states they were not evaluated. (Abdulelah Alsalamah) **Update: not run; protocol in `docs/briefs/forecast_prophet_arima_requirements.md` (entry 55).**
+5. Entries 33 and 50: schema and registry edits approved in principle; check that each is actually applied before the report is written. **Update: 33 applied as schema v2.10 (`74997c2`); 50 = option A (entry 55).**
 6. `python -m eval.demo_exposure` has not been re-run at full scale by anyone other than the branch author.
 7. Entry 41 to 45 and 51 (web UI): the sign-offs approve scope and wording as written; they do not replace a read-through of the Arabic copy by a speaker of Arabic who is not its author.
 
@@ -3919,3 +3919,32 @@ the synthetic population, and whether it stays is the compliance owner's decisio
 new status through its generic "not independently verified" plate (no wording added to `web/messages`).
 
 **Sign-off:** ☐ compliance owner (monthly average in place of the day's price) ☐ Sharia advisor (basis, valuation date)
+
+---
+
+## 55. Submission close-out of 2026-11-10: entries 33, 47, 48, 49 and 50 — RECORDED
+
+What was decided earlier (entries 47–50, 53) and what was done on 2026-11-10 to close it:
+
+1. **Entry 47:** the comment "the model cannot shortcut to the sector code" in `lenses/lens_config.yaml`
+   is replaced by a sentence saying how sector does reach the model (entry 43), in `81f2c4e`. Comment only;
+   `lens_config_sha256` changes once in receipts.
+2. **Entry 48:** implemented as entry 54 (`185a57d`): the nisab is valued at the calculation month's World
+   Bank monthly average gold price. A monthly average in place of the day's price, for the compliance
+   owner to confirm.
+3. **Entry 33:** applied as schema v2.10 (`74997c2`): §38 and §39 for features 60–69 and 62b with the profile
+   engine owner's two wording fixes, entry 5's row-count text in §7 and §12, the §31 and §36 corrections,
+   and §35's v2 file name and ±3 clip (entries 35, 38). All 71 registry features now have a schema row.
+   `config.yaml` `schema_version` is "v2.10". Entry 5's own team line was not ticked; its text is applied
+   through entry 33, whose team line was (entry 53).
+4. **Entry 50: option A**, keep the A1/A2 classes and the narrower headline already in NUMBERS §1 (14 of
+   43 on the confirmed-default label). Chosen by Ahmed Altunusi (generator owner) on 2026-11-10 to close
+   the entry for submission; the profile engine owner's line in entry 53 was ticked without an option,
+   so his confirmation of A is asked for below.
+5. **Entry 49: not run.** No time window in the generated data is untouched, and Prophet needs an install
+   this machine could not hold. The protocol for running it elsewhere, with a fresh population (seed 44,
+   IDs 20001–21000) as the test, is `docs/briefs/forecast_prophet_arima_requirements.md`; it must be
+   committed as its own DECISIONS entry before anything is fitted. Until then the report states that
+   Prophet and ARIMA were not evaluated.
+
+**Sign-off:** ☐ profile engine owner (option A on entry 50) ☐ forecast + anomaly owner (the protocol for entry 49)
