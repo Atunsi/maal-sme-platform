@@ -4,10 +4,10 @@
 6:I[37457,["$4"],"default"]
 b:"LoadingBoundaryProvider"
 c:I[39756,["$4"],"$b"]
-d:"/maal-sme-platform/_next/static/chunks/33c2csgjxnvxe.js"
-e:"/maal-sme-platform/_next/static/chunks/2yyzhbwl_38yt.js"
-f:"/maal-sme-platform/_next/static/chunks/40z37b0eg964z.js"
-10:"/maal-sme-platform/_next/static/chunks/1y1htn_anqc3d.js"
+d:"/maal-sme-platform/_next/static/chunks/0jjz1bod-jtbu.js"
+e:"/maal-sme-platform/_next/static/chunks/0pl0m_dqj49np.js"
+f:"/maal-sme-platform/_next/static/chunks/1kjs37ckb2jmw.js"
+10:"/maal-sme-platform/_next/static/chunks/4307-wbvkx-zz.js"
 11:"/maal-sme-platform/_next/static/chunks/0gr3b95jx9dng.js"
 12:I[62125,["$d","$e","$f","$10","$11"],"default"]
 17:"$Sreact.suspense"
@@ -24,7 +24,7 @@ f:"/maal-sme-platform/_next/static/chunks/40z37b0eg964z.js"
 a:[["children",{"s":{"n":"id","t":"d","k":"10007","s":[]},"h":100,"d":{"r":["$","$Lc",null,{"loading":[["$","$L12","l",{}],[],[["$","script","script-0",{"src":"/maal-sme-platform/_next/static/chunks/0gr3b95jx9dng.js","async":true}]]],"children":["$","$3","c",{"children":[null,["$","$L5",null,{"parallelRouterKey":"children","template":["$","$L6",null,{}]}]]}]}],"p":"$@13","v":null,"s":"$9"},"c":"$Q14"}]]
 2:[["children",{"s":"business","h":72,"d":{"r":["$","$3","c",{"children":[null,["$","$L5",null,{"parallelRouterKey":"children","template":["$","$L6",null,{}]}]]}],"p":"$@7","v":"$8","s":"$9"},"c":"$Qa"}]]
 1:[["children",{"s":{"n":"locale","t":"d","k":"en","s":["app-icon","fonts"]},"h":56,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":88,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L22",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#ffffff","media":"(prefers-color-scheme: light)"}],["$","meta","3",{"name":"theme-color","content":"#141922","media":"(prefers-color-scheme: dark)"}]]}],["$","$L24",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$17",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Ma'al: where your business is heading"}],["$","link","1",{"rel":"manifest","href":"/maal-sme-platform/manifest.webmanifest"}],["$","meta","2",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","3",{"name":"apple-mobile-web-app-title","content":"Ma'al"}],["$","meta","4",{"name":"apple-mobile-web-app-status-bar-style","content":"black-translucent"}],["$","link","5",{"rel":"icon","href":"/maal-sme-platform/icon.svg?icon.42rnwnqf29q6d.svg","sizes":"any","type":"image/svg+xml"}],["$","link","6",{"rel":"apple-touch-icon","href":"/apple-icon?40fc20a990cd36f9","type":"image/png","sizes":"180x180"}],["$","$L25","7",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@26","v":null,"s":"$9"}},"a":"$@27","u":"$@28","b":"VebdKVPXGzbugoXOewZvF"}
+0:{"t":{"t":{"s":"","h":88,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L22",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#ffffff","media":"(prefers-color-scheme: light)"}],["$","meta","3",{"name":"theme-color","content":"#141922","media":"(prefers-color-scheme: dark)"}]]}],["$","$L24",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$17",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Ma'al: where your business is heading"}],["$","link","1",{"rel":"manifest","href":"/maal-sme-platform/manifest.webmanifest"}],["$","meta","2",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","3",{"name":"apple-mobile-web-app-title","content":"Ma'al"}],["$","meta","4",{"name":"apple-mobile-web-app-status-bar-style","content":"black-translucent"}],["$","link","5",{"rel":"icon","href":"/maal-sme-platform/icon.svg?icon.42rnwnqf29q6d.svg","sizes":"any","type":"image/svg+xml"}],["$","link","6",{"rel":"apple-touch-icon","href":"/apple-icon?40fc20a990cd36f9","type":"image/png","sizes":"180x180"}],["$","$L25","7",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@26","v":null,"s":"$9"}},"a":"$@27","u":"$@28","b":"OG1LHvQupbYOXAjBTUIvo"}
 29:"/maal-sme-platform/_next/static/chunks/1xq25th5okqxo.js"
 2a:I[32466,["$d","$e","$f","$10","$29"],"Term"]
 2b:I[23165,["$d","$e","$f","$10","$29"],"CopyButton"]
