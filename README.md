@@ -301,7 +301,6 @@ Full detail and sign-off lines in [`DECISIONS.md`](DECISIONS.md):
     calculation month's World Bank monthly average; compliance owner to confirm the monthly
     average, Sharia advisor line open.
 23. **Prophet and ARIMA** (entries 49, 56) — **evaluated 2026-11-10, protocol committed first; both lose to `naive90`** on validation and on a fresh population (median error 0.331 `naive90`, 0.348 ARIMA, 0.467 Prophet; N = 944). `naive90` stays. `python -m eval.forecast_prophet_arima report` rebuilds the table from the saved runs; re-running the fits needs `pip install statsmodels prophet`.
-    The protocol to run it is `docs/briefs/forecast_prophet_arima_requirements.md`.
 24. ~~Five class-A1 features have no usable value on Berka~~ (entry 50) — **option A** (classes
     kept, narrower headline), chosen by the generator owner; profile engine owner to confirm (entry 55).
 25. ~~Schema text for 60–69 and 62b~~ (entry 33) — **applied: schema v2.10** (`74997c2`).
