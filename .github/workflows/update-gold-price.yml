@@ -1,4 +1,3 @@
-
 name: MAAL Daily Gold Price Update
 
 on:
@@ -6,10 +5,11 @@ on:
     - cron: "0 6 * * *"
   workflow_dispatch:
 
+# The quotation is published as gold/latest.json on the gh-pages branch, beside the online demo that branch
+# holds. A repository has one GitHub Pages site, served from gh-pages: deploying a Pages artifact from here
+# would replace the whole site with this one file, which took the demo offline on 2026-11-10.
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: gold-price-pages
@@ -18,10 +18,6 @@ concurrency:
 jobs:
   update-gold-price:
     runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -39,18 +35,24 @@ jobs:
         env:
           GOLDAPI_KEY: ${{ secrets.GOLDAPI_KEY }}
         run: python -m lenses.zakat.refresh_gold_price
-      
-      - name: Prepare public quotation
-        run: |
-          mkdir -p _site/gold
-          cp data/gold_price_latest.json _site/gold/latest.json
-          touch _site/.nojekyll
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Checkout the published site
+        uses: actions/checkout@v4
         with:
-          path: _site
+          ref: gh-pages
+          path: _pages
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish the quotation beside the demo
+        working-directory: _pages
+        run: |
+          mkdir -p gold
+          cp ../data/gold_price_latest.json gold/latest.json
+          git add gold/latest.json
+          if git diff --cached --quiet; then
+            echo "Quotation unchanged; nothing to publish."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Daily gold quotation (gold/latest.json)"
+          git push origin HEAD:gh-pages
