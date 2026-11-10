@@ -5,6 +5,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ScenarioCompare } from "@/components/ScenarioCompare";
 import { formatRaw, formatSar } from "@/lib/format";
+import { nisabPlate } from "@/lib/nisab";
 import { ScenarioIndex, ScenarioObject } from "@/lib/schemas";
 import { ar, en, readJson, webRoot } from "./helpers";
 
@@ -65,7 +66,10 @@ describe("scenario comparison", () => {
   it("U6 U7 U8 the Sharia label, the nisab badge and the review-queue line appear", () => {
     compare("severe_collapse");
     expect(screen.getByText(en.sharia.label)).toBeTruthy();
-    expect(screen.getByText(en.zakat.nisabStatus.commercial_quote_documented_pending_independent_verification)).toBeTruthy();
+    // U7: the plate for the object's own nisab status. Re-exported with entry 54's monthly gold price (2026-11-10),
+    // whose status the catalogue has no words for yet, so the plate reads "not independently verified" with the code.
+    const status = load("severe_collapse").zakat!.nisab_source_status;
+    expect(screen.getByText(nisabPlate(status, en)!.words)).toBeTruthy();
     expect(screen.getByText(en.anomaly.queue)).toBeTruthy();
   });
 
