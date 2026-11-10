@@ -7,7 +7,7 @@
 **Owner:** forecast + anomaly owner · **Schema:** §8, §10, §16, §34 · **Due:** Week 5
 
 30/60/90-day cash-flow projection + crunch alert (the original brief named Prophet/ARIMA;
-neither was evaluated, DECISIONS entry 49), read off the
+both were evaluated and lose to `naive90`, DECISIONS entry 56), read off the
 shared profile.
 
 ## Required

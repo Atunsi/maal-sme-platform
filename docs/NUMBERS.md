@@ -97,6 +97,10 @@ Source: `eval/out/section14_noise_sweep.txt` (`python -m eval.sweep_rho --param 
 | Forecast — test (days 151–180, never used to choose): median scale-free error, `naive90` vs naive30 | **0.323 vs 0.376** research (better for 58.5%); 0.344 vs 0.401 serving (better for 58.4%) | research 9,495; serving 943 | `eval/out/forecast_selection.md`, `eval/out/forecast_backtest.md` |
 | Forecast — test MAPE, `naive90` vs naive30 | 13.0% vs 15.0% | 7,525 research with balance ≥ 1 month of outflow from zero | same |
 | Forecast — test crunch recall / false alarms | `naive90` 79.4% / 0.5%; naive30 81.8% / 1.3% | 1,164 research that went negative | same |
+| Forecast — Prophet and ARIMA on validation (days 121–150), median scale-free error; `naive90` stays chosen (entry 56) | arima 0.379, prophet 0.530, against naive90 0.345 and naive30 0.411 | research, 9,495 | `eval/out/forecast_prophet_arima.md` |
+| Forecast — fresh-population test (seed 44, IDs 20001–21000, days 151–180, scored once; entry 56), median scale-free error | naive90 0.331, arima 0.348, naive30 0.374, prophet 0.467 | fresh population, 944 scorable of 1,000 | same |
+| Forecast — fresh-population crunch recall / false alarms | naive90 83.5% / 0.4%; arima 85.8% / 1.8%; naive30 84.3% / 0.9%; prophet 89.8% / 3.8% | 127 that went negative / 817 that did not | same |
+| Forecast — fit cost, median seconds per business (10 worker processes; 0 fallbacks for either) | arima 0.720 s, prophet 0.406 s | fresh population, 944 | same |
 | Anomaly — held-out round-trip recall@10 (shipped: seasonal gate on, exact repeat check; entries 36.7, 37.5) | **0.93** (precision 0.2126 of a 0.2268 ceiling) | serving, 50 businesses | `eval/out/anomaly_eval.md` |
 | Anomaly — same-day exact duplicate recall@10, exact repeat check shipped (entry 37.5) | **0.66** — **designed-for, not held-out**; never quote it as a general "duplicate recall" | serving, 50 businesses | same |
 | Anomaly — late repeat charge recall@10 (1–7 days later, ±3%) | 0.00 — a seen type, used to choose the variant (entry 37) | serving, 50 businesses | same |

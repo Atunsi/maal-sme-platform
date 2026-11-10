@@ -3681,6 +3681,10 @@ against 0.5838 and 0.5547 (entry 52); the comparison still goes the same way.
 
 **Decision (2026-11-10, team, recorded by Ahmed Altunusi):** Option B, evaluate Prophet and ARIMA. **Not done.** The forecast test window (days 151 to 180) was used once in entry 27, so a fair comparison needs the protocol and a new untouched window written down first, and the result is reported whichever way it moves. Until it is run, the shipped forecast stays `naive90` and the documents keep their current wording; the report must say that Prophet and ARIMA have not been evaluated.
 
+**Update (2026-11-10, later the same day): done, see entry 56.** Protocol committed first, then both
+were evaluated; neither beats `naive90` on validation or on a fresh population, and `naive90` stays.
+The report can now say they were evaluated and lost, with the numbers of 56.8.
+
 **Sign-off:** ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ forecast + anomaly owner [Abdulelah Alsalamah; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (SOP and schema wording)
 
 ---
@@ -4056,8 +4060,75 @@ that none of them can be chosen by looking at a result.
 - The switch in 56.5 is **not** made as part of this run even if validation picks a new candidate: it
   waits for the forecast owner's say-so. The validation table that would justify it is reported.
 
-### 56.8 Result
+### 56.8 Result (2026-11-10) — RECORDED (measurement)
 
-*Not run yet. To be appended.*
+**Neither Prophet nor ARIMA beats `naive90`. Validation keeps `naive90`; nothing ships (56.5).**
+Run once, with the code of commit `88082df1`, after the protocol commit `935d543b`. Full output:
+`eval/out/forecast_prophet_arima.md` (`python -m eval.forecast_prophet_arima report`).
 
-**Sign-off:** ☐ forecast + anomaly owner (the protocol, before the result) ☐ team (the result, once appended)
+**Validation — research, days 121–150, N = 9,495 scorable (1,167 went negative, 8,328 did not).**
+The six existing rows reproduced `eval/out/forecast_selection.md` section 1 exactly before anything
+was fitted (56.6.5).
+
+| method | median error | mean error | better than naive30 for | MAPE (away from zero) | crunch recall | false alarms | fallbacks | median s per business |
+|---|---|---|---|---|---|---|---|---|
+| naive90 | 0.345 | 0.709 | 58.7% | 14.1% | 78.4% | 0.6% | — | < 0.001 |
+| ewma | 0.349 | 0.732 | 59.8% | 14.4% | 83.8% | 1.4% | — | < 0.001 |
+| blend | 0.363 | 0.737 | 63.3% | 14.7% | 78.2% | 0.8% | — | < 0.001 |
+| **arima** | 0.379 | 1.264 | 54.1% | 15.5% | 83.4% | 1.8% | 0 | 0.717 |
+| naive30 | 0.411 | 0.812 | — | 16.7% | 79.7% | 1.3% | — | < 0.001 |
+| structural | 0.411 | 0.814 | 48.5% | 16.8% | 80.1% | 1.3% | — | < 0.001 |
+| ols_damped | 0.488 | 0.905 | 41.5% | 19.8% | 87.1% | 4.1% | — | < 0.001 |
+| **prophet** | 0.530 | 0.961 | 38.0% | 21.5% | 87.2% | 5.0% | 0 | 0.408 |
+
+**Selected: `naive90`.**
+
+**Test — fresh population (seed 44, IDs 20001–21000), days 151–180, N = 944 scorable of 1,000
+(127 went negative, 817 did not), scored once.** `arima` and `prophet` are the information-only rows
+of 56.6.6.
+
+| method | median error | mean error | better than naive30 for | MAPE (away from zero) | crunch recall | false alarms | fallbacks | median s per business |
+|---|---|---|---|---|---|---|---|---|
+| naive90 | 0.331 | 0.446 | 55.9% | 13.2% | 83.5% | 0.4% | — | < 0.001 |
+| arima | 0.348 | 0.512 | 52.0% | 13.5% | 85.8% | 1.8% | 0 | 0.720 |
+| naive30 | 0.374 | 0.519 | — | 14.0% | 84.3% | 0.9% | — | < 0.001 |
+| prophet | 0.467 | 0.664 | 35.2% | 18.7% | 89.8% | 3.8% | 0 | 0.406 |
+
+What the numbers say, and what they do not:
+
+1. **ARIMA** is more accurate than the 30-day baseline (0.348 against 0.374 on the fresh population)
+   and less accurate than `naive90` (0.331). On validation its mean error (1.264) is the worst of the
+   eight although its median is fourth: a few businesses get a very bad projection, which the median
+   criterion does not see. It catches slightly more crunches than `naive90` (85.8% against 83.5%, of
+   127) at about four times the false alarms (1.8% against 0.4%, of 817).
+2. **Prophet** is the least accurate candidate on both windows (0.467 on the fresh population, better
+   than naive30 for 35.2% of businesses). It has the highest crunch recall (89.8%) and the most false
+   alarms (3.8%), the same trade the v1 trend model `ols_damped` made (entry 27): a fitted trend on 90
+   noisy days extrapolates.
+3. **`naive90` on untouched data.** The fresh-population result (0.331 against naive30's 0.374, better
+   for 55.9%) is a second test of the shipped method, close to entry 27's (0.323 against 0.376
+   research, 0.344 against 0.401 serving).
+4. **Cost.** No fit failed and no order search came back empty: 0 fallbacks in 10,439 business-windows
+   for each method. ARIMA takes a median 0.72 s per business (18 orders) and Prophet 0.41 s, measured
+   with 10 worker processes on 12 logical CPUs; the existing candidates take under a millisecond.
+   Wall time: validation 19 min, test 2 min.
+5. **Limits.** These are the two libraries at the settings of 56.1 and 56.6, on 90 days of synthetic
+   daily net flow: weekly seasonality only, no tuning, no Ramadan term, and neither target window
+   contains Ramadan. It is not a statement about Prophet or ARIMA with a year of history or tuned
+   settings. ARIMA's order rule compares AIC across d = 0 and d = 1 (56.6.1). The crunch-recall
+   differences rest on 127 businesses. Nothing was retuned after either table was read.
+
+**Environment.** Python 3.11.4, Windows 11 (build 10.0.26200; Python reports it as
+`Windows-10-10.0.26200-SP0`), 12 logical CPUs. prophet 1.5.0, cmdstanpy 1.3.2, statsmodels 0.15.0,
+numpy 2.3.4, pandas 2.3.3, scipy 1.16.3. Prophet installed from its wheel with the bundled Stan
+model; no separate CmdStan build was needed.
+
+**What changed in the repository.** `lenses/forecast/methods.py` (`arima`, `prophet` in
+`EXTRA_METHODS`), `eval/forecast_prophet_arima.py`, `eval/forecast_selection.evaluate` takes an
+optional method table (default and metric unchanged), tests. **Not changed:** `lens_config.yaml`, the
+shipped method, `requirements.txt` (`statsmodels` and `prophet` are needed only to re-run this
+harness; their tests skip without them), `config.yaml`. One side effect on the run machine:
+`python -m profile_engine.compute --dir data` was run to obtain `profile_status.csv`, which adds
+profile files to the git-ignored `data/`; the serving store was not rebuilt or touched.
+
+**Sign-off:** ☐ forecast + anomaly owner (the protocol, before the result) ☐ team (the result)
