@@ -33,9 +33,10 @@ test("digits switch only shows in arabic", async ({ page }) => {
   await expect(toggle).toHaveAttribute("aria-pressed", "false");
 });
 
+// RS (DECISIONS 57): an amount is found by its <Sar> element; the sign replaced «ر.س.» on the page.
 test("digits switch changes amounts and persists without cookies", async ({ page, context }) => {
   await page.goto("/ar/business/10040/zakat", { waitUntil: "networkidle" });
-  const heading = page.locator("main").getByText(/ر\.س\./).first();
+  const heading = page.locator("main [data-sar]").first();
   await expect(heading).toHaveText(LATN);
   await openDisplay(page);
   await page.locator("[data-digits-toggle]").click();
@@ -47,7 +48,7 @@ test("digits switch changes amounts and persists without cookies", async ({ page
   expect(await context.cookies()).toEqual([]);
 
   await page.reload({ waitUntil: "networkidle" });
-  await expect(page.locator("main").getByText(/ر\.س\./).first()).toHaveText(ARAB);
+  await expect(page.locator("main [data-sar]").first()).toHaveText(ARAB);
   // A client-side move keeps the choice: the new page's text is rewritten too.
   await page.getByRole("navigation").getByRole("link", { name: "التدفق النقدي" }).click();
   await expect(page).toHaveURL(/\/forecast/);
@@ -116,6 +117,6 @@ test("arabic digits appear without waiting for load", async ({ page }) => {
     await route.continue();
   });
   await page.goto("/ar/business/10001/zakat", { waitUntil: "commit" });
-  await expect(page.locator("main").getByText(/ر\.س\./).first()).toHaveText(ARAB, { timeout: 3500 });
+  await expect(page.locator("main [data-sar]").first()).toHaveText(ARAB, { timeout: 3500 });
   expect(await page.evaluate(() => (window as unknown as { __loaded: boolean }).__loaded)).toBe(false);
 });
