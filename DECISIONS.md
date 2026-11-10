@@ -4132,3 +4132,127 @@ harness; their tests skip without them), `config.yaml`. One side effect on the r
 profile files to the git-ignored `data/`; the serving store was not rebuilt or touched.
 
 **Sign-off:** ☐ forecast + anomaly owner (the protocol, before the result) ☐ team (the result)
+
+## 57. Arabic templates from the backend, Arabic catalogue fixes, and the Saudi riyal sign — PROPOSED (2026-11-10)
+
+**Touches:** `web/`, and additively six backend modules (`lenses/credit/model.py`, `compliance/sharia.py`,
+`lenses/forecast/forecast.py`, `lenses/zakat/zakat.py`, `lenses/anomaly/anomaly.py`, `pipeline/week8.py`), one new
+shared helper (`lenses/arabic.py`), six new Arabic template files, `eval/week8_check.py` (checks added only) and
+`web/scripts/export-scenarios.mjs`. Done on `faris/arabic-riyal` from `origin/main` at `8eaa4b5`, following
+`SOP_arabic_translation_and_riyal.md` v1 (written 2026-11-10 from the Arabic audit of the same day). Rules U1 to U15
+(as amended in 42), N1 to N7 (51) and R1 to R8 (45) still apply, except where the decisions below change one on purpose.
+
+**Decisions taken for this work, word for word (SOP section 1a).**
+1. **Arabic for backend text comes from the backend.** DECISIONS 41 says a UI translation of a backend template would be a second, unreviewed version. So the backend emits an Arabic sibling for every template string it already emits: `text_ar` next to `text`, `units_ar` next to `units`, and so on (full list in Phase B). The UI shows the `_ar` field in Arabic mode and never translates backend text itself.
+2. **The English output does not change.** Every existing field keeps its exact value. The `_ar` fields are additive. `output_sha256` changes for every object only because new keys are hashed. Model scores, PDs, decisions, amounts, zakat figures, forecasts and every number in `docs/NUMBERS.md` stay identical; Phase B step 9 proves it.
+3. **Arabic template tables live in their own files**, so the hashes that need Sharia-advisor or owner review don't move:
+   - `lenses/credit/templates_ar.yaml` (feature labels, phrases, units)
+   - `compliance/sharia_templates_ar.yaml` (prompts, explanations, MCC labels, disclosure text). `compliance/sharia_rules.yaml` is untouched, so `rule_table_sha256` stays the same.
+   - `lenses/forecast/templates_ar.yaml` (drivers, method labels)
+   - `lenses/zakat/templates_ar.yaml` (nisab basis)
+   - `lenses/anomaly/templates_ar.yaml` (method)
+   - `scenarios/library_ar.yaml` (label and story per scenario name). `scenarios/library.yaml` is untouched, so `scenario_library_sha256` stays the same.
+   - `pipeline/week8.py` gains `RECEIPT_SCOPE_AR` next to `RECEIPT_SCOPE`; the receipt gains `scope_ar`.
+   Each file starts with a comment: "Arabic drafts, fixed template text only, never generated. Pending review by the owner named in DECISIONS <n>."
+4. **Arabic templates take their numbers from the same placeholders as the English ones.** A template may not contain a digit the English one doesn't contain, and must contain every placeholder the English one has. Tests enforce both (rule A2).
+5. **Register.** Formal Arabic (فصحى) for every backend template, every decision, Sharia, Zakat, compliance and receipt text, every error message and every legal or data notice. Saudi (Najdi) tone only in greetings, button labels, the tour and short guidance lines. This is the rule the `_review` note already states; this SOP applies it to every key.
+6. **Terminology.** One Arabic term per concept, applied across `ar.json`, `lib/glossary.ts`, `lib/tour.ts`, `lib/howItWorks.ts` and every new template file (the final table is below).
+7. **Counts use plural rules.** Every catalogue string that puts a number before a counted noun becomes a plural message with the six CLDR forms (`zero`, `one`, `two`, `few`, `many`, `other`), chosen with `Intl.PluralRules`. English gets `one` and `other`. Example for days: zero «لا أيام», one «يوم واحد», two «يومان», few «{n} أيام», many «{n} يومًا», other «{n} يوم».
+8. **Saudi riyal sign.** SAMA's usage guide (eight rules, sama.gov.sa Guidelines.pdf) says the sign goes to the left of the number in every language, with a space between them, at text height, following the text direction. So:
+   - Visible amounts in both locales read `⃁ 47,000.00`: U+20C1, a no-break space (U+00A0), then the number with exactly 2 decimals (U3 unchanged). A negative amount reads `-⃁ 23,054.75`.
+   - In Arabic the amount stays inside its existing LTR wrapper (`Num`, a `bdi dir="ltr"`), so the sign renders on the left.
+   - The glyph comes from the `riyal` npm package v1.2.1 (MIT, Pooya Golchian, https://riyal.js.org). Only its two font files and its licence are copied into `web/app/fonts/` and loaded with `next/font/local`, limited to `unicode-range: U+20C1`. No runtime dependency on `riyal` and none of its components. System fonts don't have this glyph yet; without the font it shows as an empty box.
+   - Screen readers don't know U+20C1 yet. The sign is rendered only inside `<Sar>`, in an `aria-hidden` span, followed by a visually hidden word ("Saudi riyals" / «ريال سعودي»). Attribute strings (`aria-label`, `title`, `alt`) use `formatSarSpoken()`, which writes the word, never the sign.
+   - "SAR" stays only where it is an identifier: field names in `Code` spans (`amount_sar`), receipts, and the Compliance View.
+9. **No machine translation and no LLM.** Claude Code writes the Arabic as fixed tables, marks every new or changed Arabic string as a draft for review (existing convention), and lists them in the report. Nothing is generated at runtime.
+10. **Missing Arabic falls back visibly.** If an `_ar` field is absent (an old fixture, a template the backend doesn't cover yet), the UI keeps today's behaviour: the English text in an LTR block with «القالب بالإنجليزية؛ القالب العربي قيد الإعداد». The final audit (Phase G) must find zero such blocks on the live data.
+11. **Preview, not the live demo.** The new build goes to `gh-pages` under `/maal-sme-platform/preview/`. The root demo is replaced only after Faris merges this branch to `main`.
+
+**The `_ar` fields added, by file.**
+
+| File | Field(s) | Filled from |
+|---|---|---|
+| `lenses/credit/model.py` | `credit_explanation.public_tier[].text_ar`; `compliance_tier.units_ar`, `.phrases_ar` (same keys as `phrases`), `.feature_labels_ar` (the features in `contributions`); `credit_decision_detail.conditions_ar`; `text_ar` on the compliance-decline line | `lenses/credit/templates_ar.yaml`; Sharia text from `compliance/sharia_templates_ar.yaml` |
+| `compliance/sharia.py` | `owner_prompts_ar`; `rules_triggered[].detail_ar`; `disclosures[].detail_ar`, `.prompt_ar`; new `compliance_explanation_ar()` | `compliance/sharia_templates_ar.yaml` |
+| `pipeline/week8.py` | `governance.sharia_screen.compliance_explanation_ar`; `receipt.scope_ar` (`RECEIPT_SCOPE_AR`) | the two functions above; a fixed constant |
+| `lenses/forecast/forecast.py` | `crunch_alert.drivers_ar` (same order and length as `drivers`); `method_ar` | `lenses/forecast/templates_ar.yaml` |
+| `lenses/zakat/zakat.py` | `nisab_basis_ar`; `detail_ar` beside each `detail` (beyond the SOP's list: the Zakat card shows `detail`) | `lenses/zakat/templates_ar.yaml` |
+| `lenses/anomaly/anomaly.py` | `method_ar` | `lenses/anomaly/templates_ar.yaml` |
+| `web/scripts/export-scenarios.mjs` | `label_ar`, `story_ar` in `web/scenarios-data/index.json` | `scenarios/library_ar.yaml` (never read by `scenarios.run`) |
+
+`lenses/arabic.py` is new and holds `ar_plural(n)` (the CLDR category, tested against CLDR for 0 to 120) and the
+loader, shared by forecast and Zakat so that no lens imports another (§8). Every counted Arabic template (days, grams)
+uses it.
+
+**Template files (sha256 of the committed bytes, LF).** `lenses/credit/templates_ar.yaml` `f7ba217f…5729f`;
+`compliance/sharia_templates_ar.yaml` `a72d0b57…18090`; `lenses/forecast/templates_ar.yaml` `1c687126…15fb2`;
+`lenses/zakat/templates_ar.yaml` `a591b2b4…32b02`; `lenses/anomaly/templates_ar.yaml` `6937561f…bde11`;
+`scenarios/library_ar.yaml` `20490922…f57184`. Full hashes in the report.
+
+**Proof that English output and every number are unchanged (Phase B8).** The quick data was regenerated and the quick
+store rebuilt (N = 300 serving businesses, 10,001 to 10,300). For 10001, 10004, 10037, 10040 and 10003, every API read
+path (`/profile`, and the credit, forecast, anomaly and Zakat lenses) plus `GET /scenarios` was saved before and after.
+With every key ending in `_ar` and the receipts' `output_sha256` and `code_commit` removed, all 26 responses are
+identical. The same holds inside pytest: stripping the `_ar` keys from the 10001, 10004 and 10037 objects reproduces
+their pre-change `output_sha256` exactly (`arabic fields change no english field`). `check_numbers` passed with no row
+changed. **Hashes that must not move did not:** `rule_table_sha256` `e90efd67…` and `scenario_library_sha256`
+`8f84b917…`, and the files `config.yaml`, `lenses/lens_config.yaml` and `lenses/credit/model_v1.json`. **Hashes that
+moved, and why:** `output_sha256` of every object that gained an `_ar` key (each demo business's lens responses and every
+scenario object), because new keys are hashed; the lens responses of 10003 (insufficient data) carry no `_ar` key and
+kept theirs. `pipeline.verify` on 10001 passed before and after.
+
+**Rules, how each is enforced, and its test.**
+
+| # | Rule | Enforced by | Test |
+|---|---|---|---|
+| A1 | Every English template key has an Arabic template; every scenario has `label_ar` and `story_ar` | pytest over every template table, both directions | `test_every_english_template_has_an_arabic_template_*` (tests/test_arabic_templates.py) |
+| A2 | Same placeholders as the English template, no digit the English lacks, no Latin word | pytest | `test_arabic_templates_keep_the_english_placeholders_and_numbers_*` |
+| A3 | `_ar` output is deterministic and leaves every English field byte for byte unchanged | pytest on 10001, 10004, 10037, run twice, against the pre-change hashes; the B8 comparison | `test_arabic_fields_change_no_english_field` |
+| A4 | An `/ar` page shows no Latin word outside the allowlist | Playwright crawl of 56 routes; the allowlist is named and explained token by token in the spec | `arabic pages show no untranslated text` (e2e/arabic.spec.ts) |
+| A5 | Every `en.json` key exists in `ar.json` with the same placeholders; equal values only for named keys (`dashboard.title`) | vitest | `arabic catalogue matches english` (tests/arabic-catalogue.test.ts) |
+| A6 | Every count uses a plural message | vitest over n = 0 to 120 for each of the 15 plural messages, both locales; a check that no plain string puts a count before a counted noun | `counts follow plural rules` |
+| A7 | One term per concept | vitest: banned forms absent from `ar.json`, the three lib files and the six template files | `arabic terminology is consistent` |
+| RS1 | Every visible amount starts with U+20C1 and a no-break space; no visible "SAR" or «ر.س» outside identifiers | vitest on `formatSar`; Playwright on 9 pages in both locales | `amounts show the riyal sign` |
+| RS2 | U+20C1 appears only where the accessibility tree cannot read it; no attribute contains it | Playwright DOM walk | `riyal sign is hidden from screen readers and spoken as words` |
+| RS3 | The font is self-hosted, pinned and renders the glyph | vitest (hashes, licence, unicode-range, no CDN, no fallback face); Playwright (`document.fonts.check`, glyph width 14.32 px at 16 px, not the fallback's) | `riyal font is self-hosted and renders` |
+
+Existing rules touched: **U3** (amounts keep exactly 2 decimals; only the marker changed), **U4** (backend text is
+rendered verbatim; in Arabic that is the backend's `_ar` field), **N3** (the digits switch never rewrites backend text:
+the Arabic blocks carry `data-latin`, as the English ones were skipped by `lang="en"`; U+20C1 is not a digit and the
+rewrite leaves it alone, tested).
+
+**Terminology, final table.**
+
+| Concept | Arabic | Never |
+|---|---|---|
+| serving population | مجموعة الخدمة (الخدمة as the population's name) | مجموعة العرض |
+| research population | مجموعة البحث | |
+| demo | النسخة التجريبية / تجريبي; the demo business: المنشأة التجريبية | العرض (for demo) |
+| offer (credit) | عرض التمويل / العرض | |
+| Display menu | المظهر | العرض |
+| receipt | الإيصال | |
+| hash | البصمة | |
+| feature | المؤشر | |
+| baseline | خط الأساس | |
+| markup | هامش الربح | الفائدة |
+| PD | احتمالية التعثر | PD inside Arabic text |
+| MCC | رمز فئة التاجر | MCC inside Arabic text |
+| credit lens | عدسة التمويل | |
+| review queue | قائمة المراجعة | |
+| log-odds | لوغاريتم نسبة الأرجحية | |
+| Arabic-Indic digits | الأرقام الهندية (٠١٢٣) | أرقام عربية |
+| Saudi riyal (spoken) | ريال سعودي | ر.س. |
+| custom scenario (added) | سيناريو مخصص | |
+| cross-validated AUC (added) | قيمة AUC بالتحقق المتقاطع | CV AUC inside Arabic text |
+| inflows (added, scenario labels) | التدفقات الواردة | |
+
+**Change to DECISIONS 41's "backend templates are not translated" paragraph.** The rule that the UI never translates
+backend text stands. What changes is where the Arabic comes from: the backend now supplies it, as fixed tables beside
+the English templates, reviewed by the same owners. The English-in-an-LTR-block fallback stays for any object without
+the Arabic field.
+
+**Items left out, with their stop code.** None of this SOP's items stopped. Out of scope by the SOP and untouched: the gold-price workflow (`.github/workflows/update-gold-price.yml`, which already commits `gold/latest.json` to `gh-pages`), the store concurrency fix (API owner), and any change to English template wording. Deviations, each in the report: `lenses/arabic.py` added (a shared plural helper, so no lens imports another); Zakat `detail_ar` added beyond the SOP's field list; RS2 also counts a `role="img"` ancestor as hidden (the forecast chart keeps its alt text, as a test requires); the before inventory was recorded on an `origin/main` worktree after the work began, not in Phase A; the static preview was captured from the quick store (N = 300), as the SOP says, and that capture was not committed, so `web/static-data/` on the branch is unchanged.
+
+**Preview.** `gh-pages` commit `c5d9f37` replaces only `preview/` with the static build of this branch at `edb6515` (base path `/maal-sme-platform/preview`, 482 pages); its Pages deploy step failed once and an empty commit, `1056591`, redeployed it. https://at1808.github.io/maal-sme-platform/preview/ . The A4 crawl and RS1 to RS3 passed against the local copy of that build (93 of 93). The previous `preview/` held the phone-design preview (`d0d9f98`), which `main` already contains.
+
+**Sign-off:** ☐ credit lens owner (credit Arabic templates, factor labels) ☐ compliance owner (Sharia Arabic templates, Arabic terminology) ☐ forecast and anomaly owner (drivers and method in Arabic) ☐ generator/scenario owner (library_ar.yaml) ☐ API owner (new response fields) ☐ team (riyal sign, preview)
