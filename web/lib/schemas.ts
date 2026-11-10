@@ -29,6 +29,7 @@ export const Receipt = z.looseObject({
   data_sha256: sha256,
   output_sha256: sha256,
   scope: z.string().min(1).optional(), // the four lens routes send it; /profile does not
+  scope_ar: z.string().min(1).optional(), // DECISIONS 57
 });
 
 const header = {
@@ -69,6 +70,9 @@ const FeatureId = z.union([z.number().int(), z.string()]); // the registry has i
 const PublicLine = z.object({
   feature_id: FeatureId.nullable(), // null on a compliance decline: the template is the only line
   text: z.string(),
+  // DECISIONS 57: the backend's Arabic sibling of every template. Optional, so an older fixture or object
+  // without it still parses and the UI falls back to the English with the pending label (1a.10).
+  text_ar: z.string().nullable().optional(),
   magnitude: z.enum(["strongly", "moderately", "marginally"]).nullable(),
   direction: z.enum(["supports", "against", "either"]).nullable(),
   source: z.literal("compliance").optional(),
@@ -78,8 +82,11 @@ export const CreditExplanation = z.object({
   public_tier: z.array(PublicLine),
   compliance_tier: z.object({
     units: z.string(),
+    units_ar: z.string().optional(),
     threshold_table: z.record(z.string(), z.string()),
     phrases: z.record(z.string(), z.string()),
+    phrases_ar: z.record(z.string(), z.string()).optional(),
+    feature_labels_ar: z.record(z.string(), z.string()).optional(),
     contributions: z.array(
       z.object({
         feature_id: FeatureId,
@@ -107,20 +114,25 @@ export const CreditDetail = z.object({
   offer_status: z.enum(["unconditional", "conditional_on_sharia_review"]).nullable(),
   risk_assessment_used_for_decision: z.boolean(),
   conditions: z.array(z.string()).optional(),
+  conditions_ar: z.array(z.string()).optional(),
 });
 
 export const ShariaScreen = z.object({
   sharia_screen_status: ShariaStatus,
   evidence_basis: z.enum(["declared_mcc", "registered_sector"]),
   declared_mcc: z.union([z.string(), z.number()]).nullable(),
-  rules_triggered: z.array(z.object({ rule_id: z.string(), severity: z.string(), detail: z.string() })),
+  rules_triggered: z.array(z.object({ rule_id: z.string(), severity: z.string(), detail: z.string(), detail_ar: z.string().optional() })),
   owner_prompts: z.array(z.string()),
-  disclosures: z.array(z.object({ disclosure_id: z.string(), detail: z.string(), prompt: z.string() })),
+  owner_prompts_ar: z.array(z.string()).optional(),
+  disclosures: z.array(
+    z.object({ disclosure_id: z.string(), detail: z.string(), prompt: z.string(), detail_ar: z.string().optional(), prompt_ar: z.string().optional() }),
+  ),
   rule_table_version: z.string(),
   rule_table_sha256: sha256,
   rule_table_status: z.string(),
   deterministic: z.literal(true),
   compliance_explanation: z.string().nullable(),
+  compliance_explanation_ar: z.string().nullable().optional(),
 });
 
 export const CreditResponse = z
@@ -152,9 +164,11 @@ export const ForecastBody = z.discriminatedUnion("status", [
       days_to_projected_negative_balance: z.number().int().nullable(),
       liquidity_hazard: z.object({ "30d": z.number().nullable(), "60d": z.number().nullable(), "90d": z.number().nullable() }),
       drivers: z.array(z.string()),
+      drivers_ar: z.array(z.string()).optional(),
     }),
     ramadan_adjusted: z.boolean().nullable(),
     method: z.string(),
+    method_ar: z.string().optional(),
   }),
   z.object({ status: z.literal("not_computed"), reason: z.literal("insufficient_history"), history_days: z.number().int() }),
 ]);
@@ -189,6 +203,7 @@ const AnomalyBody = z.discriminatedUnion("status", [
     transactions_scanned: z.number().int(),
     flags: z.array(AnomalyFlag),
     method: z.string(),
+    method_ar: z.string().optional(),
   }),
   z.strictObject({
     status: z.literal("not_computed"),
@@ -210,6 +225,7 @@ const ZakatBody = z.object({
   liability_sar: z.number().nullable(),
   nisab_value_sar: z.number(),
   nisab_basis: z.string(),
+  nisab_basis_ar: z.string().optional(),
   nisab_source_status: z.string(),
   rate: z.number(),
   method: z.string(),
@@ -218,6 +234,7 @@ const ZakatBody = z.object({
   status: z.enum(["computed", "zero_liability", "not_computed"]),
   reason: z.enum(["below_nisab", "hawl_incomplete", "no_balance_sheet_snapshot"]).nullable(),
   detail: z.string().optional(),
+  detail_ar: z.string().optional(),
   // Absent when there is no balance-sheet snapshot.
   snapshot_month_end: isoDate.optional(),
   zakatable_assets_sar: z.number().optional(),
@@ -274,7 +291,9 @@ export const ScenarioIndex = z.object({
   library_sha256: sha256,
   base_business: z.number().int(),
   code_commit: z.string(),
-  scenarios: z.array(z.object({ name: z.string(), label: z.string(), story: z.string(), output_sha256: sha256 })),
+  scenarios: z.array(
+    z.object({ name: z.string(), label: z.string(), story: z.string(), label_ar: z.string().optional(), story_ar: z.string().optional(), output_sha256: sha256 }),
+  ),
 });
 
 export const HealthResponse = z.object({

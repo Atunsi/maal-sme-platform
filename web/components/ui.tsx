@@ -88,14 +88,23 @@ export function Probability({ value, locale }: { value: number; locale: Locale }
 
 /**
  * Text produced by the backend: templates, prompts, method strings. It is deterministic and owned by
- * the credit and compliance owners, so the UI never translates or rewrites it. In Arabic it stays
- * English in an LTR block with a label, so no second, unreviewed version of a template exists.
+ * the credit and compliance owners, so the UI never translates or rewrites it (DECISIONS 41). Since
+ * DECISIONS 57 the backend sends its own Arabic sibling (`text_ar` and the like): in Arabic that is
+ * shown verbatim as Arabic text. When it is absent (an older fixture, a template the backend does not
+ * cover yet) the English stays in an LTR block with the pending label, as before (1a.10).
  */
-export function BackendText({ locale, m, children }: { locale: Locale; m: Messages; children: string }) {
+export function BackendText({ en, ar, locale, m }: { en: string; ar?: string | null; locale: Locale; m: Messages }) {
+  if (locale === "ar" && ar) {
+    return (
+      <span data-backend data-backend-ar className="block">
+        {ar}
+      </span>
+    );
+  }
   return (
     <span className="block">
       <span lang="en" dir="ltr" data-backend className="block text-start">
-        {children}
+        {en}
       </span>
       {locale === "ar" && <span className="text-xs text-muted">{m.common.englishTemplate}</span>}
     </span>
@@ -154,9 +163,7 @@ export function ApiError({ kind, detail, m }: { kind: ApiErrorKind; detail?: str
       <p>{m.errors[kind]}</p>
       {detail && (
         <div className="mt-1 font-mono text-sm">
-          <BackendText locale={localeOf(m)} m={m}>
-            {detail}
-          </BackendText>
+          <BackendText en={detail} locale={localeOf(m)} m={m} />
         </div>
       )}
       {(kind === "rate_limited" || kind === "server" || kind === "network") && <RetryButton label={m.common.retry} />}

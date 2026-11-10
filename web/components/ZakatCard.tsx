@@ -76,7 +76,7 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
                   : { insetInlineStart: `calc(${nisabAt} + 10px)`, maxWidth: `calc(100% - ${nisabAt} - 10px)`, animationDelay: delay(3) }
               }
             >
-              {fill(n.nisabLine, { value: sar(z.nisab_value_sar), basis: z.nisab_basis })}
+              {fill(n.nisabLine, { value: sar(z.nisab_value_sar), basis: (locale === "ar" && z.nisab_basis_ar) || z.nisab_basis })}
             </div>
           </Step>
         </div>
@@ -217,9 +217,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
                 {n.reason}: {m.enums.zakat_reason[z.reason]}
               </p>
               {z.detail && (
-                <BackendText locale={locale} m={m}>
-                  {z.detail}
-                </BackendText>
+                <BackendText en={z.detail} ar={z.detail_ar} locale={locale} m={m} />
               )}
             </div>
           )}
@@ -231,7 +229,8 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
           <Fields>
             <Field label={n.thresholdMet}>{z.nisab_threshold_met === undefined ? m.common.dash : z.nisab_threshold_met ? m.common.yes : m.common.no}</Field>
             <Field label={<Term id="nisab" locale={locale}>{n.nisabBasis}</Term>}>
-              <Code>{z.nisab_basis}</Code>
+              {/* DECISIONS 57: the backend's Arabic basis, from the same configured grams; the raw value otherwise. */}
+              {locale === "ar" && z.nisab_basis_ar ? z.nisab_basis_ar : <Code>{z.nisab_basis}</Code>}
             </Field>
             <Field label={n.method}>
               {label("zakat_method", z.method, m)}

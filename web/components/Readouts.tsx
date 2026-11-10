@@ -79,9 +79,7 @@ export const forecastReadout: Fn<ForecastResponse> = (data, locale, m) => {
       days !== null ? (
         fill(m.overview.negativeIn, { n: formatInt(days, locale) })
       ) : alert.level !== "none" && alert.drivers[0] ? (
-        <BackendText locale={locale} m={m}>
-          {alert.drivers[0]}
-        </BackendText>
+        <BackendText en={alert.drivers[0]} ar={alert.drivers_ar?.[0]} locale={locale} m={m} />
       ) : (
         m.overview.noNegative
       ),

@@ -32,9 +32,7 @@ function LineText({ line, factors, locale, m }: { line: Line; factors: Factors; 
   const feature = line.feature_id === null ? undefined : factors.names[String(line.feature_id)];
   return (
     <span className="factor-words block min-w-0 text-base">
-      <BackendText locale={locale} m={m}>
-        {line.text}
-      </BackendText>
+      <BackendText en={line.text} ar={line.text_ar} locale={locale} m={m} />
       <span className="mt-1 flex flex-wrap gap-2">
         <Plate variant="ink">{m.enums.magnitude[line.magnitude!]}</Plate>
         <Plate variant={DIRECTION_VARIANT[line.direction!]}>{m.enums.direction[line.direction!]}</Plate>
@@ -79,9 +77,7 @@ function PublicTier({ lines, factors, locale, m }: { lines: Line[]; factors: Fac
     <section aria-label={m.credit.factors} data-tour="factors" className="slidein flex flex-col border border-line bg-card p-5 sm:p-8">
       {plain.map((line, i) => (
         // A compliance decline has one template line and no factors, so it takes no axis.
-        <BackendText key={line.feature_id ?? `line-${i}`} locale={locale} m={m}>
-          {line.text}
-        </BackendText>
+        <BackendText key={line.feature_id ?? `line-${i}`} en={line.text} ar={line.text_ar} locale={locale} m={m} />
       ))}
       {onAxis.length > 0 && (
         <>
@@ -196,11 +192,9 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
         <section aria-label={m.credit.conditions}>
           <SubHeading>{m.credit.conditions}</SubHeading>
           <ul className="space-y-1">
-            {detail.conditions.map((condition) => (
+            {detail.conditions.map((condition, i) => (
               <li key={condition}>
-                <BackendText locale={locale} m={m}>
-                  {condition}
-                </BackendText>
+                <BackendText en={condition} ar={detail.conditions_ar?.[i]} locale={locale} m={m} />
               </li>
             ))}
           </ul>

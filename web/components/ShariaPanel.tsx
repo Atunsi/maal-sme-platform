@@ -41,7 +41,10 @@ function Checked({ label, value, result, index }: { label: ReactNode; value: Rea
 
 export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale: Locale; m: Messages }) {
   const s = data.sharia_screen;
-  const questions = [...s.owner_prompts, ...s.disclosures.map((d) => d.prompt)];
+  const questions = [
+    ...s.owner_prompts.map((en, i) => ({ en, ar: s.owner_prompts_ar?.[i] })),
+    ...s.disclosures.map((d) => ({ en: d.prompt, ar: d.prompt_ar })),
+  ];
   const status = <Plate variant={STATUS_VARIANT[s.sharia_screen_status]}>{m.enums.sharia[s.sharia_screen_status]}</Plate>;
   return (
     <>
@@ -94,9 +97,7 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
                       <Code>{rule.severity}</Code>
                     </td>
                     <td className={TD}>
-                      <BackendText locale={locale} m={m}>
-                        {rule.detail}
-                      </BackendText>
+                      <BackendText en={rule.detail} ar={rule.detail_ar} locale={locale} m={m} />
                     </td>
                   </tr>
                 ))}
@@ -114,10 +115,8 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
           <p className="text-sm text-muted">{m.sharia.questionsNote}</p>
           <ul className="flex flex-col gap-3">
             {questions.map((question) => (
-              <li key={question} className="max-w-[860px] text-[22px] leading-snug">
-                <BackendText locale={locale} m={m}>
-                  {question}
-                </BackendText>
+              <li key={question.en} className="max-w-[860px] text-[22px] leading-snug">
+                <BackendText en={question.en} ar={question.ar} locale={locale} m={m} />
               </li>
             ))}
           </ul>
@@ -127,9 +126,7 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
       {s.compliance_explanation && (
         <section aria-label={m.sharia.explanation}>
           <SubHeading>{m.sharia.explanation}</SubHeading>
-          <BackendText locale={locale} m={m}>
-            {s.compliance_explanation}
-          </BackendText>
+          <BackendText en={s.compliance_explanation} ar={s.compliance_explanation_ar} locale={locale} m={m} />
         </section>
       )}
 

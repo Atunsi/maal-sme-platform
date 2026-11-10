@@ -73,9 +73,7 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
           computed && (
             <div className="mb-2 text-sm">
               <p className="font-semibold text-muted">{n.method}</p>
-              <BackendText locale={locale} m={m}>
-                {computed.method}
-              </BackendText>
+              <BackendText en={computed.method} ar={computed.method_ar} locale={locale} m={m} />
             </div>
           )
         }

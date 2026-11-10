@@ -71,11 +71,9 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
         <section aria-label={n.drivers}>
           <SubHeading>{n.drivers}</SubHeading>
           <ul className="space-y-1">
-            {alert.drivers.map((driver) => (
+            {alert.drivers.map((driver, i) => (
               <li key={driver}>
-                <BackendText locale={locale} m={m}>
-                  {driver}
-                </BackendText>
+                <BackendText en={driver} ar={alert.drivers_ar?.[i]} locale={locale} m={m} />
               </li>
             ))}
           </ul>
@@ -190,9 +188,7 @@ export function ForecastCard({ data, locale, m }: { data: ForecastResponse; loca
           computed && (
             <div className="mb-2 text-sm">
               <p className="font-semibold text-muted">{n.method}</p>
-              <BackendText locale={locale} m={m}>
-                {computed.method}
-              </BackendText>
+              <BackendText en={computed.method} ar={computed.method_ar} locale={locale} m={m} />
             </div>
           )
         }

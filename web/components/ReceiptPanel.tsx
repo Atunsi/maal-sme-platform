@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { CopyButton, type CopyLabels } from "@/components/CopyButton";
 import { HashCheck } from "@/components/HashCheck";
 import { Code } from "@/components/ui";
-import { fill, type Messages } from "@/lib/i18n";
+import { fill, localeOf, type Locale, type Messages } from "@/lib/i18n";
 import type { Receipt } from "@/lib/types";
 
 /** Receipt fields that hold a full hash or commit: each gets a Copy button (E4). */
@@ -12,6 +12,35 @@ const COPYABLE = /(_sha256|^code_commit)$/;
 export function verifyCommand(scope: string | undefined): string | null {
   const found = scope ? /verify:\s*([^)\n]+?)\s*(?:\)|$)/m.exec(scope) : null;
   return found ? found[1]! : null;
+}
+
+/**
+ * The receipt's scope, verbatim (U13). In Arabic it is the backend's scope_ar (DECISIONS 57), with its command in a
+ * Code span; without scope_ar the English stays, marked as English.
+ */
+export function ScopeText({ scope, scopeAr, locale, className }: { scope: string; scopeAr?: string; locale: Locale; className: string }) {
+  if (locale === "ar" && scopeAr) {
+    const command = verifyCommand(scopeAr);
+    const at = command ? scopeAr.indexOf(command) : -1;
+    return (
+      <p className={className} data-scope-ar>
+        {at === -1 ? (
+          scopeAr
+        ) : (
+          <>
+            {scopeAr.slice(0, at)}
+            <Code>{command}</Code>
+            {scopeAr.slice(at + command!.length)}
+          </>
+        )}
+      </p>
+    );
+  }
+  return (
+    <p lang="en" dir="ltr" className={`text-start ${className}`}>
+      {scope}
+    </p>
+  );
 }
 
 export function copyLabels(m: Messages): CopyLabels {
@@ -30,7 +59,7 @@ type Props = {
 
 /** Every receipt field as returned, `scope` verbatim (U13). Keys stay raw: they are identifiers. */
 export function ReceiptPanel({ receipt, lens, m, note, rerun }: Props) {
-  const { scope, ...fields } = receipt;
+  const { scope, scope_ar: scopeAr, ...fields } = receipt;
   const r = m.receipt;
   const labels = copyLabels(m);
   const command = rerun !== undefined ? rerun : verifyCommand(scope);
@@ -40,9 +69,7 @@ export function ReceiptPanel({ receipt, lens, m, note, rerun }: Props) {
       <div className="mt-2">
         <p className="text-sm font-semibold text-muted">{r.scope}</p>
         {scope ? (
-          <p lang="en" dir="ltr" className="mb-2 text-start text-sm">
-            {scope}
-          </p>
+          <ScopeText scope={scope} scopeAr={scopeAr} locale={localeOf(m)} className="mb-2 text-sm" />
         ) : (
           <p className="mb-2 text-sm">{r.noScope}</p>
         )}

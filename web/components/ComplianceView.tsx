@@ -7,7 +7,8 @@ import type { Locale, Messages } from "@/lib/i18n";
 import type { CreditDetail, CreditExplanation, Receipt } from "@/lib/types";
 import { delay } from "@/lib/motion";
 
-function KeyValueTable({ rows, keyLabel, valueLabel }: { rows: Record<string, string>; keyLabel: string; valueLabel: string }) {
+/** `words`: the backend's Arabic for each value (DECISIONS 57), shown as text with the key beside it in a Code span. */
+function KeyValueTable({ rows, words, keyLabel, valueLabel }: { rows: Record<string, string>; words?: Record<string, string>; keyLabel: string; valueLabel: string }) {
   return (
     <table className="w-full">
       <thead>
@@ -26,9 +27,7 @@ function KeyValueTable({ rows, keyLabel, valueLabel }: { rows: Record<string, st
             <td className={TD}>
               <Code>{key}</Code>
             </td>
-            <td className={TD}>
-              <Code>{value}</Code>
-            </td>
+            <td className={TD}>{words?.[key] ? <span className="font-sans text-sm">{words[key]}</span> : <Code>{value}</Code>}</td>
           </tr>
         ))}
       </tbody>
@@ -38,36 +37,47 @@ function KeyValueTable({ rows, keyLabel, valueLabel }: { rows: Record<string, st
 
 type Props = { explanation: CreditExplanation; detail: CreditDetail; receipt: Receipt; locale: Locale; m: Messages };
 
+/** T4: in Arabic a field's words come first and its raw name follows in a Code span, so the code stays findable. */
+function FieldName({ words, code, locale }: { words: string; code: string; locale: Locale }) {
+  if (locale !== "ar") return <>{words}</>;
+  return (
+    <>
+      {words} <Code>{code}</Code>
+    </>
+  );
+}
+
 export function ComplianceView({ explanation, detail, receipt, locale, m }: Props) {
   const tier = explanation.compliance_tier;
   const c = m.compliance;
   const contributions = byAbsoluteContribution(tier.contributions);
   const largest = Math.abs(contributions[0]?.contribution_logodds ?? 0) || 1; // the scale comes from the response
+  // DECISIONS 57: the backend's Arabic phrases and feature labels; absent on an older object, then the codes alone.
+  const phrasesAr = locale === "ar" ? tier.phrases_ar : undefined;
+  const labelsAr = locale === "ar" ? tier.feature_labels_ar : undefined;
   return (
     <div data-testid="compliance-view" data-tour="compliance" className="panel slidein flex flex-col gap-1 p-5 font-mono text-[13px] sm:p-9">
       <Fields>
         <Field label={c.units}>
-          <BackendText locale={locale} m={m}>
-            {tier.units}
-          </BackendText>
+          <BackendText en={tier.units} ar={tier.units_ar} locale={locale} m={m} />
         </Field>
-        <Field label={c.pd}>
+        <Field label={<FieldName words={c.pd} code="pd" locale={locale} />}>
           <Num>{formatRaw(detail.pd, locale)}</Num>
         </Field>
-        <Field label={c.logit}>
+        <Field label={<FieldName words={c.logit} code="logit" locale={locale} />}>
           <Num>{formatRaw(detail.logit, locale)}</Num>
         </Field>
-        <Field label={c.riskTier}>{detail.risk_tier === null ? m.common.dash : <Code>{detail.risk_tier}</Code>}</Field>
-        <Field label={c.modelVersion}>
+        <Field label={<FieldName words={c.riskTier} code="risk_tier" locale={locale} />}>{detail.risk_tier === null ? m.common.dash : <Code>{detail.risk_tier}</Code>}</Field>
+        <Field label={<FieldName words={c.modelVersion} code="model_version" locale={locale} />}>
           <Code>{detail.model_version}</Code>
         </Field>
-        <Field label={c.modelSha}>
+        <Field label={<FieldName words={c.modelSha} code="model_sha256" locale={locale} />}>
           <Code>{detail.model_sha256}</Code>
         </Field>
-        <Field label={c.cvAuc}>
+        <Field label={<FieldName words={c.cvAuc} code="credit_model_cv_auc" locale={locale} />}>
           <Num>{formatRaw(receipt.credit_model_cv_auc, locale)}</Num>
         </Field>
-        <Field label={c.ceilingAuc}>
+        <Field label={<FieldName words={c.ceilingAuc} code="credit_model_oracle_ceiling_auc" locale={locale} />}>
           <Num>{formatRaw(receipt.credit_model_oracle_ceiling_auc, locale)}</Num>
         </Field>
       </Fields>
@@ -94,7 +104,9 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
                   <td className={TD}>{line.direction ? <Code>{line.direction}</Code> : m.common.dash}</td>
                   <td className={TD}>{trace ? <Code>{trace.thresholdRule}</Code> : m.common.dash}</td>
                   <td className={TD}>{trace ? <Code>{trace.phraseKey}</Code> : m.common.dash}</td>
-                  <td className={TD}>{trace ? <Code>{trace.phrase}</Code> : m.common.dash}</td>
+                  <td className={TD}>
+                    {!trace ? m.common.dash : phrasesAr?.[trace.phraseKey] ? <span className="font-sans text-sm">{phrasesAr[trace.phraseKey]}</span> : <Code>{trace.phrase}</Code>}
+                  </td>
                 </tr>
               );
             })}
@@ -106,7 +118,7 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
       <KeyValueTable rows={tier.threshold_table} keyLabel={c.key} valueLabel={c.rule} />
 
       <SubHeading>{c.phrases}</SubHeading>
-      <KeyValueTable rows={tier.phrases} keyLabel={c.key} valueLabel={c.phrase} />
+      <KeyValueTable rows={tier.phrases} words={phrasesAr} keyLabel={c.key} valueLabel={c.phrase} />
 
       <SubHeading>{c.contributions}</SubHeading>
       <TableScroll label={c.contributions} tall>
@@ -127,6 +139,7 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
                   <Num>{row.feature_id}</Num>
                 </td>
                 <td className={TD}>
+                  {labelsAr?.[row.feature] && <span className="block font-sans text-sm">{labelsAr[row.feature]}</span>}
                   <Code>{row.feature}</Code>
                 </td>
                 <td className={TD}>

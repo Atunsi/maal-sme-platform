@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ArabicLogo, EnglishWordmark } from "@/components/brand/Logos";
 import { NotServing } from "@/components/LensPage";
 import { PrintButton } from "@/components/PrintButton";
+import { ScopeText } from "@/components/ReceiptPanel";
 import { ShariaLabel } from "@/components/ShariaPanel";
 import { ApiError, BackendText, Code, NisabPlate, Num, Plate, ProvenanceLine, Refusal, TableScroll, TD, TH } from "@/components/ui";
 import { getAnomaly, getCredit, getForecast, getZakat } from "@/lib/api";
@@ -67,9 +68,7 @@ function Verdict({ data, locale, m }: { data: CreditResponse; locale: Locale; m:
         <ul className="list-disc ps-5">
           {explanation.public_tier.map((line) => (
             <li key={line.feature_id}>
-              <BackendText locale={locale} m={m}>
-                {line.text}
-              </BackendText>
+              <BackendText en={line.text} ar={line.text_ar} locale={locale} m={m} />
             </li>
           ))}
         </ul>
@@ -269,7 +268,7 @@ export default async function SheetPage({ params }: Props) {
       <Block title={sh.receipt}>
         <Loaded result={c} m={m}>
           {(data) => {
-            const { scope, ...fields } = data.receipt;
+            const { scope, scope_ar: scopeAr, ...fields } = data.receipt;
             return (
               <>
                 <dl className="text-xs">
@@ -279,9 +278,7 @@ export default async function SheetPage({ params }: Props) {
                     </Row>
                   ))}
                 </dl>
-                <p lang="en" dir="ltr" className="text-start text-xs">
-                  {scope}
-                </p>
+                {scope && <ScopeText scope={scope} scopeAr={scopeAr} locale={locale} className="text-xs" />}
               </>
             );
           }}
