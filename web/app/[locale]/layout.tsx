@@ -57,6 +57,22 @@ const mono = localFont({
   variable: "--font-plex-mono",
   display: "swap",
 });
+// RS (DECISIONS 57): the Saudi riyal sign, U+20C1. No system font has it yet, so without this face it shows as an
+// empty box. Its two files come from the riyal npm package v1.2.1 (MIT, Pooya Golchian, MIT-riyal.txt beside
+// them); nothing else of that package is used. unicode-range limits the face to U+20C1, so it draws no other
+// character even though it sits first in every stack.
+const riyal = localFont({
+  src: [
+    { path: "../fonts/riyal-regular.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/riyal-bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-riyal",
+  display: "swap",
+  declarations: [{ prop: "unicode-range", value: "U+20C1" }],
+  // No generated "riyal Fallback" face: it would be local Arial with no unicode-range, first in every stack,
+  // and so would draw every other character in Arial ahead of IBM Plex.
+  adjustFontFallback: false,
+});
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -104,7 +120,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       lang={locale}
       dir={dirOf(locale)}
       suppressHydrationWarning
-      className={`${sans.variable} ${arabic.variable} ${condensed.variable} ${mono.variable}`}
+      className={`${riyal.variable} ${sans.variable} ${arabic.variable} ${condensed.variable} ${mono.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />

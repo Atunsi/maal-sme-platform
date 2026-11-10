@@ -10,7 +10,8 @@ async function forecastOf(id: number) {
   };
 }
 
-const sar = (v: number) => new Intl.NumberFormat("en-GB-u-nu-latn", { style: "currency", currency: "SAR", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+// RS (DECISIONS 57): a visible amount is the riyal sign, a no-break space and the number (lib/format.ts).
+const sar = (v: number) => `${v < 0 ? "-" : ""}\u20C1\u00A0${new Intl.NumberFormat("en-GB-u-nu-latn", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(v))}`;
 
 test("forecast readout follows keyboard and matches the table", async ({ page }) => {
   const { forecast } = await forecastOf(10001);
@@ -87,14 +88,14 @@ for (const id of [10001, 10004, 10037]) {
 
 test("zakat bars show values on focus", async ({ page }) => {
   await page.goto("/en/business/10037/zakat", { waitUntil: "networkidle" });
-  const bar = page.getByRole("button", { name: /^Zakatable assets: SAR / });
+  const bar = page.getByRole("button", { name: /^Zakatable assets: [\d,]+\.\d\d Saudi riyals$/ });
   await bar.focus();
   await expect(bar.locator(".tip")).toBeVisible();
-  await expect(bar.locator(".tip")).toHaveText(/^Zakatable assets: SAR\s[\d,]+\.\d\d$/);
+  await expect(bar.locator(".tip")).toHaveText(/^Zakatable assets: \u20C1\u00A0[\d,]+\.\d\d$/);
   await page.keyboard.press("Escape");
   await expect(bar.locator(".tip")).toBeHidden();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("button", { name: /^Less deductible liabilities: SAR / }).locator(".tip")).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Less deductible liabilities: [\d,]+\.\d\d Saudi riyals$/ }).locator(".tip")).toBeVisible();
 });
 
 test("review mark readout shows flag reason only", async ({ page }) => {
@@ -106,7 +107,7 @@ test("review mark readout shows flag reason only", async ({ page }) => {
   const text = (await tip.textContent())!;
   expect(text).toBe(await mark.getAttribute("aria-label"));
   expect(text).toMatch(/^\d{1,2} [A-Z][a-z]+ \d{4}, [A-Za-z ,]+$/);
-  expect(text).not.toMatch(/fraud|score|SAR/i);
+  expect(text).not.toMatch(/fraud|score|SAR|\u20C1/i);
   await page.mouse.move(0, 0);
   await expect(tip).toBeHidden();
   await mark.focus();
@@ -123,7 +124,7 @@ test("reduced motion: readouts still appear, without transitions", async ({ page
   await expect(page.locator("[data-readout]")).toBeVisible();
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
   await page.goto("/en/business/10040/zakat", { waitUntil: "networkidle" });
-  const bar = page.getByRole("button", { name: /^Zakat base: SAR / });
+  const bar = page.getByRole("button", { name: /^Zakat base: -?[\d,]+\.\d\d Saudi riyals$/ });
   await bar.focus();
   await expect(bar.locator(".tip")).toBeVisible();
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);

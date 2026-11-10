@@ -29,7 +29,16 @@ describe("digits formatting", () => {
 
   it("English always formats Western digits", () => {
     expect(formatSar(47583.74, "en", "arab")).toBe(formatSar(47583.74, "en"));
-    expect(formatSar(47583.74, "en")).toMatch(/^SAR\s47,583\.74$/);
+    // RS (DECISIONS 57): the riyal sign and a no-break space replace "SAR"; the number is unchanged (U3).
+    expect(formatSar(47583.74, "en")).toBe("\u20C1\u00A047,583.74");
+    expect(formatSar(47583.74, "ar")).toBe("\u20C1\u00A047,583.74");
+    expect(formatSar(47583.74, "ar", "arab")).toBe("\u20C1\u00A0٤٧٬٥٨٣٫٧٤");
+    expect(formatSar(-23054.75, "ar")).toBe("-\u20C1\u00A023,054.75");
+  });
+
+  it("the digit rewrite leaves the riyal sign alone", () => {
+    expect(toArabDigits("\u20C1\u00A012.50")).toBe("\u20C1\u00A0١٢٫٥٠");
+    expect(toLatnDigits("\u20C1\u00A0١٢٫٥٠")).toBe("\u20C1\u00A012.50");
   });
 
   it("separators and periods away from digits are left alone", () => {

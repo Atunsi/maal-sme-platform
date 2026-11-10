@@ -5,7 +5,7 @@ import { AnomalyCard } from "@/components/AnomalyCard";
 import { floorLabelPlacement } from "@/components/ForecastChart";
 import { ForecastCard } from "@/components/ForecastCard";
 import { ZakatCard } from "@/components/ZakatCard";
-import { formatSar } from "@/lib/format";
+import { formatSar, formatSarSpoken } from "@/lib/format";
 import { fill } from "@/lib/i18n";
 import { AnomalyResponse, ForecastResponse, ZakatResponse } from "@/lib/schemas";
 import { en, fixture } from "./helpers";
@@ -105,12 +105,14 @@ describe("zakat and review readouts", () => {
     const data = fixture("zakat_10001", ZakatResponse);
     render(<ZakatCard data={data} locale="en" m={en} />);
     const z = data.zakat!;
-    const label = `${en.zakat.assets}: ${formatSar(z.zakatable_assets_sar!, "en")}`;
+    // RS: the accessible name says the currency in words; the visible tip shows the riyal sign.
+    const label = `${en.zakat.assets}: ${formatSarSpoken(z.zakatable_assets_sar!, "en")}`;
+    const tip = `${en.zakat.assets}: ${formatSar(z.zakatable_assets_sar!, "en")}`;
     const bar = screen.getByRole("button", { name: label });
     expect(bar.getAttribute("data-open")).toBe("false");
     fireEvent.focus(bar);
     expect(bar.getAttribute("data-open")).toBe("true");
-    expect(bar.querySelector(".tip")!.textContent).toBe(label);
+    expect(bar.querySelector(".tip")!.textContent).toBe(tip);
     fireEvent.keyDown(bar, { key: "Escape" });
     expect(bar.getAttribute("data-open")).toBe("false");
     for (const name of [en.zakat.less, en.zakat.base]) expect(screen.getByRole("button", { name: new RegExp(`^${name}: `) })).toBeTruthy();

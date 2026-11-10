@@ -3,9 +3,9 @@ import { CopyButton } from "@/components/CopyButton";
 import { Term } from "@/components/Term";
 import { copyLabels, ReceiptPanel } from "@/components/ReceiptPanel";
 import { PhoneFold } from "@/components/PhoneFold";
-import { Num, Plate, Refusal } from "@/components/ui";
+import { Num, Plate, Refusal, Sar } from "@/components/ui";
 import { decisionPlate, decisionWord } from "@/lib/decision";
-import { formatInt, formatPct, formatSar } from "@/lib/format";
+import { formatInt, formatPct } from "@/lib/format";
 import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import type { CreditResponse, Receipt } from "@/lib/types";
 import { delay } from "@/lib/motion";
@@ -89,7 +89,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
               <span className="verdict-rule" aria-hidden="true" />
               {credit.amount_sar !== null && (
                 <span className="rise font-mono text-[34px] font-medium text-ink sm:text-[52px]" style={{ animationDelay: delay(1) }}>
-                  <Num>{formatSar(credit.amount_sar, locale)}</Num>
+                  <Sar value={credit.amount_sar} locale={locale} />
                 </span>
               )}
             </h2>

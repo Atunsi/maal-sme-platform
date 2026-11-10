@@ -1,8 +1,9 @@
 import type { CSSProperties, ReactNode } from "react";
 import { RefusalLink } from "@/components/RefusalLink";
 import { RetryButton } from "@/components/RetryButton";
-import { localeOf, type Locale, type Messages } from "@/lib/i18n";
-import { formatDate, formatInt, formatProbability } from "@/lib/format";
+import type { Digits } from "@/lib/digits";
+import { getMessages, localeOf, type Locale, type Messages } from "@/lib/i18n";
+import { formatDate, formatInt, formatProbability, formatSar, RIYAL } from "@/lib/format";
 import { nisabPlate } from "@/lib/nisab";
 import type { ApiErrorKind, Provenance } from "@/lib/types";
 
@@ -74,6 +75,27 @@ export function figureFont(children: ReactNode): string {
 /** Numbers and identifiers stay left-to-right inside Arabic text. */
 export function Num({ children }: { children: ReactNode }) {
   return <bdi dir="ltr">{children}</bdi>;
+}
+
+/**
+ * RS (DECISIONS 57): a visible amount, "U+20C1 1,250.00", the sign on the left in both languages (SAMA's usage
+ * guide), so it stays inside an LTR wrapper in Arabic. Screen readers do not know U+20C1 yet, so the sign is
+ * aria-hidden and a visually hidden word follows the number ("Saudi riyals", «ريال سعودي»). The number has
+ * exactly 2 decimals, as formatSar gives it (U3). Attributes use formatSarSpoken instead.
+ */
+export function Sar({ value, locale, digits = "latn" }: { value: number; locale: Locale; digits?: Digits }) {
+  const number = formatSar(Math.abs(value), locale, digits).slice(RIYAL.length + 1);
+  return (
+    <bdi dir="ltr" className="whitespace-nowrap" data-sar>
+      {value < 0 && "-"}
+      <span aria-hidden="true" className="riyal">
+        {RIYAL}
+      </span>
+      {" "}
+      {number}
+      <span className="sr-only"> {getMessages(locale).currency.spoken}</span>
+    </bdi>
+  );
 }
 
 /** C3: a percentage with one decimal, then the exact value in brackets in a smaller mono span. Not used in the Compliance View or receipts. */

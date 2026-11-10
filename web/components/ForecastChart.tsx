@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { formatInt, formatSar } from "@/lib/format";
+import { formatInt, formatSar, formatSarSpoken } from "@/lib/format";
 import { fill, type Locale } from "@/lib/i18n";
 
 export type ForecastPoint = { day: number; model: number; baseline: number };
@@ -150,9 +150,15 @@ export function ForecastChart({ data, locale, labels }: Props) {
       ] as const,
     };
   };
+  // RS: the live region says the currency in words; the readout box beside it is aria-hidden and shows the sign.
   const spoken = (i: number) => {
-    const r = readout(i);
-    return [r.title, ...r.rows.map(([k, v]) => `${k} ${v}`)].join(", ");
+    const d = data[i]!;
+    const rows = [
+      [labels.model, formatSarSpoken(d.model, locale)],
+      [labels.baseline, formatSarSpoken(d.baseline, locale)],
+      [labels.floorName, formatSarSpoken(0, locale)],
+    ];
+    return [dayLabel(d.day), ...rows.map(([k, v]) => `${k} ${v}`)].join(", ");
   };
 
   // The live region repeats the readout, throttled so pointer moves do not flood it.

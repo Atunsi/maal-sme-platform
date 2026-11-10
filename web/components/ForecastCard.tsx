@@ -3,7 +3,7 @@ import { LensHead } from "@/components/BusinessHeader";
 import { ForecastChart, type ForecastPoint } from "@/components/ForecastChart";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
-import { BackendText, figureFont, Num, Plate, Probability, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
+import { BackendText, figureFont, Num, Plate, Probability, Refusal, Sar, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import { formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import type { ForecastResponse } from "@/lib/types";
@@ -47,7 +47,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
     <>
       <dl aria-label={n.keyFigures} data-phone="terms" className="rise grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border border-line bg-card" style={{ animationDelay: delay(1) }}>
         <Figure label={n.balanceToday}>
-          <Num>{formatSar(f.balance_today_sar, locale)}</Num>
+          <Sar value={f.balance_today_sar} locale={locale} />
         </Figure>
         <Figure label={n.hazard}>
           <ul className="text-base">
@@ -133,13 +133,13 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
                       <Num>{fill(n.dayN, { n: row.horizon_days })}</Num>
                     </td>
                     <td className={TD} data-label={n.projected} data-col="projected">
-                      <Num>{formatSar(row.projected_balance_sar, locale)}</Num>
+                      <Sar value={row.projected_balance_sar} locale={locale} />
                     </td>
                     <td className={TD} data-label={n.minimum} data-col="minimum">
-                      <Num>{formatSar(row.min_projected_balance_sar, locale)}</Num>
+                      <Sar value={row.min_projected_balance_sar} locale={locale} />
                     </td>
                     <td className={TD} data-label={n.netFlow} data-col="net">
-                      <Num>{formatSar(row.projected_net_flow_sar, locale)}</Num>
+                      <Sar value={row.projected_net_flow_sar} locale={locale} />
                     </td>
                   </tr>
                 )),

@@ -1,5 +1,7 @@
 import type { Digits } from "@/lib/digits";
 import type { Locale } from "@/lib/i18n";
+import ar from "@/messages/ar.json";
+import en from "@/messages/en.json";
 
 // Every number, amount, percentage and date the app shows is formatted here. Western digits are the
 // default in both languages; Arabic can also show Arabic-Indic digits (E8, DECISIONS 51). The server always
@@ -15,16 +17,29 @@ const TAGS: Record<Locale, Record<Digits, string>> = {
 /** Bidi marks from the Arabic number formats scramble negatives inside the LTR wrapper (Num). */
 const plain = (text: string) => text.replace(/[‎‏؜]/g, "");
 
-/** 2 decimals: the API rounds SAR to 2, so this never changes a displayed amount (U3). */
+/** The Saudi riyal sign. The only place the character is written in the code base (RS, DECISIONS 57). */
+export const RIYAL = "\u20C1";
+
+const SPOKEN: Record<Locale, string> = { en: en.currency.spoken, ar: ar.currency.spoken };
+
+/** 2 decimals: the API rounds SAR to 2, so this never changes a displayed amount (U3). No currency style, no sign. */
+function amount(value: number, locale: Locale, digits: Digits): string {
+  return plain(new Intl.NumberFormat(TAGS[locale][digits], { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value));
+}
+
+/**
+ * A visible amount: the riyal sign, a no-break space, then the number with exactly 2 decimals (U3 unchanged).
+ * SAMA's usage guide puts the sign to the left of the number in every language, with a space between, so in
+ * Arabic the amount stays in its LTR wrapper (Num, Sar). A negative amount reads "-U+20C1 1,250.00". Screen readers
+ * do not know U+20C1 yet: on a page the sign is drawn only by <Sar>, which hides it and speaks the words.
+ */
 export function formatSar(value: number, locale: Locale, digits: Digits = "latn"): string {
-  return plain(
-    new Intl.NumberFormat(TAGS[locale][digits], {
-      style: "currency",
-      currency: "SAR",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value),
-  );
+  return `${value < 0 ? "-" : ""}${RIYAL} ${amount(Math.abs(value), locale, digits)}`;
+}
+
+/** The same amount for an attribute (aria-label, title, alt) or a live region: the number, then the currency in words. */
+export function formatSarSpoken(value: number, locale: Locale, digits: Digits = "latn"): string {
+  return `${value < 0 ? "-" : ""}${amount(Math.abs(value), locale, digits)} ${SPOKEN[locale]}`;
 }
 
 export function formatInt(value: number, locale: Locale, digits: Digits = "latn"): string {

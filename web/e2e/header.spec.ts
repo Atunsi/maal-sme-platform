@@ -32,7 +32,7 @@ test("header fits one row on laptops", async ({ page }) => {
 test("display menu opens, closes with escape and returns focus", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(`/ar${PATH}`, { waitUntil: "networkidle" });
-  const display = page.getByRole("button", { name: "العرض" });
+  const display = page.getByRole("button", { name: "المظهر" });
   const digits = page.locator("[data-digits-toggle]");
   await expect(display).toHaveAttribute("aria-expanded", "false");
   await expect(digits).toBeHidden();

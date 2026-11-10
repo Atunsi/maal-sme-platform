@@ -4,6 +4,9 @@
     "pageTitle": "«{page}»، {business} | {app}",
     "pageTitleShort": "«{page}» | {app}"
   },
+  "currency": {
+    "spoken": "ريال سعودي"
+  },
   "app": {
     "name": "مآل",
     "tagline": "وين متجهة منشأتك"

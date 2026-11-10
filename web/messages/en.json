@@ -4,6 +4,9 @@
     "pageTitle": "{page}, {business} | {app}",
     "pageTitleShort": "{page} | {app}"
   },
+  "currency": {
+    "spoken": "Saudi riyals"
+  },
   "app": {
     "name": "Ma'al",
     "tagline": "where your business is heading"

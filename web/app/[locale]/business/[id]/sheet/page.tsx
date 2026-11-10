@@ -5,10 +5,10 @@ import { NotServing } from "@/components/LensPage";
 import { PrintButton } from "@/components/PrintButton";
 import { ScopeText } from "@/components/ReceiptPanel";
 import { ShariaLabel } from "@/components/ShariaPanel";
-import { ApiError, BackendText, Code, NisabPlate, Num, Plate, ProvenanceLine, Refusal, TableScroll, TD, TH } from "@/components/ui";
+import { ApiError, BackendText, Code, NisabPlate, Num, Plate, ProvenanceLine, Refusal, Sar, TableScroll, TD, TH } from "@/components/ui";
 import { getAnomaly, getCredit, getForecast, getZakat } from "@/lib/api";
 import { decisionPlate } from "@/lib/decision";
-import { formatInt, formatPct, formatSar } from "@/lib/format";
+import { formatInt, formatPct } from "@/lib/format";
 import { fill, getMessages, isLocale, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import type { AnomalyResponse, ApiResult, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
@@ -55,7 +55,7 @@ function Verdict({ data, locale, m }: { data: CreditResponse; locale: Locale; m:
         <Row label={m.admin.credit}>
           <Plate variant={plate.variant}>{plate.word}</Plate>
         </Row>
-        {credit.amount_sar !== null && <Row label={m.credit.amount}>{<Num>{formatSar(credit.amount_sar, locale)}</Num>}</Row>}
+        {credit.amount_sar !== null && <Row label={m.credit.amount}><Sar value={credit.amount_sar} locale={locale} /></Row>}
         {credit.repayment_months !== null && <Row label={o.repayment}>{fill(pluralForm(credit.repayment_months, o.monthsValue, locale), { n: formatInt(credit.repayment_months, locale) })}</Row>}
         {credit.base_markup_pct !== null && (
           <Row label={o.markupLabel}>
@@ -91,7 +91,7 @@ function Zakat({ data, locale, m }: { data: ZakatResponse; locale: Locale; m: Me
         </Row>
         {z.liability_sar != null && (
           <Row label={n.liability}>
-            <Num>{formatSar(z.liability_sar, locale)}</Num>
+            <Sar value={z.liability_sar} locale={locale} />
           </Row>
         )}
       </dl>
@@ -114,7 +114,7 @@ function Forecast({ data, locale, m }: { data: ForecastResponse; locale: Locale;
     <>
       <dl>
         <Row label={n.balanceToday}>
-          <Num>{formatSar(f.balance_today_sar, locale)}</Num>
+          <Sar value={f.balance_today_sar} locale={locale} />
         </Row>
         <Row label={n.alert}>
           <Plate variant={f.crunch_alert.level === "none" ? "ok" : f.crunch_alert.level === "watch" ? "warn" : "bad"}>{m.enums.level[f.crunch_alert.level]}</Plate>
@@ -142,13 +142,13 @@ function Forecast({ data, locale, m }: { data: ForecastResponse; locale: Locale;
                   {fill(n.dayN, { n: formatInt(row.horizon_days, locale) })}
                 </td>
                 <td className={TD} data-label={n.projected} data-col="projected">
-                  <Num>{formatSar(row.projected_balance_sar, locale)}</Num>
+                  <Sar value={row.projected_balance_sar} locale={locale} />
                 </td>
                 <td className={TD} data-label={n.minimum} data-col="minimum">
-                  <Num>{formatSar(row.min_projected_balance_sar, locale)}</Num>
+                  <Sar value={row.min_projected_balance_sar} locale={locale} />
                 </td>
                 <td className={TD} data-label={n.netFlow} data-col="net">
-                  <Num>{formatSar(row.projected_net_flow_sar, locale)}</Num>
+                  <Sar value={row.projected_net_flow_sar} locale={locale} />
                 </td>
               </tr>
             )),

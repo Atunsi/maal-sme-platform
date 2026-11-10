@@ -3,8 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Term } from "@/components/Term";
-import { Num, TableScroll, TD, TH } from "@/components/ui";
-import { formatDate, formatInt, formatMonth, formatSar } from "@/lib/format";
+import { Num, Sar, TableScroll, TD, TH } from "@/components/ui";
+import { formatDate, formatInt, formatMonth } from "@/lib/format";
 import { dirOf, fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { label, labelWord } from "@/lib/labels";
 import { delay } from "@/lib/motion";
@@ -291,7 +291,7 @@ export function ReviewBoard({ a, locale, labels, intro }: { a: Computed; locale:
                     {labels.enums.flow[flag.direction]}
                   </td>
                   <td className={TD} data-label={headings.amount} data-col="amount">
-                    <Num>{formatSar(flag.amount_sar, locale)}</Num>
+                    <Sar value={flag.amount_sar} locale={locale} />
                   </td>
                   <td className={TD} data-label={headings.counterparty} data-col="counterparty">
                     {label("counterparty_type", flag.counterparty_type, labels)}

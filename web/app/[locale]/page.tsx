@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 import { ArabicLogo, EnglishWordmark, LogoBand, SectionMark } from "@/components/brand/Logos";
 import { Flow } from "@/components/Flow";
 import { TryBusinesses } from "@/components/TryBusinesses";
-import { Num, Plate } from "@/components/ui";
+import { Plate, Sar } from "@/components/ui";
 import { DEMO_BUSINESS } from "@/lib/businesses";
 import { decisionWord } from "@/lib/decision";
-import { formatInt, formatPct, formatSar } from "@/lib/format";
+import { formatInt, formatPct } from "@/lib/format";
 import { fill, getMessages, isLocale, type Locale, LOCALES, type Messages, pluralForm } from "@/lib/i18n";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
 import { TOUR_STEPS, tourHref } from "@/lib/tour";
@@ -63,7 +63,7 @@ function IllustrativeCard({ o, locale, m }: { o: ScenarioObject; locale: Locale;
           <div className={`heading text-[40px] leading-none ${credit.decision === "approved" ? "text-ok" : "text-bad"}`}>{decisionWord(credit, o.credit_decision_detail, m)}</div>
           {credit.amount_sar !== null && (
             <div className="mt-1.5 font-mono text-2xl">
-              <Num>{formatSar(credit.amount_sar, locale)}</Num>
+              <Sar value={credit.amount_sar} locale={locale} />
             </div>
           )}
           {credit.repayment_months !== null && credit.base_markup_pct !== null && (
@@ -80,7 +80,7 @@ function IllustrativeCard({ o, locale, m }: { o: ScenarioObject; locale: Locale;
         <Tile label={m.zakat.title}>
           {o.zakat?.liability_sar != null ? (
             <span className="font-mono">
-              <Num>{formatSar(o.zakat.liability_sar, locale)}</Num>
+              <Sar value={o.zakat.liability_sar} locale={locale} />
             </span>
           ) : (
             m.common.dash

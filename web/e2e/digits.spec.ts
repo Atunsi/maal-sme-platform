@@ -16,7 +16,7 @@ function watchConsole(page: Page) {
 
 /** B12: on laptops the digits toggle sits under the Display button; open it if it is closed. */
 async function openDisplay(page: Page) {
-  const display = page.getByRole("button", { name: "العرض" });
+  const display = page.getByRole("button", { name: "المظهر" });
   if ((await display.getAttribute("aria-expanded")) === "false") await display.click();
 }
 
@@ -29,7 +29,7 @@ test("digits switch only shows in arabic", async ({ page }) => {
   await expect(page.locator("[data-digits-toggle]")).toHaveCount(0);
   await page.goto("/ar/business/10040", { waitUntil: "networkidle" });
   const toggle = page.locator("[data-digits-toggle]");
-  await expect(toggle).toHaveText("أرقام عربية");
+  await expect(toggle).toHaveText("الأرقام الهندية (٠١٢٣)");
   await expect(toggle).toHaveAttribute("aria-pressed", "false");
 });
 
@@ -39,7 +39,7 @@ test("digits switch changes amounts and persists without cookies", async ({ page
   await expect(heading).toHaveText(LATN);
   await openDisplay(page);
   await page.locator("[data-digits-toggle]").click();
-  await expect(page.locator("[data-digits-toggle]")).toHaveText("أرقام عربية");
+  await expect(page.locator("[data-digits-toggle]")).toHaveText("الأرقام الهندية (٠١٢٣)");
   await expect(page.locator("[data-digits-toggle]")).toHaveAttribute("aria-pressed", "true");
   await expect(heading).toHaveText(ARAB);
   await expect(heading).not.toHaveText(LATN);

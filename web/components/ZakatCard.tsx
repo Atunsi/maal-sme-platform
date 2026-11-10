@@ -3,9 +3,9 @@ import { LensHead } from "@/components/BusinessHeader";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
 import { TipButton } from "@/components/TipButton";
-import { BackendText, Code, Field, Fields, NisabPlate, Num, Plate, Probability, Refusal } from "@/components/ui";
-import { formatDate, formatSar } from "@/lib/format";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { BackendText, Code, Field, Fields, NisabPlate, Plate, Probability, Refusal, Sar } from "@/components/ui";
+import { formatDate, formatSar, formatSarSpoken } from "@/lib/format";
+import { fill, fillNodes, type Locale, type Messages } from "@/lib/i18n";
 import { label } from "@/lib/labels";
 import type { ZakatResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
@@ -16,14 +16,12 @@ type Zakat = NonNullable<ZakatResponse["zakat"]>;
 
 const pct = (part: number, whole: number) => `${Math.min(100, Math.max(0, (part / whole) * 100)).toFixed(2)}%`;
 
-function Step({ label, value, strong, children }: { label: string; value: string; strong?: boolean; children: ReactNode }) {
+function Step({ label, value, strong, children }: { label: string; value: ReactNode; strong?: boolean; children: ReactNode }) {
   return (
     <>
       <div className={strong ? "font-semibold" : undefined}>
         <div className="text-sm">{label}</div>
-        <div className="font-mono text-lg">
-          <Num>{value}</Num>
-        </div>
+        <div className="font-mono text-lg">{value}</div>
       </div>
       <div className="relative h-[30px]">{children}</div>
     </>
@@ -38,13 +36,16 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
   if (assets === undefined || liabilities === undefined || base === undefined) return null;
   const n = m.zakat;
   const scale = Math.max(assets, liabilities, base, z.nisab_value_sar) || 1;
+  // RS: visible amounts carry the riyal sign (formatSar, Sar); the image's alt text and each bar's accessible name
+  // say the currency in words (formatSarSpoken), because screen readers do not know U+20C1 yet.
   const sar = (value: number) => formatSar(value, locale);
+  const spoken = (value: number) => formatSarSpoken(value, locale);
   const nisabAt = pct(z.nisab_value_sar, scale);
-  const alt = fill(n.buildAlt, { assets: sar(assets), liabilities: sar(liabilities), base: sar(base), nisab: sar(z.nisab_value_sar) });
+  const alt = fill(n.buildAlt, { assets: spoken(assets), liabilities: spoken(liabilities), base: spoken(base), nisab: spoken(z.nisab_value_sar) });
   const bars = [
-    { label: n.assets, value: sar(assets), start: "0%", width: pct(assets, scale), strong: false },
-    { label: n.less, value: sar(liabilities), start: pct(Math.max(assets - liabilities, 0), scale), width: pct(Math.min(liabilities, assets), scale), strong: false },
-    { label: n.base, value: sar(base), start: "0%", width: pct(base, scale), strong: true },
+    { label: n.assets, amount: assets, start: "0%", width: pct(assets, scale), strong: false },
+    { label: n.less, amount: liabilities, start: pct(Math.max(assets - liabilities, 0), scale), width: pct(Math.min(liabilities, assets), scale), strong: false },
+    { label: n.base, amount: base, start: "0%", width: pct(base, scale), strong: true },
   ];
   return (
     <section aria-labelledby="build" data-tour="waterfall" className="flex flex-col gap-5 border border-line bg-card p-5 sm:p-9">
@@ -53,17 +54,17 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
       </h2>
       <div className="relative">
         <div role="img" aria-label={alt} className={GRID}>
-          <Step label={n.assets} value={sar(assets)}>
+          <Step label={n.assets} value={<Sar value={assets} locale={locale} />}>
             <div className="fill-bar fill-from-start start-0 bg-accent" style={{ width: pct(assets, scale), animationDelay: delay(0) }} />
           </Step>
-          <Step label={n.less} value={sar(liabilities)}>
+          <Step label={n.less} value={<Sar value={liabilities} locale={locale} />}>
             {/* The deduction hangs from the end of the assets bar and eats back towards the base. */}
             <div
               className="fill-bar fill-from-end stripe"
               style={{ insetInlineStart: bars[1]!.start, width: bars[1]!.width, animationDelay: delay(1) }}
             />
           </Step>
-          <Step label={n.base} value={sar(base)} strong>
+          <Step label={n.base} value={<Sar value={base} locale={locale} />} strong>
             <div className="fill-bar fill-from-start start-0 bg-ink" style={{ width: pct(base, scale), animationDelay: delay(2) }} />
             <div aria-hidden="true" className="drop absolute -inset-y-3.5 w-[3px] bg-ochre" style={{ insetInlineStart: nisabAt, animationDelay: delay(3) }} />
             {/* The label sits on the side of the marker with more room and wraps within it, so it never runs off
@@ -76,7 +77,7 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
                   : { insetInlineStart: `calc(${nisabAt} + 10px)`, maxWidth: `calc(100% - ${nisabAt} - 10px)`, animationDelay: delay(3) }
               }
             >
-              {fill(n.nisabLine, { value: sar(z.nisab_value_sar), basis: (locale === "ar" && z.nisab_basis_ar) || z.nisab_basis })}
+              {fillNodes(n.nisabLine, { value: <Sar value={z.nisab_value_sar} locale={locale} />, basis: (locale === "ar" && z.nisab_basis_ar) || z.nisab_basis })}
             </div>
           </Step>
         </div>
@@ -87,12 +88,12 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
             <Fragment key={bar.label}>
               <div aria-hidden="true" className={`invisible ${bar.strong ? "font-semibold" : ""}`}>
                 <div className="text-sm">{bar.label}</div>
-                <div className="font-mono text-lg">{bar.value}</div>
+                <div className="font-mono text-lg">{sar(bar.amount)}</div>
               </div>
               <div className="relative h-[30px]">
                 <TipButton
-                  label={`${bar.label}: ${bar.value}`}
-                  tip={`${bar.label}: ${bar.value}`}
+                  label={`${bar.label}: ${spoken(bar.amount)}`}
+                  tip={`${bar.label}: ${sar(bar.amount)}`}
                   className="pointer-events-auto absolute -inset-y-[7px]"
                   style={{ insetInlineStart: bar.start, width: bar.width }}
                 />
@@ -170,7 +171,7 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
       <div className="font-mono text-base leading-relaxed">
         {z.zakat_base_sar !== undefined && (
           <div>
-            {n.base} <Num>{formatSar(z.zakat_base_sar, locale)}</Num>
+            {n.base} <Sar value={z.zakat_base_sar} locale={locale} />
           </div>
         )}
         <div>
@@ -179,7 +180,7 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
         {/* U10: a calculation that did not run shows no amount, never a zero. */}
         {z.status !== "not_computed" && z.liability_sar !== null && (
           <div className="text-[26px]" style={{ color: "var(--gold-amount)" }}>
-            <span>{n.liability}</span> <Num>{formatSar(z.liability_sar, locale)}</Num>
+            <span>{n.liability}</span> <Sar value={z.liability_sar} locale={locale} />
           </div>
         )}
       </div>
@@ -197,7 +198,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
         <Plate variant={STATUS_VARIANT[z.status]}>{m.enums.zakat_status[z.status]}</Plate>
         {z.status !== "not_computed" && z.liability_sar !== null && (
           <span className="font-mono text-[26px] sm:text-[34px]">
-            <Num>{formatSar(z.liability_sar, locale)}</Num>
+            <Sar value={z.liability_sar} locale={locale} />
           </span>
         )}
       </div>

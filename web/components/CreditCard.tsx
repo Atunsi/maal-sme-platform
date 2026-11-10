@@ -4,9 +4,9 @@ import { ComplianceView } from "@/components/ComplianceView";
 import { FactorDetails } from "@/components/FactorDetails";
 import { CreditViewSwitch } from "@/components/CreditViewSwitch";
 import { Term as GlossaryTerm } from "@/components/Term";
-import { BackendText, figureFont, Num, Plate, Refusal, SubHeading } from "@/components/ui";
+import { BackendText, figureFont, Num, Plate, Refusal, Sar, SubHeading } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
-import { formatInt, formatPct, formatSar } from "@/lib/format";
+import { formatInt, formatPct } from "@/lib/format";
 import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { label } from "@/lib/labels";
 import type { CreditExplanation, CreditResponse } from "@/lib/types";
@@ -132,7 +132,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
       <Plate variant={plate.variant}>{plate.word}</Plate>
       {credit.amount_sar !== null && (
         <span className="font-mono text-xl">
-          <Num>{formatSar(credit.amount_sar, locale)}</Num>
+          <Sar value={credit.amount_sar} locale={locale} />
         </span>
       )}
     </div>
@@ -151,7 +151,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
         <dl data-phone="terms" className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] border border-line bg-card">
           {credit.amount_sar !== null && (
             <Term label={m.credit.amount}>
-              <Num>{formatSar(credit.amount_sar, locale)}</Num>
+              <Sar value={credit.amount_sar} locale={locale} />
             </Term>
           )}
           {credit.repayment_months !== null && (

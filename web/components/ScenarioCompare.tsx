@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ShariaLabel } from "@/components/ShariaPanel";
-import { NisabPlate, Num, Plate, Probability, ProvenanceLine, Refusal, SubHeading, TableScroll, TH } from "@/components/ui";
+import { NisabPlate, Num, Plate, Probability, ProvenanceLine, Refusal, Sar, SubHeading, TableScroll, TH } from "@/components/ui";
 import { decisionPlate, decisionState, decisionWord } from "@/lib/decision";
-import { formatInt, formatSar } from "@/lib/format";
+import { formatInt } from "@/lib/format";
 import type { Locale, Messages } from "@/lib/i18n";
 import { scenarioName } from "@/lib/scenario-label";
 import type { ScenarioObject } from "@/lib/types";
@@ -58,7 +58,7 @@ function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, 
     },
     amount: {
       raw: o.credit ? o.credit.amount_sar : "not_run",
-      shown: !o.credit ? notRun : o.credit.amount_sar === null ? s.notOffered : <Num>{formatSar(o.credit.amount_sar, locale)}</Num>,
+      shown: !o.credit ? notRun : o.credit.amount_sar === null ? s.notOffered : <Sar value={o.credit.amount_sar} locale={locale} />,
     },
     pd: { raw: detail?.pd ?? null, shown: detail ? <Probability value={detail.pd} locale={locale} /> : notRun },
     alert: { raw: alert?.level ?? null, shown: alert ? <Plate variant={LEVEL_VARIANT[alert.level]}>{m.enums.level[alert.level]}</Plate> : notRun },
@@ -85,7 +85,7 @@ function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, 
     },
     zakat: {
       raw: zakatShown ? o.zakat!.liability_sar : (o.zakat?.status ?? null),
-      shown: !o.zakat ? notRun : zakatShown ? <Num>{formatSar(o.zakat.liability_sar!, locale)}</Num> : m.common.dash,
+      shown: !o.zakat ? notRun : zakatShown ? <Sar value={o.zakat.liability_sar!} locale={locale} /> : m.common.dash,
     },
     zakatStatus: { raw: o.zakat?.status ?? null, shown: o.zakat ? m.enums.zakat_status[o.zakat.status] : notRun },
     sharia: { raw: sharia, shown: <Plate variant={SHARIA_VARIANT[sharia]}>{m.enums.sharia[sharia]}</Plate> },

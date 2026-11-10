@@ -1,8 +1,8 @@
 import { RoleLink } from "@/components/RoleLink";
 import type { ReactNode } from "react";
-import { BackendText, figureFont, Num, Plate, Probability, type PlateVariant } from "@/components/ui";
+import { BackendText, figureFont, Num, Plate, Probability, Sar, type PlateVariant } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
-import { formatInt, formatSar } from "@/lib/format";
+import { formatInt } from "@/lib/format";
 import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { nisabPlate } from "@/lib/nisab";
 import type { AnomalyResponse, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
@@ -27,7 +27,7 @@ export const creditReadout: Fn<CreditResponse> = (data, locale, m) => {
   return {
     variant: plate.variant,
     state: plate.word,
-    figure: credit.amount_sar === null ? m.common.dash : <Num>{formatSar(credit.amount_sar, locale)}</Num>,
+    figure: credit.amount_sar === null ? m.common.dash : <Sar value={credit.amount_sar} locale={locale} />,
     note: detail.offer_status ? m.enums.offer_status[detail.offer_status] : detail.decline_reason ? m.enums.decline_reason[detail.decline_reason] : m.common.dash,
   };
 };
@@ -49,7 +49,7 @@ export const zakatReadout: Fn<ZakatResponse> = (data, locale, m) => {
   return {
     variant: ZAKAT_VARIANT[z.status],
     state: m.enums.zakat_status[z.status],
-    figure: shown ? <Num>{formatSar(z.liability_sar!, locale)}</Num> : m.common.dash,
+    figure: shown ? <Sar value={z.liability_sar!} locale={locale} /> : m.common.dash,
     note: nisabPlate(z.nisab_source_status, m)?.words ?? m.zakat.nisab,
   };
 };

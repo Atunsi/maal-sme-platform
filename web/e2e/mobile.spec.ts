@@ -80,7 +80,7 @@ test("the Arabic logo stands alone below 390 px", async ({ page }) => {
   if (width(page) < 768) await expect(page.locator("[data-digits-toggle]")).toBeHidden(); // inside the closed menu
   if (width(page) < 768) await page.getByRole("button", { name: "القائمة" }).click();
   // From 768 px up the toggle sits under the Display button (B12).
-  else await page.getByRole("button", { name: "العرض" }).click();
+  else await page.getByRole("button", { name: "المظهر" }).click();
   await expect(page.locator("[data-digits-toggle]")).toBeVisible();
 });
 

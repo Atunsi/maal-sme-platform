@@ -193,9 +193,10 @@
   --color-hero: var(--hero);
   --color-solid: #2e3192;
   --color-gold: #c9a227;
-  --font-sans: var(--font-plex-sans), var(--font-plex-arabic), system-ui, sans-serif;
-  --font-cond: var(--font-plex-cond), var(--font-plex-arabic), system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), var(--font-plex-arabic), monospace;
+  /* The riyal face comes first in every stack; its unicode-range is U+20C1 only (layout.tsx). */
+  --font-sans: var(--font-riyal), var(--font-plex-sans), var(--font-plex-arabic), system-ui, sans-serif;
+  --font-cond: var(--font-riyal), var(--font-plex-cond), var(--font-plex-arabic), system-ui, sans-serif;
+  --font-mono: var(--font-riyal), var(--font-plex-mono), var(--font-plex-arabic), monospace;
 }
 
 html {
@@ -206,7 +207,7 @@ html {
 }
 
 html[lang="ar"] {
-  font-family: var(--font-plex-arabic), var(--font-plex-sans), system-ui, sans-serif;
+  font-family: var(--font-riyal), var(--font-plex-arabic), var(--font-plex-sans), system-ui, sans-serif;
 }
 
 /* Touch, as in a native app. `manipulation` drops the double-tap-zoom wait, so a tap acts at once, while
