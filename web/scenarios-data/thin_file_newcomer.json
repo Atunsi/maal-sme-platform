@@ -20,12 +20,14 @@
       "declared_mcc": 5331,
       "rules_triggered": [],
       "owner_prompts": [],
+      "owner_prompts_ar": [],
       "disclosures": [],
       "rule_table_version": "1.0",
       "rule_table_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
       "rule_table_status": "proposed_unverified",
       "deterministic": true,
-      "compliance_explanation": null
+      "compliance_explanation": null,
+      "compliance_explanation_ar": null
     }
   },
   "scenario": {
@@ -38,20 +40,21 @@
     }
   },
   "receipt": {
-    "schema_version": "v2.9",
-    "config_sha256": "9d60db774d169931054cb48fd3f492557488ae413716b908913b367bd5479137",
-    "lens_config_sha256": "eb715f89b95a2d3287adb9217160b95dc994571748ed5cda53eb033c7f1b57e0",
+    "schema_version": "v2.10",
+    "config_sha256": "4964d746a1d503e1b235d458afff797c7cc5dd7511fbfea1cb9adabea173d953",
+    "lens_config_sha256": "0e7da017a93cc682bc07c90509a65c6bc7b8c0cd5dec10bb55f64039436580ea",
     "credit_model_version": "v1",
     "credit_model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
     "credit_model_cv_auc": 0.5911,
     "credit_model_oracle_ceiling_auc": 0.666,
     "reference_stats_sha256": "e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60",
     "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
-    "code_commit": "32a3285b67a96f0465f71a2ad631bc86de8c089e",
+    "code_commit": "6ca380d9f3d88987fb153a5b493dff2a8df5df1c",
     "generated_by": "scenarios.run",
-    "data_sha256": "fdad5c97e24e907e87d48a3d2d82d90128541149db3cceda567ec9b69123b856",
-    "output_sha256": "904b1c5b458d459bc2f37e08a17f4196274e7940766c66eb768a2cfdd58f6674",
+    "data_sha256": "27aadf4d522a96662397dcd6da3758cceb454381710956bff1eb8bb93c710521",
+    "output_sha256": "dd77bf401598df13bb3126dc226b85dac17a980e033b6a671b6de8392e3a851f",
     "scope": "Covers the deterministic core only: re-running with these inputs reproduces this object byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is outside its scope and cannot affect the decision (§36).",
+    "scope_ar": "يغطي هذا الإيصال الجزء الحتمي فقط: إعادة التشغيل بهذه المدخلات تُنتج هذا الكائن نفسه بايتًا ببايت (للتحقق: python -m pipeline.verify <file>). وأي نص إرشادي مولَّد يقع خارج نطاقه، ولا يمكن أن يؤثر في القرار (§36).",
     "scenario_library_sha256": "8f84b9175aac62b1e29445d710a16879d30731b9da0c0a4f6402ae05d9cc0e7d"
   }
 }

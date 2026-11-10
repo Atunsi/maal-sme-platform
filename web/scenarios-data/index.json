@@ -8,50 +8,66 @@
       "name": "baseline",
       "label": "Baseline — business 10001 exactly as configured",
       "story": "The control: a 30% inflow drop from week 18, one large transfer and one odd-hours sale.",
-      "output_sha256": "d71bb342729e41ec3ba84d8f4fddab9f534198a80482284fff899b8247b44c78"
+      "label_ar": "خط الأساس: المنشأة 10001 كما ضُبطت تمامًا",
+      "story_ar": "حالة المقارنة: تراجع التدفقات الواردة 30% من الأسبوع 18، وتحويل كبير واحد، وعملية بيع واحدة في ساعة غير معتادة.",
+      "output_sha256": "dc4c800538fee0c34ab458b51eee5680f8293387e5c7cd442c45a47a95874fbd"
     },
     {
       "name": "calm_counterfactual",
       "label": "Calm half-year — no shock, no anomalies",
       "story": "The same business if nothing had gone wrong.",
-      "output_sha256": "60f2ffd501c6461da99e4f11efcf72e316f8cdac34dea184009819a153d460a5"
+      "label_ar": "نصف سنة هادئ: لا صدمة ولا معاملات غير معتادة",
+      "story_ar": "المنشأة نفسها لو لم يحدث أي خلل.",
+      "output_sha256": "06793c6efb12769a9ff7814ab352e5ff9e8c9d31bfd1b6dda9d47a008c744056"
     },
     {
       "name": "mild_slowdown",
       "label": "Mild slowdown — inflows down 15% from week 18",
       "story": "A soft market: customers spend a little less for the last two months.",
-      "output_sha256": "486a26e2c5dc2bb2e371ac44e0bce0d9a65d5a0527804c04feefac28f8e1cf5b"
+      "label_ar": "تباطؤ معتدل: تراجع التدفقات الواردة 15% من الأسبوع 18",
+      "story_ar": "سوق ضعيفة: ينفق العملاء أقل قليلًا في الشهرين الأخيرين.",
+      "output_sha256": "b0c91e138c476769ba07b2692ced63d6c688941cfe2c00539cbdf71ceabdfcba"
     },
     {
       "name": "severe_collapse",
       "label": "Severe revenue collapse — inflows down 60% from week 14",
       "story": "A major customer segment disappears three months before the decision date.",
-      "output_sha256": "10303a3a4a9e59a231ee9ae50ee53425a8f8901c79734593b60dad0fd95eb083"
+      "label_ar": "انهيار حاد في الإيرادات: تراجع التدفقات الواردة 60% من الأسبوع 14",
+      "story_ar": "تختفي شريحة رئيسية من العملاء قبل تاريخ القرار بثلاثة أشهر.",
+      "output_sha256": "36c3acd859e98cf2fc51a6899c77812338f98120e32da8eec402ae4b40451d00"
     },
     {
       "name": "late_sudden_shock",
       "label": "Late sudden shock — inflows down 70% in the final three weeks",
       "story": "The shock lands just before the decision date: can anything see it yet?",
-      "output_sha256": "f3c90b457afaf604e039fa28ad6bf583cfc3737a1d6a9f16d2f899841459e9f7"
+      "label_ar": "صدمة مفاجئة متأخرة: تراجع التدفقات الواردة 70% في الأسابيع الثلاثة الأخيرة",
+      "story_ar": "تقع الصدمة قبيل تاريخ القرار مباشرةً: هل يستطيع أي شيء أن يرصدها بعد؟",
+      "output_sha256": "8381b698349c4a737ef7f8b7aebe3fc2a2f6f1699398b8b7405181dcc28a2310"
     },
     {
       "name": "fraud_pattern",
       "label": "Suspicious activity — repeated large transfers and night-time sales",
       "story": "Revenue is normal, but money moves in ways the business never did before.",
-      "output_sha256": "d982b91b24dc3b26caa86afa7913b6967e75f9b736ce49f96f260e09b93893be"
+      "label_ar": "نشاط مريب: تحويلات كبيرة متكررة ومبيعات في ساعات الليل",
+      "story_ar": "الإيرادات طبيعية، لكن الأموال تتحرك بطرق لم تعهدها المنشأة من قبل.",
+      "output_sha256": "fd5ecc92c59c9887e6dac25c51fab2cc7ea595f3442e138dda9af502993adc82"
     },
     {
       "name": "combined_crisis",
       "label": "Combined crisis — 60% revenue collapse from week 12 plus large transfers out",
       "story": "Revenue collapses and cash is moved out of the business at the same time.",
-      "output_sha256": "32f8b01dbc80664b16e676b0e6135ca50cd4d24300fe98d5ec3ad039347f0c4a"
+      "label_ar": "أزمة مركّبة: انهيار الإيرادات 60% من الأسبوع 12 مع تحويلات كبيرة إلى خارج المنشأة",
+      "story_ar": "تنهار الإيرادات ويُنقل النقد إلى خارج المنشأة في الوقت نفسه.",
+      "output_sha256": "aa0a8e7e8f43f4bf2e15a29c2d148da9f23c9e8000c5b937bfb28a536043afbc"
     },
     {
       "name": "thin_file_newcomer",
       "label": "Newcomer — trading for about 40 days only",
       "story": "A business too new to judge: the system must refuse, not guess.",
-      "output_sha256": "904b1c5b458d459bc2f37e08a17f4196274e7940766c66eb768a2cfdd58f6674"
+      "label_ar": "منشأة جديدة: تمارس نشاطها منذ نحو 40 يومًا فقط",
+      "story_ar": "منشأة أحدث من أن يُحكم عليها: على النظام أن يرفض، لا أن يخمّن.",
+      "output_sha256": "dd77bf401598df13bb3126dc226b85dac17a980e033b6a671b6de8392e3a851f"
     }
   ],
-  "code_commit": "32a3285b67a96f0465f71a2ad631bc86de8c089e"
+  "code_commit": "6ca380d9f3d88987fb153a5b493dff2a8df5df1c"
 }
