@@ -34,10 +34,12 @@ credit:
   # Inputs excluded from the model even though the engine computes them:
   #   23 declared_mcc_code   categorical code, not a risk measure
   #   24–26                  not_implemented (compliance / ESG owners), all-null
-  # Sector itself is NOT an input: sector enters only through the §35
-  # sector-relative z-scores, so the model cannot shortcut to the sector code
-  # (§25). The §8 /profile membership list already excludes the Zakat-only
-  # balance-sheet features 27–31, 34, 35.
+  # No sector code or sector dummy is an input. Sector still reaches the model:
+  # through the §35 sector-relative z-scores, and because a base feature and its
+  # z-score (3 and 55, 11 and 56, ...) together act as a per-sector constant
+  # (DECISIONS 43). The earlier claim that the model "cannot shortcut to the
+  # sector code" is withdrawn (DECISIONS 47). The §8 /profile membership list
+  # already excludes the Zakat-only balance-sheet features 27–31, 34, 35.
   excluded_feature_ids: [23, 24, 25, 26]
 
 # --- Zakat lens (§7, §17) — owner: compliance owner + Sharia advisor ---------
