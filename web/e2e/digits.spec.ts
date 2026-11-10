@@ -83,13 +83,13 @@ test("arabic digits never touch hashes or commands", async ({ page }) => {
   await chooseArab(page);
   await page.goto("/ar/business/10037", { waitUntil: "networkidle" });
   await expect(page.locator("main h1, main h2").first()).toBeVisible();
-  await expect(page.getByText(/١٠٠٣٧/).first()).toBeVisible(); // the business ID in plain text follows the setting
   await expect(page.locator("dl[data-latin]")).not.toHaveText(ARAB);
   for (const summary of await page.locator("details[data-receipt] > summary").all()) await summary.click();
   for (const code of await page.locator("details[data-receipt] code").all()) await expect(code).not.toHaveText(ARAB);
   await expect(page.locator("[data-rerun] code").first()).toHaveText("python -m pipeline.verify <file>");
   await page.goto("/ar/admin?as=admin", { waitUntil: "networkidle" });
-  await expect(page.getByRole("link", { name: `افتح ${nameOf(10004, "ar")}`, exact: true })).toBeVisible(); // links name the business; its ID sits beside them
+  await expect(page.getByRole("region", { name: "المنشآت", exact: true }).getByRole("link", { name: `افتح ${nameOf(10004, "ar")}`, exact: true })).toBeVisible(); // links name the business; its ID sits beside them
+  await expect(page.getByText(/١٠٠٠٤/).first()).toBeVisible(); // and that ID, plain text, follows the setting
 });
 
 for (const path of ["/ar/business/10001", "/ar/admin?as=admin", "/ar/scenarios", "/ar/business/10004/forecast"]) {

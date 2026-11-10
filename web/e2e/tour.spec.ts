@@ -18,7 +18,7 @@ for (const locale of ["en", "ar"] as const) {
       await expect(page.locator(`[data-tour="${step.target}"]`)).toHaveClass(/tour-target/);
       if (i < TOUR_STEPS.length - 1) await panel.getByRole("link", { name: next }).click();
     }
-    await expect(panel.locator("a:not(.tour-dot)")).toHaveCount(2); // the print sheet and How Ma'al decides (the step dots, I10, are links too)
+    await expect(panel.locator("a:not(.tour-dot, [data-tour-back], [data-tour-next], [data-tour-end])")).toHaveCount(2); // the print sheet and How Ma'al decides (the step dots, I10, and the Back and Done controls are links too)
   });
 }
 

@@ -145,7 +145,7 @@ test("429: every card says so, and retry recovers once the window passes", async
   await page.waitForTimeout(Math.max(0, 62_000 - (Date.now() - limited)));
   await retry.click();
   await expect(page.locator("main [role=alert]")).toHaveCount(0, { timeout: 20_000 });
-  await expect(page.getByRole("heading", { name: `Business ${id}` })).toBeVisible();
+  await expect(page.getByRole("heading", { name: nameOf(id, "en") })).toBeVisible();
 });
 
 test("401: a wrong server key shows a setup error, not a login form", async ({ page }) => {

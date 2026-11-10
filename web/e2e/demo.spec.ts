@@ -1,6 +1,7 @@
 // The demo sign-in, the admin list and the landing page (DECISIONS 42).
 import { expect, test } from "@playwright/test";
 import index from "../scenarios-data/index.json";
+import { nameOf } from "../lib/business-names";
 import { apiEnv } from "./helpers";
 
 const TYPED = "demo-secret-value";
@@ -82,7 +83,8 @@ test("admin rows read their status and decision from the API", async ({ page }) 
 
 test("admin links open a business with the admin role", async ({ page }) => {
   await page.goto("/en/admin?as=admin", { waitUntil: "networkidle" });
-  await page.getByRole("link", { name: "Open 10004" }).click();
+  // The five demo businesses have their own table; 10004 is also on the first page of the full list.
+  await page.getByRole("region", { name: "Businesses", exact: true }).getByRole("link", { name: `Open ${nameOf(10004, "en")}`, exact: true }).click();
   await expect(page).toHaveURL(/\/en\/business\/10004\?as=admin$/);
   await expect(page.getByText("Demo role: admin")).toBeVisible(); // X5
   const main = page.getByRole("navigation", { name: "Pages" });
@@ -208,11 +210,11 @@ test("arabic plates keep their padding", async ({ page }) => {
 test("overview greeting follows the demo role", async ({ page }) => {
   // C7: "Welcome back" for the owner only; the admin and a visitor with no role see the business named.
   await page.goto("/en/business/10014?as=owner", { waitUntil: "networkidle" });
-  await expect(page.locator("main h1")).toHaveText("Welcome back. Here is where business 10014 is heading.");
+  await expect(page.locator("main h1")).toHaveText(`Welcome back. Here is where ${nameOf(10014, "en")} is heading.`);
   await page.goto("/en/business/10014?as=admin", { waitUntil: "networkidle" });
-  await expect(page.locator("main h1")).toHaveText("Business 10014: where it is heading");
+  await expect(page.locator("main h1")).toHaveText(`${nameOf(10014, "en")}: where it is heading`);
   await page.goto("/en/business/10014", { waitUntil: "networkidle" });
-  await expect(page.locator("main h1")).toHaveText("Business 10014: where it is heading");
+  await expect(page.locator("main h1")).toHaveText(`${nameOf(10014, "en")}: where it is heading`);
 });
 
 test("landing strip shows a live plate for each demo business", async ({ page }) => {

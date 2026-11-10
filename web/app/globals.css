@@ -1330,7 +1330,6 @@ details.phone-fold > summary::-webkit-details-marker {
   .switcher-panel,
   .palette,
   .term-tip,
-  .tour-panel,
   .app-more,
   .app-tabbar {
     background: var(--glass);
@@ -1339,8 +1338,10 @@ details.phone-fold > summary::-webkit-details-marker {
     backdrop-filter: var(--glass-blur);
     box-shadow: var(--glass-shadow);
   }
-  .tour-panel {
-    border-top-color: var(--accent);
+  /* The tab bar sits over every kind of section, dark ones included, so it is nearly solid: its small labels
+     keep their contrast whatever passes under them. (The tour panel is solid for the same reason.) */
+  .app-tabbar {
+    background: color-mix(in srgb, var(--surface) 95%, transparent);
   }
   /* Search opens over a dimmed, softly blurred page. */
   .palette-backdrop {

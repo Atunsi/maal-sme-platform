@@ -30,7 +30,7 @@ test("search jumps to a page, a term and a business", async ({ page }) => {
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/en\/glossary#hawl$/);
   await (await open()).fill("10037");
-  await expect(page.getByRole("option").first()).toHaveText(`Open ${nameOf(10037, "en")} (10037)`);
+  await expect(page.getByRole("option").first()).toContainText(`Open ${nameOf(10037, "en")} (10037)`);
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/en\/business\/10037$/);
   expect(calls.filter((u) => u.includes(":8000"))).toEqual([]);

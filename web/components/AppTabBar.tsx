@@ -2,23 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
 import type { Locale, Messages } from "@/lib/i18n";
 
 type Tab = { href: string; label: string; icon: ReactNode; current: boolean };
-
-/** The business the tabs point at on a page that is not about one business: the last one opened in this tab. */
-const LAST_KEY = "maal-last-business";
-const noSubscribe = () => () => {};
-const demoId = () => String(DEMO_BUSINESS);
-function lastBusiness(): string {
-  try {
-    return sessionStorage.getItem(LAST_KEY) ?? demoId();
-  } catch {
-    return demoId();
-  }
-}
 
 const stroke = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 const Icon = ({ children }: { children: ReactNode }) => (
@@ -63,8 +51,8 @@ const ICONS = {
 
 /**
  * The app variant's bottom tab bar (lib/app-mode.ts): four business pages a thumb reaches without the header
- * menu, and More for the rest, in a sheet that rises from the bar. CSS shows it only in app mode on a phone,
- * so the website is unchanged. Every tab is a link, so a tap works before the page's script has taken over.
+ * menu, and More for the rest, in a sheet that rises from the bar. CSS shows it on phones only (app/phone.css),
+ * so larger screens are unchanged. Every tab is a link, so a tap works before the page's script has taken over.
  */
 export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Messages["nav"]; links: { glossary: string; how: string } }) {
   const pathname = usePathname();
@@ -97,19 +85,10 @@ export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Message
 
   const rest = pathname.replace(/^\/(en|ar)/, "").replace(/\/$/, "");
   const match = /^\/business\/(\d+)(\/[a-z]+)?/.exec(rest);
-  const onBusiness = match?.[1] ?? null;
-  useEffect(() => {
-    if (!onBusiness) return;
-    try {
-      sessionStorage.setItem(LAST_KEY, onBusiness);
-    } catch {
-      // Storage refused: other pages fall back to the demo business.
-    }
-  }, [onBusiness]);
-  const remembered = useSyncExternalStore(noSubscribe, lastBusiness, demoId);
   // Every app page has the bar; the landing page and sign-in are the way in, not the app.
   if (rest === "" || rest === "/sign-in") return null;
-  const id = onBusiness ?? remembered;
+  // Off the business pages the tabs open the demo business: the demo stores nothing to remember another by.
+  const id = match?.[1] ?? String(DEMO_BUSINESS);
   // null off the business pages, so no business tab is marked there.
   const page = match ? (match[2] ?? "") : null;
   const role = params.get("as");

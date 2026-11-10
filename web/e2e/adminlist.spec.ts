@@ -44,7 +44,7 @@ test("admin search and sector filter", async ({ page }) => {
 test("admin list shows serving population", async ({ page }) => {
   const all = await apiList("limit=1");
   await page.goto("/en/admin", { waitUntil: "networkidle" });
-  await expect(page.getByText(`${all.total} serving businesses`)).toBeVisible();
+  await expect(page.getByText(`${all.total.toLocaleString("en-US")} serving businesses`)).toBeVisible();
 });
 
 test("search, sector and page are handled on the server from the URL alone", async ({ request }) => {

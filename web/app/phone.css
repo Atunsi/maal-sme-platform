@@ -47,7 +47,7 @@
     animation: menudrop 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  /* The bottom tab bar on every business page (components/AppTabBar.tsx). */
+  /* The bottom tab bar on every app page but the landing page and sign-in (components/AppTabBar.tsx). */
   .app-tabbar {
     display: block;
     position: fixed;
@@ -214,6 +214,10 @@
     border-top: 1px solid var(--rule2) !important;
     background: var(--surface) !important;
     color: var(--ink);
+  }
+  /* The gold eyebrow is made for the dark panel; on this light row it takes the theme's darker ochre. */
+  [data-phone="receipt"] .eyebrow {
+    color: var(--ochre) !important;
   }
   [data-phone="receipt"] .phone-fold > summary .heading {
     margin-top: 2px;

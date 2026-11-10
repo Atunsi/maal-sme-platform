@@ -27,11 +27,11 @@ test("motion runs when it is allowed", async ({ page }) => {
 test("the logo's entrance has the madda land after the body, Arabic before English", async ({ page }) => {
   // M1: the same order inside the 0.4 s cap on every page but the landing page and sign-in.
   await page.goto("/en/business/10001/credit");
-  const delays = await page.locator("header svg path").evaluateAll((paths) => paths.map((path) => getComputedStyle(path).animationDelay));
+  const delays = await page.getByRole("link", { name: "Ma'al home" }).locator("svg path").evaluateAll((paths) => paths.map((path) => getComputedStyle(path).animationDelay));
   expect(delays).toEqual(["0.1s", "0.3s", "0.2s", "0.4s"]);
   // The landing page keeps its full sequence.
   await page.goto("/en");
-  const full = await page.locator("header svg path").evaluateAll((paths) => paths.map((path) => getComputedStyle(path).animationDelay));
+  const full = await page.getByRole("link", { name: "Ma'al home" }).locator("svg path").evaluateAll((paths) => paths.map((path) => getComputedStyle(path).animationDelay));
   expect(full).toEqual(["0.1s", "0.6s", "0.3s", "0.8s"]);
 });
 
