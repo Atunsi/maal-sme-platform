@@ -59,8 +59,42 @@ def walk_keys(o, path: str = ""):
             yield from walk_keys(v, f"{path}[{i}]")
 
 
+def check_arabic(o: dict) -> None:
+    """DECISIONS 57: every backend template the UI shows has its Arabic sibling, item for item."""
+    b = o["business_id"]
+    check(bool(o.get("receipt", {}).get("scope_ar")), f"{b}: receipt missing scope_ar")
+    g = o.get("governance", {}).get("sharia_screen") or {}
+    check(len(g.get("owner_prompts_ar", [])) == len(g.get("owner_prompts", [])), f"{b}: owner_prompts_ar does not match owner_prompts")
+    check(all(h.get("detail_ar") for h in g.get("rules_triggered", [])), f"{b}: a triggered rule has no detail_ar")
+    check(all(d.get("detail_ar") and d.get("prompt_ar") for d in g.get("disclosures", [])), f"{b}: a disclosure has no Arabic")
+    check((g.get("compliance_explanation") is None) == (g.get("compliance_explanation_ar") is None), f"{b}: compliance_explanation_ar missing")
+    expl = o.get("credit_explanation")
+    if expl:
+        check(all(line.get("text_ar") for line in expl["public_tier"]), f"{b}: a public_tier line has no text_ar")
+        tier = expl["compliance_tier"]
+        check(bool(tier.get("units_ar")), f"{b}: compliance_tier has no units_ar")
+        check(set(tier.get("phrases_ar", {})) == set(tier["phrases"]), f"{b}: phrases_ar keys differ from phrases")
+    det = o.get("credit_decision_detail") or {}
+    if "conditions" in det:
+        check(len(det.get("conditions_ar", [])) == len(det["conditions"]), f"{b}: conditions_ar does not match conditions")
+    fc = o.get("forecast") or {}
+    if fc.get("status") == "computed":
+        alert = fc["crunch_alert"]
+        check(len(alert.get("drivers_ar", [])) == len(alert["drivers"]), f"{b}: drivers_ar does not match drivers")
+        check(bool(fc.get("method_ar")), f"{b}: forecast has no method_ar")
+    an = o.get("anomaly") or {}
+    if an.get("status") == "computed":
+        check(bool(an.get("method_ar")), f"{b}: anomaly has no method_ar")
+    z = o.get("zakat") or {}
+    if "nisab_basis" in z:
+        check(bool(z.get("nisab_basis_ar")), f"{b}: zakat has no nisab_basis_ar")
+    if "detail" in z:
+        check(bool(z.get("detail_ar")), f"{b}: zakat detail has no detail_ar")
+
+
 def check_object(o: dict, lc: dict) -> None:
     b = o["business_id"]
+    check_arabic(o)
     check(o.get("status") in {"scored", "partial_profile", "insufficient_data"}, f"{b}: status missing/invalid")
     for p, k in walk_keys(o):
         check(k not in FORBIDDEN_KEYS, f"{b}: forbidden key {p}")
