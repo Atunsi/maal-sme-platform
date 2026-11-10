@@ -4256,3 +4256,90 @@ the Arabic field.
 **Preview.** `gh-pages` commit `c5d9f37` replaces only `preview/` with the static build of this branch at `edb6515` (base path `/maal-sme-platform/preview`, 482 pages); its Pages deploy step failed once and an empty commit, `1056591`, redeployed it. https://at1808.github.io/maal-sme-platform/preview/ . The A4 crawl and RS1 to RS3 passed against the local copy of that build (93 of 93). The previous `preview/` held the phone-design preview (`d0d9f98`), which `main` already contains.
 
 **Sign-off:** ☐ credit lens owner (credit Arabic templates, factor labels) ☐ compliance owner (Sharia Arabic templates, Arabic terminology) ☐ forecast and anomaly owner (drivers and method in Arabic) ☐ generator/scenario owner (library_ar.yaml) ☐ API owner (new response fields) ☐ team (riyal sign, preview)
+
+## 58. A plain-language decision record for owners; the technical receipt kept for admin, public demo and Compliance View — PROPOSED (2026-11-11)
+
+**Touches:** `web/` only, plus this entry and the READMEs. Done on `faris/receipt-plain` from `faris/arabic-riyal` at
+`7dcf598` (entry 57), which is not merged into `main` yet, so this branch must be merged after it. Following
+`SOP_plain_language_receipt.md` v1 (written 2026-11-10 from Faris's review: the receipt is built for an auditor but
+shown to the business owner). Every rule from entries 42, 43, 45, 51 and 57 still applies, except U13 as amended below.
+
+**Decisions taken for this work, word for word (SOP section 1a).**
+1. **The UI only.** No change to the receipt object, `RECEIPT_SCOPE`, `scope_ar`, `pipeline/`, the API or any hash. The card is built from fields the responses already carry.
+2. **Name.** The owner-facing card is called "How this result was reached" / «كيف وصلنا إلى هذه النتيجة». The technical panel keeps its content and is renamed "Technical record" / «السجل التقني». The word "receipt" stays in code, in DECISIONS and in the glossary entry for auditors, but no longer appears in owner-facing text.
+3. **Who sees what.** The demo role comes from `?as=` (`lib/businesses.ts`, it proves nothing and gates nothing):
+
+   | Role | Plain card | Technical record |
+   |---|---|---|
+   | `as=owner` | Yes | No |
+   | `as=admin` | Yes | Yes, open by default |
+   | no role (public demo) | Yes | Yes, closed by default, under the card |
+   | Compliance View (`?view=compliance`) | No | Yes, open, as today |
+
+   The technical record is never deleted from the page for admin, the public demo or the Compliance View, so the graduation committee and any reviewer can still see every hash.
+4. **The card's four lines.** Each is built only from response fields; a line whose field is missing is left out, never filled with a guess:
+   - **What we looked at.** "Your bank transactions up to {as_of}" / «معاملاتك البنكية حتى {as_of}». If `coverage_days_90d` is present, add "with activity on {n} of the last {window} days" only if `{window}` comes from a response field. It does not today, so this second part is left out (no hard-coded 90). See S5.
+   - **How it was reached.** Per lens, from the catalogue (Phase B step 2). It says fixed rules and a fixed scoring method were used and that no AI wrote the result. It never claims "no person": a conditional Sharia case is checked by a person.
+   - **Same data, same result.** "If your data is checked again, the result will be exactly the same." Shown only when the receipt has a `scope` (the lens routes). Not on `/profile`, which has no scope (U13).
+   - **Questions about this result?** "Contact your bank and quote this reference: {ref}." No button, no mailto, no form: there is no backend to receive a request (out of scope).
+5. **Reference number.** `M-{business_id}-{first 8 characters of output_sha256, upper case}`, for example `M-10001-7F3A9C2B`. Built by one helper, `referenceFor(receipt, business_id)` in `web/lib/reference.ts`. Shown in a `data-latin` span with a Copy button. It is a pointer to the full record, not a security token, and the card says nothing that suggests otherwise.
+6. **State-specific wording.** The "How it was reached" line has its own words for: approved unconditional, approved conditional on Sharia review ("A Sharia reviewer will check your answers before the offer is final"), declined, Sharia hard flag, `partial_profile` and `insufficient_data` ("There was not enough data to reach a result"). Each comes from a map keyed by the same state helpers the plates use (`decisionWord`, `label()`), so R1 (different states never share a word) covers it.
+7. **Register and terms.** Formal Arabic for the card (it states how a decision was reached, DECISIONS 57 rule 5). Terms from the DECISIONS 57 table. N1 (no digits) applies to the new tour and glossary text; the card itself may show digits because they come from the response.
+8. **U13 amended, not loosened.** U13 says the lens receipt's scope is shown verbatim where present. It now reads: "verbatim in the technical record wherever the technical record is shown (admin, public demo, Compliance View); the owner role shows the plain card instead". Its tests keep checking the verbatim scope for those three, and gain an owner-role test.
+9. **No new storage.** Nothing here adds a cookie, `localStorage` key, `sessionStorage` or IndexedDB use.
+
+**How it is built.** `web/lib/record.ts` turns response fields into the card's lines (`recordLines`) and picks the
+"how it was reached" words (`howKeys`) from `decisionState`, the plates' own helper, with `decline_origin =
+"compliance"` for the Sharia hard flag. `components/DecisionRecord.tsx` renders the card (`PlainCard`) and the unchanged
+`ReceiptPanel` by role; `components/RoleRecord.tsx` reads `?as=` and `?view=` in the browser, as `RoleHeading` does, so
+the static snapshot switches too and nothing is stored. Used on the credit, Sharia, Zakat, forecast, review and profile
+panels, the overview aside (the three short-hash rows are gone for every role) and the print sheet (plain lines for
+all; the receipt's fields for admin and the public demo; the verbatim scope for admin only). Scenario compare keeps its
+two technical records for every role and gets no card: a scenario is an illustration, not an owner's result. The admin
+search also takes a reference: a serving business opens as admin with `?ref=`, `ReferenceNote` shows it beside the
+heading, and a plate says when its characters no longer start the credit result's `output_sha256` ("from an earlier
+result; the data or the method has changed since", never which). A research ID inside a reference is refused.
+
+**Every claim on the card, and the code that makes it true.**
+
+| Claim | Where it is true |
+|---|---|
+| Credit: "fixed rules and a fixed scoring method; no AI wrote this result" | `lenses/credit/model.py` `score` (a stored logistic model, `model_v1.json`) and `explain` (fixed `PHRASES` and labels) |
+| Conditional: "a Sharia reviewer will check your answers" | `apply_sharia_gate`: `offer_status = conditional_on_sharia_review` with the owner prompts as `conditions` |
+| Declined: "the reasons are shown with the decision" (the SOP draft said "listed above"; on the overview the card sits beside the verdict, so "above" was not true there) | the overview shows `decline_reason` in the verdict; the credit page and the sheet list `public_tier` |
+| Sharia hard flag: "outside the fixed Sharia rules, so no financing was calculated" | `apply_sharia_gate`: hard flag → `risk_assessment_used_for_decision = false`, no amount |
+| Sharia: "checked against a fixed list of Sharia rules" | `compliance/sharia.py` `screen` over `sharia_rules.yaml` |
+| Zakat: "a fixed zakat method from your balance sheet" (the SOP draft said balances; Zakat reads the balance-sheet snapshot, not transactions) | `lenses/zakat/zakat.py` `compute_zakat` on `balances_monthly` |
+| Forecast: "a fixed method from your past cash flow" | `lenses/forecast/forecast.py` with `naive90` from `lens_config` |
+| Review: "fixed checks and a fixed statistical method" (the SOP draft said fixed checks only; the lens also fits an Isolation Forest, with a fixed seed) | `lenses/anomaly/anomaly.py`, `random_state` in `lens_config` |
+| Profile: "measured by fixed formulas" | `profile_engine/features.py` |
+| "Same data, same result" | the receipt's own scope (`pipeline/week8.py` `RECEIPT_SCOPE`), checked byte for byte by `pipeline.verify` and `eval.week8_check` |
+| "Your bank transactions up to {date}" | the response's `as_of` (the business's `window_end`) |
+
+**Rules, how each is enforced, and its test.**
+
+| # | Rule | Enforced by | Test |
+|---|---|---|---|
+| PR1 | The owner role shows no hash, commit, field name, scope or command; the reference is the only identifier | `DecisionRecord` / `RoleRecord`, the sheet | `owner sees no technical record` (vitest, and Playwright on 24 pages: 10001 and 10037, six pages, both locales) |
+| PR2 | Admin, the public demo and the Compliance View keep the full technical record, scope verbatim | the same components | `technical record stays for admin, public and compliance` (vitest and Playwright), the amended U13 tests |
+| PR3 | Every card line comes from a response field; a missing field drops its line | `recordLines` | `plain card lines come from the response` |
+| PR4 | One reference everywhere for one result, matching `output_sha256` | `referenceFor` is the only builder | `reference number matches the output hash` (vitest; Playwright on the overview, credit page, sheet and the admin's full hash) |
+| PR5 | Each decision state has its own words | `howKeys` from `decisionState` | `every state explains how it was reached` |
+| PR6 | Owner-facing text never says "receipt" / «إيصال» | the `record` catalogue group, the tour step | `owner text never says receipt`, `tour receipt step explains the plain card`, and the Playwright owner pages |
+
+**U13, before and after.** Before: the lens receipt's scope is shown verbatim wherever a lens receipt is shown. After:
+verbatim in the technical record wherever the technical record is shown (admin, public demo, Compliance View); the owner
+role shows the plain card instead. Not a loosening: every place that showed the record still shows it, with the scope
+verbatim; only the owner role, which the SOP takes as a person with no technical background, sees the card in its place.
+Tests changed: `U13 the receipt panel is plain text with the scope verbatim` (visuals), `print sheet shows the required
+labels` (vitest and e2e), and the N3 check in `digits-render` (the reference, not the short hashes); tests added for
+the owner and admin roles.
+
+**Out of scope.** A real "request a review" flow (there is no backend to receive one); recording that `pipeline.verify`
+was run (`verified_at`), so the card says only that the same data gives the same result, never that it was checked;
+any change to the receipt object, the scope text or `pipeline/`. In the static snapshot the admin search is absent (as
+before), so the reference lookup runs on the live app only; the card and `?ref=` note work in both.
+
+**Preview.** `gh-pages` commit `9e9b335` replaces only `preview/` with the static build of this branch at `57480f5` (base path `/maal-sme-platform/preview`, 482 pages): https://at1808.github.io/maal-sme-platform/preview/ . Owner, admin and public views, the reference number and the Arabic crawl passed against a local copy of that build (110 of 110), which also shows `?as=owner` switching the view in the static snapshot.
+
+**Sign-off:** ☐ team (who sees what, card wording) ☐ credit lens owner (credit "how it was reached" lines) ☐ compliance owner (Sharia lines, Arabic wording)
