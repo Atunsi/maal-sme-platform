@@ -1,0 +1,81 @@
+# Arabic drafts, fixed template text only, never generated. Pending review by the owner named in DECISIONS 57.
+#
+# Arabic siblings of the credit lens templates in lenses/credit/model.py (PHRASES, FEATURE_LABELS and
+# compliance_tier.units). The English templates are unchanged; these feed the additive `_ar` fields only.
+# Formal Arabic (DECISIONS 57, 1a.5). One term per concept (1a.6). Placeholders stay Latin.
+#
+# Sentence frame: «{label}» {phrase}.  The quoted label stands as the subject, so each phrase is written
+# to agree with a masculine subject («كان», «أسهم»), whatever the label's own grammar.
+version: "1.0"
+status: draft_pending_review
+
+frame: "«{label}» {phrase}."
+
+phrases:
+  strongly/supports: "كان عاملًا رئيسيًا في دعم تقييم التمويل"
+  strongly/against: "كان عاملًا رئيسيًا في رفع مخاطر التمويل المقدّرة"
+  moderately/supports: "أسهم في خفض مخاطر التمويل المقدّرة"
+  moderately/against: "أسهم في رفع مخاطر التمويل المقدّرة"
+  marginally/either: "كان أثره محدودًا في تقييم مخاطر التمويل"
+
+units: "لوغاريتم نسبة الأرجحية للتعثر، مقارنةً بخط الأساس، وهو المنشأة المتوسطة في بيانات التدريب بعد التوحيد القياسي (مساهمات جمعية دقيقة لنموذج خطي)"
+
+feature_labels:
+  avg_monthly_inflow: "متوسط المبالغ المستلمة شهريًا"
+  inflow_count_per_month: "عدد الدفعات الواردة شهريًا"
+  inflow_regularity_score: "انتظام الدفعات الواردة"
+  revenue_growth_rate_90d: "نمو الإيرادات في الفترة الأخيرة"
+  largest_single_source_ratio: "الاعتماد على أكبر مصدر للدخل"
+  avg_monthly_outflow: "متوسط الإنفاق الشهري"
+  outflow_count_per_month: "عدد الدفعات الصادرة شهريًا"
+  recurring_expense_ratio: "نسبة المصروفات المتكررة"
+  expense_growth_rate_90d: "نمو المصروفات في الفترة الأخيرة"
+  top_expense_category_share: "تركّز المصروفات في فئة واحدة"
+  cash_flow_volatility: "استقرار التدفق النقدي"
+  inflow_outflow_ratio: "التوازن بين الدفعات الواردة والصادرة"
+  days_negative_balance_90d: "أيام الرصيد السالب في الحساب"
+  overdraft_events_90d: "حالات السحب على المكشوف في الفترة الأخيرة"
+  volatility_index: "التذبذب العام في التدفق النقدي"
+  avg_daily_balance: "متوسط الرصيد اليومي للحساب"
+  min_daily_balance_90d: "أدنى رصيد للحساب في الفترة الأخيرة"
+  current_runway_days: "المدة المقدّرة لكفاية النقد"
+  runway_days_avg_balance: "مدة كفاية النقد بحسب متوسط الأرصدة"
+  liquidity_trend_slope: "اتجاه النقد المتاح في الفترة الأخيرة"
+  unique_counterparties_count: "عدد العملاء والأطراف المتعامَل معها"
+  counterparty_concentration_index: "تركّز العلاقات مع الأطراف المتعامَل معها"
+  new_counterparty_ratio_30d: "نسبة العلاقات الجديدة مع الأطراف المتعامَل معها"
+  coverage_days_90d: "أيام سجل المعاملات المتاح"
+  data_gap_ratio: "الفجوات في سجل المعاملات"
+  implied_dso_days: "المدة المقدّرة لتحصيل مستحقات العملاء"
+  implied_dio_days: "المدة المقدّرة لبقاء المخزون"
+  implied_dpo_days: "المدة المقدّرة للسداد للموردين"
+  cash_conversion_cycle_days: "دورة التحويل النقدي المقدّرة"
+  financing_outflow_ratio: "نسبة الدفعات الصادرة لسداد التمويل"
+  installment_capacity_sar: "القدرة المقدّرة على سداد قسط شهري"
+  inflow_break_recency_days: "المدة منذ آخر انقطاع في الدفعات الواردة"
+  net_flow_autocorr_lag7: "انتظام التدفق النقدي من أسبوع إلى آخر"
+  counterparty_persistence_ratio: "استمرار العلاقات مع الأطراف المتعامَل معها"
+  downside_semideviation_90d: "تذبذب التغيرات غير المواتية في التدفق النقدي"
+  upside_semideviation_90d: "تذبذب التغيرات المواتية في التدفق النقدي"
+  flow_asymmetry_ratio: "عدم التوازن بين مكاسب التدفق النقدي وخسائره"
+  revenue_shock_absorption_pct: "القدرة على تحمّل انخفاض الإيرادات"
+  fixed_obligation_coverage_months: "أشهر تغطية الالتزامات الثابتة"
+  liquidity_hazard_30d: "مخاطر نقص النقد المقدّرة على المدى القصير"
+  liquidity_hazard_60d: "مخاطر نقص النقد المقدّرة على المدى المتوسط"
+  liquidity_hazard_90d: "مخاطر نقص النقد المقدّرة خلال ثلاثة أشهر"
+  sector_relative_regularity_z: "انتظام الدفعات مقارنةً بالمنشآت المماثلة"
+  sector_relative_volatility_z: "تذبذب التدفق النقدي مقارنةً بالمنشآت المماثلة"
+  sector_relative_days_negative_z: "تكرار الرصيد السالب مقارنةً بالمنشآت المماثلة"
+  sector_relative_balance_z: "رصيد الحساب مقارنةً بالمنشآت المماثلة"
+  sector_relative_concentration_z: "تركّز الدفعات مقارنةً بالمنشآت المماثلة"
+  committed_monthly_outflow: "الدفعات الشهرية الملتزَم بها"
+  obligation_coverage_ratio: "القدرة على تغطية الالتزامات المتكررة"
+  ocr_forward_3m: "التغطية المتوقعة للالتزامات خلال ثلاثة أشهر"
+  ocr_forward_6m: "التغطية المتوقعة للالتزامات خلال ستة أشهر"
+  obligation_horizon_months: "الأشهر المتبقية من الالتزامات المحددة"
+  mandate_cancellation_count_90d: "إلغاءات أوامر الدفع في الفترة الأخيرة"
+  balloon_exposure_sar: "التعرض القائم لدفعات كبيرة مجمّعة"
+  facility_utilisation: "نسبة المستخدم من التمويل المتاح"
+  headroom_days_of_burn: "أيام الأموال المتاحة بمعدل الإنفاق الحالي"
+  max_consecutive_overdraft_days: "أطول فترة رصيد سالب في الفترة الأخيرة"
+  emergency_line_present: "توفر تمويل للطوارئ"

@@ -31,6 +31,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import yaml
+
+# Arabic siblings of PHRASES, FEATURE_LABELS and the units line (DECISIONS 57). Fixed tables, never generated;
+# they fill the additive `_ar` fields only and leave every English field as it was.
+TEMPLATES_AR_PATH = Path(__file__).with_name("templates_ar.yaml")
 
 # §11 contract keys, in order. Anything else in the credit object is a contract violation.
 CONTRACT_KEYS = (
@@ -116,6 +121,11 @@ def load_artifact(path: str) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1)
+def load_templates_ar(path: str = str(TEMPLATES_AR_PATH)) -> dict:
+    return yaml.safe_load(Path(path).read_bytes().decode("utf-8"))
+
+
 def signed_log1p(v: float) -> float:
     return math.copysign(math.log1p(abs(v)), v)
 
@@ -164,6 +174,7 @@ def _magnitude(c: float, th: dict) -> str:
 
 def explain(contribs: list[dict], ccfg: dict) -> dict:
     th = ccfg["explanation_thresholds"]
+    ar = load_templates_ar()
     ranked = sorted(contribs, key=lambda c: abs(c["contribution_logodds"]), reverse=True)
     public = []
     for c in ranked[: int(ccfg["explanation_top_n"])]:
@@ -173,6 +184,7 @@ def explain(contribs: list[dict], ccfg: dict) -> dict:
         public.append({
             "feature_id": c["feature_id"],
             "text": f"Your {label} {PHRASES[(mag, direction)]}.",
+            "text_ar": ar["frame"].format(label=ar["feature_labels"][c["feature"]], phrase=ar["phrases"][f"{mag}/{direction}"]),
             "magnitude": mag,
             "direction": direction,
         })
@@ -185,6 +197,9 @@ def explain(contribs: list[dict], ccfg: dict) -> dict:
             "contributions": [
                 {**c, "contribution_logodds": round(c["contribution_logodds"], 6)} for c in ranked
             ],
+            "units_ar": ar["units"],
+            "phrases_ar": {f"{m}/{d}": ar["phrases"][f"{m}/{d}"] for (m, d) in PHRASES},
+            "feature_labels_ar": {c["feature"]: ar["feature_labels"][c["feature"]] for c in ranked},
         },
     }
 
