@@ -120,6 +120,21 @@ the pages it is on, without asserting: `ARABIC_RECORD=<file.json> npx playwright
   a time, because the store shares one DuckDB connection across request threads (entry 41). Each
   card still loads and fails on its own. Remove the queue after the fix, and the five requests run
   in parallel as §8 intends.
+- **Owners see a plain decision record, auditors the technical one** (entry 58). Every result shows "How this
+  result was reached" (`components/DecisionRecord.tsx`): what was looked at, how it was reached, same data same
+  result, and a reference number `M-{business}-{first 8 of output_sha256}` (`lib/reference.ts`, the only builder).
+  Every line comes from a response field (`lib/record.ts`). The unchanged technical record (every field, the scope
+  verbatim, the verify command, Copy, the hash check) shows by the demo role, read in the browser from `?as=`:
+
+  | Role | Plain card | Technical record |
+  |---|---|---|
+  | `as=owner` | yes | no |
+  | `as=admin` | yes | open |
+  | no role (public demo) | yes | closed |
+  | Compliance View | no | open |
+
+  The admin list's search also takes a reference and opens that business as admin (`?ref=`), with a plate when the
+  reference is from an earlier result. Scenarios keep their technical records for every role and have no card.
 - **The UI translates only its own text; Arabic backend text comes from the backend** (entry 57). Every
   template the backend shows has an Arabic sibling (`text_ar`, `drivers_ar`, `scope_ar` and the like) from
   fixed tables beside the English ones (`templates_ar.yaml`, `scenarios/library_ar.yaml`). `BackendText`
