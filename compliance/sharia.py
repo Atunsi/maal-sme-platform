@@ -36,7 +36,7 @@ STATUSES = ("compliant", "soft_flag_review", "hard_flag")
 @lru_cache(maxsize=2)
 def load_rules(path: str = str(RULES_PATH)) -> tuple[dict, str]:
     raw = Path(path).read_bytes()
-    return yaml.safe_load(raw), hashlib.sha256(raw).hexdigest()
+    return yaml.safe_load(raw), hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 
 
 

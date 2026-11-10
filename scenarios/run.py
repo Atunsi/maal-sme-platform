@@ -50,7 +50,7 @@ def load_library(path: Path = LIBRARY) -> tuple[dict, str]:
         bad = set(s.get("overrides") or {}) - ALLOWED_OVERRIDES
         if bad:
             raise ValueError(f"scenario {name}: overrides {sorted(bad)} are not demo levers ({sorted(ALLOWED_OVERRIDES)})")
-    return lib, hashlib.sha256(raw).hexdigest()
+    return lib, hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 
 
 def scenario_config(cfg: dict, lib: dict, name: str) -> dict:

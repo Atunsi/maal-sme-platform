@@ -53,7 +53,8 @@ INPUT_TABLES = ("businesses", "daily_aggregates", "balances_monthly", "transacti
 
 
 def _sha(path: str | Path) -> str:
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    """Canonical LF before hashing (DECISIONS entry 40), as reference_stats_sha256 already does."""
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def output_sha256(obj: dict) -> str:
@@ -70,7 +71,7 @@ def data_sha256(tables: dict, b_id: int) -> str:
         if t is None or (name == "counterparty_windows" and not (t["business_id"] == b_id).any()):
             continue  # exists only for thinned businesses; an unthinned business's hash does not move
         h.update(name.encode())
-        h.update(t[t["business_id"] == b_id].to_csv(index=False, date_format="%Y-%m-%d").encode())
+        h.update(t[t["business_id"] == b_id].to_csv(index=False, date_format="%Y-%m-%d", lineterminator="\n").encode())
     return h.hexdigest()
 
 
