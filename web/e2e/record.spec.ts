@@ -3,6 +3,12 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const LENS = ["", "/credit", "/sharia", "/zakat", "/forecast", "/review"];
+
+// The API allows 60 requests per business per minute, and these pages load 10001 and 10037 many times over. Wait
+// out the window at the end, so the specs after this one (the print sheet uses 10001) start under the limit.
+test.afterAll(async () => {
+  await new Promise((resolve) => setTimeout(resolve, 61_000));
+});
 const IDS = [10001, 10037];
 
 /** Every visible identifier a technical record would show: hashes, commits, field names, the scope, the command. */

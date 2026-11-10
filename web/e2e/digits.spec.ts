@@ -84,7 +84,8 @@ test("arabic digits never touch hashes or commands", async ({ page }) => {
   await chooseArab(page);
   await page.goto("/ar/business/10037", { waitUntil: "networkidle" });
   await expect(page.locator("main h1, main h2").first()).toBeVisible();
-  await expect(page.locator("dl[data-latin]")).not.toHaveText(ARAB);
+  // DECISIONS 58: the aside's short hashes are gone; the reference number is the identifier left there, and stays Latin.
+  await expect(page.locator("aside [data-reference]")).toHaveText(/^M-10037-[0-9A-F]{8}$/);
   for (const summary of await page.locator("details[data-receipt] > summary").all()) await summary.click();
   for (const code of await page.locator("details[data-receipt] code").all()) await expect(code).not.toHaveText(ARAB);
   await expect(page.locator("[data-rerun] code").first()).toHaveText("python -m pipeline.verify <file>");
