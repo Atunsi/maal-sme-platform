@@ -83,8 +83,8 @@ export const TOUR_STEPS: TourStep[] = [
     path: biz,
     target: "receipt",
     // DECISIONS 58: the step explains the plain card, not hashes; the technical record is named for auditors.
-    en: { title: "How this result was reached", caption: "Every result says what data it used and how it was reached, and gives a reference number to quote if you have a question. Auditors can open the technical record." },
-    ar: { title: "كيف وصلنا إلى هذه النتيجة", caption: "تبيّن كل نتيجة البيانات التي اعتمدت عليها وكيف وصلنا إليها، وتعطيك رقمًا مرجعيًا تذكره إذا كان لديك استفسار. ويستطيع المدققون فتح السجل التقني.", draft: true },
+    en: { title: "About this result", caption: "Every result says what data it used and how we decided, and gives a reference number to quote if you have a question. Auditors can open the technical record." },
+    ar: { title: "عن هذه النتيجة", caption: "تبيّن كل نتيجة البيانات التي اعتمدت عليها وكيف قرّرنا، وتعطيك رقمًا مرجعيًا تذكره إذا كان لديك استفسار. ويستطيع المدققون فتح السجل التقني.", draft: true },
   },
 ];
 

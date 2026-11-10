@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import { howKeys, recordLines, type HowKey, type RecordInput } from "@/lib/record";
 import { parseReference, referenceFor, referenceMatches } from "@/lib/reference";
 import { CreditResponse } from "@/lib/schemas";
+import { HOW_SECTIONS } from "@/lib/howItWorks";
+import { TOUR_STEPS } from "@/lib/tour";
 import { ar, en, fixture } from "./helpers";
 
 describe("reference number", () => {
@@ -46,7 +48,7 @@ describe("how it was reached", () => {
     expect(en.record.howBy.review).not.toMatch(/fraud|score/i);
     // The conditional line says a person checks; no other credit line claims a person decided.
     expect(en.record.howBy.credit_approved_conditional).toMatch(/Sharia reviewer/);
-    for (const key of ["credit_approved_unconditional", "credit_declined", "zakat", "forecast", "review", "profile"] as const) {
+    for (const key of ["credit_approved_unconditional", "credit_declined", "credit_sharia_hard_flag", "sharia", "zakat", "forecast", "review", "profile"] as const) {
       expect(en.record.howBy[key]).not.toMatch(/person|reviewer|verified|secure|approved by/i);
     }
   });
@@ -74,7 +76,22 @@ describe("owner wording", () => {
     const owner = (m: typeof en) => JSON.stringify(Object.entries(m.record).filter(([key]) => !key.startsWith("technical")));
     expect(owner(en)).not.toMatch(/receipt/i);
     expect(owner(ar)).not.toMatch(/إيصال|الإيصال/);
-    expect(en.record.title).toBe("How this result was reached");
-    expect(ar.record.title).toBe("كيف وصلنا إلى هذه النتيجة");
+    expect(en.record.title).toBe("About this result");
+    expect(ar.record.title).toBe("عن هذه النتيجة");
+  });
+
+  // PR7 (DECISIONS 59): the credit score and the review flags come from trained models, so no owner-facing text may
+  // say or suggest that no AI was used. Scans the record group, the tour's receipt step and how-it-works' receipts.
+  it("owner text makes no no-ai claim", () => {
+    const tour = TOUR_STEPS.find((step) => step.id === "receipt")!;
+    const how = HOW_SECTIONS.find((section) => section.id === "receipts")!;
+    for (const locale of ["en", "ar"] as const) {
+      const m = locale === "en" ? en : ar;
+      const texts = [JSON.stringify(m.record), tour[locale].title, tour[locale].caption, how[locale].title, ...how[locale].body, how[locale].linkLabel];
+      for (const text of texts) {
+        expect(text, locale).not.toMatch(/\bAI\b|artificial/i);
+        expect(text, locale).not.toMatch(/ذكاء اصطناعي|الذكاء/);
+      }
+    }
   });
 });
