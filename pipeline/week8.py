@@ -90,6 +90,11 @@ RECEIPT_SCOPE = (
     "byte for byte (verify: python -m pipeline.verify <file>). Any generated advisory text is "
     "outside its scope and cannot affect the decision (§36)."
 )
+# Arabic sibling of RECEIPT_SCOPE (DECISIONS 57): the same statement, fixed text. Draft pending review.
+RECEIPT_SCOPE_AR = (
+    "يغطي هذا الإيصال الجزء الحتمي فقط: إعادة التشغيل بهذه المدخلات تُنتج هذا الكائن نفسه بايتًا ببايت "
+    "(للتحقق: python -m pipeline.verify <file>). وأي نص إرشادي مولَّد يقع خارج نطاقه، ولا يمكن أن يؤثر في القرار (§36)."
+)
 
 
 @dataclass
@@ -250,7 +255,8 @@ def zakat_section(ctx: Context, p: Prepared, b_id: int) -> dict:
 
 
 def receipt(ctx: Context, p: Prepared, b_id: int, obj: dict) -> dict:
-    return {**ctx.receipt_base, "data_sha256": p.data_hash[b_id], "output_sha256": output_sha256(obj), "scope": RECEIPT_SCOPE}
+    return {**ctx.receipt_base, "data_sha256": p.data_hash[b_id], "output_sha256": output_sha256(obj), "scope": RECEIPT_SCOPE,
+            "scope_ar": RECEIPT_SCOPE_AR}
 
 
 def decision_object(ctx: Context, p: Prepared, b_id: int) -> dict:

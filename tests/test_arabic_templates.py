@@ -301,6 +301,15 @@ def test_arabic_fields_change_no_english_field(objects):
         assert output_sha256(strip_ar(o)) == before, f"{o['business_id']}: an English field moved"
 
 
+def test_receipt_carries_an_arabic_scope(objects):
+    from pipeline.week8 import RECEIPT_SCOPE, RECEIPT_SCOPE_AR
+
+    assert "python -m pipeline.verify <file>" in RECEIPT_SCOPE_AR and "§36" in RECEIPT_SCOPE_AR
+    assert digits(RECEIPT_SCOPE_AR) <= digits(RECEIPT_SCOPE)
+    for o in objects[0]:
+        assert o["receipt"]["scope"] == RECEIPT_SCOPE and o["receipt"]["scope_ar"] == RECEIPT_SCOPE_AR
+
+
 def test_forecast_and_anomaly_arabic_fields_on_real_output(objects):
     for o in objects[0]:
         fc, an = o["forecast"], o["anomaly"]
