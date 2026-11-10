@@ -1701,8 +1701,8 @@ so the generator config's hash — cited by the calibration and compare_real rec
   pre-aggregated store.
 - **Everyone:** unit tests — there are still none beneath the integration checks.
 
-**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves 23.3 credit policy, subject to Entry 34 change control) ☐ forecast + anomaly owner (23.3
-anomaly, forecast) ☐ compliance owner + Sharia advisor (23.3 Zakat) ☐ team (gating
+**Sign-off:** ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves 23.3 credit policy, subject to Entry 34 change control) ☑ forecast + anomaly owner [Abdulelah Alsalamah; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (23.3
+anomaly, forecast) ☐ compliance owner + Sharia advisor (23.3 Zakat) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (gating
 Zakat on insufficient_data)
 
 ---
@@ -1788,7 +1788,7 @@ the other lenses (entry 23's open question still applies).
 the anomaly route is closest to budget because the per-business forest is refitted per call;
 store rebuild when data is regenerated; UI wiring (Week 10).
 
-**Sign-off:** ☐ API owner ☐ team (Week 7 gate recorded as passed)
+**Sign-off:** ☑ API owner [Ahmed Altunusi, 2026-11-10] ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (Week 7 gate recorded as passed)
 
 ---
 
@@ -1836,7 +1836,7 @@ confirmation" — never as a Sharia determination.
 (notably 5993 tobacco and 7929 entertainment, where scholars differ, and the decision to treat existing
 financing as a disclosure rather than a flag); the Compliance View toggle (UI, Week 10).
 
-**Sign-off:** ☐ compliance owner ☐ Sharia advisor ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves compliance gate and conditional offers, subject to Sharia-advisor confirmation)
+**Sign-off:** ☑ compliance owner [Mohammed Alshaibani; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☐ Sharia advisor ☑ credit lens owner (Abdulrahman Alharbi, 2026-11-08; approves compliance gate and conditional offers, subject to Sharia-advisor confirmation)
 
 ---
 
@@ -1887,7 +1887,7 @@ table** — that turns the test into a second validation.
 252 ms over all 1,000; real HTTP max 158 ms; anomaly max 964 ms; API answers identical to the CLI).
 Entry 25's figures were the first run; current ones are in `docs/NUMBERS.md` §6b.
 
-**Sign-off:** ☐ forecast + anomaly owner
+**Sign-off:** ☑ forecast + anomaly owner [Abdulelah Alsalamah; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10]
 
 ---
 
@@ -1970,8 +1970,8 @@ lenses produced. None were tuned, and N = 1 per scenario, so these are demonstra
 5. The thin-file newcomer is refused (`insufficient_data`, no lens runs). Zakat falls with revenue, and
    the Sharia status is compliant throughout (the retail MCC is unchanged).
 
-**Sign-off:** ☑ generator owner (menu and levers; Ahmed Altunusi, 2026-10-31) ☐ credit lens owner (findings 1–2) ☐ forecast +
-anomaly owner (findings 3–4) ☐ team (state the findings in the demo)
+**Sign-off:** ☑ generator owner (menu and levers; Ahmed Altunusi, 2026-10-31) ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (findings 1–2) ☑ forecast + anomaly owner [Abdulelah Alsalamah; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10]
+(findings 3–4) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (state the findings in the demo)
 
 ---
 
@@ -2112,7 +2112,7 @@ same commit as this paragraph (no computed value changes; the quick re-run above
    with any transaction row 180 or more days before `window_end`, so a longer window fails loudly
    instead of making the two paths disagree.
 
-**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner ☐ team
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ generator owner [Ahmed Altunusi, 2026-11-10] ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ---
 
@@ -2147,7 +2147,7 @@ for `insufficient_data` businesses; the screen still runs and stays in the Shari
 follows the option (b) position on entry 32. Add a test that no business has both a value and a null
 reason for any feature. Implementation after the compliance owner signs.
 
-**Sign-off:** ☐ compliance owner ☑ profile engine owner (Faris Alsharifi, 2026-11-05)
+**Sign-off:** ☑ compliance owner [Mohammed Alshaibani; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ profile engine owner (Faris Alsharifi, 2026-11-05)
 
 ---
 
@@ -2185,7 +2185,7 @@ Either way, entry 31 must be fixed at the same time. After the owners agree: upd
 rule tables out of the engine and out of its receipts, so a Sharia rule-table change never changes
 `profiles.csv`. The README change and a seam test happen after the compliance owner signs.
 
-**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ compliance owner ☐ team
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ compliance owner [Mohammed Alshaibani; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ---
 
@@ -2242,7 +2242,7 @@ table above is not edited here):
 The §35 filename change from entry 35 (`sector_reference_stats_v1.json` → `_v2.json`) goes into the
 same schema edit.
 
-**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner (60–69 are produced from the generator's tables) ☐ team
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ generator owner [Ahmed Altunusi, 2026-11-10] (60–69 are produced from the generator's tables) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ---
 
@@ -2437,7 +2437,7 @@ on the machine. The canonical, OS-independent hashes, equal to the committed git
 with CRLF replaced by LF and reports these everywhere, and `.gitattributes` checks both files out with
 LF line endings. File contents are unchanged.
 
-**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ credit lens owner (retrain after the rebuild) ☐ team
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (retrain after the rebuild) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ---
 
@@ -2565,8 +2565,8 @@ in one dated commit, means every later result can be checked against what was pr
 - **F6:** no new forecast candidate (Prophet or ARIMA) this term. It would add a dependency, and on
   noisy flows with small trends a longer average is the expected winner. `naive90` stays.
 
-**Sign-off:** ☐ forecast + anomaly owner (36.1–36.5) ☐ generator owner (36.1 uses the crunch lever and
-the window-start override from the harness; no generator change) ☐ team
+**Sign-off:** ☑ forecast + anomaly owner [Abdulelah Alsalamah; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (36.1–36.5) ☑ generator owner [Ahmed Altunusi, 2026-11-10] (36.1 uses the crunch lever and
+the window-start override from the harness; no generator change) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ### 36.6 RESULT — holdout shock and Ramadan run (2026-11-02), definitions as in 36.1–36.2, nothing changed
 
@@ -2679,7 +2679,7 @@ about 0.1 and the lens reaches it only when it catches the row. Most of every li
 on clean businesses the hard rules alone produce about 4.8 false hits per 1,000 transactions, before the
 forest adds its own. The flags are a review queue ordered by unusualness, not alarms (36.5).
 
-**Sign-off:** ☐ forecast + anomaly owner (36.6–36.8, and the open repeat-rule decision)
+**Sign-off:** ☑ forecast + anomaly owner [Abdulelah Alsalamah; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (36.6–36.8, and the open repeat-rule decision)
 
 ### 36.9 Re-run checks after the lens change (2026-11-02)
 
@@ -2759,7 +2759,7 @@ series.
 `repeat_payment_mode` in `lens_config.yaml` changes only to the variant chosen under 37.2, and only after
 the 37.3 report exists, recorded in this entry. If `off` is chosen, nothing ships.
 
-**Sign-off:** ☐ forecast + anomaly owner ☐ team
+**Sign-off:** ☑ forecast + anomaly owner [Abdulelah Alsalamah; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ### 37.5 RESULT — `exact` chosen; adds nothing on the unseen types; shipped (2026-11-02)
 
@@ -2984,7 +2984,7 @@ in NUMBERS, is for the owners to decide.
 
 **Profile engine owner position (2026-11-05).** Agreed. The engine's definition (90 days ending at the as-of date) is the one every credit and forecast number uses; A9's population and N should be corrected by its owner.
 
-**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☐ generator owner
+**Sign-off:** ☑ profile engine owner (Faris Alsharifi, 2026-11-05) ☑ generator owner [Ahmed Altunusi, 2026-11-10]
 
 ---
 
@@ -3028,7 +3028,7 @@ on Linux or Mac, and the other way round, although nothing in the decision diffe
    data, as the reference stats already did), so they no longer verify against new runs. The commit that
    makes the switch should be recorded here.
 
-**Sign-off:** ☐ profile engine owner ☐ generator owner ☐ team
+**Sign-off:** ☑ profile engine owner [Faris Alsharifi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ generator owner [Ahmed Altunusi, 2026-11-10] ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ---
 
@@ -3114,7 +3114,7 @@ actual chart, which today draws no actual line; `scope` on `/profile` receipts.
 
 **Open: UI ownership.** SOP §3 names no UI owner.
 
-**Sign-off:** ☐ team (UI ownership and scope) ☐ API owner (store fix, proposed routes) ☐ generator owner (scenario verification rule, receipt scope wording) ☐ credit lens owner (Compliance View) ☐ compliance owner (Sharia and Zakat panels, Arabic templates)
+**Sign-off:** ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (UI ownership and scope) ☑ API owner [Ahmed Altunusi, 2026-11-10] (store fix, proposed routes) ☑ generator owner [Ahmed Altunusi, 2026-11-10] (scenario verification rule, receipt scope wording) ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (Compliance View) ☑ compliance owner [Mohammed Alshaibani; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (Sharia and Zakat panels, Arabic templates)
 
 ---
 
@@ -3203,7 +3203,7 @@ separate edge pieces; the frame is now one rounded outline drawn as an SVG recta
 outline is visible with its stroke fully drawn (`stroke-dashoffset` 0) under reduced motion. U6 is unchanged:
 the fixed label and its frame still stand on the page with every animation off.
 
-**Sign-off:** ☐ team (redesign, U11 and U15 amendments) ☐ compliance owner (Sharia and Zakat pages, Arabic copy) ☐ credit lens owner (Credit and Compliance views)
+**Sign-off:** ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (redesign, U11 and U15 amendments) ☑ compliance owner [Mohammed Alshaibani; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (Sharia and Zakat pages, Arabic copy) ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (Credit and Compliance views)
 
 ---
 
@@ -3366,7 +3366,7 @@ matches its receipt`, `custom scenario is byte identical on re-run`, `custom sce
 `custom scenario has the shape of a library object`, `custom scenario has no terms parameters`, `scenarios run
 check still exits 0`. 39 tests in all, every one passing.
 
-**Sign-off:** ☐ API owner (routes and contracts; Faris Alsharifi acted for this SOP) ☐ generator owner (custom scenario bounds and labelling) ☐ team
+**Sign-off:** ☑ API owner [Ahmed Altunusi, 2026-11-10] (routes and contracts; Faris Alsharifi acted for this SOP) ☑ generator owner [Ahmed Altunusi, 2026-11-10] (custom scenario bounds and labelling) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ## 45. Web UI review fixes: defects B1 to B22, clarity C1 to C8, interactions I1 to I10, U7 widened, N3 enforcement changed — PROPOSED (2026-11-09)
 
@@ -3470,7 +3470,7 @@ page now says so in one fixed sentence, shown only for compliant, registered-sec
 - **Store concurrency fix (API owner):** `ServingStore` still shares one DuckDB connection across request threads.
   Once fixed, I6 can be built and the request queue in `lib/api.ts` removed.
 
-**Sign-off:** ☐ team (fixes and scope) ☐ compliance owner (nisab plate wording, Sharia no-MCC sentence, Arabic copy) ☐ credit lens owner (conditional approval word, factor expanders)
+**Sign-off:** ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (fixes and scope) ☑ compliance owner [Mohammed Alshaibani; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (nisab plate wording, Sharia no-MCC sentence, Arabic copy) ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (conditional approval word, factor expanders)
 
 ## 46. Scenario library re-run on the retrained credit model; entry 29's findings 1–2 restated — RECORDED (measurement, 2026-11-09)
 
@@ -3517,7 +3517,7 @@ same as on 2026-10-31. Only the PD moved:
 
 Nothing was retuned, and one business per scenario is a demonstration, not an estimate.
 
-**Sign-off:** ☐ generator owner (scenario library re-run) ☐ credit lens owner (findings 1–2 as restated) ☐ team (the wording used in the demo)
+**Sign-off:** ☑ generator owner [Ahmed Altunusi, 2026-11-10] (scenario library re-run) ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (findings 1–2 as restated) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (the wording used in the demo)
 
 ---
 
@@ -3570,7 +3570,9 @@ log-odds. The sentence should be withdrawn by the credit lens owner. Editing the
 B or C after seeing which sentences look bad is the retuning this project rules out, so the rule has
 to be written first.
 
-**Sign-off:** ☐ credit lens owner (choose A–D; withdraw the "cannot shortcut" sentence) ☐ team (what is said in the demo)
+**Decision (2026-11-10, team, recorded by Ahmed Altunusi):** Option A. The model and the customer text are kept as they are, and the demo states that the first reason shown is a sector effect for 834 of 943 serving businesses (NUMBERS §5d). Nothing in `lenses/credit/model.py` changes. The sentence "the model cannot shortcut to the sector code" (entry 23.3 and the comment in `lenses/lens_config.yaml`) is withdrawn; because editing the comment changes `lens_config_sha256` in every receipt, the comment edit is **deferred to the next lens-config change** and is still open. Options B to D were not chosen and may be reopened by a new entry that fixes the rule first.
+
+**Sign-off:** ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (choose A–D; withdraw the "cannot shortcut" sentence) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (what is said in the demo)
 
 ---
 
@@ -3618,7 +3620,9 @@ has not been measured.
   public page belong in the capstone repository.
 - In every case: the hawl rule and the gold basis still wait for the Sharia advisor (entry 23.3).
 
-**Sign-off:** ☐ compliance owner (choose; record the 2026-11-08 change) ☐ Sharia advisor (basis, valuation date) ☐ team
+**Decision (2026-11-10, team, recorded by Ahmed Altunusi):** the Zakat nisab is valued at the gold price on the date the business's hawl completes (its Zakat calculation date), and that price is locked to that date. Neither the date of payment nor any later date changes it. Reason: the gold price decides only whether the nisab is met, not the amount (2.5% of the base), and a price on a later date can move a business across the threshold in either direction, so valuing at the payment date would let timing change the obligation. This is the direction of option B, with the price fixed per calculation date, and it agrees with the check already in `pipeline/week8.py` that refuses a quotation newer than the calculation date. **Not implemented.** Open work: (1) an archivable gold price for each calculation date (the windows end between 2026-01-27 and 2026-07-30), with its source and edition in `sources/`; (2) `lenses/lens_config.yaml`, `lenses/zakat/gold_price.py` and `pipeline/week8.py` to read the price for the calculation date and apply the same refusal to the default price; (3) tests; (4) a decision on the daily workflow. Until then 491.291 SAR/g (2026-11-08) stays as a **labelled reference price, dated after every calculation date**, and nothing about Zakat is presented as final. The Sharia advisor's line (basis and valuation date) is **not** ticked.
+
+**Sign-off:** ☑ compliance owner [Mohammed Alshaibani; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (choose; record the 2026-11-08 change) ☐ Sharia advisor (basis, valuation date) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10]
 
 ---
 
@@ -3657,7 +3661,9 @@ the promised methods were not tried.
 **Update (2026-11-10):** re-measured after entries 30, 35 and 38, the baseline is logistic 0.5936
 against 0.5838 and 0.5547 (entry 52); the comparison still goes the same way.
 
-**Sign-off:** ☐ credit lens owner ☐ forecast + anomaly owner ☐ team (SOP and schema wording)
+**Decision (2026-11-10, team, recorded by Ahmed Altunusi):** Option B, evaluate Prophet and ARIMA. **Not done.** The forecast test window (days 151 to 180) was used once in entry 27, so a fair comparison needs the protocol and a new untouched window written down first, and the result is reported whichever way it moves. Until it is run, the shipped forecast stays `naive90` and the documents keep their current wording; the report must say that Prophet and ARIMA have not been evaluated.
+
+**Sign-off:** ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ forecast + anomaly owner [Abdulelah Alsalamah; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (SOP and schema wording)
 
 ---
 
@@ -3688,7 +3694,7 @@ with 22 defaults, secondary label n = 615 with 59, censored):
   table then change by a rule, not by hand.
 - **C. Require the primary label for A2**, so the headline count is 14.
 
-**Sign-off:** ☐ profile engine owner (registry rule) ☐ team (claim wording)
+**Sign-off:** ☑ profile engine owner [Faris Alsharifi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (registry rule) ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (claim wording)
 
 ---
 
@@ -3770,9 +3776,7 @@ receipt panels, which now carry the hash check, sit just below them on the credi
 glossary, tour and how-it-works entries carry `draft: true`. The Arabic-Indic separators (٫ and ٬) are what
 `Intl` produces with the `arab` numbering system.
 
-**Sign-off:** ☐ team (enhancements and scope) ☐ compliance owner (glossary and how-it-works wording on Sharia and Zakat, Arabic copy) ☐ credit lens owner (credit wording in the tour, glossary and print sheet)
-
----
+**Sign-off:** ☑ team [ticked by Ahmed Altunusi on the team's behalf, verbal agreement 2026-11-10] (enhancements and scope) ☑ compliance owner [Mohammed Alshaibani; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (glossary and how-it-works wording on Sharia and Zakat, Arabic copy) ☑ credit lens owner [Abdulrahman Alharbi; ticked by Ahmed Altunusi on his behalf, verbal agreement 2026-11-10] (credit wording in the tour, glossary and print sheet)
 
 ---
 
@@ -3806,3 +3810,40 @@ axis is shallow (0.021 from σ = 0 to 1.0); 0.85 is not reached. Entries 21 and 
 the register carries the new values and retires the old ones. Nothing was retuned.
 
 **Sign-off:** none needed (a re-measurement); recorded for the team.
+
+---
+
+## 53. Sign-off closure of 2026-11-10: lines ticked on the owners' behalf, and what stays open — RECORDED (2026-11-10)
+
+**What this records.** On 2026-11-10 Ahmed Altunusi (generator owner and, per this entry, API owner) ticked the open sign-off lines
+of entries 23, 25 to 27, 29 to 33, 35 to 37, 39 to 42 and 44 to 51 for the people named below, on the basis of the team's **verbal**
+agreement given to him that day. Each such line carries the bracketed text "ticked by Ahmed Altunusi on his behalf, verbal agreement
+2026-11-10" (or "on the team's behalf"), so it can be told apart from a line an owner ticked themselves. Each owner can confirm,
+amend or withdraw their lines by a new entry. A written confirmation from each owner (a reply in the team chat is enough) is to be kept with the project records.
+
+**Ticked on behalf of:** Faris Alsharifi (profile engine; entries 40, 50), Abdulrahman Alharbi (credit; 29, 35, 41, 42, 45, 46, 47, 49, 51),
+Abdulelah Alsalamah (forecast and anomaly; 23, 27, 29, 36 twice, 37, 49), Mohammed Alshaibani (compliance; 26, 31, 32, 41, 42, 45, 48, 51) and
+the team (every "team" line in those entries). **Ticked by Ahmed Altunusi himself:** the generator owner lines (30, 33, 36, 39, 40, 41, 44, 46) and the API owner lines (25, 41, 44).
+Ahmed Altunusi takes the API owner role; entry 44 recorded that Faris Alsharifi had acted for it under the SOP.
+
+**Not ticked, because no one on the team can sign them:**
+- Entry 23, the combined line "compliance owner + Sharia advisor (23.3 Zakat)".
+- Entry 26, "Sharia advisor".
+- Entry 48, "Sharia advisor (basis, valuation date)".
+There is no Sharia advisor on the project yet. Outputs stay labelled "rule-based screening, pending Sharia-advisor confirmation" (entries 23 and 26).
+
+**A tick records agreement, not completed work.** Ticking does not change an entry's status heading, and several ticked entries describe changes that are
+not made. Still to do, with the owner who raised it:
+1. Entry 40 (line endings): canonical-LF hashing, `.gitattributes`, `data_sha256` line terminator. Approved, **not implemented**; existing Windows-made receipts will change once. (Faris Alsharifi, Ahmed Altunusi)
+2. Entry 47: option A chosen. The sentence "the model cannot shortcut to the sector code" in `lenses/lens_config.yaml` is still to be edited, at the next lens-config change because it alters every receipt hash. (Abdulrahman Alharbi)
+3. Entry 48: the nisab is to be valued at the gold price on each business's calculation date. Needs an archivable price series, code, tests, and a decision on the daily workflow. Until then 491.291 SAR/g is a labelled reference price. (Mohammed Alshaibani)
+4. Entry 49: option B chosen, **evaluating Prophet and ARIMA is not done** and needs a new untouched test window written down first. Until it is run, the report states they were not evaluated. (Abdulelah Alsalamah)
+5. Entries 33 and 50: schema and registry edits approved in principle; check that each is actually applied before the report is written.
+6. `python -m eval.demo_exposure` has not been re-run at full scale by anyone other than the branch author.
+7. Entry 41 to 45 and 51 (web UI): the sign-offs approve scope and wording as written; they do not replace a read-through of the Arabic copy by a speaker of Arabic who is not its author.
+
+**Nothing numeric changed.** No model, threshold, parameter, label, feature or number was altered by this entry.
+
+**Sign-off:** ☐ team (confirmation of the above by each owner in writing)
+
+---
