@@ -189,18 +189,20 @@ export const HOW_SECTIONS: HowSection[] = [
     en: {
       title: "Receipts",
       body: [
+        "Each result shows, in plain words, what data it used, how it was reached and a [[reference|reference number]] to quote if you have a question. The technical record below is for auditors.",
         "Every result carries a [[receipt|receipt]]: the hashes of the configuration, the model, the data and the code, and the [[output-hash|output hash]] of the result itself.",
         "The receipt's [[scope|scope]] names a command that re-runs the decision from the same inputs and checks that it comes out byte for byte the same.",
       ],
-      linkLabel: "See a receipt",
+      linkLabel: "See how a result was reached",
     },
     ar: {
       title: "الإيصالات",
       body: [
+        "تبيّن كل نتيجة، بكلمات واضحة، البيانات التي اعتمدت عليها وكيف وصلنا إليها، مع [[reference|رقم مرجعي]] تذكره إذا كان لديك استفسار. أما السجل التقني أدناه فهو للمدققين.",
         "تحمل كل نتيجة [[receipt|إيصالًا]]: بصمات الإعدادات والنموذج والبيانات والشيفرة، و[[output-hash|بصمة المخرجات]] للنتيجة نفسها.",
         "يذكر [[scope|نطاق]] الإيصال أمرًا يعيد تشغيل القرار من المدخلات نفسها ويتحقق أنه يخرج مطابقًا بايتًا ببايت.",
       ],
-      linkLabel: "اعرض إيصالًا",
+      linkLabel: "اطّلع على كيفية الوصول إلى نتيجة",
       draft: true,
     },
   },

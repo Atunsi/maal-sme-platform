@@ -82,8 +82,9 @@ export const TOUR_STEPS: TourStep[] = [
     id: "receipt",
     path: biz,
     target: "receipt",
-    en: { title: "You can re-run this decision", caption: "The receipt lists what produced the result. Open it to copy a hash or the re-run command, print the decision sheet, or read how Ma'al decides." },
-    ar: { title: "تقدر تعيد تشغيل هذا القرار", caption: "الإيصال يسرد كل ما أنتج النتيجة. افتحه عشان تنسخ بصمة أو أمر إعادة التشغيل، أو اطبع ورقة القرار، أو اقرأ كيف يقرر مآل.", draft: true },
+    // DECISIONS 58: the step explains the plain card, not hashes; the technical record is named for auditors.
+    en: { title: "How this result was reached", caption: "Every result says what data it used and how it was reached, and gives a reference number to quote if you have a question. Auditors can open the technical record." },
+    ar: { title: "كيف وصلنا إلى هذه النتيجة", caption: "تبيّن كل نتيجة البيانات التي اعتمدت عليها وكيف وصلنا إليها، وتعطيك رقمًا مرجعيًا تذكره إذا كان لديك استفسار. ويستطيع المدققون فتح السجل التقني.", draft: true },
   },
 ];
 

@@ -56,6 +56,20 @@ describe("tour definition", () => {
   });
 });
 
+describe("tour receipt step", () => {
+  // DECISIONS 58: the last step explains the owner's plain card, not hashes; it still points at the record aside.
+  it("tour receipt step explains the plain card", () => {
+    const step = TOUR_STEPS.find((s) => s.id === "receipt")!;
+    expect(step.target).toBe("receipt");
+    expect(step.en.title).toBe(en.record.title);
+    expect(step.ar.title).toBe(ar.record.title);
+    expect(step.en.caption).toMatch(/reference number/);
+    expect(step.ar.caption).toContain("رقمًا مرجعيًا");
+    for (const text of [step.en.title, step.en.caption]) expect(text).not.toMatch(/hash|receipt|command/i);
+    for (const text of [step.ar.title, step.ar.caption]) expect(text).not.toMatch(/بصمة|إيصال|أمر/);
+  });
+});
+
 describe("tour panel", () => {
   it("shows the step from the URL, moves focus to its title and outlines the target", () => {
     nav.params = new URLSearchParams("tour=verdict");

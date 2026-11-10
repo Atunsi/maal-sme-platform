@@ -32,8 +32,8 @@ export const GLOSSARY = [
   },
   {
     id: "receipt",
-    en: { term: "Receipt", definition: "The hashes and versions that produced a result: configuration, model, data, code and output. Anyone with the repository can re-run the result and compare." },
-    ar: { term: "الإيصال", definition: "البصمات والإصدارات التي أنتجت النتيجة: الإعدادات والنموذج والبيانات والشيفرة والمخرجات. يستطيع أي شخص لديه المستودع إعادة تشغيلها والمقارنة.", draft: true },
+    en: { term: "Receipt", definition: "For auditors: the hashes and versions that produced a result: configuration, model, data, code and output. Anyone with the repository can re-run the result and compare." },
+    ar: { term: "الإيصال", definition: "للمدققين: البصمات والإصدارات التي أنتجت النتيجة: الإعدادات والنموذج والبيانات والشيفرة والمخرجات. يستطيع أي شخص لديه المستودع إعادة تشغيلها والمقارنة.", draft: true },
     source: "DECISIONS.md entry 24 (complete reproducibility receipt)",
   },
   {
@@ -50,8 +50,8 @@ export const GLOSSARY = [
   },
   {
     id: "scope",
-    en: { term: "Scope", definition: "The receipt's own statement of what it covers: the deterministic core only. It also names the command that verifies the result." },
-    ar: { term: "النطاق", definition: "بيان الإيصال لما يشمله: النواة الحتمية فقط. ويذكر كذلك الأمر الذي يتحقق من النتيجة.", draft: true },
+    en: { term: "Scope", definition: "For auditors: the receipt's own statement of what it covers: the deterministic core only. It also names the command that verifies the result." },
+    ar: { term: "النطاق", definition: "للمدققين: بيان الإيصال لما يشمله: النواة الحتمية فقط. ويذكر كذلك الأمر الذي يتحقق من النتيجة.", draft: true },
     source: "pipeline/week8.py RECEIPT_SCOPE; schema §36.1",
   },
   {
