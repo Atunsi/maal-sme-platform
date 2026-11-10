@@ -315,7 +315,6 @@
     "hawlAlt": "The hawl runs from {start} to {end}. The balance-sheet snapshot is {snapshot}."
   },
   "receipt": {
-    "title": "Receipt: {lens}",
     "scope": "Scope",
     "noScope": "No scope field on this receipt.",
     "profile": "profile",
@@ -329,6 +328,37 @@
     "check": "Check",
     "match": "Match",
     "noMatch": "No match"
+  },
+  "record": {
+    "title": "How this result was reached",
+    "dataUsed": "What we looked at",
+    "dataUpTo": "Your bank transactions up to {date}",
+    "dataUpToSharia": "Your registered activity and your bank transactions up to {date}",
+    "dataUpToZakat": "Your balance-sheet figures up to {date}",
+    "how": "How it was reached",
+    "same": "Same data, same result",
+    "sameBody": "If your data is checked again, the result will be exactly the same.",
+    "questions": "Questions about this result?",
+    "questionsBody": "Contact your bank and quote this reference:",
+    "reference": "Reference",
+    "technical": "Technical record",
+    "technicalFor": "Technical record: {lens}",
+    "technicalHint": "For auditors: every input fingerprint and the command that re-runs this result.",
+    "referenceOpened": "Reference {ref}",
+    "oldReference": "This reference is from an earlier result. The data or the method has changed since.",
+    "howBy": {
+      "credit_approved_unconditional": "Calculated from your transactions by fixed rules and a fixed scoring method. No AI wrote this result.",
+      "credit_approved_conditional": "Calculated from your transactions by fixed rules and a fixed scoring method. No AI wrote this result. A Sharia reviewer will check your answers before the offer is final.",
+      "credit_declined": "Calculated from your transactions by fixed rules and a fixed scoring method. The reasons are listed above.",
+      "credit_sharia_hard_flag": "Checked against a fixed list of Sharia rules. The registered activity is outside them, so no financing was calculated.",
+      "sharia": "Checked against a fixed list of Sharia rules.",
+      "zakat": "Calculated by a fixed zakat method from your balance sheet.",
+      "forecast": "Projected by a fixed method from your past cash flow.",
+      "review": "Flagged by fixed checks and a fixed statistical method on your transactions. A flag is a reason to look, not a finding.",
+      "profile": "Measured from your transactions by fixed formulas.",
+      "partial_profile": "Some of your data was missing, so some figures could not be calculated.",
+      "insufficient_data": "There was not enough data to reach a result."
+    }
   },
   "scenarios": {
     "title": "What breaks when the business does",

@@ -56,18 +56,22 @@ type Props = {
   note?: ReactNode;
   /** Replaces the scope's verify command, for objects it cannot re-run (scenario overlays); null shows none. */
   rerun?: string | null;
+  /** DECISIONS 58: open for the admin role and the Compliance View, closed for the public demo. */
+  open?: boolean;
 };
 
 /** Every receipt field as returned, `scope` verbatim (U13). Keys stay raw: they are identifiers. */
-export function ReceiptPanel({ receipt, lens, m, note, rerun }: Props) {
+export function ReceiptPanel({ receipt, lens, m, note, rerun, open }: Props) {
   const { scope, scope_ar: scopeAr, ...fields } = receipt;
   const r = m.receipt;
   const labels = copyLabels(m);
   const command = rerun !== undefined ? rerun : verifyCommand(scope);
   return (
-    <details className="mt-4 border border-line p-3" data-receipt>
-      <summary className="text-sm font-medium">{fill(r.title, { lens })}</summary>
+    <details className="mt-4 border border-line p-3" data-receipt open={open}>
+      {/* DECISIONS 58: the technical record, for auditors; owners see the plain card (DecisionRecord). */}
+      <summary className="text-sm font-medium">{fill(m.record.technicalFor, { lens })}</summary>
       <div className="mt-2">
+        <p className="mb-2 text-sm text-muted">{m.record.technicalHint}</p>
         <p className="text-sm font-semibold text-muted">{r.scope}</p>
         {scope ? (
           <ScopeText scope={scope} scopeAr={scopeAr} locale={localeOf(m)} className="mb-2 text-sm" />
