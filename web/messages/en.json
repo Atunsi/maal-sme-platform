@@ -349,7 +349,7 @@
     "howBy": {
       "credit_approved_unconditional": "Calculated from your transactions by fixed rules and a fixed scoring method. No AI wrote this result.",
       "credit_approved_conditional": "Calculated from your transactions by fixed rules and a fixed scoring method. No AI wrote this result. A Sharia reviewer will check your answers before the offer is final.",
-      "credit_declined": "Calculated from your transactions by fixed rules and a fixed scoring method. The reasons are listed above.",
+      "credit_declined": "Calculated from your transactions by fixed rules and a fixed scoring method. The reasons are shown with the decision.",
       "credit_sharia_hard_flag": "Checked against a fixed list of Sharia rules. The registered activity is outside them, so no financing was calculated.",
       "sharia": "Checked against a fixed list of Sharia rules.",
       "zakat": "Calculated by a fixed zakat method from your balance sheet.",
