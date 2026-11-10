@@ -8,7 +8,7 @@ import { forecastReadout, ReadoutCard } from "@/components/Readouts";
 import { ScenarioCompare } from "@/components/ScenarioCompare";
 import { ZakatCard } from "@/components/ZakatCard";
 import { formatInt, formatProbability, formatRaw } from "@/lib/format";
-import { fill } from "@/lib/i18n";
+import { fill, pluralForm } from "@/lib/i18n";
 import { CreditResponse, ForecastResponse, ScenarioObject, ZakatResponse } from "@/lib/schemas";
 import { ar, en, fixture, readJson } from "./helpers";
 
@@ -63,11 +63,12 @@ describe("probabilities", () => {
       const text = container.textContent!;
       for (const key of HORIZONS) {
         expect(text).not.toContain(`${key}:`);
-        expect(text).toContain(fill(m.forecast.horizonDays, { n: formatInt(Number.parseInt(key, 10), locale) }));
+        const days = Number.parseInt(key, 10);
+        expect(text).toContain(fill(pluralForm(days, m.forecast.horizonDays, locale), { n: formatInt(days, locale) }));
       }
       unmount();
       // No digit is typed into the pattern: the formatter fills it, so the Arabic-Indic switch applies.
-      expect(m.forecast.horizonDays).not.toMatch(/[0-9٠-٩]/);
+      for (const form of Object.values(m.forecast.horizonDays)) expect(form).not.toMatch(/[0-9٠-٩]/);
       expect(m.overview.hazardOver).not.toMatch(/[0-9٠-٩]/);
     }
   });

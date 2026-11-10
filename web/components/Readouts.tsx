@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { BackendText, figureFont, Num, Plate, Probability, type PlateVariant } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatSar } from "@/lib/format";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { nisabPlate } from "@/lib/nisab";
 import type { AnomalyResponse, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
@@ -70,14 +70,14 @@ export const forecastReadout: Fn<ForecastResponse> = (data, locale, m) => {
         m.common.dash
       ) : (
         <>
-          <span className="font-sans text-[13px]">{fill(m.overview.hazardOver, { days: fill(m.forecast.horizonDays, { n: formatInt(Number.parseInt(horizon, 10), locale) }) })}</span>{" "}
+          <span className="font-sans text-[13px]">{fill(m.overview.hazardOver, { days: fill(pluralForm(Number.parseInt(horizon, 10), m.forecast.horizonDays, locale), { n: formatInt(Number.parseInt(horizon, 10), locale) }) })}</span>{" "}
           <Probability value={hazard} locale={locale} />
         </>
       ),
     // C2: a Watch or Crunch with no negative balance projected says why, in the backend's own driver text.
     note:
       days !== null ? (
-        fill(m.overview.negativeIn, { n: formatInt(days, locale) })
+        fill(pluralForm(days, m.overview.negativeIn, locale), { n: formatInt(days, locale) })
       ) : alert.level !== "none" && alert.drivers[0] ? (
         <BackendText en={alert.drivers[0]} ar={alert.drivers_ar?.[0]} locale={locale} m={m} />
       ) : (
@@ -92,8 +92,8 @@ export const reviewReadout: Fn<AnomalyResponse> = (data, locale, m) => {
   if (a.status === "not_computed") return { variant: "warn", state: m.enums.zakat_status.not_computed, figure: m.common.dash, note: m.enums.lens_status[a.reason] };
   return {
     variant: "ink",
-    state: fill(m.overview.listed, { n: formatInt(a.flags.length, locale) }),
-    figure: fill(m.overview.scanned, { n: formatInt(a.transactions_scanned, locale) }),
+    state: fill(pluralForm(a.flags.length, m.overview.listed, locale), { n: formatInt(a.flags.length, locale) }),
+    figure: fill(pluralForm(a.transactions_scanned, m.overview.scanned, locale), { n: formatInt(a.transactions_scanned, locale) }),
     note: m.overview.queueNote,
   };
 };

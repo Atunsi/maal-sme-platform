@@ -1,7 +1,10 @@
 import { LensPage } from "@/components/LensPage";
 import { ZakatCard } from "@/components/ZakatCard";
 import { getZakat } from "@/lib/api";
+import { titleFor } from "@/lib/page-title";
 
+
+export const generateMetadata = titleFor((m) => m.nav.zakat);
 
 export default function ZakatPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   return (

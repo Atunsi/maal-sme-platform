@@ -14,12 +14,15 @@ import { fill, getMessages, isLocale } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import { TOUR_STEPS } from "@/lib/tour";
 import { nameOf } from "@/lib/business-names";
+import { titleFor } from "@/lib/page-title";
 
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{ view?: string | string[]; as?: string | string[] }>;
 };
+
+export const generateMetadata = titleFor((m) => m.nav.overview);
 
 export default async function OverviewPage({ params, searchParams }: Props) {
   const { locale, id: rawId } = await params;

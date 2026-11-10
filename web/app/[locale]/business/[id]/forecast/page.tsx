@@ -1,7 +1,10 @@
 import { ForecastCard } from "@/components/ForecastCard";
 import { LensPage } from "@/components/LensPage";
 import { getForecast } from "@/lib/api";
+import { titleFor } from "@/lib/page-title";
 
+
+export const generateMetadata = titleFor((m) => m.nav.forecast);
 
 export default function ForecastPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   return (

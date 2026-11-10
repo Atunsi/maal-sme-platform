@@ -5,7 +5,7 @@ import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
 import { BackendText, figureFont, Num, Plate, Probability, Refusal, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import { formatInt, formatSar } from "@/lib/format";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import type { ForecastResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
 
@@ -42,7 +42,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
     { label: n.baseline, rows: f.naive_baseline },
   ];
   // C3: each horizon in catalogue words ("30 days"), the number filled in by the formatter.
-  const hazard = HORIZONS.map((key) => ({ key, days: fill(n.horizonDays, { n: formatInt(Number.parseInt(key, 10), locale) }), value: alert.liquidity_hazard[key] }));
+  const hazard = HORIZONS.map((key) => ({ key, days: fill(pluralForm(Number.parseInt(key, 10), n.horizonDays, locale), { n: formatInt(Number.parseInt(key, 10), locale) }), value: alert.liquidity_hazard[key] }));
   return (
     <>
       <dl aria-label={n.keyFigures} data-phone="terms" className="rise grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border border-line bg-card" style={{ animationDelay: delay(1) }}>

@@ -3,8 +3,13 @@ import { formatDate, formatRaw, formatSar } from "@/lib/format";
 import { fill } from "@/lib/i18n";
 import { ar, en } from "./helpers";
 
+const PLURAL = new Set(["zero", "one", "two", "few", "many", "other"]);
+
+/** A plural message (DECISIONS 57) is one message: Arabic carries six forms, English two (tests/arabic-catalogue.test.ts). */
+const isPlural = (value: object) => "other" in value && Object.keys(value).every((key) => PLURAL.has(key));
+
 function keys(value: unknown, prefix = ""): string[] {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return [prefix];
+  if (typeof value !== "object" || value === null || Array.isArray(value) || isPlural(value)) return [prefix];
   return Object.entries(value).flatMap(([key, child]) => keys(child, `${prefix}.${key}`));
 }
 

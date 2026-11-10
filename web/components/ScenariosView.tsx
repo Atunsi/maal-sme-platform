@@ -9,7 +9,7 @@ import { ApiError, BackendText, Num, Page } from "@/components/ui";
 import { roleQuery } from "@/lib/businesses";
 import { label } from "@/lib/labels";
 import { formatInt } from "@/lib/format";
-import { fill, getMessages, type Locale } from "@/lib/i18n";
+import { fill, getMessages, type Locale, pluralForm } from "@/lib/i18n";
 import { scenarioHref, scenarioHrefBase } from "@/lib/scenario-href";
 import { scenarioNames, scenarioText } from "@/lib/scenario-label";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
@@ -43,7 +43,7 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
       <div className="rise">
         <div className="flex items-center gap-2.5 font-mono text-[13px] text-muted">
           <SectionMark />
-          <span className="eyebrow">{fill(sc.eyebrow, { id: index.data.base_business, name: nameOf(index.data.base_business, locale), n: formatInt(menu.length, locale) })}</span>
+          <span className="eyebrow">{fill(pluralForm(menu.length, sc.eyebrow, locale), { id: index.data.base_business, name: nameOf(index.data.base_business, locale), n: formatInt(menu.length, locale) })}</span>
         </div>
         <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{sc.title}</h1>
         <p className="mt-2 max-w-3xl text-sm text-muted">{sc.intro}</p>
@@ -88,11 +88,11 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
                   <span aria-hidden="true" className="font-mono text-xs opacity-75">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span lang={lang} dir={lang ? "ltr" : undefined} className="text-start font-semibold">
+                  <span lang={lang} dir={lang ? "ltr" : undefined} data-latin className="text-start font-semibold">
                     {name}
                   </span>
                   {detail && (
-                    <span lang={lang} dir={lang ? "ltr" : undefined} className="text-start text-[13px] opacity-85">
+                    <span lang={lang} dir={lang ? "ltr" : undefined} data-latin className="text-start text-[13px] opacity-85">
                       {detail}
                     </span>
                   )}

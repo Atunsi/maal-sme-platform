@@ -10,6 +10,7 @@ import type { GlossaryId } from "@/lib/glossary";
 import { HOW_INTRO, HOW_SECTIONS, segments } from "@/lib/howItWorks";
 import { getMessages, isLocale } from "@/lib/i18n";
 import { delay } from "@/lib/motion";
+import { titleFor } from "@/lib/page-title";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -17,6 +18,8 @@ type Props = {
 };
 
 // E9: fixed text from lib/howItWorks.ts, each section linking to the same part for the demo business.
+export const generateMetadata = titleFor((m) => m.footer.how);
+
 export default async function HowItWorksPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();

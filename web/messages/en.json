@@ -1,5 +1,9 @@
 {
   "_review": "English source text. The redesign's new strings come from the design bundle mockups.",
+  "meta": {
+    "pageTitle": "{page}, {business} | {app}",
+    "pageTitleShort": "{page} | {app}"
+  },
   "app": {
     "name": "Ma'al",
     "tagline": "where your business is heading"
@@ -111,7 +115,10 @@
     "results": "Matching businesses",
     "submit": "Open",
     "invalid": "No serving business matches. Try a name, or an ID from {min} to {max}.",
-    "invalidStatic": "No business in this online demo matches. It holds {n}, listed below.",
+    "invalidStatic": {
+      "one": "No business in this online demo matches. It holds {n}, listed below.",
+      "other": "No business in this online demo matches. It holds {n}, listed below."
+    },
     "available": "Serving businesses in this store",
     "unavailable": "Could not read the store size from the API."
   },
@@ -204,7 +211,10 @@
     "alert": "Crunch alert",
     "daysToNegative": "Days to projected negative balance",
     "hazard": "Liquidity hazard",
-    "horizonDays": "{n} days",
+    "horizonDays": {
+      "one": "{n} day",
+      "other": "{n} days"
+    },
     "drivers": "Drivers",
     "ramadan": "Ramadan adjusted",
     "method": "Method",
@@ -249,12 +259,21 @@
     "notComputed": "The anomaly lens did not run.",
     "noFlags": "No transactions listed for review.",
     "windowValue": "{from} to {to}",
-    "listedOf": "listed, from {n} transactions scanned",
+    "listedOf": {
+      "one": "listed, from {n} transaction scanned",
+      "other": "listed, from {n} transactions scanned"
+    },
     "timeline": "Timeline of queued transactions",
     "chartTitle": "When they happened",
     "markLabel": "{date}, {reason}",
-    "timelineAlt": "{n} transactions placed by date between {from} and {to}. The table gives the same list.",
-    "slots": "{n} of {cap} review slots used",
+    "timelineAlt": {
+      "one": "{n} transaction placed by date between {from} and {to}. The table gives the same list.",
+      "other": "{n} transactions placed by date between {from} and {to}. The table gives the same list."
+    },
+    "slots": {
+      "one": "{n} of {cap} review slot used",
+      "other": "{n} of {cap} review slots used"
+    },
     "slotsShort": "{n} of {cap}",
     "showing": "showing {x} of {y}"
   },
@@ -329,7 +348,10 @@
     ],
     "caveat": "Each scenario is a single business (N = 1). These are demonstrations, not estimates.",
     "library": "Scenario library version",
-    "eyebrow": "{name}, {n} fixed scenarios, nothing is typed in",
+    "eyebrow": {
+      "one": "{name}, {n} fixed scenario, nothing is typed in",
+      "other": "{name}, {n} fixed scenarios, nothing is typed in"
+    },
     "diff": "Diff sheet",
     "changed": "Changed",
     "same": "Same",
@@ -350,7 +372,10 @@
     "include": "Include this shock",
     "run": "Run scenario",
     "running": "Running the scenario. This rebuilds the business and runs every lens, so it takes a few seconds.",
-    "tooMany": "Pick at most {n} shocks.",
+    "tooMany": {
+      "one": "Pick at most {n} shock.",
+      "other": "Pick at most {n} shocks."
+    },
     "noneChosen": "Pick at least one shock.",
     "retry": "Run again",
     "plate": "Custom scenario, not part of the library",
@@ -517,7 +542,10 @@
     "welcome": "Welcome back. Here is where {name} is heading.",
     "heading": "{name}: where it is heading",
     "repayment": "Repayment",
-    "monthsValue": "{n} months",
+    "monthsValue": {
+      "one": "{n} month",
+      "other": "{n} months"
+    },
     "markupLabel": "Base markup, fixed at signing",
     "late": "Late payments",
     "lateValue": "go to charity",
@@ -534,10 +562,19 @@
     "noMcc": "No declared MCC",
     "hazardOver": "Hazard over {days}",
     "noNegative": "No negative balance projected",
-    "negativeIn": "Negative balance projected in {n} days",
-    "listed": "{n} listed",
+    "negativeIn": {
+      "one": "Negative balance projected in {n} day",
+      "other": "Negative balance projected in {n} days"
+    },
+    "listed": {
+      "one": "{n} listed",
+      "other": "{n} listed"
+    },
     "queueNote": "A queue for a person, not an alarm",
-    "scanned": "{n} scanned"
+    "scanned": {
+      "one": "{n} scanned",
+      "other": "{n} scanned"
+    }
   },
   "sheet": {
     "title": "Decision sheet",
@@ -565,10 +602,16 @@
     "title": "Know where your business is heading, and why.",
     "lead": "Ma'al reads a small business's cash flow through four lenses: credit, Sharia screen, zakat and forecast. Every result carries a receipt anyone can re-run. This demo runs on synthetic data.",
     "ctaSignIn": "Sign in to the demo",
-    "ctaScenarios": "See the {n} scenarios",
+    "ctaScenarios": {
+      "one": "See the {n} scenario",
+      "other": "See the {n} scenarios"
+    },
     "cardBusiness": "{name}, {sector}",
     "illustrative": "Illustrative, synthetic data",
-    "cardTerms": "{months} months, {markup} markup fixed at signing",
+    "cardTerms": {
+      "one": "{months} month, {markup} markup fixed at signing",
+      "other": "{months} months, {markup} markup fixed at signing"
+    },
     "tryTitle": "Try a business",
     "tryIntro": "Five synthetic businesses, one for each state the API returns. Each card reads its decision and profile status from the API.",
     "tryOpen": "Open the overview",
@@ -705,8 +748,14 @@
     "demoStates": "Demo states",
     "allTitle": "Every serving business",
     "allTable": "Serving business list",
-    "total": "{n} serving businesses",
-    "matches": "{n} match",
+    "total": {
+      "one": "{n} serving business",
+      "other": "{n} serving businesses"
+    },
+    "matches": {
+      "one": "{n} match",
+      "other": "{n} matches"
+    },
     "searchLabel": "Business ID starts with",
     "searchHelp": "Digits only.",
     "sectorLabel": "Sector",

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import type { Shock } from "@/lib/custom-scenario";
-import { fill, type Messages } from "@/lib/i18n";
+import { fill, localeOf, type Messages, pluralForm } from "@/lib/i18n";
 import type { ScenarioCatalog } from "@/lib/types";
+import { formatInt } from "@/lib/format";
 
 export type StartFrom = { name: string; label: string; lang?: "en"; shocks: Shock[] };
 
@@ -92,7 +93,7 @@ export function CustomScenarioForm({
           </select>
         </label>
       )}
-      <p className="text-sm text-muted">{fill(c.tooMany, { n: String(catalog.max_shocks) })}</p>
+      <p className="text-sm text-muted">{fill(pluralForm(catalog.max_shocks, c.tooMany, localeOf(m)), { n: formatInt(catalog.max_shocks, localeOf(m)) })}</p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {Object.entries(catalog.shock_types).map(([type, spec]) => (
           <fieldset key={type} className="flex flex-col gap-3 border border-line bg-card p-5">

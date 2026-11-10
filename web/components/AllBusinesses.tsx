@@ -2,7 +2,7 @@ import Link from "next/link";
 import { RoleLink } from "@/components/RoleLink";
 import { ApiError, Num, TableScroll } from "@/components/ui";
 import { formatInt } from "@/lib/format";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { fill, fillNodes, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import type { ApiResult, BusinessesResponse } from "@/lib/types";
 import { nameOf } from "@/lib/business-names";
 
@@ -23,7 +23,7 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
   return (
     <>
       <p className="text-sm">
-        <Num>{formatInt(total, locale)}</Num> {fill(a.total, { n: "" }).trim()}
+        {fillNodes(pluralForm(total, a.total, locale), { n: <Num>{formatInt(total, locale)}</Num> })}
       </p>
       {businesses.length === 0 ? (
         <p className="text-muted">{a.none}</p>

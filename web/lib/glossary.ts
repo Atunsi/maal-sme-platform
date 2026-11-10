@@ -15,13 +15,13 @@ export const GLOSSARY = [
   {
     id: "pd",
     en: { term: "PD (probability of default)", definition: "The credit model's estimate of how likely the business is to fall behind on repayment. It is a model output on synthetic data, not a measured rate." },
-    ar: { term: "احتمالية التعثر (PD)", definition: "تقدير نموذج مخاطر التمويل لاحتمال تعثر المنشأة في السداد. وهو مخرج نموذج على بيانات اصطناعية، وليس معدلًا مقيسًا.", draft: true },
+    ar: { term: "احتمالية التعثر", definition: "تقدير نموذج مخاطر التمويل لاحتمال تعثر المنشأة في السداد. وهو مخرج نموذج على بيانات اصطناعية، وليس معدلًا مقيسًا.", draft: true },
     source: "DECISIONS.md entry 23 (credit lens v1)",
   },
   {
     id: "cv-auc",
     en: { term: "CV AUC", definition: "How well the credit model ranks businesses that later default above those that do not, measured by cross-validation. Half is no better than chance; one is perfect." },
-    ar: { term: "CV AUC", definition: "مقياس لقدرة نموذج التمويل على ترتيب المنشآت التي تتعثر لاحقًا فوق غيرها، محسوب بالتحقق المتقاطع. قيمة النصف تعني أنه لا يتفوق على الصدفة، والواحد يعني الكمال.", draft: true },
+    ar: { term: "قيمة AUC بالتحقق المتقاطع", definition: "مقياس لقدرة نموذج التمويل على ترتيب المنشآت التي تتعثر لاحقًا فوق غيرها، محسوب بالتحقق المتقاطع. قيمة النصف تعني أنه لا يتفوق على الصدفة، والواحد يعني الكمال.", draft: true },
     source: "DECISIONS.md entry 23 (model receipt fields)",
   },
   {
@@ -117,7 +117,7 @@ export const GLOSSARY = [
   {
     id: "naive-baseline",
     en: { term: "Naive baseline", definition: "A simple forecast built from the trailing thirty-day average. The model has to beat it to earn its place." },
-    ar: { term: "خط الأساس البسيط", definition: "توقع بسيط مبني على متوسط آخر ثلاثين يومًا. ولازم يتفوق النموذج عليه ليثبت جدواه.", draft: true },
+    ar: { term: "خط الأساس البسيط", definition: "توقع بسيط مبني على متوسط آخر ثلاثين يومًا. ويجب أن يتفوق النموذج عليه ليثبت جدواه.", draft: true },
     source: "docs/Behavioral_Profile_Feature_Schema.md §10",
   },
   {
@@ -141,13 +141,13 @@ export const GLOSSARY = [
   {
     id: "scenario",
     en: { term: "Scenario", definition: "The same demo business rebuilt in memory under a disaster picked from a fixed menu, so the disaster is the only difference." },
-    ar: { term: "السيناريو", definition: "منشأة العرض نفسها يُعاد بناؤها في الذاكرة تحت أزمة مختارة من قائمة ثابتة، فتكون الأزمة هي الفرق الوحيد.", draft: true },
+    ar: { term: "السيناريو", definition: "المنشأة التجريبية نفسها يُعاد بناؤها في الذاكرة تحت أزمة مختارة من قائمة ثابتة، فتكون الأزمة هي الفرق الوحيد.", draft: true },
     source: "DECISIONS.md entry 29 (scenario library)",
   },
   {
     id: "baseline",
     en: { term: "Baseline", definition: "The scenario with no extra disaster: the demo business exactly as configured. Every other scenario is compared with it." },
-    ar: { term: "خط الأساس", definition: "السيناريو دون أي أزمة إضافية: منشأة العرض كما ضُبطت تمامًا. ويُقارن به كل سيناريو آخر.", draft: true },
+    ar: { term: "خط الأساس", definition: "السيناريو دون أي أزمة إضافية: المنشأة التجريبية كما ضُبطت تمامًا. ويُقارن به كل سيناريو آخر.", draft: true },
     source: "DECISIONS.md entry 29 (scenario library)",
   },
   {
@@ -159,7 +159,7 @@ export const GLOSSARY = [
   {
     id: "population",
     en: { term: "Population (serving and research)", definition: "The generator makes two groups: a large research population for training and testing models, and a smaller serving population that the API and this demo show." },
-    ar: { term: "المجموعة (العرض والبحث)", definition: "يُنتج المولّد مجموعتين: مجموعة بحث كبيرة لتدريب النماذج واختبارها، ومجموعة عرض أصغر تعرضها الواجهة البرمجية وهذا العرض.", draft: true },
+    ar: { term: "المجموعة (الخدمة والبحث)", definition: "يُنتج المولّد مجموعتين: مجموعة بحث كبيرة لتدريب النماذج واختبارها، ومجموعة خدمة أصغر تعرضها الواجهة البرمجية وهذه النسخة التجريبية.", draft: true },
     source: "docs/Behavioral_Profile_Feature_Schema.md §23",
   },
 ] as const satisfies readonly GlossaryEntry[];

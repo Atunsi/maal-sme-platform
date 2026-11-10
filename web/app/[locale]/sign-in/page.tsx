@@ -7,6 +7,9 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { SignInForm } from "@/components/SignInForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getMessages, isLocale } from "@/lib/i18n";
+import { titleFor } from "@/lib/page-title";
+
+export const generateMetadata = titleFor((m) => m.nav.signIn);
 
 export default async function SignInPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

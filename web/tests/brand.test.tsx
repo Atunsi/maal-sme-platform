@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Plate } from "@/components/ui";
 import { THEME_KEY } from "@/lib/theme";
 import { ar, en, webRoot } from "./helpers";
+import { applyDigits } from "@/lib/digits";
 
 const logoFile = (name: string) => readFileSync(join(webRoot, "docs", "design", "logo", name), "utf8");
 const pathsOf = (svg: string) => [...svg.matchAll(/ d="([^"]+)"/g)].map((match) => match[1]);
@@ -125,7 +126,21 @@ describe("theme", () => {
 
   it("the toggle's Arabic labels are the agreed words", () => {
     expect(ar.nav.themeDark).toBe("الوضع الداكن");
-    expect(ar.nav.digitsArab).toBe("أرقام عربية");
+    // DECISIONS 57 (1a.6): «أرقام عربية» was ambiguous, since many readers call 0 to 9 "Arabic numerals".
+    expect(ar.nav.digitsArab).toBe("الأرقام الهندية (٠١٢٣)");
+  });
+
+  it("the digits label keeps its Arabic-Indic sample when the switch is turned off", () => {
+    document.documentElement.lang = "ar";
+    const { container, unmount } = render(<DigitsToggle label={ar.nav.digitsArab} />);
+    const sample = container.querySelector("[data-latin]")!;
+    expect(sample.textContent).toBe("٠١٢٣");
+    applyDigits(container, "latn");
+    expect(container.textContent).toBe(ar.nav.digitsArab);
+    applyDigits(container, "arab");
+    expect(container.textContent).toBe(ar.nav.digitsArab);
+    unmount();
+    document.documentElement.lang = "";
   });
 });
 

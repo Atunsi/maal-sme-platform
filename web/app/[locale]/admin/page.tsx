@@ -9,13 +9,14 @@ import { Num, Page, Plate, TableScroll } from "@/components/ui";
 import { getBusinesses, getCredit } from "@/lib/api";
 import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
 import { creditPlate } from "@/lib/decision";
-import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
+import { fill, getMessages, isLocale, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { nameOf } from "@/lib/business-names";
 import { searchOf, STATIC, staticIds } from "@/lib/static-data";
 import { SERVING_ID_MAX, SERVING_ID_MIN } from "@/lib/population";
 import type { ApiResult, CreditResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
 import { formatInt } from "@/lib/format";
+import { titleFor } from "@/lib/page-title";
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
 
@@ -78,6 +79,8 @@ type Props = {
   searchParams: Promise<{ as?: string | string[]; q?: string | string[]; sector?: string | string[]; page?: string | string[] }>;
 };
 
+export const generateMetadata = titleFor((m) => m.nav.admin);
+
 export default async function AdminPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
@@ -131,7 +134,7 @@ export default async function AdminPage({ params, searchParams }: Props) {
             input: p.inputLabel,
             results: p.results,
             submit: p.submit,
-            invalid: finderIds ? fill(p.invalidStatic, { n: formatInt(finderIds.length, locale) }) : fill(p.invalid, range),
+            invalid: finderIds ? fill(pluralForm(finderIds.length, p.invalidStatic, locale), { n: formatInt(finderIds.length, locale) }) : fill(p.invalid, range),
           }}
         />
       </div>

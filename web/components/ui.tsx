@@ -96,7 +96,8 @@ export function Probability({ value, locale }: { value: number; locale: Locale }
 export function BackendText({ en, ar, locale, m }: { en: string; ar?: string | null; locale: Locale; m: Messages }) {
   if (locale === "ar" && ar) {
     return (
-      <span data-backend data-backend-ar className="block">
+      // data-latin: backend text keeps the digits the backend wrote, as the English block does (N3).
+      <span data-backend data-backend-ar data-latin className="block">
         {ar}
       </span>
     );

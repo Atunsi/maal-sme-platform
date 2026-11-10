@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Term } from "@/components/Term";
 import { Num, TableScroll, TD, TH } from "@/components/ui";
 import { formatDate, formatInt, formatMonth, formatSar } from "@/lib/format";
-import { dirOf, fill, type Locale, type Messages } from "@/lib/i18n";
+import { dirOf, fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { label, labelWord } from "@/lib/labels";
 import { delay } from "@/lib/motion";
 import type { AnomalyResponse } from "@/lib/types";
@@ -154,7 +154,7 @@ export function ReviewBoard({ a, locale, labels, intro }: { a: Computed; locale:
           {intro && <p className="text-sm text-muted">{intro}</p>}
         </div>
         {/* Time runs left to right in Arabic too, so the lanes are pinned LTR; their names keep the page's direction. */}
-        <div dir="ltr" role="group" aria-label={fill(n.timelineAlt, { n: formatInt(a.flags.length, locale), from: formatDate(from, locale), to: formatDate(to, locale) })} className="lanes" data-track>
+        <div dir="ltr" role="group" aria-label={fill(pluralForm(a.flags.length, n.timelineAlt, locale), { n: formatInt(a.flags.length, locale), from: formatDate(from, locale), to: formatDate(to, locale) })} className="lanes" data-track>
           <div className="lane lane-head">
             <span dir={dirOf(locale)} className="lane-name text-xs text-muted">
               <Term id="flag-reason" locale={locale}>

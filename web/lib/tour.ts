@@ -40,7 +40,7 @@ export const TOUR_STEPS: TourStep[] = [
     query: "view=compliance",
     target: "compliance",
     en: { title: "The Compliance View", caption: "The same decision for a reviewer: the model's raw outputs, and the CV AUC and oracle ceiling read straight from the receipt." },
-    ar: { title: "عرض الامتثال", caption: "القرار نفسه للمراجع: مخرجات النموذج الخام، وقيمتا CV AUC والسقف المرجعي مقروءتان مباشرة من الإيصال.", draft: true },
+    ar: { title: "عرض الامتثال", caption: "القرار نفسه للمراجع: مخرجات النموذج الخام، وقيمة AUC بالتحقق المتقاطع وسقفها المرجعي، مقروءتين مباشرة من الإيصال.", draft: true },
   },
   {
     id: "pending",

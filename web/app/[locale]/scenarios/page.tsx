@@ -3,11 +3,14 @@ import { ScenariosView } from "@/components/ScenariosView";
 import { StaticScenarioRedirect } from "@/components/StaticScenarioRedirect";
 import { isLocale } from "@/lib/i18n";
 import { searchOf, STATIC } from "@/lib/static-data";
+import { titleFor } from "@/lib/page-title";
 
 type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ s?: string | string[]; scenario?: string | string[]; as?: string | string[]; changed?: string | string[] }>;
 };
+
+export const generateMetadata = titleFor((m) => m.nav.scenarios);
 
 export default async function ScenariosPage({ params, searchParams }: Props) {
   const { locale } = await params;

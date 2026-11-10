@@ -9,10 +9,11 @@ import { ApiError, BackendText, Code, NisabPlate, Num, Plate, ProvenanceLine, Re
 import { getAnomaly, getCredit, getForecast, getZakat } from "@/lib/api";
 import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatPct, formatSar } from "@/lib/format";
-import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
+import { fill, getMessages, isLocale, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import type { AnomalyResponse, ApiResult, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
 import { nameOf } from "@/lib/business-names";
+import { titleFor } from "@/lib/page-title";
 
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
@@ -55,7 +56,7 @@ function Verdict({ data, locale, m }: { data: CreditResponse; locale: Locale; m:
           <Plate variant={plate.variant}>{plate.word}</Plate>
         </Row>
         {credit.amount_sar !== null && <Row label={m.credit.amount}>{<Num>{formatSar(credit.amount_sar, locale)}</Num>}</Row>}
-        {credit.repayment_months !== null && <Row label={o.repayment}>{fill(o.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</Row>}
+        {credit.repayment_months !== null && <Row label={o.repayment}>{fill(pluralForm(credit.repayment_months, o.monthsValue, locale), { n: formatInt(credit.repayment_months, locale) })}</Row>}
         {credit.base_markup_pct !== null && (
           <Row label={o.markupLabel}>
             <Num>{formatPct(credit.base_markup_pct, locale)}</Num>
@@ -185,6 +186,8 @@ function Review({ data, locale, m }: { data: AnomalyResponse; locale: Locale; m:
 }
 
 /** E2: one business on paper. No print timestamp: two prints of the same receipt must not differ. */
+export const generateMetadata = titleFor((m) => m.sheet.title);
+
 export default async function SheetPage({ params }: Props) {
   const { locale, id: rawId } = await params;
   if (!isLocale(locale)) notFound();

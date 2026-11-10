@@ -1,7 +1,10 @@
 import { AnomalyCard } from "@/components/AnomalyCard";
 import { LensPage } from "@/components/LensPage";
 import { getAnomaly } from "@/lib/api";
+import { titleFor } from "@/lib/page-title";
 
+
+export const generateMetadata = titleFor((m) => m.nav.review);
 
 export default function ReviewPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   return (

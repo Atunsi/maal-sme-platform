@@ -3,8 +3,11 @@ import { SectionMark } from "@/components/brand/Logos";
 import { Page } from "@/components/ui";
 import { glossaryFor } from "@/lib/glossary";
 import { getMessages, isLocale } from "@/lib/i18n";
+import { titleFor } from "@/lib/page-title";
 
 // E3: every glossary entry, alphabetically for the locale. Fixed text; nothing here calls the API.
+export const generateMetadata = titleFor((m) => m.glossary.title);
+
 export default async function GlossaryPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();

@@ -8,7 +8,8 @@ export function DigitsToggle({ label }: { label: string }) {
   const arab = useSyncExternalStore(onDigitsChange, () => digitsChosen() === "arab", () => false);
   return (
     <button type="button" className="themebtn" aria-pressed={arab} data-digits-toggle onClick={() => setDigits(arab ? "latn" : "arab")}>
-      {label}
+      {/* The label's sample digits («٠١٢٣») are Arabic-Indic on purpose: data-latin keeps the rewrite off them. */}
+      {label.split(/([٠-٩]+)/).map((part, i) => (/^[٠-٩]+$/.test(part) ? <span key={i} data-latin>{part}</span> : part))}
     </button>
   );
 }

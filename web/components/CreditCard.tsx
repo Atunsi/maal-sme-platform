@@ -7,7 +7,7 @@ import { Term as GlossaryTerm } from "@/components/Term";
 import { BackendText, figureFont, Num, Plate, Refusal, SubHeading } from "@/components/ui";
 import { decisionPlate } from "@/lib/decision";
 import { formatInt, formatPct, formatSar } from "@/lib/format";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { label } from "@/lib/labels";
 import type { CreditExplanation, CreditResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
@@ -155,7 +155,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
             </Term>
           )}
           {credit.repayment_months !== null && (
-            <Term label={m.credit.months}>{fill(m.overview.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</Term>
+            <Term label={m.credit.months}>{fill(pluralForm(credit.repayment_months, m.overview.monthsValue, locale), { n: formatInt(credit.repayment_months, locale) })}</Term>
           )}
           {credit.base_markup_pct !== null && (
             <Term

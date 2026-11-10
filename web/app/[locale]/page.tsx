@@ -8,7 +8,7 @@ import { Num, Plate } from "@/components/ui";
 import { DEMO_BUSINESS } from "@/lib/businesses";
 import { decisionWord } from "@/lib/decision";
 import { formatInt, formatPct, formatSar } from "@/lib/format";
-import { fill, getMessages, isLocale, LOCALES, type Locale, type Messages } from "@/lib/i18n";
+import { fill, getMessages, isLocale, type Locale, LOCALES, type Messages, pluralForm } from "@/lib/i18n";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
 import { TOUR_STEPS, tourHref } from "@/lib/tour";
 import type { ScenarioObject } from "@/lib/types";
@@ -68,7 +68,7 @@ function IllustrativeCard({ o, locale, m }: { o: ScenarioObject; locale: Locale;
           )}
           {credit.repayment_months !== null && credit.base_markup_pct !== null && (
             <div className="text-[13px] text-muted">
-              {fill(l.cardTerms, { months: formatInt(credit.repayment_months, locale), markup: formatPct(credit.base_markup_pct, locale) })}
+              {fill(pluralForm(credit.repayment_months, l.cardTerms, locale), { months: formatInt(credit.repayment_months, locale), markup: formatPct(credit.base_markup_pct, locale) })}
             </div>
           )}
         </div>
@@ -90,7 +90,7 @@ function IllustrativeCard({ o, locale, m }: { o: ScenarioObject; locale: Locale;
           {alert ? <Plate variant={LEVEL_VARIANT[alert.level]}>{m.enums.level[alert.level]}</Plate> : m.common.dash}
         </Tile>
         <Tile label={m.anomaly.title}>
-          {o.anomaly ? <Plate variant="ink">{fill(m.overview.listed, { n: formatInt(o.anomaly.flags.length, locale) })}</Plate> : m.common.dash}
+          {o.anomaly ? <Plate variant="ink">{fill(pluralForm(o.anomaly.flags.length, m.overview.listed, locale), { n: formatInt(o.anomaly.flags.length, locale) })}</Plate> : m.common.dash}
         </Tile>
       </div>
       <p className="text-xs text-muted">{m.sharia.label}</p>
@@ -136,7 +136,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
                 {l.ctaSignIn}
               </Link>
               <Link href={`/${locale}/scenarios`} className="rounded-ctl inline-flex min-h-[52px] items-center border-[1.5px] border-white px-6 font-semibold text-white no-underline">
-                {fill(l.ctaScenarios, { n: scenarioCount === null ? "" : formatInt(scenarioCount, locale) })}
+                {fill(pluralForm(scenarioCount ?? 0, l.ctaScenarios, locale), { n: scenarioCount === null ? "" : formatInt(scenarioCount, locale) })}
               </Link>
               <Link
                 href={tourHref(locale, TOUR_STEPS[0]!, null)}

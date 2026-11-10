@@ -3,12 +3,15 @@ import { CreditCard } from "@/components/CreditCard";
 import { LensPage } from "@/components/LensPage";
 import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { getCredit } from "@/lib/api";
+import { titleFor } from "@/lib/page-title";
 
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{ view?: string | string[] }>;
 };
+
+export const generateMetadata = titleFor((m) => m.nav.credit);
 
 export default async function CreditPage({ params, searchParams }: Props) {
   const initialView = (await searchOf(searchParams)).view === "compliance" ? "compliance" : "public";

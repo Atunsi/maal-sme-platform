@@ -6,7 +6,7 @@ import { PhoneFold } from "@/components/PhoneFold";
 import { Num, Plate, Refusal } from "@/components/ui";
 import { decisionPlate, decisionWord } from "@/lib/decision";
 import { formatInt, formatPct, formatSar } from "@/lib/format";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import type { CreditResponse, Receipt } from "@/lib/types";
 import { delay } from "@/lib/motion";
 
@@ -101,7 +101,7 @@ export function VerdictSheet({ data, locale, m }: { data: CreditResponse; locale
             <div className="rise grid grid-cols-1 border-t border-line sm:grid-cols-3" style={{ animationDelay: delay(2) }}>
               {credit.repayment_months !== null && (
                 <Cell label={o.repayment} first>
-                  <div className="font-mono text-xl">{fill(o.monthsValue, { n: formatInt(credit.repayment_months, locale) })}</div>
+                  <div className="font-mono text-xl">{fill(pluralForm(credit.repayment_months, o.monthsValue, locale), { n: formatInt(credit.repayment_months, locale) })}</div>
                 </Cell>
               )}
               {credit.base_markup_pct !== null && (

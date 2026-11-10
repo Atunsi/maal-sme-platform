@@ -3,7 +3,7 @@ import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ReviewBoard } from "@/components/ReviewBoard";
 import { BackendText, Num, Refusal } from "@/components/ui";
 import { formatDate, formatInt } from "@/lib/format";
-import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import type { AnomalyResponse } from "@/lib/types";
 
 /** U8: flag_reason categories only, framed as a review queue, with no severity the API did not send. */
@@ -18,7 +18,7 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
     <div className="sm:text-end">
       <div className="font-mono text-[40px] leading-tight">
         {cap ? (
-          <span role="img" aria-label={fill(n.slots, { n: formatInt(computed.flags.length, locale), cap: formatInt(cap, locale) })} data-slots>
+          <span role="img" aria-label={fill(pluralForm(cap, n.slots, locale), { n: formatInt(computed.flags.length, locale), cap: formatInt(cap, locale) })} data-slots>
             <span aria-hidden="true">
               <Num>{fill(n.slotsShort, { n: formatInt(computed.flags.length, locale), cap: formatInt(cap, locale) })}</Num>
             </span>
@@ -34,7 +34,7 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
           ))}
         </div>
       ) : null}
-      <div className="text-[13px] text-muted">{fill(n.listedOf, { n: formatInt(computed.transactions_scanned, locale) })}</div>
+      <div className="text-[13px] text-muted">{fill(pluralForm(computed.transactions_scanned, n.listedOf, locale), { n: formatInt(computed.transactions_scanned, locale) })}</div>
       <div aria-hidden="true" className="ms-auto mt-2 h-1.5 w-[220px] max-w-full bg-line">
         <div className="scan-fill" />
       </div>

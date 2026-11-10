@@ -13,14 +13,18 @@ import { scenarioText } from "@/lib/scenario-label";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
 import { libraryShocks } from "@/lib/start-from";
 import { runCustomScenarioForm } from "@/app/[locale]/scenarios/custom/actions";
-import { fill, getMessages, isLocale } from "@/lib/i18n";
+import { fill, getMessages, isLocale, pluralForm } from "@/lib/i18n";
 import { nameOf } from "@/lib/business-names";
+import { formatInt } from "@/lib/format";
+import { titleFor } from "@/lib/page-title";
 
 
 type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ shock?: string | string[]; error?: string | string[]; as?: string | string[] }>;
 };
+
+export const generateMetadata = titleFor((m) => m.custom.title);
 
 export default async function CustomScenarioPage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -83,7 +87,7 @@ export default async function CustomScenarioPage({ params, searchParams }: Props
         </Link>
       </div>
       {error === "none" && <p role="alert" className="font-medium text-bad">{c.noneChosen}</p>}
-      {error === "many" && <p role="alert" className="font-medium text-bad">{fill(c.tooMany, { n: String(catalog.data.max_shocks) })}</p>}
+      {error === "many" && <p role="alert" className="font-medium text-bad">{fill(pluralForm(catalog.data.max_shocks, c.tooMany, locale), { n: formatInt(catalog.data.max_shocks, locale) })}</p>}
       <CustomScenarioForm catalog={catalog.data} chosen={shocks} action={runCustomScenarioForm} hidden={{ locale, as: query.replace("?as=", "") }} starts={starts} m={m} />
       {shocks.length > 0 && (
         <Suspense fallback={<p role="status" className="text-muted">{c.running}</p>}>
