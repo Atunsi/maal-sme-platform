@@ -5,7 +5,7 @@ import { createElement, type ReactNode } from "react";
 import { Code } from "@/components/ui";
 import type { Messages } from "@/lib/i18n";
 
-export const LABEL_GROUPS = ["late_penalty_policy", "hawl_rule", "hawl_start_source", "zakat_method", "counterparty_type", "category"] as const;
+export const LABEL_GROUPS = ["library_status", "late_penalty_policy", "hawl_rule", "hawl_start_source", "zakat_method", "counterparty_type", "category"] as const;
 export type LabelGroup = (typeof LABEL_GROUPS)[number];
 
 /** The catalogue word, or null when the catalogue has none for this value. */

@@ -11,7 +11,7 @@ import { TourPanel } from "@/components/TourPanel";
 import { APP_BOOT } from "@/lib/app-mode";
 import { DIGITS_BOOT } from "@/lib/digits";
 import { dirOf, getMessages, isLocale, LOCALES } from "@/lib/i18n";
-import { scenarioName } from "@/lib/scenario-label";
+import { scenarioText } from "@/lib/scenario-label";
 import { getScenarioIndex } from "@/lib/scenarios";
 import { STATIC, staticIds } from "@/lib/static-data";
 import { BAR_COLOUR, THEME_BOOT } from "@/lib/theme";
@@ -92,7 +92,10 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const m = getMessages(locale);
   // I8: the search covers the scenario library, read from the exported index (a file, not the API).
   const index = await getScenarioIndex();
-  const scenarios = index.ok ? index.data.scenarios.map((s) => ({ name: s.name, label: scenarioName(s.label).name })) : [];
+  const scenarios = index.ok ? index.data.scenarios.map((s) => {
+        const text = scenarioText(s, locale);
+        return { name: s.name, label: text.name, lang: text.lang };
+      }) : [];
   // The online snapshot holds a few dozen businesses, so its search offers only those.
   const businessIds = STATIC ? staticIds() : undefined;
   return (

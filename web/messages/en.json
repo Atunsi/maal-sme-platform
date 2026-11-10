@@ -362,6 +362,7 @@
     "startNone": "Your own shocks",
     "summary": "Chosen: {list}",
     "resultTitle": "Custom scenario next to the baseline",
+    "columnName": "Custom scenario",
     "types": {
       "cash_crunch": "Revenue drop",
       "large_transfer": "Large transfer out",
@@ -378,6 +379,9 @@
     }
   },
   "enums": {
+    "library_status": {
+      "proposed": "proposed"
+    },
     "status": {
       "scored": "Scored",
       "partial_profile": "Partial profile",

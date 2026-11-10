@@ -11,8 +11,8 @@ import { findBusinesses, nameOf } from "@/lib/business-names";
 import { OPEN_SEARCH } from "@/components/AppTabBar";
 import { fill } from "@/lib/i18n";
 
-export type PaletteScenario = { name: string; label: string };
-type Item = { id: string; label: string; group: string; href: string };
+export type PaletteScenario = { name: string; label: string; lang?: "en" };
+type Item = { id: string; label: string; lang?: "en"; group: string; href: string };
 
 const LENSES = ["credit", "sharia", "zakat", "forecast", "review"] as const;
 
@@ -26,7 +26,7 @@ export function paletteItems(locale: Locale, m: Pick<Messages, "nav" | "search" 
     ...LENSES.map((lens) => ({ id: `page-${lens}`, label: m.nav[lens], group: g.pages, href: `${root}/${lens}${q}` })),
     { id: "page-sheet", label: m.sheet.open, group: g.pages, href: `${root}/sheet${q}` },
     { id: "page-scenarios", label: m.nav.scenarios, group: g.pages, href: `/${locale}/scenarios${q}` },
-    ...scenarios.map((s) => ({ id: `scenario-${s.name}`, label: s.label, group: g.scenarios, href: `/${locale}/scenarios?s=${s.name}${q.replace("?", "&")}` })),
+    ...scenarios.map((s) => ({ id: `scenario-${s.name}`, label: s.label, lang: s.lang, group: g.scenarios, href: `/${locale}/scenarios?s=${s.name}${q.replace("?", "&")}` })),
     ...GLOSSARY.map((entry) => ({ id: `term-${entry.id}`, label: entry[locale].term, group: g.terms, href: `/${locale}/glossary${q}#${entry.id}` })),
   ];
 }
@@ -172,7 +172,7 @@ export function CommandPalette({ locale, m, scenarios, businessIds }: { locale: 
                     go(item);
                   }}
                 >
-                  <span lang={item.group === s.groups.scenarios ? "en" : undefined}>{item.label}</span>
+                  <span lang={item.lang}>{item.label}</span>
                   <span className="text-xs text-muted">{item.group}</span>
                 </li>
               ))}

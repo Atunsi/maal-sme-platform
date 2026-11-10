@@ -5,7 +5,7 @@ import type { Shock } from "@/lib/custom-scenario";
 import { fill, type Messages } from "@/lib/i18n";
 import type { ScenarioCatalog } from "@/lib/types";
 
-export type StartFrom = { name: string; label: string; shocks: Shock[] };
+export type StartFrom = { name: string; label: string; lang?: "en"; shocks: Shock[] };
 
 /**
  * E12: the custom scenario builder, built from GET /scenarios. One fieldset per shock type: a checkbox to
@@ -85,7 +85,7 @@ export function CustomScenarioForm({
           >
             <option value="">{c.startNone}</option>
             {starts.map((s) => (
-              <option key={s.name} value={s.name} lang="en">
+              <option key={s.name} value={s.name} lang={s.lang}>
                 {s.label}
               </option>
             ))}

@@ -91,7 +91,7 @@ export function ScenarioMenu({ label, locale, entries, footer }: { label: string
  * Below 768 px, a native select of the same scenarios in library order. After a choice the page moves to
  * the diff sheet's heading and focuses it (?jump=1 tells the next render to do so, then is removed).
  */
-export function ScenarioSelect({ label, entries }: { label: string; entries: { name: string; label: string; href: string; current: boolean }[] }) {
+export function ScenarioSelect({ label, entries }: { label: string; entries: { name: string; label: string; lang?: "en"; href: string; current: boolean }[] }) {
   const router = useRouter();
   const current = entries.find((e) => e.current)?.name ?? entries[0]?.name;
   return (
@@ -107,7 +107,7 @@ export function ScenarioSelect({ label, entries }: { label: string; entries: { n
         }}
       >
         {entries.map((e) => (
-          <option key={e.name} value={e.name} lang="en">
+          <option key={e.name} value={e.name} lang={e.lang}>
             {e.label}
           </option>
         ))}

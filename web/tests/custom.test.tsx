@@ -15,7 +15,9 @@ const TERMS = /markup|amount|month|term|rate|price|repay/i;
 
 const api = vi.hoisted(() => ({ result: null as unknown }));
 vi.mock("@/lib/api", () => ({ runCustomScenario: async () => api.result }));
-vi.mock("@/lib/scenarios", () => ({ getScenario: async () => ({ ok: true, data: baseline }) }));
+// The result also reads the library index for the column names (DECISIONS 57); without it the heads keep the
+// English labels, which is what these English tests check.
+vi.mock("@/lib/scenarios", () => ({ getScenario: async () => ({ ok: true, data: baseline }), getScenarioIndex: async () => ({ ok: false, kind: "contract" }) }));
 
 describe("custom builder form", () => {
   it("custom builder renders bounds from the api", () => {

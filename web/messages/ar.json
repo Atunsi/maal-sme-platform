@@ -154,13 +154,13 @@
   "compliance": {
     "units": "الوحدات",
     "modelFacts": "النموذج",
-    "pd": "pd",
-    "logit": "logit",
-    "riskTier": "risk_tier",
-    "modelVersion": "model_version",
-    "modelSha": "model_sha256",
-    "cvAuc": "credit_model_cv_auc (من الإيصال)",
-    "ceilingAuc": "credit_model_oracle_ceiling_auc (من الإيصال)",
+    "pd": "احتمالية التعثر",
+    "logit": "اللوجِت",
+    "riskTier": "فئة المخاطر",
+    "modelVersion": "إصدار النموذج",
+    "modelSha": "بصمة النموذج",
+    "cvAuc": "قيمة AUC بالتحقق المتقاطع (من الإيصال)",
+    "ceilingAuc": "سقف AUC (من الإيصال)",
     "trace": "من السطر العام إلى صف الجدول",
     "featureId": "رقم المؤشر",
     "magnitude": "القوة",
@@ -362,6 +362,7 @@
     "startNone": "صدمات من اختيارك",
     "summary": "المختار: {list}",
     "resultTitle": "السيناريو المخصص بجانب خط الأساس",
+    "columnName": "سيناريو مخصص",
     "types": {
       "cash_crunch": "انخفاض الإيرادات",
       "large_transfer": "تحويل صادر كبير",
@@ -378,6 +379,9 @@
     }
   },
   "enums": {
+    "library_status": {
+      "proposed": "مقترحة"
+    },
     "status": {
       "scored": "جرى التقييم",
       "partial_profile": "ملف جزئي",

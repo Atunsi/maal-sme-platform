@@ -7,10 +7,11 @@ import { ChangedRows, DiffHeading, ScenarioMenu, ScenarioSelect } from "@/compon
 import { ScenarioPlayer } from "@/components/ScenarioPlayer";
 import { ApiError, BackendText, Num, Page } from "@/components/ui";
 import { roleQuery } from "@/lib/businesses";
+import { label } from "@/lib/labels";
 import { formatInt } from "@/lib/format";
 import { fill, getMessages, type Locale } from "@/lib/i18n";
 import { scenarioHref, scenarioHrefBase } from "@/lib/scenario-href";
-import { scenarioName } from "@/lib/scenario-label";
+import { scenarioNames, scenarioText } from "@/lib/scenario-label";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
 import { delay } from "@/lib/motion";
 import { nameOf } from "@/lib/business-names";
@@ -52,7 +53,7 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
       </div>
       <ScenarioPlayer
         names={menu.map((entry) => entry.name)}
-        labels={menu.map((entry) => scenarioName(entry.label).name)}
+        labels={menu.map((entry) => scenarioText(entry, locale).name)}
         current={selected.name}
         hrefBase={scenarioHrefBase(locale, role)}
         text={{ play: sc.play, pause: sc.pause, position: sc.position, group: sc.playerGroup }}
@@ -63,7 +64,8 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
           label={sc.menu}
           entries={menu.map((entry) => ({
             name: entry.name,
-            label: scenarioName(entry.label).name,
+            label: scenarioText(entry, locale).name,
+            lang: scenarioText(entry, locale).lang,
             href: scenarioHref(locale, entry.name, role),
             current: entry.name === selected.name,
           }))}
@@ -71,10 +73,10 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
         <ScenarioMenu
           label={sc.menu}
           locale={locale}
-          footer={locale === "ar" ? <p className="border-t border-line p-3 text-xs text-muted">{m.common.englishTemplate}</p> : undefined}
+          footer={locale === "ar" && menu.some((entry) => !entry.label_ar) ? <p className="border-t border-line p-3 text-xs text-muted">{m.common.englishTemplate}</p> : undefined}
           entries={menu.map((entry, i) => {
             const current = entry.name === selected.name;
-            const { name, detail } = scenarioName(entry.label);
+            const { name, detail, lang } = scenarioText(entry, locale);
             return {
               name: entry.name,
               href: scenarioHref(locale, entry.name, role),
@@ -86,11 +88,11 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
                   <span aria-hidden="true" className="font-mono text-xs opacity-75">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span lang="en" dir="ltr" className="text-start font-semibold">
+                  <span lang={lang} dir={lang ? "ltr" : undefined} className="text-start font-semibold">
                     {name}
                   </span>
                   {detail && (
-                    <span lang="en" dir="ltr" className="text-start text-[13px] opacity-85">
+                    <span lang={lang} dir={lang ? "ltr" : undefined} className="text-start text-[13px] opacity-85">
                       {detail}
                     </span>
                   )}
@@ -102,12 +104,10 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
 
         <section aria-label={sc.resultTitle} className="flex min-w-0 flex-[999_1_640px] flex-col gap-6">
           <DiffHeading id="diff-heading">{sc.resultTitle}</DiffHeading>
-          <BackendText locale={locale} m={m}>
-            {selected.story}
-          </BackendText>
+          <BackendText en={selected.story} ar={selected.story_ar} locale={locale} m={m} />
           {baseline.ok && chosen.ok ? (
             <ChangedRows initial={changed === "1"} label={sc.changedOnly}>
-              <ScenarioCompare baseline={baseline.data} chosen={chosen.data} locale={locale} m={m} />
+              <ScenarioCompare baseline={baseline.data} chosen={chosen.data} names={scenarioNames(menu, locale)} locale={locale} m={m} />
             </ChangedRows>
           ) : (
             <ApiError kind="contract" detail={(!baseline.ok && baseline.detail) || (!chosen.ok && chosen.detail) || undefined} m={m} />
@@ -125,7 +125,7 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
             </ol>
             <p className="text-[13px] text-muted">{sc.caveat}</p>
             <p className="text-[13px] text-muted">
-              {sc.library}: <Num>{index.data.library_version}</Num> ({index.data.library_status})
+              {sc.library}: <Num>{index.data.library_version}</Num> ({label("library_status", index.data.library_status, m)})
             </p>
           </div>
         </section>

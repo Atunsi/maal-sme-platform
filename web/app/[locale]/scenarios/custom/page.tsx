@@ -9,7 +9,7 @@ import { ApiError, Page } from "@/components/ui";
 import { getScenarioCatalog } from "@/lib/api";
 import { roleQuery } from "@/lib/businesses";
 import { decodeShocks, encodeShock, type Shock } from "@/lib/custom-scenario";
-import { scenarioName } from "@/lib/scenario-label";
+import { scenarioText } from "@/lib/scenario-label";
 import { getScenario, getScenarioIndex } from "@/lib/scenarios";
 import { libraryShocks } from "@/lib/start-from";
 import { runCustomScenarioForm } from "@/app/[locale]/scenarios/custom/actions";
@@ -56,7 +56,10 @@ export default async function CustomScenarioPage({ params, searchParams }: Props
   for (const entry of index.ok ? index.data.scenarios : []) {
     const object = await getScenario(entry.name);
     const list = object.ok ? libraryShocks(object.data.scenario.overrides, catalog.data) : null;
-    if (list) starts.push({ name: entry.name, label: scenarioName(entry.label).name, shocks: list });
+    if (list) {
+      const text = scenarioText(entry, locale);
+      starts.push({ name: entry.name, label: text.name, lang: text.lang, shocks: list });
+    }
   }
   const error = Array.isArray(search.error) ? search.error[0] : search.error;
   const here = (list: Shock[]) => {

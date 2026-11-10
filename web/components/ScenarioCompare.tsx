@@ -92,11 +92,21 @@ function column(o: ScenarioObject, locale: Locale, m: Messages): Record<string, 
   };
 }
 
-function Head({ object, align }: { object: ScenarioObject; align?: boolean }) {
+type Names = Record<string, { name: string; lang: "en" | undefined }>;
+
+/** A column's name: the library's, in the page's language (DECISIONS 57). A custom run has no library entry, so in
+ * Arabic it takes the catalogue's words; anything else keeps the English label. */
+function headName(object: ScenarioObject, names: Names | undefined, locale: Locale, m: Messages): { name: string; lang: "en" | undefined } {
+  if (object.scenario.source === "custom" && locale === "ar") return { name: m.custom.columnName, lang: undefined };
+  return names?.[object.scenario.id] ?? { name: scenarioName(object.scenario.label).name, lang: "en" };
+}
+
+function Head({ object, align, names, locale, m }: { object: ScenarioObject; align?: boolean; names?: Names; locale: Locale; m: Messages }) {
+  const head = headName(object, names, locale, m);
   return (
     <th scope="col" className={`${TH} !py-5 align-top ${align ? "" : "border-s border-line"}`}>
-      <span lang="en" dir="ltr" className="block text-start font-semibold">
-        {scenarioName(object.scenario.label).name}
+      <span lang={head.lang} dir={head.lang ? "ltr" : undefined} className="block text-start font-semibold">
+        {head.name}
       </span>
       <span dir="ltr" data-latin className="block text-start font-mono text-[11px] font-normal text-muted">
         {object.receipt.output_sha256.slice(0, SHORT)}
@@ -105,9 +115,9 @@ function Head({ object, align }: { object: ScenarioObject; align?: boolean }) {
   );
 }
 
-type Props = { baseline: ScenarioObject; chosen: ScenarioObject; locale: Locale; m: Messages };
+type Props = { baseline: ScenarioObject; chosen: ScenarioObject; names?: Names; locale: Locale; m: Messages };
 
-export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
+export function ScenarioCompare({ baseline, chosen, names, locale, m }: Props) {
   const s = m.scenarios;
   const rows: [string, string][] = [
     ["decision", m.credit.decision],
@@ -139,8 +149,8 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
                 <th scope="col" className={`${TH} !py-5`}>
                   <span className="heading block text-[22px] text-ink">{s.diff}</span>
                 </th>
-                <Head object={baseline} />
-                <Head object={chosen} />
+                <Head object={baseline} names={names} locale={locale} m={m} />
+                <Head object={chosen} names={names} locale={locale} m={m} />
               </tr>
             </thead>
             <tbody>
@@ -161,11 +171,11 @@ export function ScenarioCompare({ baseline, chosen, locale, m }: Props) {
                         <span>{label}</span>
                       </span>
                     </th>
-                    <td data-label={scenarioName(baseline.scenario.label).name} className="border-s border-line px-5 py-3 font-mono text-sm">
+                    <td data-label={headName(baseline, names, locale, m).name} className="border-s border-line px-5 py-3 font-mono text-sm">
                       {left[key]!.shown}
                     </td>
                     <td
-                      data-label={scenarioName(chosen.scenario.label).name}
+                      data-label={headName(chosen, names, locale, m).name}
                       className={`border-s border-line px-5 py-3 font-mono text-sm ${changed ? "flash bg-accent-soft font-semibold" : ""}`}
                       style={changed ? { animationDelay: entrance } : undefined}
                     >
