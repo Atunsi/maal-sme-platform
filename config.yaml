@@ -1,6 +1,6 @@
 # =============================================================================
 # Synthetic SME generator configuration
-# Governed by: Behavioral Profile Feature Schema v2.9 (the schema wins over the SOP)
+# Governed by: Behavioral Profile Feature Schema v2.10 (the schema wins over the SOP)
 #   §12  configuration, not randomization — every generative parameter lives here
 #   §14  latent-variable-driven labels, sector-conditional shock sensitivity
 #   §17  zakat_seed for a non-zero Zakat demo
@@ -12,7 +12,7 @@
 # Held-out anomaly types are deliberately NOT in this file (§12). They live only
 # in the evaluation harness so precision-at-K is not circular.
 # =============================================================================
-schema_version: "v2.9"
+schema_version: "v2.10"
 config_version: "1.0"
 
 # --- §12 window placement ------------------------------------------------------

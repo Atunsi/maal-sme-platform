@@ -1,6 +1,6 @@
 # Profile engine — BUILT (features 1–69), source-agnostic
 
-**Owner:** profile engine owner (SOP §3) · **Schema:** §1–§6, §15, §16, §30–§35; proposed §38 (60–65, 62b) and §39 (66–69) per `SOP_Data_Grounding` and DECISIONS entry 33 (v2.9 already has §37) ·
+**Owner:** profile engine owner (SOP §3) · **Schema:** §1–§6, §15, §16, §30–§35; §38 (60–65, 62b) and §39 (66–69), added in schema v2.10 (DECISIONS 33) ·
 **Built during:** the real-data grounding SOP (2026-09-15/16), because Phases 2–4 need one engine that runs unmodified on both sources.
 
 The single shared engine all three lenses read from. It reads the tables in

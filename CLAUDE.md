@@ -11,7 +11,7 @@ their Claude sessions) push to `main`.
 1. `git fetch origin && git log --oneline HEAD..origin/main` — teammates push
    often. Pull/merge **before** editing, never after.
 2. Read, in this order, only what the task needs:
-   - [`docs/Behavioral_Profile_Feature_Schema.md`](docs/Behavioral_Profile_Feature_Schema.md) — **v2.9, the source of truth.** Cite sections as `§N`.
+   - [`docs/Behavioral_Profile_Feature_Schema.md`](docs/Behavioral_Profile_Feature_Schema.md) — **v2.10, the source of truth.** Cite sections as `§N`.
    - [`docs/SME_Platform_SOP.md`](docs/SME_Platform_SOP.md) — working rules. **Defers to the schema** wherever they disagree.
    - [`DECISIONS.md`](DECISIONS.md) — change-control log (entries 1–22+). Check it before re-deciding anything; most "open questions" are already answered or explicitly open there.
    - [`README.md`](README.md) — component status table, every run command, current results.

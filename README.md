@@ -20,7 +20,7 @@ and `insufficient_data` as a distinct state. No UI required to pass.
 
 | Document | Role |
 |---|---|
-| [`docs/Behavioral_Profile_Feature_Schema.md`](docs/Behavioral_Profile_Feature_Schema.md) | **v2.9 — the source of truth.** Feature contract, API read-paths, generator design, gate criteria. Its text defines features 1–59; the engine also computes 60–69, 18b and 62b (71 registry entries), and the credit lens reads 58. The schema edit that adds them is entry 33, still PROPOSED. |
+| [`docs/Behavioral_Profile_Feature_Schema.md`](docs/Behavioral_Profile_Feature_Schema.md) | **v2.10 — the source of truth.** Feature contract, API read-paths, generator design, gate criteria. Its text defines features 1–59; the engine also computes 60–69, 18b and 62b (71 registry entries), and the credit lens reads 58. The schema edit that adds them is entry 33, still PROPOSED. |
 | [`docs/SME_Platform_SOP.md`](docs/SME_Platform_SOP.md) | Working rules, roles, gates, build/cut order. **Defers to the schema wherever the two disagree.** |
 | `SOP_Data_Grounding_And_Dimensions.md` (v2.0, team copy) | Real-data grounding (Berka) and honest completion of the ungrounded dimensions. Executed 2026-09-15/16; every phase's evidence is in `DECISIONS.md` entries 7–11 and `eval/out/`. |
 | [`DECISIONS.md`](DECISIONS.md) | Change-control log (SOP §9). Every decision the schema doesn't pin down, plus every open question, with rationale and sign-off lines. |

@@ -1,6 +1,6 @@
 # Behavioral Profile Engine — Feature Schema
 
-**Version:** v2.9 (see change log at bottom) &nbsp;|&nbsp; **Status:** Living technical reference — locked sections require team sign-off to change.
+**Version:** v2.10 (see change log at bottom) &nbsp;|&nbsp; **Status:** Living technical reference — locked sections require team sign-off to change.
 
 **Purpose:** This is the single contract every lens (Credit, Cash-Flow, Anomaly, Compliance) reads
 from. Lock this schema before writing any model code. Changing it later means re-touching every
@@ -88,7 +88,7 @@ correctly. This is a distinct, smaller profile, generated and read separately.
 
 **Data implication:** the synthetic data generator must output three distinct tables, not one:
 1. `transactions.csv` — raw daily inflows/outflows.
-2. `daily_aggregates.csv` — pre-aggregated daily summaries (max ~90 rows per business); this is
+2. `daily_aggregates.csv` — pre-aggregated daily summaries (one row per calendar day of the generated window (`window_days`, default 180); the `< 2s` API target is met by the pre-aggregation itself, not by capping the row count, and features 4, 9, 43 and 45 read the prior 90 days from this same table — §15's `partial_profile` applies when fewer than `min_history_days` rows exist); this is
    what `GET /profile/{business_id}` actually reads at runtime, to keep the &lt; 2s API target
    achievable (see Section 12).
 3. `balances_monthly.csv` — end-of-month cash, inventory, receivables, payables, short-term
@@ -244,8 +244,8 @@ At least one anomaly type must be defined **only in the evaluation harness**, ne
 `config.yaml`, so it is genuinely unseen by anything that touched the generator. Report
 precision-at-K separately for injected vs. held-out anomaly types.
 
-**Third output table required:** `daily_aggregates.csv` — pre-aggregated daily summaries (max ~90
-rows per business) alongside `transactions.csv` and `balances_monthly.csv`. The feature engine
+**Third output table required:** `daily_aggregates.csv` — pre-aggregated daily summaries
+(one row per calendar day of the generated window (`window_days`, default 180); the `< 2s` API target is met by the pre-aggregation itself, not by capping the row count, and features 4, 9, 43 and 45 read the prior 90 days from this same table — §15's `partial_profile` applies when fewer than `min_history_days` rows exist) alongside `transactions.csv` and `balances_monthly.csv`. The feature engine
 (`GET /profile/{business_id}`) reads from this pre-aggregated table, not raw transactions, so the
 36-feature computation stays in milliseconds rather than seconds — this is what makes the &lt; 2s
 API response target in the main proposal actually achievable, not just aspirational. State this
@@ -974,7 +974,7 @@ finance-literate reviewer will look for by default.
 | # | Feature | Type | Definition | Used by |
 |---|---------|------|------------|---------|
 | 41 | `financing_outflow_ratio` | float [0–1] | Share of recurring outflow value going to counterparties with a financial-institution MCC, as a proxy for existing debt service | Credit |
-| 42 | `installment_capacity_sar` | float (SAR) | `max(0, avg_monthly_inflow − avg_monthly_outflow) × (1 − k × flow_asymmetry_ratio)`, `k = 0.15` (fixed, documented), haircut capped at 0.5 — a business with downside-heavy cash flow (feature 45) gets a more conservative capacity estimate | Credit |
+| 42 | `installment_capacity_sar` | float (SAR) | `max(0, avg_monthly_inflow − avg_monthly_outflow) × (1 − k × flow_asymmetry_ratio)`, `k = 0.15` (fixed, documented), haircut capped at 0.5 — a business with downside-heavy cash flow (feature 49) gets a more conservative capacity estimate | Credit |
 
 **Underwriting rule (fixed, at inception only — see Sharia note below):**
 `required: monthly_installment ≤ α × installment_capacity_sar`, `α = 0.40` (fixed, documented
@@ -1116,11 +1116,15 @@ elsewhere.
 
 **Critical implementation constraint:** `μ_{sector,f}` and `σ_{sector,f}` must come from a
 **pinned reference table**, computed once on the N=10,000 research population, serialized as
-`sector_reference_stats_v1.json`, version-hashed, and **never recomputed at serving time**.
+`sector_reference_stats_v2.json` (v1 was rebuilt once, as v2, after the Saudi calibration; DECISIONS 35), version-hashed, and **never recomputed at serving time**.
 Recomputing at serving would make a business's score depend on which other businesses happen to be
 in the current demo slice, breaking both determinism and the reproducibility receipt (Demo &
 Credibility plan, item 2). Include this file's hash in the receipt alongside the config and model
 hashes.
+
+**Bound (v2.10, DECISIONS 38):** each of 55–59 is clipped to [−3, +3] after the z is computed against the
+pinned statistics, in every sector and source. Without it, a few POS businesses whose regularity sits just
+below a near-constant sector mean get z-scores of −7 to −23.
 
 **Timing constraint:** this touches the feature contract every lens reads — it is a Week 1 decision
 or it does not happen this term. Do not retrofit it after Week 8.
@@ -1137,7 +1141,7 @@ deliberately break, not a convention someone can silently drift away from.
 
 ### 36.1 The Deterministic Core / Read-Only GenAI Shell Boundary
 
-The **deterministic core** comprises: the profile engine (all 59 features), the credit lens, the
+The **deterministic core** comprises: the profile engine (all 71 features: 1–69, 18b and 62b), the credit lens, the
 forecast lens, the anomaly lens, the Sharia screening module, the Zakat module, the recourse
 generator (§27), and the stress layer (§34). Every field in the §11 output contract and every value
 returned by the five API read-paths (§8) originates here. It contains no LLM call, on any path,
@@ -1429,6 +1433,38 @@ applies to executable developer tooling.
 
 ---
 
+## 38. Existing-Obligation Features (Added v2.10)
+
+Computed by the profile engine from `obligations.csv` (DECISIONS 8, 11, 33). **Every feature in §38 and
+§39 is null `insufficient_data` for a business refused under §15**, as all others are; the null reasons
+below are the additional ones.
+
+| # | Name | Type | Definition | Null reasons |
+|---|---|---|---|---|
+| 60 | `committed_monthly_outflow` | float (SAR) | Σ over active obligations (status `active`, no `final_date` or `final_date` after the as-of date) of `amount × monthly equivalent` (monthly 1, weekly 52/12, quarterly 1/3, one-off 0; `unknown` frequency excluded). 0 when the business has no obligations. | `insufficient_data` only |
+| 61 | `obligation_coverage_ratio` | float | `avg_monthly_inflow / committed_monthly_outflow` | `not_applicable` (no obligations); `near_zero_denominator` (60 < SAR 500) |
+| 62 | `ocr_forward_3m` | float | as 61, counting only obligations still active 90 days after the as-of date | as 61 |
+| 62b | `ocr_forward_6m` | float | as 61, 180 days after the as-of date | as 61 |
+| 63 | `obligation_horizon_months` | float | (latest `final_date` among active dated obligations − as-of date) / 30 | `not_applicable` (none dated, or all ended); `not_available_in_source` (real feed) |
+| 64 | `mandate_cancellation_count_90d` | int | obligations whose status turned `inactive` within the trailing 90 days | `not_available_in_source` (real feed: no status history) |
+| 65 | `balloon_exposure_sar` | float (SAR) | Σ max(0, `final_amount − amount`) over active obligations with a final amount | `not_available_in_source` (real feed) |
+
+---
+
+## 39. Credit-Facility Features (Added v2.10)
+
+Computed by the profile engine from `facilities.csv` and the daily balances (DECISIONS 11, 33). Null
+`insufficient_data` for a business refused under §15, as in §38.
+
+| # | Name | Type | Definition | Null reasons |
+|---|---|---|---|---|
+| 66 | `facility_utilisation` | float | `facility_drawn / facility_limit` | `not_applicable` (no line, or no facilities row); `not_available_in_source` (real feed) |
+| 67 | `headroom_days_of_burn` | float | `max(headroom, 0) / max(burn_30d, 500/30)` | `not_applicable` (no line, no facilities row, or not burning); `not_available_in_source` |
+| 68 | `max_consecutive_overdraft_days` | int | longest run of consecutive days with end-of-day balance < 0 in the trailing 90 days | `insufficient_data` only |
+| 69 | `emergency_line_present` | bool | facility type is `emergency` or `temporary`; False with no line | `not_applicable` (no facilities row); `not_available_in_source` (real feed) |
+
+---
+
 ## Design Principle: Encode Guarantees in Structure, Not in Prose
 
 Stated explicitly because it is a recurring pattern worth applying to every future decision, not
@@ -1695,3 +1731,14 @@ reading one profile engine.
   note was added recommending any coding-assistant skill be obtained only through the assistant's
   built-in plugin marketplace, extending Section 29's existing credential/dependency caution to
   executable developer tooling.
+
+- **v2.10** — Recorded the features the engine already computed (DECISIONS 33, approved; entry 5 for the
+  row count; entry 35 for the file name; entry 38 for the bound). New Sections 38 (existing-obligation
+  features 60–65 and 62b) and 39 (credit-facility features 66–69), numbered 38 and 39 because v2.9
+  already had a Section 37; with them the engine's 71 features (1–69, 18b, 62b) are all defined here.
+  Sections 7 and 12: `daily_aggregates.csv` holds one row per day of the generated window (default 180),
+  not "max ~90", because features 4, 9, 43 and 45 read the prior 90 days. Section 31, feature 42: the
+  downside-heavy flow measure is feature 49 (`flow_asymmetry_ratio`), not 45. Section 35: the pinned
+  reference statistics are `sector_reference_stats_v2.json` (rebuilt once after the Saudi calibration,
+  entry 35), and features 55–59 are clipped to [−3, +3] after the z is computed (entry 38). Section 36:
+  "all 59 features" → "all 71 features".
