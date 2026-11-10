@@ -3948,3 +3948,116 @@ What was decided earlier (entries 47–50, 53) and what was done on 2026-11-10 t
    Prophet and ARIMA were not evaluated.
 
 **Sign-off:** ☐ profile engine owner (option A on entry 50) ☐ forecast + anomaly owner (the protocol for entry 49)
+
+---
+
+## 56. Prophet and ARIMA evaluation: protocol, committed before anything is fitted — RECORDED protocol (2026-11-10); result to be appended
+
+Entry 49 chose option B (evaluate Prophet and ARIMA). This entry is section 2 of
+`docs/briefs/forecast_prophet_arima_requirements.md`, copied here and committed **before `prophet` or
+`statsmodels` is installed and before either candidate is fitted on anything**. Nothing in sections
+56.1–56.6 may change after a result exists; the result is appended as 56.8 whichever way it goes.
+
+The brief was written for a run on another machine. The run is instead made on the forecast owner's
+machine (Abdulelah Alsalamah), which changes nothing in 56.1–56.5; the differences are listed in 56.7.
+
+### 56.1 Candidates added
+
+Added to `lenses/forecast/methods.py`, with the same signature as the six existing candidates
+(`fn(hist, horizon, **_)` returning `horizon` daily net-flow projections), so the evaluated code is the
+code that would ship.
+
+- **`arima`**: `statsmodels` ARIMA on the daily net flow, fitted on the **last 90 days** before the
+  origin (as every other candidate). Order chosen per business by lowest AIC over p ∈ {0, 1, 2},
+  d ∈ {0, 1}, q ∈ {0, 1, 2} (18 orders); no seasonal term. If no order converges, the candidate returns
+  `naive90`'s projection and the count of such fallbacks is reported.
+- **`prophet`**: Prophet on the same 90 days; weekly seasonality on, yearly and daily off, no holidays,
+  `changepoint_prior_scale` 0.05 (the library default), MAP fit (`mcmc_samples=0`). Fallback to
+  `naive90` and its count as for ARIMA.
+- Nothing else is tuned. No grid over Prophet settings.
+
+### 56.2 Choosing (validation)
+
+Research population (`data/`, IDs 1–10,000, scorable businesses), origin at day 120, target days
+121–150, the eight candidates (six existing plus two). Criterion unchanged from entry 27: lowest
+**median scale-free end-of-horizon error**, |projected − actual| / average monthly outflow. If no
+candidate beats `naive30`, `naive30` is selected (entry 27's rule, unchanged). The validation table is
+the only thing that can change `lens_config.forecast.method`.
+
+### 56.3 Testing (reported once)
+
+A **fresh population** never generated before: seed **44**, IDs **20001–21000**, generated in memory
+from `config.yaml` with only `populations` replaced and `demo_businesses` emptied, written to
+`data/forecast_holdout/` (git-ignored), profiled with
+`python -m profile_engine.compute --dir data/forecast_holdout`. Origin day 150, target days 151–180.
+Report the chosen method, `naive90` and `naive30`.
+
+### 56.4 Metrics, all reported
+
+Median and mean scale-free error, share of businesses better than naive30, MAPE away from zero, crunch
+recall, false alarms (exactly the columns of `eval/out/forecast_selection.md`, computed by that
+module's own `evaluate` and `summarise`), plus fit failures (fallbacks) per method and wall time per
+business.
+
+### 56.5 What ships
+
+If validation picks `arima` or `prophet`, `lens_config.forecast.method` changes to it in its own
+commit, the dependency goes into `requirements.txt`, and the Week 7 latency test is re-run (Prophet
+fits per request; the forecast route must stay under 2 s at its maximum). If validation keeps
+`naive90`, nothing ships. Either way the test row is reported.
+
+### 56.6 Details the brief leaves open, fixed here before any fit
+
+The brief does not pin these. They are set now, from library defaults and the existing harness, so
+that none of them can be chosen by looking at a result.
+
+1. **ARIMA.** `statsmodels.tsa.arima.model.ARIMA(y, order=(p, d, q))` with every other argument at the
+   library default (so a constant when d = 0 and none when d = 1, stationarity and invertibility
+   enforced, default optimiser and iteration limit). An order **converges** when the fit raises no
+   exception, the optimiser reports convergence (`mle_retvals["converged"]`), the AIC is finite and the
+   `horizon`-step forecast is finite. Among converged orders the lowest AIC wins; a tie goes to the
+   first in the order p, then d, then q. The brief's rule compares AIC across d = 0 and d = 1, which
+   are likelihoods of different series; that is the rule as written and is kept, and stated as a
+   limitation of the result.
+2. **Prophet.** `Prophet(weekly_seasonality=True, yearly_seasonality=False, daily_seasonality=False,
+   changepoint_prior_scale=0.05, mcmc_samples=0, uncertainty_samples=0)`, no holidays, everything else
+   at the library default (linear growth, additive seasonality, 25 potential changepoints).
+   `uncertainty_samples=0` only skips the interval simulation; the point forecast (`yhat`), which is
+   all the harness reads, is the same. The candidate falls back when the fit or the prediction raises,
+   or returns a non-finite value.
+3. **Fallback counting.** One fallback = one business × window where the candidate returned
+   `naive90`'s projection. Counted per method, per window.
+4. **Wall time.** Seconds spent inside the candidate's function, per business, measured in the worker;
+   median and mean reported per method per window, with the number of worker processes running at the
+   time. Businesses are independent, so they are split across processes by `business_id` (allowed by
+   the brief); the numbers measured under that load are the ones reported.
+5. **Check that the harness is the same harness.** The six existing candidates are re-scored on
+   validation in the same run. Their rows must reproduce `eval/out/forecast_selection.md` section 1
+   (N = 9,495; `naive90` median 0.345, `naive30` 0.411). If they do not, the run stops and the
+   difference is reported before any Prophet or ARIMA number is read.
+6. **Test rows.** As 56.3: the chosen method, `naive90` and `naive30`. **In addition, `arima` and
+   `prophet` are both scored on the fresh population whatever validation chose**, in the same single
+   run, so the report can state how each did on untouched data. Those extra rows are for information:
+   they cannot change the choice, and the fresh population is not scored again afterwards.
+7. **Fresh population name.** `forecast_holdout` in the `population` column; window dates as
+   `config.yaml` (180 days from 2026-02-01), nothing else in the config touched. Only scorable
+   businesses (profile status other than `insufficient_data`) are scored, as in entry 27.
+8. **No second look.** The validation run and the test run are each made once with the code as
+   committed. A crash is fixed and re-run from the start; a result is never a reason to re-run.
+
+### 56.7 Differences from the brief's section 1 (environment only)
+
+- Run on the forecast owner's machine, not the teammate's.
+- Python **3.11** in a local virtual environment, not 3.13 (3.13 is not installed on this machine).
+  `pandas`, `numpy` and `scipy` are at the versions pinned in `requirements.txt`. Exact `prophet`,
+  `cmdstanpy`, `statsmodels` versions and the platform are recorded in 56.8.
+- `data/` is the existing full generation of 2026-11-09. `config.yaml` and `generator/` have changed
+  since only in the schema version string and line endings (entries 33, 40).
+- The switch in 56.5 is **not** made as part of this run even if validation picks a new candidate: it
+  waits for the forecast owner's say-so. The validation table that would justify it is reported.
+
+### 56.8 Result
+
+*Not run yet. To be appended.*
+
+**Sign-off:** ☐ forecast + anomaly owner (the protocol, before the result) ☐ team (the result, once appended)
