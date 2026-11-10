@@ -23,10 +23,16 @@ simplification for the Sharia advisor to confirm, not a silent one.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
+
+from lenses.arabic import load_templates, plural
 
 ZAKATABLE = ("cash_and_equivalents_eom", "inventory_value_eom", "accounts_receivable_eom")
 DEDUCTIBLE = ("accounts_payable_eom", "short_term_liabilities_eom")
+# Arabic siblings of nisab_basis and detail (DECISIONS 57); they fill nisab_basis_ar and detail_ar only.
+TEMPLATES_AR_PATH = str(Path(__file__).with_name("templates_ar.yaml"))
 
 
 def nisab_price(zcfg: dict, as_of: pd.Timestamp | None = None) -> tuple[float, str | None]:
@@ -41,6 +47,12 @@ def nisab_price(zcfg: dict, as_of: pd.Timestamp | None = None) -> tuple[float, s
 
     month, price = price_for(as_of, n["price_table"])
     return price, month
+
+
+def _grams_ar(grams, ar: dict) -> str:
+    """The configured grams with their Arabic plural form; a fractional weight keeps its digits as configured."""
+    g = float(grams)
+    return plural(int(g), ar["grams"]) if g.is_integer() else ar["grams"]["other"].format(n=grams)
 
 
 def nisab_value_sar(zcfg: dict, as_of: pd.Timestamp | None = None) -> float:
@@ -64,12 +76,14 @@ def compute_zakat(
     """
     price, price_month = nisab_price(zcfg, as_of)
     nisab = float(zcfg["nisab"]["grams"]) * price
+    ar = load_templates(TEMPLATES_AR_PATH)
     base = {
         "liability_sar": 0.0,
         "nisab_value_sar": round(nisab, 2),
         "nisab_price_sar_per_gram": round(price, 4),
         "nisab_price_month": price_month,  # null when an explicit (quoted) price was used
         "nisab_basis": f"{zcfg['nisab']['grams']}g {zcfg['nisab']['basis']}",
+        "nisab_basis_ar": ar["nisab_basis"].format(grams=_grams_ar(zcfg["nisab"]["grams"], ar), basis=ar["basis"][zcfg["nisab"]["basis"]]),
         "nisab_source_status": zcfg["nisab"]["source_status"],
         "rate": zcfg["rate_lunar_year"],
         "method": "net_working_capital",
@@ -112,6 +126,7 @@ def compute_zakat(
             "status": "zero_liability",
             "reason": "hawl_incomplete",
             "detail": f"{days} days held of a {lunar}-day lunar year",
+            "detail_ar": ar["details"]["hawl_days"].format(days=plural(days, ar["days"]), lunar=plural(lunar, ar["days"])),
         }
     # Start-of-hawl nisab check: only possible when the opening state is known.
     if opening_net_assets_sar is None:
@@ -120,9 +135,11 @@ def compute_zakat(
             "status": "zero_liability",
             "reason": "hawl_incomplete",
             "detail": "no evidence of net assets at hawl start; nisab at start cannot be verified",
+            "detail_ar": ar["details"]["no_opening_state"],
         }
     if float(opening_net_assets_sar) < nisab:
-        return {**out, "status": "zero_liability", "reason": "below_nisab", "detail": "below nisab at hawl start"}
+        return {**out, "status": "zero_liability", "reason": "below_nisab", "detail": "below nisab at hawl start",
+                "detail_ar": ar["details"]["below_nisab_at_start"]}
 
     liability = round(zakat_base * float(zcfg["rate_lunar_year"]), 2)
     return {**out, "status": "computed", "liability_sar": liability, "reason": None}

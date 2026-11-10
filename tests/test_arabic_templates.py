@@ -20,6 +20,7 @@ from lenses.anomaly import anomaly as anomaly_mod
 from lenses.arabic import PLURAL_CATEGORIES, ar_plural, load_templates, plural
 from lenses.credit import model as credit
 from lenses.forecast import forecast as forecast_mod
+from lenses.zakat import zakat as zakat_mod
 
 QUICK = Path("data/quick")
 
@@ -229,6 +230,50 @@ def test_forecast_arabic_drivers_mirror_the_english_drivers():
         assert (str(days) in line) == (days > 2), (en, line)
     assert plural(1, ar["days"]) == "يوم واحد" and plural(2, ar["days"]) == "يومين"
     assert plural(5, ar["days"]) == "5 أيام" and plural(15, ar["days"]) == "15 يومًا"
+
+
+# ---- Zakat (B4) ------------------------------------------------------------------------------------------
+
+ZAKAT_EN = {
+    "nisab_basis": "{grams}g {basis}",
+    "hawl_days": "{days} days held of a {lunar}-day lunar year",
+    "no_opening_state": "no evidence of net assets at hawl start; nisab at start cannot be verified",
+    "below_nisab_at_start": "below nisab at hawl start",
+}
+
+
+def _zakat_ar():
+    return load_templates(zakat_mod.TEMPLATES_AR_PATH)
+
+
+def test_every_english_template_has_an_arabic_template_zakat():
+    from lenses import load_lens_config
+
+    ar = _zakat_ar()
+    assert load_lens_config()["zakat"]["nisab"]["basis"] in ar["basis"]
+    assert set(ar["details"]) | {"nisab_basis"} == set(ZAKAT_EN)
+    assert set(ar["grams"]) == set(PLURAL_CATEGORIES) and set(ar["days"]) == set(PLURAL_CATEGORIES)
+
+
+def test_arabic_templates_keep_the_english_placeholders_and_numbers_zakat():
+    ar = _zakat_ar()
+    assert_pair(ZAKAT_EN["nisab_basis"], ar["nisab_basis"], "nisab_basis")
+    for key in ar["details"]:
+        assert_pair(ZAKAT_EN[key], ar["details"][key], f"details.{key}")
+
+
+def test_nisab_basis_arabic_uses_the_configured_grams():
+    from lenses import load_lens_config
+
+    zcfg = load_lens_config()["zakat"]
+    grams = zcfg["nisab"]["grams"]
+    for g, expected in ((grams, f"{grams} غرامًا من الذهب" if grams % 100 >= 11 else None), (1, "غرام واحد من الذهب"), (3, "3 غرامات من الذهب")):
+        cfg = {**zcfg, "nisab": {**zcfg["nisab"], "grams": g, "price_sar_per_gram": 300.0}}
+        z = zakat_mod.compute_zakat(pd.DataFrame(columns=["month_end"]), pd.Timestamp("2026-06-30"), cfg, None, None, pd.Timestamp("2026-01-01"))
+        assert z["nisab_basis"] == f"{g}g gold"
+        assert str(g) in z["nisab_basis_ar"] or g == 1
+        if expected:
+            assert z["nisab_basis_ar"] == expected
 
 
 # ---- A3 on real output -----------------------------------------------------------------------------------

@@ -1,0 +1,38 @@
+# Arabic drafts, fixed template text only, never generated. Pending review by the owner named in DECISIONS 57.
+#
+# Arabic siblings of the Zakat lens's text fields (lenses/zakat/zakat.py): the nisab basis and the three
+# `detail` lines of a zero liability. They fill nisab_basis_ar and detail_ar only. Zakat stays 100%
+# deterministic: these tables change no status, no figure and no threshold (SOP §2.3). Formal Arabic.
+version: "1.0"
+status: draft_pending_review
+
+# Every value lens_config.zakat.nisab.basis may take.
+basis:
+  gold: "الذهب"
+  silver: "الفضة"
+
+# "{grams}g {basis}": {grams} is filled with the grams phrase below.
+nisab_basis: "{grams} من {basis}"
+
+grams:
+  zero: "{n} غرام"
+  one: "غرام واحد"
+  two: "غرامان"
+  few: "{n} غرامات"
+  many: "{n} غرامًا"
+  other: "{n} غرام"
+
+details:
+  # "{days} days held of a {lunar}-day lunar year": both filled with the day phrases below.
+  hawl_days: "مضى {days} من سنة قمرية مدتها {lunar}"
+  no_opening_state: "لا يوجد ما يثبت صافي الأصول عند بداية الحول، فلا يمكن التحقق من بلوغ النصاب في بدايته"
+  below_nisab_at_start: "دون النصاب عند بداية الحول"
+
+# A number of days, in the nominative (the subject of «مضى», the predicate of «مدتها»).
+days:
+  zero: "{n} يوم"
+  one: "يوم واحد"
+  two: "يومان"
+  few: "{n} أيام"
+  many: "{n} يومًا"
+  other: "{n} يوم"
