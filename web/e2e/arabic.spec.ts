@@ -60,7 +60,8 @@ const ALLOWED_TOKENS: Record<string, string> = {
   ewma: "forecast method code", ols_damped: "forecast method code", structural: "forecast method code",
 };
 // Identifiers by shape: hashes, rule IDs (ACT-NOMCC-retail_trade, INC-FI-SHARE), module paths and commands.
-const ALLOWED_SHAPES = [/^[0-9a-f]{7,64}$/, /^[A-Z]{2,}(?:-[A-Za-z0-9_]+)+$/, /^[a-z_]+(?:\.[a-z_]+)+$/, /^python$/, /^--[a-z]+$/];
+// Receipt field names (output_sha256, code_commit, result_url) name the Code key beside each Copy button, in its accessible name.
+const ALLOWED_SHAPES = [/^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/, /^[0-9a-f]{7,64}$/, /^[A-Z]{2,}(?:-[A-Za-z0-9_]+)+$/, /^[a-z_]+(?:\.[a-z_]+)+$/, /^python$/, /^--[a-z]+$/];
 
 function untranslated(text: string): string[] {
   const tokens = text.match(/[A-Za-z0-9][A-Za-z0-9_'’.-]*[A-Za-z0-9]|[A-Za-z]{2,}/g) ?? [];
@@ -127,7 +128,7 @@ test.describe("riyal sign", () => {
           const exposed: string[] = [];
           const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
           for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-            if (!node.textContent?.includes(sign)) continue;
+            if (!node.textContent?.includes(sign) || node.parentElement!.closest("script, style, template")) continue;
             // Hidden from the accessibility tree: aria-hidden, or inside role=img, whose children are presentational.
             if (!node.parentElement!.closest('[aria-hidden="true"], [role="img"]')) exposed.push(node.textContent);
           }

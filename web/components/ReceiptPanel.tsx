@@ -20,7 +20,8 @@ export function verifyCommand(scope: string | undefined): string | null {
  */
 export function ScopeText({ scope, scopeAr, locale, className }: { scope: string; scopeAr?: string; locale: Locale; className: string }) {
   if (locale === "ar" && scopeAr) {
-    const command = verifyCommand(scopeAr);
+    // The Arabic scope says «للتحقق:» where the English says "verify:", so the command is found by its own shape.
+    const command = /python -m \S+(?: <[^>]+>)?/.exec(scopeAr)?.[0] ?? null;
     const at = command ? scopeAr.indexOf(command) : -1;
     return (
       <p className={className} data-scope-ar>
