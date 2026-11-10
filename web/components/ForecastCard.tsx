@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
 import { ForecastChart, type ForecastPoint } from "@/components/ForecastChart";
-import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
 import { BackendText, figureFont, Num, Plate, Probability, Refusal, Sar, SubHeading, TableScroll, TD, TH } from "@/components/ui";
 import { formatInt, formatSar } from "@/lib/format";
 import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import type { ForecastResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
+import { DecisionRecord } from "@/components/DecisionRecord";
+import { recordInput } from "@/lib/record";
 
 const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
 const HORIZONS = ["30d", "60d", "90d"] as const;
@@ -180,9 +181,11 @@ export function ForecastCard({ data, locale, m }: { data: ForecastResponse; loca
         <Body f={f} locale={locale} m={m} />
       )}
       {/* The method sits with the receipt, as on the review queue: there for whoever checks, out of the reader's way. */}
-      <ReceiptPanel
+      <DecisionRecord
+        input={recordInput("forecast", data)}
         receipt={data.receipt}
         lens={n.title}
+        locale={locale}
         m={m}
         note={
           computed && (

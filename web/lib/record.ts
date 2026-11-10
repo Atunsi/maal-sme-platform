@@ -23,6 +23,28 @@ export type RecordInput = {
 
 export type RecordLines = { dataUsed: string | null; how: string[]; same: string | null; reference: string | null };
 
+type Header = {
+  business_id: number;
+  as_of?: string | null;
+  status?: RecordInput["status"];
+  receipt?: RecordInput["receipt"];
+  credit?: RecordInput["credit"];
+  credit_decision_detail?: RecordInput["detail"];
+};
+
+/** The card's input from any response with the shared header (every lens route and /profile). */
+export function recordInput(lens: RecordLens, data: Header): RecordInput {
+  return {
+    lens,
+    businessId: data.business_id,
+    receipt: data.receipt,
+    asOf: data.as_of,
+    status: data.status,
+    credit: data.credit,
+    detail: data.credit_decision_detail,
+  };
+}
+
 /** The "how it was reached" keys for one result, in order: the lens's line, then the partial-profile line. */
 export function howKeys(input: RecordInput): HowKey[] {
   if (input.status === "insufficient_data") return ["insufficient_data"];

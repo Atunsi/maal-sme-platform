@@ -1,8 +1,9 @@
 import { LensPage } from "@/components/LensPage";
-import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ShariaPanel } from "@/components/ShariaPanel";
 import { getCredit } from "@/lib/api";
 import { titleFor } from "@/lib/page-title";
+import { DecisionRecord } from "@/components/DecisionRecord";
+import { recordInput } from "@/lib/record";
 
 
 // The Sharia screen arrives in the credit response; the API has no route of its own for it.
@@ -14,8 +15,8 @@ export default function ShariaPage({ params }: { params: Promise<{ locale: strin
       {(data, { locale, m }) => (
         <>
           <ShariaPanel data={data} locale={locale} m={m} />
-          {/* Outside the panel: the owner prompt carries no answer form, and the receipt holds the hash check. */}
-          <ReceiptPanel receipt={data.receipt} lens={m.sharia.title} m={m} />
+          {/* Outside the panel: the owner prompt carries no answer form, and the technical record holds the hash check. */}
+          <DecisionRecord input={recordInput("sharia", data)} receipt={data.receipt} lens={m.sharia.title} locale={locale} m={m} />
         </>
       )}
     </LensPage>

@@ -1,7 +1,8 @@
-import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Card, Code, Num, TableScroll, TD, TH } from "@/components/ui";
-import type { Messages } from "@/lib/i18n";
+import { localeOf, type Messages } from "@/lib/i18n";
 import type { ProfileResponse } from "@/lib/types";
+import { DecisionRecord } from "@/components/DecisionRecord";
+import { recordInput } from "@/lib/record";
 
 /**
  * Raw names and values only. U9: the sector-relative z-scores (features 55-59) are listed like any
@@ -40,7 +41,7 @@ export function ProfilePanel({ data, m }: { data: ProfileResponse; m: Messages }
           </TableScroll>
         </div>
       </details>
-      <ReceiptPanel receipt={data.receipt} lens={m.receipt.profile} m={m} />
+      <DecisionRecord input={recordInput("profile", data)} receipt={data.receipt} lens={m.receipt.profile} locale={localeOf(m)} m={m} />
     </Card>
   );
 }

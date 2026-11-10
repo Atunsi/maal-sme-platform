@@ -1,6 +1,5 @@
 import { Fragment, type ReactNode } from "react";
 import { LensHead } from "@/components/BusinessHeader";
-import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { Term } from "@/components/Term";
 import { TipButton } from "@/components/TipButton";
 import { BackendText, Code, Field, Fields, NisabPlate, Plate, Probability, Refusal, Sar } from "@/components/ui";
@@ -9,6 +8,8 @@ import { fill, fillNodes, type Locale, type Messages } from "@/lib/i18n";
 import { label } from "@/lib/labels";
 import type { ZakatResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
+import { DecisionRecord } from "@/components/DecisionRecord";
+import { recordInput } from "@/lib/record";
 
 const STATUS_VARIANT = { computed: "ok", zero_liability: "ink", not_computed: "warn" } as const;
 
@@ -239,7 +240,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
           </Fields>
         </>
       )}
-      <ReceiptPanel receipt={data.receipt} lens={n.title} m={m} />
+      <DecisionRecord input={recordInput("zakat", data)} receipt={data.receipt} lens={n.title} locale={locale} m={m} />
     </>
   );
 }

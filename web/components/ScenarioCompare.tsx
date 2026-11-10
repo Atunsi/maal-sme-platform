@@ -197,6 +197,8 @@ export function ScenarioCompare({ baseline, chosen, names, locale, m }: Props) {
       <p className="text-sm">{m.anomaly.queue}</p>
       <SubHeading>{s.receipts}</SubHeading>
       {/* The scope's verify line does not apply to an overlay (DECISIONS 41): show the scenario's own command. */}
+      {/* DECISIONS 58: a scenario is an illustration, not an owner's result, so it has no plain card. Both technical
+          records stay for every role, closed by default, as before. */}
       <ReceiptPanel receipt={baseline.receipt} lens={s.baseline} m={m} note={note} rerun={scenarioCommand(baseline)} />
       <ReceiptPanel receipt={chosen.receipt} lens={s.chosen} m={m} note={note} rerun={scenarioCommand(chosen)} />
     </div>

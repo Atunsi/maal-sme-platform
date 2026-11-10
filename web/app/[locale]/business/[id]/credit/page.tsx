@@ -1,9 +1,10 @@
 import { searchOf } from "@/lib/static-data";
 import { CreditCard } from "@/components/CreditCard";
 import { LensPage } from "@/components/LensPage";
-import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { getCredit } from "@/lib/api";
 import { titleFor } from "@/lib/page-title";
+import { DecisionRecord } from "@/components/DecisionRecord";
+import { recordInput } from "@/lib/record";
 
 
 type Props = {
@@ -20,8 +21,9 @@ export default async function CreditPage({ params, searchParams }: Props) {
       {(data, { locale, m }) => (
         <>
           <CreditCard data={data} initialView={initialView} locale={locale} m={m} />
-          {/* Outside the card: the card itself holds no input (U1), and the receipt carries the hash check. */}
-          <ReceiptPanel receipt={data.receipt} lens={m.credit.title} m={m} />
+          {/* Outside the card: the card itself holds no input (U1), and the technical record carries the hash check.
+              DECISIONS 58: the plain card by role; the Compliance View shows the technical record, open. */}
+          <DecisionRecord input={recordInput("credit", data)} receipt={data.receipt} lens={m.credit.title} locale={locale} m={m} followsView />
         </>
       )}
     </LensPage>

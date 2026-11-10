@@ -37,6 +37,12 @@ export const GLOSSARY = [
     source: "DECISIONS.md entry 24 (complete reproducibility receipt)",
   },
   {
+    id: "reference",
+    en: { term: "Reference number", definition: "A short code that points to the full technical record of one result. Quote it if you have a question about that result. It proves nothing by itself." },
+    ar: { term: "الرقم المرجعي", definition: "رمز قصير يشير إلى السجل التقني الكامل لنتيجة واحدة. اذكره إذا كان لديك استفسار عن تلك النتيجة، وهو لا يثبت شيئًا بذاته.", draft: true },
+    source: "web/lib/reference.ts referenceFor; DECISIONS.md entry 58",
+  },
+  {
     id: "output-hash",
     en: { term: "Output hash", definition: "A hash of the result itself, without its receipt. If a re-run gives the same output hash, the result was reproduced byte for byte." },
     ar: { term: "بصمة المخرجات", definition: "بصمة النتيجة نفسها دون إيصالها. إذا أعطت إعادة التشغيل البصمة نفسها، فقد أُعيد إنتاج النتيجة بايتًا ببايت.", draft: true },

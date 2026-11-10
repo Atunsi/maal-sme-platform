@@ -1,10 +1,11 @@
 import { LensHead } from "@/components/BusinessHeader";
-import { ReceiptPanel } from "@/components/ReceiptPanel";
 import { ReviewBoard } from "@/components/ReviewBoard";
 import { BackendText, Num, Refusal } from "@/components/ui";
 import { formatDate, formatInt } from "@/lib/format";
 import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import type { AnomalyResponse } from "@/lib/types";
+import { DecisionRecord } from "@/components/DecisionRecord";
+import { recordInput } from "@/lib/record";
 
 /** U8: flag_reason categories only, framed as a review queue, with no severity the API did not send. */
 export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale: Locale; m: Messages }) {
@@ -65,9 +66,11 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
           )}
         </>
       )}
-      <ReceiptPanel
+      <DecisionRecord
+        input={recordInput("review", data)}
         receipt={data.receipt}
         lens={n.title}
+        locale={locale}
         m={m}
         note={
           computed && (
