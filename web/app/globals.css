@@ -502,22 +502,47 @@ a.themebtn {
   inset-inline-end: 0;
 }
 
-/* Glossary terms (E3): an inline button with a dotted underline, and its definition below it. */
+/* Glossary terms (E3): an inline button with a dotted underline, and its definition below it.
+   TB1 (DECISIONS 63): one look for every term button, from these tokens alone. A light tint of the accent,
+   mostly see-through (10% at rest, 16% on hover and while open), so it reads as a soft highlight on every
+   surface tier and never as a solid block. The text keeps the colour of the sentence it sits in (Faris,
+   2026-11-11), and the dotted underline stays as the cue that does not rely on colour. */
+:root {
+  --term-bg: color-mix(in srgb, var(--accent) 10%, transparent);
+  --term-bg-active: color-mix(in srgb, var(--accent) 16%, transparent);
+  --term-fg: currentColor;
+  --term-radius: var(--r-bar);
+  --term-pad: 0 3px;
+}
 .term-wrap {
   position: relative;
 }
 .term {
-  padding: 0;
+  padding: var(--term-pad);
   border: 0;
-  background: none;
-  color: inherit;
+  border-radius: var(--term-radius);
+  background: var(--term-bg);
+  color: var(--term-fg);
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
   text-decoration: underline dotted;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   cursor: help;
+  /* The page's own background fade, and the shared press dip every button has. */
+  transition: background-color 0.35s ease, scale 0.08s ease-out;
+}
+.term[aria-expanded="true"],
+.term:active {
+  background: var(--term-bg-active);
+}
+@media (hover: hover) {
+  .term:hover {
+    background: var(--term-bg-active);
+  }
 }
 .term-tip {
   display: none;
@@ -1707,6 +1732,11 @@ body > header:first-of-type {
   .drift {
     animation: none !important;
     transform: none !important;
+  }
+  /* TB1: a term prints as plain text. */
+  .term {
+    padding: 0;
+    background: none !important;
   }
 }
 
