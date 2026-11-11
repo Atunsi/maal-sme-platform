@@ -43,7 +43,7 @@ from typing import Annotated
 import numpy as np
 from fastapi import Body, Depends, FastAPI, Header, HTTPException, Query, Request
 
-from api import scenario_bounds
+from api import insights, scenario_bounds
 from api.store import DEFAULT_STORE, ServingStore
 from generator.generate import generate
 from pipeline.week8 import (
@@ -192,6 +192,28 @@ def anomaly(business_id: BusinessId, s: Authorised) -> dict:
 @app.get("/lenses/zakat")
 def zakat(business_id: BusinessId, s: Authorised) -> dict:
     return _lens_response(s, business_id, zakat_section, "zakat")
+
+
+# --- DECISIONS 62: owner insights, read-only (Faris Alsharifi, acting API owner) --------------------------
+
+
+@app.get("/insights/history")
+def insights_history(business_id: BusinessId, s: Authorised) -> dict:
+    """IN3: a business's own profile figures as of earlier dates, each the full trailing-90-day measure.
+
+    The self-comparison of schema §36.2. It compares a business with no other business (§36.4, U9). No lens runs.
+    """
+    if business_id not in s.store:
+        raise HTTPException(status_code=404, detail=f"business_id {business_id} is not in the serving population")
+    s.limiter.check(business_id)
+    tables = s.store.load([business_id])
+    p = prepare(s.ctx, tables)
+    body = header(p, business_id)
+    if not scorable(p, business_id):
+        body.update({"lens_not_run_reason": "insufficient_data", "history": None})  # §15: explicit, never silent
+    else:
+        body["history"] = insights.history(s.ctx.cfg, tables, business_id)
+    return _clean(body)
 
 
 # --- DECISIONS 44: the business list and custom scenarios (Faris Alsharifi acted for the API owner) ------
