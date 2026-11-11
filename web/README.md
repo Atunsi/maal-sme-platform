@@ -120,9 +120,9 @@ the pages it is on, without asserting: `ARABIC_RECORD=<file.json> npx playwright
   a time, because the store shares one DuckDB connection across request threads (entry 41). Each
   card still loads and fails on its own. Remove the queue after the fix, and the five requests run
   in parallel as §8 intends.
-- **Owners see a plain decision record, auditors the technical one** (entry 58). Every result shows "How this
-  result was reached" (`components/DecisionRecord.tsx`): what was looked at, how it was reached, same data same
-  result, and a reference number `M-{business}-{first 8 of output_sha256}` (`lib/reference.ts`, the only builder).
+- **Owners see a plain decision record, auditors the technical one** (entries 58, 59). Every result shows "About
+  this result" (`components/DecisionRecord.tsx`): what was looked at, how we decided (what assessed the data, and
+  that every business is assessed the same way; never a "no AI" claim, PR7), same data same result, and a reference number `M-{business}-{first 8 of output_sha256}` (`lib/reference.ts`, the only builder).
   Every line comes from a response field (`lib/record.ts`). The unchanged technical record (every field, the scope
   verbatim, the verify command, Copy, the hash check) shows by the demo role, read in the browser from `?as=`:
 
