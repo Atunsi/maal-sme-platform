@@ -81,7 +81,8 @@ export async function LensPage<T>({
   searchParams?: Promise<{ as?: string | string[] }>;
   load: (id: number, scope: Scope) => Promise<ApiResult<T>>;
   title: (m: Messages) => string;
-  children: (data: T, context: { locale: Locale; m: Messages }) => ReactNode;
+  /** `base` is the business's own address, `/<locale>/business/<id>`, for links to its other pages. */
+  children: (data: T, context: { locale: Locale; m: Messages; base: string }) => ReactNode;
 }) {
   const { locale, id: rawId } = await params;
   if (!isLocale(locale)) notFound();
@@ -102,7 +103,7 @@ export async function LensPage<T>({
         </Page>
       }
     >
-      <Body result={load(id, scope)} render={(data) => children(data, { locale, m })} locale={locale} m={m} id={rawId} title={title(m)} />
+      <Body result={load(id, scope)} render={(data) => children(data, { locale, m, base: `/${locale}/business/${id}` })} locale={locale} m={m} id={rawId} title={title(m)} />
     </Suspense>
   );
 }

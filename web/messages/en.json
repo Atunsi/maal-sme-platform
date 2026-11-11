@@ -778,6 +778,74 @@
     "notFoundHint": "No demo business has this number. Demo commercial registration number:",
     "openDemo": "Open the demo business {number}"
   },
+  "guidance": {
+    "title": "What to do next",
+    "note": "From fixed rules over your own results. It is not advice from a bank, and it is not a ruling.",
+    "why": "Why am I seeing this?",
+    "trigger": "The value behind it",
+    "rules": {
+      "G-cash-floor": {
+        "text": "Your balance is forecast to fall below your cash floor around {date}. Plan for about {amount} more by then",
+        "link": "Open the forecast",
+        "why": "Shown when the forecast projects a balance below the cash floor inside its horizon.",
+        "field": "Days until the projected balance goes below the floor"
+      },
+      "G-sharia-flag": {
+        "text": "Items that need a Sharia review: {count}. Open the Sharia screen to see them",
+        "link": "Open the Sharia screen",
+        "why": "Shown when the Sharia screen lists at least one rule for review.",
+        "field": "Rules listed for review"
+      },
+      "G-cash-watch": {
+        "text": "Your crunch alert is at {level}: the 30-day liquidity hazard is {pct}. See the forecast for what drives it",
+        "link": "Open the forecast",
+        "why": "Shown when the crunch alert is above \"No alert\" and no balance below the floor is projected.",
+        "field": "Crunch alert level"
+      },
+      "G-credit-top": {
+        "text": "The factor weighing most on your credit result: {factor}",
+        "link": "See what it means",
+        "why": "Shown when the credit result lists a factor that worked against it. This is the first one listed.",
+        "field": "First factor listed against the result"
+      },
+      "G-zakat-due": {
+        "text": "Your zakat year ends on {date}. The estimate so far is {amount}",
+        "textPast": "Your zakat year ended on {date}. The estimate is {amount}",
+        "link": "Open the zakat page",
+        "why": "Shown when a zakat amount is calculated and the zakat year ends within 60 days of today's figures, before or after.",
+        "field": "End of the zakat year"
+      },
+      "G-sharia-question": {
+        "text": "Questions for you on the Sharia screen: {count}. They are shown for information",
+        "link": "Open the Sharia screen",
+        "why": "Shown when the Sharia screen lists at least one question for the owner.",
+        "field": "Questions listed for the owner"
+      },
+      "G-review": {
+        "text": "Transactions listed for you to review: {count}. A full list is normal: it is a queue for a person, not an alarm",
+        "link": "Open the review queue",
+        "why": "Shown when the review queue lists at least one transaction.",
+        "field": "Transactions listed for review"
+      },
+      "G-zakat-pending": {
+        "text": "The zakat estimate uses a nisab price that is not yet confirmed. Treat it as an estimate",
+        "link": "Open the zakat page",
+        "why": "Shown when the nisab price's source is not in the list of confirmed sources.",
+        "field": "Nisab price status"
+      },
+      "G-cash-ok": {
+        "text": "Your forecast stays above your cash floor through day {days} of the forecast",
+        "link": "Open the forecast",
+        "why": "Shown when the crunch alert is at \"No alert\" and every projected balance stays at or above the cash floor.",
+        "field": "Crunch alert level"
+      },
+      "G-nothing": {
+        "text": "Nothing needs your attention right now",
+        "why": "Shown when none of the rules has anything to say.",
+        "field": "Rules that fired"
+      }
+    }
+  },
   "admin": {
     "eyebrow": "Serving population, synthetic data",
     "title": "All businesses",

@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { RoleHeading } from "@/components/RoleHeading";
 import { searchOf } from "@/lib/static-data";
 import { RoleLink } from "@/components/RoleLink";
 import { notFound, redirect } from "next/navigation";
 import { Lens, NotServing } from "@/components/LensPage";
 import { PrintButton } from "@/components/PrintButton";
+import { OverviewNextSteps } from "@/components/NextSteps";
 import { ProfilePanel } from "@/components/ProfilePanel";
 import { creditReadout, forecastReadout, ReadoutCard, reviewReadout, shariaReadout, zakatReadout } from "@/components/Readouts";
 import { ApiError, Card, Page } from "@/components/ui";
@@ -83,6 +85,10 @@ export default async function OverviewPage({ params, searchParams }: Props) {
           <ApiError kind={first.kind} detail={first.detail} m={m} />
         </Card>
       )}
+      {/* IN1 (DECISIONS 62): what to do next, for the owner, from the four lenses this page already asked for. */}
+      <Suspense fallback={null}>
+        <OverviewNextSteps results={{ credit, forecast, zakat, anomaly }} locale={locale} m={m} base={root} />
+      </Suspense>
       <section aria-labelledby="readouts" className="drift flex flex-col gap-3.5">
         <h2 id="readouts" className="heading caps text-body text-muted">
           {m.overview.readouts}
