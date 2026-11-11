@@ -4972,3 +4972,114 @@ is refused on sending, not on leaving it. Lens-page guidance sits at the end of 
 manual pass in a visible browser was done by automated checks and screenshots; nobody has yet walked it by eye.
 
 **Sign-off:** ☐ team (entry field, guidance, trend) ☐ compliance owner (guidance wording on zakat and Sharia, Arabic copy) ☐ credit lens owner (credit guidance line) ☐ API owner (new read-only route, request layer)
+
+## 63. Overview order and term buttons — PROPOSED (2026-11-12)
+
+**Touches:** `web/` only, this entry and `web/README.md`. Done on `faris/ui-fixes`, following
+`SOP_overview_order_and_term_buttons.md` (written 2026-11-11 from Faris's review of the preview). The branch starts
+from `faris/owner-insights` at `bce2054` (entry 62), which is not merged into `main`; merge after it.
+
+**Decisions taken for this work, word for word (SOP section 1, Faris, 2026-11-11).**
+
+1. **Overview order.** On the business overview, top to bottom, at every width, in both languages and for every role:
+   1. The verdict
+   2. "Five readouts. Open one for its own page." (the reading cards)
+   3. "How your figures have moved" (the change-over-time block)
+   4. Profile features (the profile figures section)
+2. **What travels with each section.**
+   - The verdict keeps everything attached to it today: its aside, its "About this result" card, and the owner's "what to do next" lines directly under it.
+   - "How your figures have moved" comes out of the profile figures section and becomes its own section with its own heading, visible without opening anything.
+   - Profile features keeps the profile's "About this result" card inside it (DECISIONS 60, LG5), and stays a disclosure if it is one today.
+   - Anything else on the overview today (notices, the data-source line, the tour, contact note) keeps its current place relative to the page top or bottom. If a block doesn't clearly belong above, between or below these four, leave it where it is and list it in the report.
+3. **Order is in the markup, not only on screen.** The DOM order, the tab order and the screen-reader order all match the visual order. No CSS `order` and no reversed flex to fake it.
+4. **Term buttons.** A "term button" is the inline button on a glossary term that opens its definition. All of them share one look, built from one set of tokens:
+   - a background that is a light tint of the accent, mostly see-through: about 10% strength at rest and about 16% on hover and when open, in both themes. Tune within 8 to 14% at rest so it reads as a soft highlight, never a solid block;
+   - the same text colour, radius, padding, underline style and focus ring everywhere;
+   - no solid fill, no second variant, no per-page override.
+5. **Nothing else changes.** No wording, no values, no roles, no API, no new dependency, no new animation beyond the existing hover transition.
+
+**Answers Faris gave on 2026-11-12, before the run, to questions raised in the analysis of the SOP.**
+
+- The heading keeps the existing Arabic catalogue string «كيف تحركت أرقامك» (entry 62), not the SOP's draft «كيف تغيّرت أرقامك». No new string was added.
+- Decision 4's "same text colour" is relaxed to "inherits": a term keeps the colour of the sentence it sits in, so a term in muted text stays muted. Background, radius, padding, underline and focus ring are identical everywhere.
+- The background fade reuses the page's existing 0.35 s `background-color` timing (`html` in `globals.css`). Before this entry `.term` had no transition of its own.
+- The tint strength is to be judged by eye from the screenshots (open question 1 below).
+
+**OV1: overview order.**
+
+Before (`faris/owner-insights`, every role, every width): page heading and actions; reference note; the verdict
+(`VerdictSheet`, with its aside and "About this result"); the owner's next steps (`OverviewNextSteps`); the five
+readouts (`ReadoutCard` x5); profile features (`ProfilePanel`, a `<details>` holding the feature table, then the
+change-over-time block `Trends`, then the profile's `DecisionRecord`).
+
+After: the same, except that `Trends` is no longer inside the profile disclosure. It is its own `<section>`
+(`id="trends"`, an `h2` from the existing `trend.title`, the readouts' heading level, `drift` like the other
+below-the-fold blocks) between the readouts and profile features, open without a click. It waits for the profile
+result: a business whose profile did not run (for example 10003, insufficient data) shows no trend section and no gap;
+a short history shows the existing "Not enough history yet" sentence in the same place. The profile disclosure and its
+record card are unchanged (LG5), so the overview still shows one record card until the profile figures are opened. The
+page heading, reference note, tour link and footer did not move; no block was left in an unclear place. The guided
+tour visits no overview section other than the verdict, so its steps are unchanged and still run down the page.
+
+This amends one line of entry 62 (IN3, "Display. Inside the profile figures on the overview"). The rest of entry 62
+stands: own data only, no peer comparison (§36.4, U9), only dates the API returned.
+
+**TB1: term buttons.**
+
+Before: one component (`components/Term.tsx`) and one class (`.term`); no per-page override and no second variant.
+Measured on the overview, credit, Sharia, zakat, forecast and how-it-works pages for 10001 (66 term buttons): every
+term was transparent, with no radius, no padding and a dotted underline. The text colour was inherited: muted
+(`#5a6470` light, `#9aa4ae` dark), ink (`#101418` / `#e8eaed`) and, on the overview's dark "About this result" panel in
+the light theme, `#b8c0c8`.
+
+After: the same component and class, styled from five tokens on `:root` (one definition serves both themes, because
+the tint is built from `--accent`, which each theme sets):
+
+| Token | Value | Light | Dark |
+|---|---|---|---|
+| `--term-bg` | `color-mix(in srgb, var(--accent) 10%, transparent)` | `#2e3192` at 10% | `#a3a6ff` at 10% |
+| `--term-bg-active` | `color-mix(in srgb, var(--accent) 16%, transparent)` | `#2e3192` at 16% | `#a3a6ff` at 16% |
+| `--term-fg` | `currentColor` (inherits, per Faris) | | |
+| `--term-radius` | `var(--r-bar)` (4 px) | | |
+| `--term-pad` | `0 3px` | | |
+
+States: rest `--term-bg`; hover (inside `@media (hover: hover)`), open (`aria-expanded="true"`) and pressed (`:active`,
+with the shared press dip) `--term-bg-active`; focus is the shared ring (MT3). The dotted underline stays as the cue
+that does not rely on colour. `box-decoration-break: clone` keeps the tint on both lines of a wrapped term. In print a
+term has no background and no padding.
+
+Contrast, the term's text against its tint laid over the surface below it, lowest value per surface over the 66 terms
+(`e2e/terms.spec.ts` measures and asserts it):
+
+| Theme | Surface | At rest (10%) | Hover / open (16%) |
+|---|---|---|---|
+| Light | card `#ffffff` | 5.03 | 4.51 |
+| Light | dark panel `#101418` | 9.70 | 9.48 |
+| Dark | raised `#1c2230` | 5.18 | 4.58 |
+| Dark | card `#141922` | 5.82 | 5.15 |
+
+All pass 4.5:1. Two are close: light card when open (4.51) and dark raised when open (4.58), both muted text. No term
+sits on the bare page background today; worked by hand, muted text there would give about 4.6 at rest and about 4.1
+open, which would fail. A term placed on the page background later would need `--term-bg-active` lowered.
+
+**Tests added:** `overview sections follow the fixed order` (8: owner and default role, en and ar, 1280 and 390 px; DOM
+order, top edges, no CSS `order` or reversed flex); `figures moved is visible without opening anything`; `term buttons
+share one background` and `term button background is a light tint` (both themes); `term buttons print as plain text`;
+vitest `only one term button class exists` and `the term background comes from the term tokens only`. Changed: the
+trend tests no longer open the profile disclosure first (the first was renamed from "trend sits inside the profile
+figures and shows only what the API returned" to "trend shows only what the API returned"), and the vitest heading
+check reads `h2`. No rule test was loosened.
+
+**Checks.** Typecheck, lint and build pass. Vitest 383 passed (381 before, plus 2). Playwright, full suite at the final code (`aacf679`): 1,173 passed, 0 failed, 3 skipped (35 min). Baseline at `bce2054`: 1,158 passed, 1 failed, 3 skipped; the failure was "landing strip loads after the hero" (I9), which depends on whether the request layer already holds an answer and passes in the final run. In one partial run, "glossary tip stays open while the pointer moves onto it" failed once and then passed 4 of 4 alone and in the full run. The
+decision sheet for 10001 still prints on 3 pages. Six visual baselines changed, all overview images; each was looked
+at, and the only differences are the new section position and the term tint. Screenshots: `web/docs/screenshots/fx-*`
+(8 full overviews, and term close-ups before and after in both themes). Preview on `gh-pages` at `9ddc7ae`.
+
+**Unchanged:** wording, values, roles (the DECISIONS 58 roles table), the API, dependencies, LG5.
+
+**Open questions for Faris.**
+
+1. Whether the tint strength (10% at rest, 16% hover and open) looks right; see the `fx-term-*` close-ups.
+2. Whether 16% should come down a little, given the 4.51 margin in the light theme.
+
+**Sign-off:** ☐ team (overview order, term button look)

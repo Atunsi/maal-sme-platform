@@ -256,11 +256,29 @@ it to `RULES` with a priority no other rule has, add its sentences to both catal
 say what is missing.
 
 **Change over time.** `GET /insights/history` returns four profile figures as of earlier dates, 30 days
-apart, each the engine's own trailing-90-day measure. `components/Trends.tsx` shows them inside the
-profile figures: the current value, a direction word with the API's two values, a small line
+apart, each the engine's own trailing-90-day measure. `components/Trends.tsx` shows them in their own
+section on the overview (entry 63, below): the current value, a direction word with the API's two values, a small line
 (`components/TrendLine.tsx`) and the same values as a table. Only dates the API returned are marked;
 fewer than three shows a sentence instead of a line. It compares a business with its own past only: peer
 benchmarking stays rejected (schema §36.4, rule U9).
+
+## Overview order and term buttons (entry 63, PROPOSED)
+
+**Overview order (OV1).** The business overview shows four sections, top to bottom, at every width, in both
+languages and for every role: the verdict (with its aside, its "About this result" card and the owner's
+"what to do next" lines), the five readouts, "How your figures have moved" (`components/Trends.tsx`, its own
+section with an `h2`, open without a click), and the profile features (`components/ProfilePanel.tsx`, still
+a disclosure, with the profile's record inside it, LG5). The order is the markup's own: no CSS `order` and
+no reversed flex. A business whose profile did not run shows no trend section. Tested in
+`e2e/trends.spec.ts` ("overview sections follow the fixed order").
+
+**Term buttons (TB1).** One component, `components/Term.tsx`, renders the glossary term button, and one
+class, `.term` in `globals.css`, styles it from five tokens: `--term-bg` (the accent at 10%, mostly
+see-through), `--term-bg-active` (16%, on hover and while open), `--term-fg` (`currentColor`: a term keeps
+the colour of its sentence), `--term-radius` (`--r-bar`) and `--term-pad` (`0 3px`). The dotted underline
+stays, so a term never relies on its tint alone; the shared focus ring and press dip apply; the background
+fades with the page's 0.35 s timing. In print a term is plain text. Tested in `e2e/terms.spec.ts` and
+`tests/terms.test.ts`; never add a second background or a per-page override.
 
 ## Demo sign-in
 
