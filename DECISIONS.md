@@ -4436,3 +4436,171 @@ stays. New `e2e/band.spec.ts`: "no logo band on any page".
 **Preview.** `gh-pages` commit `ea9a036` replaces only `preview/` with the static build of this branch at `ad89a89`: https://at1808.github.io/maal-sme-platform/preview/ . The band spec and the owner record tests passed against a local copy (32 of 32), and the built HTML has no "No AI" text and no band.
 
 **Sign-off:** ☐ team (wording, logo band) ☐ credit lens owner (credit lines) ☐ compliance owner (Sharia lines, Arabic wording)
+
+## 60. Web UI motion and visual polish: type scale, sticky header, elevation, page transitions, scroll reveals, hover system — PROPOSED (2026-11-11)
+
+**Touches:** `web/` only, plus this entry and the READMEs. Done on `faris/ui-motion` from `faris/record-wording` at
+`5c6d923` (entry 59), following `SOP_web_ui_motion_and_polish.md` v1. Merge order: `faris/arabic-riyal`, then
+`faris/receipt-plain`, then `faris/record-wording`, then this branch.
+
+**Decisions taken for this work, word for word (SOP section 1a).** The SOP asks Faris to confirm or change these
+before the run. His instruction was to analyse and follow the SOP; that was taken as confirming all twelve unchanged.
+None was changed.
+
+1. **Motion never changes a value.** No count-up, no number tween, no bar that passes through a wrong value on its way to the right one in a way a reader could take as data. This is the design direction's rule, now enforced by a test (MO1).
+2. **No new looping animation.** The logo band was removed as looping motion. Nothing in this SOP loops. The loops that exist at Phase A are listed and left as they are.
+3. **CSS first, no animation library.** No `framer-motion`, GSAP, Lottie or similar. JavaScript is allowed for two things only: calling `document.startViewTransition` around a navigation or a theme change, and nothing else.
+4. **No experimental framework flags.** Page transitions use the browser's View Transitions API directly. If the installed Next version can only do this through an `experimental` config flag, that is S5.
+5. **R6 is unchanged.** Entrance delay stays at most 0.4 s and duration at most 0.6 s outside the landing page and sign-in. Scroll-linked reveals are tied to scroll position, not time, and they animate `transform` only, with at most 16 px of travel.
+6. **Page transition timing.** The page crossfade lasts at most 0.25 s. A carried element (reading card title, nav underline) lasts at most 0.3 s.
+7. **Type scale.** From 768 px up: 14 px (labels and captions), 16 px (body), 18 px (values in rows, card titles), 22 px (section headings). Below 768 px: 14, 16, 18, 20. The display sizes (44, 52, 76 px and the phone equivalents) are unchanged. No rendered text is under 14 px in either locale at any width.
+8. **Sticky header from 768 px up only.** The phone header and bottom bar stay as they are.
+9. **Raw codes (LG4).** The owner view shows words for `nisab_source_status` and `rule_table_status`. The raw codes stay in the technical record and the Compliance View. U6 and U7 are unchanged: the Sharia status is still visible and the nisab plate still shows for every unverified status.
+10. **Profile record on the overview (LG5).** It moves inside the profile figures disclosure. The roles table of DECISIONS 58 is unchanged, and every lens page keeps its card.
+11. **Fixed text.** Every new string exists in English and Arabic, every new Arabic string is marked draft, no rendered text uses the banned symbol characters, and no em dash.
+12. **No new storage, nothing outside `web/`** except DECISIONS and the READMEs.
+
+**Rules added.**
+
+| # | Rule | Enforced by | Test name |
+|---|---|---|---|
+| MO1 | Motion never changes a displayed value | No number tween exists; amounts render once | `amount text never changes after first render` (e2e/polish.spec.ts: every `[data-sar]` amount and `[data-probability]` value on overview, credit, zakat and forecast for 10001, at first paint and after 2 s) and `no number tween in the code` (tests/motion-rules.test.ts) |
+| MO2 | Scroll-linked motion never hides content | `.drift` animates `transform` only | `scroll reveals never hide content`, in both files: the CSS scan (keyframes driven by a non-auto `animation-timeline` are `drift`, `header-condense` and `header-brand`, and none touches opacity, visibility, clip-path or display) and the browser check (after 1 s, no element in `<main>` with a finite animation has opacity below 1, on the overview, how-it-works and the landing page) |
+| MO3 | Every new animation and transition stops under reduced motion, page and theme transitions included | The global reduced-motion block, plus one for `::view-transition-*` | `reduced motion disables page and theme transitions`; `one reduced-motion block stops every animation and transition` |
+| MO4 | Navigation works the same without the View Transitions API, and a transition never blocks input for more than 0.3 s | React only calls `document.startViewTransition` when the browser has it; the longest view-transition animation is 0.3 s | `navigation works without view transitions` (also run against the static preview), `page transition stays under the cap` |
+| MO5 | No new looping animation | Allowlist of the four loops found in Phase A | `no new infinite animations` |
+| MO6 | Text sizes come from the scale, and nothing is under 14 px | Size tokens in `globals.css`, Tailwind `text-label`, `text-body`, `text-value`, `text-heading` | `text sizes follow the scale` (overview, credit, zakat and review, both locales, 1280 and 390 px; also run against the static preview) |
+| MO7 | The sticky header never covers the focused control or a tour target | `scroll-padding-top: var(--header-h)` from 768 px | `sticky header never covers the focused control`, `header stays in view after scrolling at 1280`, the tour tests |
+| MO8 | Only interactive elements respond to hover | Every `:hover` rule sits inside `@media (hover: hover)` and none targets a plate, card or heading | `plates and static cards have no hover style` (browser) and `hover styles sit inside (hover: hover) and never on plates or static cards` (source) |
+
+Other new tests: `demo role label stays on one line`, `phone header is unchanged`, `overview shows one record card
+until the profile figures are opened`, `view transition names are unique on every page`, `segmented thumb sits under
+the pressed option in both locales`, `credit view and URL never disagree after back`, `theme change works without view
+transitions`, `every control shows the shared focus ring`, `raised surfaces differ from their ground in both themes`,
+`print sheet has no background decoration`, `every keyframes block is used`, `no transition all in the stylesheet`.
+
+**What was built.**
+
+- **LG3, type scale.** Tokens `--fs-label` 14 px, `--fs-body` 16 px, `--fs-value` 18 px, `--fs-heading` 22 px (20 px
+  under 768 px), with line heights 1.5, 1.6, 1.4 and 1.3, taller on `html[lang="ar"]` (label 1.6, body 1.75, value 1.5, heading 1.4). Every size from 11 to
+  26 px in `globals.css`, `phone.css` and the components was mapped by role. Display sizes (44, 52, 76 px and the phone
+  26, 34, 44, 48 px), the logo, the print sheet and the chart axis labels are unchanged. Measured on the 10001 overview as
+  owner: before, Arabic at 1280 px used 14 sizes from 12 px up (23 elements at 13 px, 1 at 12 px); after, only 14, 16,
+  18 and 22 px plus the display sizes. At 390 px, before 11 px × 5, 12 px × 1, 13 px × 16; after 14, 16, 18 px plus the
+  phone display size. The print sheet for 10001 is 3 A4 pages before and after, in both locales.
+- **LG1, header.** The demo role label is 14 px on one line. `white-space: nowrap` alone broke R8 (the header grew to
+  127 px), and the full label broke it at 1440 px too, so the short catalogue form shows at every width ("Demo: business
+  owner" / «تجريبي: مالك منشأة», "Demo: admin" / «تجريبي: مشرف», drafts) with the full form in `title` and in a
+  screen-reader-only span. X5 is unchanged: the label names the role and no business.
+- **LG2, sticky header.** From 768 px the header is `position: sticky; top: 0; z-index: 40`. Inside
+  `@supports (animation-timeline: scroll())` it condenses over the first 96 px of scroll (row padding to 4 px, the brand
+  to 80 %). No scroll listener. `scroll-padding-top` is the header's full height (72 px). Under 768 px the header is the
+  phone header, unchanged (sticky, 71 px). Hidden in print, as before.
+- **LG4, two codes in words.** See below.
+- **LG5, one record card on the overview.** See below.
+- **VS1, elevation.** `--elev-0` (page, `--bg`), `--elev-1` (cards, `--surface`, shadow `--elev-1-shadow`, which
+  `--card-shadow` now points to), `--elev-2` (raised: the verdict, the glossary tip, the display and scenario panels).
+  Dark theme: `--elev-2` is `#1c2230`, lighter than a card, and each raised shadow carries a 1 px `--rule` hairline. In
+  light theme `--elev-2` is the card colour and differs by its deeper shadow. No hex colour in any `.tsx`.
+- **VS2, verdict backdrop.** A radial gradient from `--accentSoft` to transparent behind the verdict, and a fainter one on
+  each lens page's head card. It does not move. In print both get `background-image: none` and no shadow.
+- **VS3, chart finish.** Forecast: the below-floor zone is a vertical gradient from `--badSoft` at the floor line to
+  transparent; the today point is 14 px on screen at any width, the same as the review timeline's dots. Zakat bars
+  already used `--r-bar`; the hatched liabilities bar keeps its pattern. No scale, axis, value, label rule or readout
+  changed. At 360 px the larger labels pushed the hawl snapshot label past the track's start edge (B18); it now shifts
+  back by its own share of the track, which keeps both edges inside at any width and the marker under the label.
+- **MT1, page transitions.** See "Page transitions" below.
+- **MT2, scroll reveals.** `.drift` moves an element up 16 px to its place as it enters the viewport
+  (`animation-timeline: view()`, range `entry 0%` to `cover 25%`), inside `@supports`; off under reduced motion and in
+  print. On the overview readouts, the profile card, the landing sections after the hero, the how-it-works sections after
+  the first (where it replaces `.rise`, which played off screen) and the forecast table.
+- **MT3, hover, press and focus.** One focus ring: `outline: 2px solid var(--focus)`, offset 2 px, `--focus` =
+  `--accent` (contrast against every tier 9.65 to 10.66 in light, 7.16 to 8.70 in dark). Press: buttons and button-like
+  links scale to 0.98 for 80 ms. Text links and the "Open" link on reading cards: the underline grows from the inline
+  start over 150 ms. Bordered controls: border and background shift one tier over 150 ms. Every `:hover` rule (there
+  were eight) now sits inside `@media (hover: hover)`. No element has an animated `transition: all` (11 actions had the
+  computed default before, none animate now).
+- **MT4, segmented thumb.** The credit Public/Compliance switch and the sign-in role switch: two equal halves and an
+  `aria-hidden` thumb that slides 0.2 s on `inset-inline-start`, so it mirrors in Arabic. The buttons, `aria-pressed`
+  and their fixed labels (R3) are unchanged; under reduced motion the thumb jumps.
+- **MT5, theme crossfade.** `ThemeToggle` calls `document.startViewTransition` (0.2 s root crossfade) when the API exists
+  and reduced motion is off; otherwise the theme switches at once. Storage is unchanged (`localStorage` only), and the
+  no-flash script is untouched.
+- **MT6, inventory.** The Motion table is in `web/README.md`. The unused `growy` keyframes were deleted.
+
+**Page transitions (MT1).** The SOP's first choice was a `TransitionLink` wrapper, with the instruction to use a
+documented, stable, non-experimental way instead if the installed Next has one. Next 16.4.5 documents React 19.3's
+`<ViewTransition>` as working in the App Router with no configuration
+(`node_modules/next/dist/docs/01-app/02-guides/view-transitions.md`), and `<Link transitionTypes>` and
+`router.push(href, { transitionTypes })` since 16.2. So there is no `TransitionLink`: the page in
+`app/[locale]/layout.tsx` sits in `<ViewTransition default={{ page: "auto", default: "none" }}>`, and only navigations
+tagged with the `page` type (`PAGE_TRANSITION` in `lib/motion.ts`) animate: the header nav, the phone tab bar, the
+overview's reading cards, the business switcher and search results. Play all, the scenario menu, `?view=`, the language
+link and Back/Forward change at once, as the SOP asks. The root crossfade is 0.25 s; `site-header` and `tour-panel` hold
+still; `nav-active` (the active nav link) and `nav-active-phone` (the tab bar's active item) slide to the new page's
+item; `lens-<id>` carries each reading card's lens name to the matching lens page's heading, 0.3 s. Names are unique on
+every page (tested). A first version wrapped every router update; it made Play all wait on the transition and left
+animations running under reduced motion (player.spec), and was replaced by the type-scoped version before this entry.
+Focus and the route announcement are as before.
+
+**LG4: the two codes.**
+
+| Code | Where it comes from | Words (en / ar, ar draft) |
+|---|---|---|
+| `nisab_source_status` = `world_bank_monthly_average_pending_sharia_advisor` | `lenses/lens_config.yaml` `zakat.nisab.source_status`, returned by `compute_zakat` in `lenses/zakat/zakat.py`; the price itself is the World Bank monthly average gold price × 3.75 SAR/USD ÷ 31.1034768 g for the calculation month, from `lenses/zakat/nisab_prices.py` (`build`, `price_for`), pending Sharia-advisor review (entries 48, 54) | "Nisab price is a World Bank monthly average, pending Sharia-advisor confirmation" / «سعر النصاب متوسط شهري من البنك الدولي، بانتظار تأكيد المستشار الشرعي» |
+| `rule_table_status` = `proposed_unverified` | `compliance/sharia_rules.yaml` `source_status`, returned by `screen` in `compliance/sharia.py`; the file says the lists and thresholds are developer-proposed and must be confirmed by the Sharia advisor before being presented as a Sharia determination | "Rule list proposed, not yet verified" / «جدول ضوابط مقترح لم يُعتمد بعد» |
+
+The nisab words are in the `zakat.nisabStatus` map and not in `zakat.nisabVerified`, so the plate still shows (R7, U7).
+`rule_table_status` is a new `label()` group, rendered on the Sharia page and the decision sheet. Both raw codes stay in
+the technical record and the Compliance View; an unknown value still falls back to the generic words with its code.
+Tests: R5's `no raw codes outside receipts` covers both values and the Sharia panel; the sheet test checks the owner
+sheet shows neither code; the print sheet test reads the new nisab words on the plate.
+
+**LG5: one record card on the overview.** The profile's `DecisionRecord` moved inside the profile figures `<details>`,
+so the overview shows one "About this result" card (the verdict aside's) until the figures are opened. Measured on the
+10001 overview as owner at 1280 px: two cards in view before, one after. Nothing about who sees what changed: the same
+`DecisionRecord` renders with the same role logic, it is only placed inside the disclosure; every lens page keeps its
+card, and `data-tour="receipt"` stays on the verdict aside. Checked by PR1, PR2 and PR4 (unchanged and passing) and
+`overview shows one record card until the profile figures are opened`. The receipts and Arabic digits tests now open the
+profile figures before opening the record inside them.
+
+**Unchanged, and how it was checked.**
+- **R6** (entrance cap): `tests/motion.test.ts`, unedited, passes with the new styles. Scroll reveals are tied to scroll,
+  not time.
+- **R8** (header on one row at 1280 and 1440 px, both locales): the header specs pass; the header is 71 px at 1280 px.
+- **U6** (Sharia status visible) and **U7** (nisab plate for every unverified status): their tests pass, extended to
+  read the new words. The reduced-motion U7 zakat test in `motion.spec.ts` failed before this work and still does
+  (baseline).
+- **DECISIONS 58 roles table**: PR1 to PR7 pass; LG5 only moves where the profile card sits.
+
+**Motion inventory.** 24 keyframes blocks before, 26 after; `growy` deleted as unused, `drift`, `header-condense` and
+`header-brand` added. The four loops found in Phase A remain, unchanged: `breathe` (the warning frame, 4 s), `pulse`
+(the live dot, 1.8 s), `travel` (the landing pipeline dot, 2.4 s) and `float` (the landing illustration, 6 s). Nothing
+new loops. Every row of the table in `web/README.md` stops under reduced motion.
+
+**Checks.** `tsc` and ESLint clean; vitest 345 passed (338 before, plus the 7 source rules); Playwright, full suite on
+the quick backend: 1087 passed, 7 failed, 3 skipped. Five of those failures were from this work, fixed and rerun green:
+Play all twice (the first MT1 version), the print sheet test (new nisab words), Arabic digits (LG5), and the overview
+snapshot (the API's 60-a-minute limit for 10001, passing on rerun). The two left fail on the base too: the
+reduced-motion U7 zakat test and the English tour walk. Two base failures now pass: the Arabic tour walk and the zakat
+English light snapshot. pytest: 214 passed, 8 failed, equal to the Phase A baseline. All 36 visual baselines were
+looked at before and after and updated in their own commit. The static preview passes `navigation works without view
+transitions`, `scroll reveals never hide content` and `text sizes follow the scale`.
+
+**Preview.** `gh-pages` commit `8fa0d5c` replaces only `preview/` with the static build of `55c88d08` (32 businesses of 300
+serving, 482 pages): https://at1808.github.io/maal-sme-platform/preview/ .
+
+**Deviations from the SOP.**
+1. No `TransitionLink`: React's `ViewTransition` with transition types, as the SOP allows (above).
+2. The short role label shows at every width, not only under 1440 px: the full label broke R8 at 1440 px too.
+3. The segments of the two segmented controls are equal halves, so the thumb can be placed by CSS alone.
+4. On how-it-works, `.drift` replaces `.rise` on the sections after the first.
+5. In light theme the raised tier differs from a card by its shadow, not its colour (the dark theme differs by both).
+6. Reading cards have no chevron on desktop, so there is none to nudge; the "Open" link's underline grows instead.
+7. Items were committed in groups, not one commit per item: `globals.css` carries every item's rules.
+8. The manual pass in a visible browser (SOP Phase E.3) was done by automated checks and screenshots; nobody has yet
+   watched the transitions, the tour and an OS-level reduced-motion walk by eye.
+
+**Items left out.** None. No stop condition was met.
+
+Sign-off: ☐ team (type scale, header, motion) ☐ compliance owner (nisab status and rule list wording, Arabic copy) ☐ credit lens owner (credit page layout)
