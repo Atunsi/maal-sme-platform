@@ -95,13 +95,25 @@ test("picker: a valid ID opens the dashboard", async ({ page }) => {
   await expect(page.getByRole("heading", { name: nameOf(10009, "en") })).toBeVisible();
 });
 
-for (const value of ["9999", "11001", "abc", "10001.5", ""]) {
+// CR1 (DECISIONS 62): typed digits that open nothing get the registration number's own message; anything else
+// keeps the finder's. All five are still refused before any call.
+const REFUSED: [string, string][] = [
+  ["9999", "A commercial registration number is 10 digits and starts with 7"],
+  ["11001", "No demo business has this number"],
+  ["abc", "No serving business matches"],
+  ["10001.5", "No serving business matches"],
+  ["", "No serving business matches"],
+];
+for (const [value, message] of REFUSED) {
   test(`picker: "${value}" is refused before any call`, async ({ page }) => {
     await page.goto("/en/admin", { waitUntil: "networkidle" });
     await page.getByRole("combobox", { name: "Find a business by name or ID" }).fill(value);
+    const requests: string[] = [];
+    page.on("request", (request) => requests.push(request.url()));
     await page.getByRole("button", { name: "Open", exact: true }).click();
-    await expect(page.locator("main").getByRole("alert")).toContainText("No serving business matches");
+    await expect(page.locator("main").getByRole("alert")).toContainText(message);
     await expect(page).toHaveURL(/\/en\/admin$/);
+    expect(requests).toEqual([]); // refused in the browser: nothing was asked of the server
   });
 }
 

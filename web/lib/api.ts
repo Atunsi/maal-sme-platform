@@ -88,6 +88,10 @@ async function request<S extends z.ZodType>(path: string, schema: S, body?: unkn
       headers: body === undefined ? { "X-API-Key": key } : { "X-API-Key": key, "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
+      // Next remembers identical GETs within one render pass and would hand the retry below the first answer.
+      // A signal is the documented way to opt out (docs: functions/fetch, "Memoization"); the request layer above
+      // already shares identical reads.
+      signal: new AbortController().signal,
     });
   let res: Response;
   try {

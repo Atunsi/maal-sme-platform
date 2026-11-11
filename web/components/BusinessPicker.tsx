@@ -47,9 +47,10 @@ export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels, 
     const id = /^[0-9]+$/.test(text) ? Number(text) : NaN;
     if (isServingId(id) && ids.includes(id)) return go(id);
     if (listed) return go(matches[Math.min(active, matches.length - 1)]!);
-    // Digits that open nothing get the registration number's own message; a name that matches nothing keeps
-    // the finder's. Either way nothing is called.
-    const problem = registration && formatProblem(value) !== "notDigits" ? checkRegistrationNumber(value, registration.demo) : null;
+    // Digits that open nothing get the registration number's own message; a name that matches nothing, or an
+    // empty box, keeps the finder's (it takes names too). Either way nothing is called.
+    const format = formatProblem(value);
+    const problem = registration && format !== "notDigits" && format !== "empty" ? checkRegistrationNumber(value, registration.demo) : null;
     setMessage(problem && !problem.ok && registration ? registrationMessage(problem.problem, registration.r, registration.demo, DEMO_BUSINESS) : labels.invalid);
     setInvalid(true);
   }
