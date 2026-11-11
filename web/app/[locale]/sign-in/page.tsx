@@ -5,6 +5,7 @@ import { ArabicLogo, EnglishWordmark } from "@/components/brand/Logos";
 import { DigitsToggle } from "@/components/DigitsToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SignInForm } from "@/components/SignInForm";
+import { demoNumbers } from "@/lib/demo-numbers";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getMessages, isLocale } from "@/lib/i18n";
 import { titleFor } from "@/lib/page-title";
@@ -62,7 +63,7 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
             </h2>
             <p className="mt-1.5 text-muted">{s.intro}</p>
           </div>
-          <SignInForm locale={locale} s={s} />
+          <SignInForm locale={locale} s={s} r={m.registration} demo={await demoNumbers({ locale })} />
           <div className="rise text-label text-muted" style={{ animationDelay: "0.75s" }}>
             <p className="font-medium text-ink">{s.demo}</p>
             <p className="mt-1">{s.synthetic}</p>

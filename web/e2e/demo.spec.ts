@@ -11,7 +11,13 @@ test("sign-in sends no request and stores nothing", async ({ page, context }) =>
   const requests: { url: string; body: string | null; method: string }[] = [];
   page.on("request", (request) => requests.push({ url: request.url(), body: request.postData(), method: request.method() }));
 
+  // CR1 (DECISIONS 62): the number is now checked in the browser. A refused one sends nothing either.
   await page.getByLabel("Commercial registration number").fill(TYPED);
+  await page.getByLabel("Password").fill("pass");
+  await page.getByRole("button", { name: "Sign in to my business" }).click();
+  await expect(page.locator("[data-registration-error]")).toHaveText("Use digits only");
+  await expect(page).toHaveURL(/\/en\/sign-in$/);
+  await page.getByLabel("Commercial registration number").fill("10001");
   await page.getByLabel("Password").fill(TYPED);
   await page.getByRole("button", { name: "Admin" }).click();
   await page.getByLabel("Username").fill(TYPED);
@@ -36,7 +42,8 @@ test("sign-in sends no request and stores nothing", async ({ page, context }) =>
 
 test("sign-in says what it is, on the page", async ({ page }) => {
   await page.goto("/en/sign-in");
-  await expect(page.getByText("Demo sign-in. No accounts exist. The password is checked in this browser only, and nothing you type is saved or sent.")).toBeVisible();
+  // DECISIONS 62 (CR1) amends the notice: the number now chooses which demo business opens.
+  await expect(page.getByText("Demo sign-in. No accounts exist. The password is checked in this browser only. The number you enter only chooses which demo business opens, and nothing else you type is saved or sent.")).toBeVisible();
   await expect(page.locator("footer")).toContainText("Synthetic data only. Population: serving.");
 });
 
@@ -191,10 +198,12 @@ test("demo role label names no business", async ({ page }) => {
 test("registration hint is visible text", async ({ page }) => {
   // X3: the hint shows as text under the label, not only as a placeholder.
   await page.goto("/en/sign-in");
-  await expect(page.locator("#sign-in-cr-hint")).toHaveText("10 digits");
-  await expect(page.locator("#sign-in-cr-hint")).toBeVisible();
+  // CR2 (DECISIONS 62): the hint is the demo number, always visible, and the field points at it.
+  const hint = page.locator("[data-registration-hint]");
+  await expect(hint).toHaveText("Demo commercial registration number: 10001");
+  await expect(hint).toBeVisible();
   const field = page.getByLabel("Commercial registration number");
-  await expect(field).toHaveAttribute("aria-describedby", "sign-in-cr-hint");
+  await expect(field).toHaveAttribute("aria-describedby", (await hint.getAttribute("id"))!);
   await expect(field).not.toHaveAttribute("placeholder", /./);
 });
 
@@ -245,8 +254,15 @@ test("landing strip loads after the hero", async ({ request }) => {
   const firstCard = html.search(/data-try="\d+"/);
   const firstFallback = html.search(/data-try-loading="\d+"/);
   expect(hero).toBeGreaterThan(-1);
-  expect(firstFallback).toBeGreaterThan(hero);
-  expect(firstCard).toBeGreaterThan(firstFallback);
+  expect(firstCard).toBeGreaterThan(hero);
+  // Each card sits in its own Suspense boundary, opened after the hero.
+  expect(html.slice(hero, firstCard)).toMatch(/<!--\$\??-->/);
+  // FX3 (DECISIONS 62): when the request layer already holds a card's answer there is nothing to wait for and
+  // no fallback is sent. Whenever one is sent, it comes after the hero and before its card, as before.
+  if (firstFallback !== -1) {
+    expect(firstFallback).toBeGreaterThan(hero);
+    expect(firstCard).toBeGreaterThan(firstFallback);
+  }
 });
 
 test("review mark scrolls to its row and back", async ({ page }) => {

@@ -7,6 +7,7 @@ import { AllBusinesses, PAGE_SIZE } from "@/components/AllBusinesses";
 import { BusinessSearch } from "@/components/BusinessSearch";
 import { Num, Page, Plate, TableScroll } from "@/components/ui";
 import { getBusinesses, getCredit } from "@/lib/api";
+import { demoNumbers } from "@/lib/demo-numbers";
 import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
 import { creditPlate } from "@/lib/decision";
 import { fill, getMessages, isLocale, type Locale, type Messages, pluralForm } from "@/lib/i18n";
@@ -145,6 +146,7 @@ export default async function AdminPage({ params, searchParams }: Props) {
             submit: p.submit,
             invalid: finderIds ? fill(pluralForm(finderIds.length, p.invalidStatic, locale), { n: formatInt(finderIds.length, locale) }) : fill(p.invalid, range),
           }}
+          registration={{ r: m.registration, demo: await demoNumbers(scope) }}
         />
       </div>
 

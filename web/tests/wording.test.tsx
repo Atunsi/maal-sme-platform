@@ -82,6 +82,8 @@ describe("credit contract guards", () => {
     // number fields, so they reach no term either. CommandPalette (I8, 1a.9) matches typed text against fixed
     // lists of pages, scenarios, glossary terms and serving IDs, and only navigates. BusinessSearch also takes a
     // reference number (DECISIONS 58), which names one serving business; the server only opens its overview.
+    // RegistrationField (CR1, DECISIONS 62) takes a commercial registration number, checks its format in the
+    // browser and opens that demo business: it names a business, never a term.
     expect(withInput.sort()).toEqual([
       "BusinessPicker.tsx",
       "BusinessSearch.tsx",
@@ -90,6 +92,7 @@ describe("credit contract guards", () => {
       "CopyButton.tsx",
       "CustomScenarioForm.tsx",
       "HashCheck.tsx",
+      "RegistrationField.tsx",
       "ScenarioControls.tsx",
       "SignInForm.tsx",
     ]);

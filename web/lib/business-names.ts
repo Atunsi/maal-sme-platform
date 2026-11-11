@@ -101,6 +101,8 @@ export type BusinessName = { ar: string; en: string };
 
 export function businessName(id: number | string): BusinessName {
   const n = Number(id);
+  // CR1 (DECISIONS 62): an address can carry anything. What is not a whole number has no name; it is shown as typed.
+  if (!Number.isInteger(n)) return { ar: String(id).slice(0, 20), en: String(id).slice(0, 20) };
   const slot = (((n - FIRST) * STEP) % SLOTS + SLOTS) % SLOTS;
   const [imageAr, imageEn] = IMAGES[slot % IMAGES.length]!;
   const [placeAr, placeEn] = PLACES[Math.floor(slot / IMAGES.length)]!;

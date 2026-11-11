@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { RegistrationField } from "@/components/RegistrationField";
 import { DEMO_BUSINESS } from "@/lib/businesses";
 import { fill, type Locale, type Messages } from "@/lib/i18n";
+import { checkRegistrationNumber, type DemoNumbers, type RegistrationProblem } from "@/lib/registrationNumber";
 
 type Role = "owner" | "admin";
 
@@ -11,23 +13,38 @@ type Role = "owner" | "admin";
 export const DEMO_PASSWORD = "pass";
 
 /**
- * A demo sign-in (DECISIONS 42). Only the password is read, and only to compare it with the demo
- * password; the registration number and username are not read at all. It creates no account,
- * stores nothing and sends nothing.
+ * A demo sign-in (DECISIONS 42, amended by DECISIONS 62). The password is read only to compare it with the demo
+ * password, and the username is not read at all. The owner's commercial registration number is checked in the
+ * browser (CR1) and only chooses which demo business opens: it becomes part of that page's address and nothing
+ * else. The form creates no account, stores nothing and sends nothing.
  */
-export function SignInForm({ locale, s }: { locale: Locale; s: Messages["signIn"] }) {
+export function SignInForm({ locale, s, r, demo }: { locale: Locale; s: Messages["signIn"]; r: Messages["registration"]; demo: DemoNumbers }) {
   const router = useRouter();
   const [role, setRole] = useState<Role>("owner");
   const [password, setPassword] = useState("");
   const [wrong, setWrong] = useState(false);
+  const [number, setNumber] = useState("");
+  const [problem, setProblem] = useState<RegistrationProblem | null>(null);
+  const numberField = useRef<HTMLInputElement>(null);
 
   function enter(event: FormEvent) {
     event.preventDefault();
+    let business: number = DEMO_BUSINESS;
+    if (role === "owner") {
+      // CR1: the number is checked before anything else, and a refused number puts focus back on its field.
+      const check = checkRegistrationNumber(number, demo);
+      if (!check.ok) {
+        setProblem(check.problem);
+        numberField.current?.focus();
+        return;
+      }
+      business = check.id;
+    }
     if (password !== DEMO_PASSWORD) {
       setWrong(true);
       return;
     }
-    router.push(role === "owner" ? `/${locale}/business/${DEMO_BUSINESS}?as=owner` : `/${locale}/admin?as=admin`);
+    router.push(role === "owner" ? `/${locale}/business/${business}?as=owner` : `/${locale}/admin?as=admin`);
   }
 
   const roleButton = (value: Role, name: string, hint: string) => (
@@ -52,14 +69,8 @@ export function SignInForm({ locale, s }: { locale: Locale; s: Messages["signIn"
       </div>
       <form onSubmit={enter} autoComplete="off" className="rise flex flex-col gap-4.5" style={{ animationDelay: "0.6s" }}>
         {role === "owner" ? (
-          <label className="flex flex-col gap-1.5 text-label font-medium">
-            {s.cr}
-            {/* X3: the hint is visible text, not only a placeholder that disappears as the visitor types. */}
-            <span id="sign-in-cr-hint" className="text-label font-normal text-muted">
-              {s.crHint}
-            </span>
-            <input type="text" inputMode="numeric" dir="ltr" aria-describedby="sign-in-cr-hint" autoComplete="off" className="field font-mono" />
-          </label>
+          // X3, CR2: the hint is visible text under the label, never a placeholder.
+          <RegistrationField r={r} demo={demo} demoNumber={DEMO_BUSINESS} value={number} onValue={setNumber} problem={problem} onProblem={setProblem} inputRef={numberField} />
         ) : (
           <label className="flex flex-col gap-1.5 text-label font-medium">
             {s.username}

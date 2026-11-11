@@ -293,26 +293,33 @@ describe("overview", () => {
   });
 });
 
+const DEMO_NUMBERS = { from: 10001, to: 10300 };
+
 describe("demo sign-in", () => {
   it("U15 the page's text says what it is, in both languages", () => {
-    expect(en.signIn.demo).toBe("Demo sign-in. No accounts exist. The password is checked in this browser only, and nothing you type is saved or sent.");
+    // DECISIONS 62 (CR1) amends entry 42's notice: the registration number now chooses which demo business opens.
+    expect(en.signIn.demo).toBe("Demo sign-in. No accounts exist. The password is checked in this browser only. The number you enter only chooses which demo business opens, and nothing else you type is saved or sent.");
     expect(ar.signIn.demo).toContain("تجريبي");
   });
 
   it("U15 no field has a name, and the form sends and stores nothing", () => {
-    const { container } = render(<SignInForm locale="en" s={en.signIn} />);
+    const { container } = render(<SignInForm locale="en" s={en.signIn} r={en.registration} demo={DEMO_NUMBERS} />);
     const fields = [...container.querySelectorAll("input")];
     expect(fields.length).toBeGreaterThan(1);
     for (const field of fields) expect(field.getAttribute("name")).toBeNull();
-    const code = readFileSync(join(webRoot, "components", "SignInForm.tsx"), "utf8");
-    expect(code).not.toMatch(/FormData|fetch\(|localStorage|sessionStorage|document\.cookie/);
-    // The password is the only field the form reads.
-    expect(code.match(/\.value\b/g)).toHaveLength(1);
+    // The password and, since DECISIONS 62, the registration number are the only fields read: one read each, in
+    // the browser, and neither file sends or stores anything.
+    for (const file of ["SignInForm.tsx", "RegistrationField.tsx"]) {
+      const code = readFileSync(join(webRoot, "components", file), "utf8");
+      expect(code, file).not.toMatch(/FormData|fetch\(|localStorage|sessionStorage|document\.cookie/);
+      expect(code.match(/\.value\b/g), file).toHaveLength(1);
+    }
   });
 
   it("sign-in shows the demo password", () => {
     for (const [locale, m] of [["en", en], ["ar", ar]] as const) {
-      const { unmount } = render(<SignInForm locale={locale} s={m.signIn} />);
+      const { unmount } = render(<SignInForm locale={locale} s={m.signIn} r={m.registration} demo={DEMO_NUMBERS} />);
+      fireEvent.change(screen.getByLabelText(m.registration.label), { target: { value: "10001" } }); // CR1: a demo number first
       const hint = screen.getByText(m.signIn.demoPassword.replace("{password}", DEMO_PASSWORD));
       const field = screen.getByLabelText(m.signIn.password);
       expect(field.getAttribute("aria-describedby")!.split(" ")).toContain(hint.id);
@@ -326,7 +333,7 @@ describe("demo sign-in", () => {
 
   it("U15 the demo password is pass, and the username is not checked as an email", () => {
     expect(DEMO_PASSWORD).toBe("pass");
-    render(<SignInForm locale="en" s={en.signIn} />);
+    render(<SignInForm locale="en" s={en.signIn} r={en.registration} demo={DEMO_NUMBERS} />);
     fireEvent.click(screen.getByRole("button", { name: /Admin/ }));
     expect(screen.getByLabelText("Username").getAttribute("type")).toBe("text");
     fireEvent.change(screen.getByLabelText("Password"), { target: { value: "wrong" } });

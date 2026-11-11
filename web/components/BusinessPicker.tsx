@@ -7,6 +7,10 @@ import { isServingId, SERVING_IDS } from "@/lib/population";
 import { withRole } from "@/components/RoleLink";
 import { Num } from "@/components/ui";
 import { PAGE_TRANSITION } from "@/lib/motion";
+import { registrationMessage } from "@/components/RegistrationField";
+import { DEMO_BUSINESS } from "@/lib/businesses";
+import type { Messages } from "@/lib/i18n";
+import { checkRegistrationNumber, formatProblem, normaliseRegistrationNumber, type DemoNumbers } from "@/lib/registrationNumber";
 
 type Props = {
   locale: "en" | "ar";
@@ -15,6 +19,8 @@ type Props = {
   /** The businesses it can open: every serving ID live, the captured few in the online snapshot. */
   ids?: readonly number[];
   labels: { input: string; submit: string; invalid: string; results: string };
+  /** CR1 (DECISIONS 62): typed digits are checked as a registration number, with its own messages. */
+  registration?: { r: Messages["registration"]; demo: DemoNumbers };
 };
 
 /**
@@ -22,10 +28,11 @@ type Props = {
  * opens); Enter or Open with a full ID opens that business, and anything that matches nothing says so before
  * any call. U1: it matches the fixed business names and serving IDs only, and only navigates.
  */
-export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels }: Props) {
+export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels, registration }: Props) {
   const router = useRouter();
   const [value, setValue] = useState("");
   const [invalid, setInvalid] = useState(false);
+  const [message, setMessage] = useState(labels.invalid);
   const [active, setActive] = useState(0);
   const listId = useId();
   const matches = findBusinesses(value, ids, 6);
@@ -35,10 +42,15 @@ export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels }
   const go = (id: number) => router.push(withRole(`/${locale}/business/${id}${query}`, new URLSearchParams(window.location.search).get("as")), { transitionTypes: PAGE_TRANSITION });
   function open(event: React.FormEvent) {
     event.preventDefault();
-    const text = value.trim();
+    // CR1: spaces, dashes and Arabic-Indic digits are read as the number they spell.
+    const text = normaliseRegistrationNumber(value);
     const id = /^[0-9]+$/.test(text) ? Number(text) : NaN;
     if (isServingId(id) && ids.includes(id)) return go(id);
     if (listed) return go(matches[Math.min(active, matches.length - 1)]!);
+    // Digits that open nothing get the registration number's own message; a name that matches nothing keeps
+    // the finder's. Either way nothing is called.
+    const problem = registration && formatProblem(value) !== "notDigits" ? checkRegistrationNumber(value, registration.demo) : null;
+    setMessage(problem && !problem.ok && registration ? registrationMessage(problem.problem, registration.r, registration.demo, DEMO_BUSINESS) : labels.invalid);
     setInvalid(true);
   }
   const onKey = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -109,7 +121,7 @@ export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels }
       </div>
       {invalid && (
         <p id="business-id-error" role="alert" className="mt-2 text-label text-bad">
-          {labels.invalid}
+          {message}
         </p>
       )}
     </form>

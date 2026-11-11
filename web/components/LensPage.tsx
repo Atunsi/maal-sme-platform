@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
-import { ApiError, Card, CardLoading, Page } from "@/components/ui";
+import { ApiError, Card, CardLoading, Num, Page } from "@/components/ui";
+import { RoleLink } from "@/components/RoleLink";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import type { ApiResult } from "@/lib/types";
 import type { Scope } from "@/lib/request-layer";
-import { roleOf } from "@/lib/businesses";
+import { DEMO_BUSINESS, roleOf } from "@/lib/businesses";
 import { searchOf } from "@/lib/static-data";
 import { nameOf } from "@/lib/business-names";
 import { localeOf } from "@/lib/i18n";
@@ -14,8 +15,17 @@ import { localeOf } from "@/lib/i18n";
 export function NotServing({ locale, m, id }: { locale: string; m: Messages; id: string }) {
   return (
     <Page>
-      <h1 className="heading text-[40px]">{fill(m.dashboard.title, { id, name: nameOf(id, localeOf(m)) })}</h1>
+      {/* A number outside the demo's range belongs to no business, so it gets no business name: the heading is
+          the number as typed. */}
+      <h1 className="heading text-[40px]">{isServingId(Number(id)) ? fill(m.dashboard.title, { id, name: nameOf(id, localeOf(m)) }) : <Num>{id.slice(0, 20)}</Num>}</h1>
       <ApiError kind="not_found" m={m} />
+      {/* CR1 (DECISIONS 62): a bad or unknown number in the address gets the same demo hint as the entry field. */}
+      <p data-registration-hint className="text-body">
+        {m.registration.notFoundHint}{" "}
+        <RoleLink href={`/${locale}/business/${DEMO_BUSINESS}`} aria-label={fill(m.registration.openDemo, { number: DEMO_BUSINESS })} className="textlink font-mono font-semibold">
+          <Num>{DEMO_BUSINESS}</Num>
+        </RoleLink>
+      </p>
       <Link href={`/${locale}`} className="textlink underline">
         {m.common.back}
       </Link>
