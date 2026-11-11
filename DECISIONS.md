@@ -4711,3 +4711,260 @@ backend: before any change, 1126 passed, 2 failed (U7 zakat, Arabic tour), 3 ski
 every remaining failure has the rate limit as its root cause and is carried to FX3.
 
 **Sign-off:** ☐ team (the word for synthetic) ☐ compliance owner (Arabic copy)
+
+## 62. Owner insights: registration number entry, what to do next, change over time; shared request layer; peer comparison stopped — PROPOSED (2026-11-11)
+
+**Touches:** `web/`, plus one read-only route and its test in `api/` and `tests/` (decision 11 below), this entry and
+the READMEs. Done on `faris/owner-insights`, following Part 3 of `SOP_close_out_merge_and_owner_insights.md`. The SOP
+starts this branch from `origin/main` after the four UI branches are merged. They were not merged (stop code S10: the
+`gh` tool is not installed, and the SOP forbids merging any other way), so the branch starts from `faris/ui-motion` at
+`65d720e` (entry 61). Merge order: `faris/arabic-riyal`, `faris/receipt-plain`, `faris/record-wording`,
+`faris/ui-motion`, then this branch.
+
+**Decisions taken for this work, word for word (SOP section 1a, decisions 5 to 13).** Decision 6 is Faris's
+(2026-11-11). The rest were proposed for Faris to confirm or change before the run; his instruction was to analyse and
+follow the SOP, which was taken as confirming them unchanged. None was changed by Faris. Decision 9 could not be
+carried out: see "Peer comparison stopped" below.
+
+5. **Rate limit.** The fix is on the web server only: one shared request layer that removes duplicate calls and caches API answers in memory for a short time. No API change, no raised limit, no bypass of the request queue, no browser storage. An in-memory cache in the server process is not "storage" in the sense of the earlier decisions; say so in the entry.
+6. **Demo number (Faris).** The entry field shows the hint "Demo commercial registration number: 10001".
+7. **What the entry field validates.** A real Saudi commercial registration number is the 10-digit unified number that starts with 7. This demo holds only synthetic businesses numbered 10001 to 10300. So the field accepts a demo number, and tells the truth about a real one (CR1). The UI never claims a demo number is a real registration.
+8. **Guidance is rule-based and fixed.** Every "what to do next" line comes from a written rule over values the API already returns, picks a fixed catalogue sentence, and names the value that triggered it. No generated text, no promise of an outcome, no financing or religious ruling. At most three lines per page.
+9. **Comparisons carry their population.** Every comparison names the group and its N (for example "42 synthetic businesses in the same sector"). The group must have at least 20 businesses; below that, the comparison falls back to all serving businesses, and says so. The population is synthetic and the page says so (U11).
+10. **No invented history.** Change over time shows only periods the data supports. If the backend can't give a value for an earlier period, that value is not shown; nothing is interpolated or estimated.
+11. **Backend scope.** IN2 and IN3 may need new read-only API routes. Faris owns `profile_engine/` and is acting API owner, so changes in `api/` and `profile_engine/` are allowed for those two items only, read-only routes only, each with a test. Nothing in `lenses/`, `compliance/` or `pipeline/` is edited (S2).
+12. **Fixed text.** Every new string exists in English and Arabic, every new Arabic string is marked draft, no em dash, none of the banned symbol characters.
+13. **Motion rules hold.** New parts follow MO1 to MO9: no count-up, no new loop, reveals never hide content, everything stops under reduced motion.
+
+**On decision 5: the in-memory cache is not storage.** The earlier decisions (42, 51, 60) forbid browser storage and
+cookies: nothing about a visitor is kept on their device. The request layer keeps API answers in the memory of the web
+server process, for 30 seconds (business data) or 5 minutes (reference data). Nothing is written to disk, nothing is
+set in the browser, and what is kept is the API's own answer for a business, not anything a visitor typed.
+
+**Rules added.**
+
+| # | Rule | Enforced by | Test name |
+|---|---|---|---|
+| RL1 | One page view never sends the same API request twice, and the overview stays well under the limit | `lib/request-layer.ts`, used by every read in `lib/api.ts` | `overview makes each API call once`, `ten overview loads in a minute stay under the limit` (tests/request-layer.test.ts, against a recording stub of fetch) |
+| RL2 | A cached answer is never shown for a different business, role or locale | The key is locale, role and route (the route names the business) | `cache never crosses business, role or locale` |
+| CR-V1 | The entry field rejects bad input before any API call, with a message that says what is wrong | `lib/registrationNumber.ts`, one validator | `registration number validation`, `no API call is made for input that fails a format step` (tests/registration.test.tsx); `entry field error is announced and tied to the field` (also e2e/registration.spec.ts, which records every request and finds none) |
+| CR-V2 | The UI never presents a demo number as a real registration | Fixed label and hint | `entry field says the number is a demo number` (vitest and Playwright, both locales) |
+| GD1 | Every guidance line comes from a rule in the rule table and names its trigger value | `lib/guidance.ts` | `every guidance line maps to a rule and a value`, `each line on the page shows its rule's reason and the value that triggered it` |
+| GD2 | Guidance never promises an outcome or gives a ruling | Banned-phrase lists in both languages | `guidance has no promise or ruling wording` |
+| TR1 | Change over time shows only real periods; a missing period is absent, not estimated | `api/insights.py` and `components/Trends.tsx` | `trend shows no value the API did not return` (vitest); `test_history_points_are_real_periods_only`, `test_history_of_a_past_date_ignores_later_rows` (pytest) |
+
+CP1 (comparisons show their group and N) has no test and no code: the comparison was not built.
+
+Other new tests: `a kept answer is the same answer, receipt included`, `an error and a 429 are never kept`, `a 429
+waits for the stated time and retries once, never in a loop`, `the health line is never kept`, `demo hint fills the
+field`, `unknown business in the URL shows the hint`, `admin finder reads a typed number as a registration number`,
+`at most three next steps`, `next steps amounts match the lens page`, `no next steps for roles that should not see
+them`, `the cash rules never contradict each other`, `latest trend value equals the current value`, `trend has a table
+equivalent`, `short history shows the sentence`, `the trend draws nothing through values and compares with no other
+business`, and eight pytest tests for the history route.
+
+### FX3: the shared request layer
+
+**Measured before** (10001 as owner, live quick API, upstream calls counted in the API's log): the overview made 5
+calls, one per route, none repeated inside the page; the credit, zakat and forecast pages made 1 each. Nothing was
+kept between page views, so ten overview loads made 50 calls and the twelfth page view of one business inside a
+minute got HTTP 429. That, and not a fault in any page, was why the tour walks and one snapshot failed in full runs.
+
+**The layer.** Every server-side read goes through `lib/request-layer.ts`, then the existing queue (one API request at
+a time, entry 41, unchanged):
+- a read already in flight for the same key is shared, not repeated;
+- a good answer is kept in memory: 30 s for business data (profile, lenses, history), 5 min for reference data (the
+  business list, the scenario catalogue); the health line is never kept. The lifetimes are in `lib/cache-lifetimes.ts`;
+- the key is locale, role and route;
+- an error and a 429 are never kept;
+- on a 429 the layer waits for the API's `Retry-After` (1 s if none, 5 s at most) and tries once more; a second 429
+  shows the page's existing error state. It never loops;
+- at most 500 answers are kept; the oldest goes first.
+
+A kept answer is the same object the API returned, so receipts and reference numbers still match the output hash
+(PR4 passes). The key stays on the server (`lib/api.ts` is still `server-only`; the key-leak guard passes). The online
+snapshot reads files and skips the layer.
+
+**Measured after:** the overview makes 5 calls plus 1 for the history of IN3; the credit, zakat and forecast pages
+opened after it make 0; ten more overview loads make 0. The tour walks passed 5 of 5 back to back, where the Arabic
+walk had failed 2 of 5.
+
+### CR1, CR2: the commercial registration number field
+
+**Where a business is entered.** Sign-in as owner (`SignInForm`): a field labelled "Commercial registration number"
+with the hint "10 digits", which was never read; sign-in always opened 10001. The admin finder (`BusinessPicker`): a
+name or a full business ID. The admin list filter (`BusinessSearch`): the first digits of an ID, and a sector. The
+header's search dialog (`CommandPalette`) and business switcher (`BusinessSwitcher`): names picked from a list.
+
+**What changed.** The sign-in field is now read: a valid demo number opens that business as the owner. The validator
+is also used for typed digits in the admin finder. The list filter, the search dialog and the switcher are a prefix
+filter and two name pickers, where "10 digits starting with 7" cannot apply; they are unchanged.
+
+**This amends entry 42.** Entry 42 said the registration number is not read at all, and the sign-in notice said
+"nothing you type is saved or sent". The number is now checked in the browser and chooses which demo business opens;
+it becomes part of that page's address and goes nowhere else. The notice now reads: "Demo sign-in. No accounts exist.
+The password is checked in this browser only. The number you enter only chooses which demo business opens, and nothing
+else you type is saved or sent." The form still sends no request, sets no cookie and stores nothing (tested).
+
+**The validator, in order** (`lib/registrationNumber.ts`; spaces and dashes are dropped and Arabic-Indic and Persian
+digits are read as digits first):
+
+| Input | Message (English) | Message (Arabic, draft) |
+|---|---|---|
+| empty | Enter a commercial registration number | أدخل رقم السجل التجاري |
+| not all digits | Use digits only | استخدم الأرقام فقط |
+| 5 digits, a demo business | accepted | |
+| 5 digits, no such demo business | No demo business has this number. Demo numbers run from 10001 to 10300 | لا توجد منشأة تجريبية بهذا الرقم. الأرقام التجريبية من 10001 إلى 10300 |
+| 10 digits starting with 7 | This looks like a real commercial registration number. This demo holds synthetic businesses only. Try 10001 | يبدو أن هذا رقم سجل تجاري حقيقي. هذه النسخة التجريبية تضم منشآت مصطنعة فقط. جرّب 10001 |
+| 10 digits not starting with 7 | A commercial registration number is 10 digits and starts with 7 | رقم السجل التجاري مكوّن من 10 أرقام ويبدأ بالرقم 7 |
+| any other length | A commercial registration number is 10 digits and starts with 7. Demo commercial registration number: 10001 | رقم السجل التجاري مكوّن من 10 أرقام ويبدأ بالرقم 7. رقم سجل تجاري تجريبي: 10001 |
+| 5 digits not in the online preview | This preview holds only some demo businesses, and this number is not one of them. Try 10001 | هذه المعاينة تضم بعض المنشآت التجريبية فقط، وهذا الرقم ليس منها. جرّب 10001 |
+
+The range in "from 10001 to 10300" is asked of the API on the server (`GET /businesses`, first and last row, kept 5
+minutes); the config range is only the fallback if the API does not answer. No call is made from the browser, and none
+at all for input that fails a format step.
+
+**Label and hint.** Label "Commercial registration number" / «رقم السجل التجاري». Hint, always visible under it: "Demo
+commercial registration number: 10001" / «رقم سجل تجاري تجريبي: 10001» (draft). The number is a button named "Use the
+demo number 10001" that fills the field. The number follows the digits switch.
+
+**Behaviour.** The format is checked when the field is left and when the form is sent, not on every key press. An
+empty field is refused only on sending, so tabbing through raises no error. The message sits under the field, is tied
+to it with `aria-describedby`, sets `aria-invalid`, has `role="alert"`, and focus returns to the field.
+`inputmode="numeric"`, `type="text"`.
+
+**A bad number in the address.** `/business/99999`, an in-range number the store does not hold, and `/business/abc`
+show the existing not-found state with the demo hint and a link to 10001. The last one used to throw on the server
+(the name helper divided by a non-number); it no longer does. A number outside the demo's range now gets no invented
+business name: the heading is the number as typed.
+
+**Left as they are, for Faris:** the admin finder is still labelled "Find a business by name or ID", the admin list
+filter still says "business ID", and the business pages' addresses still carry the number as `/business/<id>`.
+
+### IN1: what to do next
+
+`lib/guidance.ts` holds the rule table. Each rule reads fields the API already returns, picks one fixed catalogue
+sentence, and carries the field and value that fired it. At most three lines show, lowest priority number first: under
+the verdict on the overview, and each lens's own lines at the end of its page. Each line has a link to the page that
+explains it and a "Why am I seeing this?" disclosure with the rule in plain words and the trigger value.
+
+| Priority | Rule | Lens | Condition | Sentence (English; the Arabic is a draft in the catalogue) |
+|---|---|---|---|---|
+| 1 | G-cash-floor | forecast | `forecast.crunch_alert.days_to_projected_negative_balance` is a number | Your balance is forecast to fall below your cash floor around {date}. Plan for about {amount} more by then |
+| 2 | G-sharia-flag | sharia | `sharia_screen.rules_triggered` has at least one rule | Items that need a Sharia review: {count}. Open the Sharia screen to see them |
+| 3 | G-cash-watch | forecast | `forecast.crunch_alert.level` is watch or crunch, and no negative balance is projected | Your crunch alert is at {level}: the 30-day liquidity hazard is {pct}. See the forecast for what drives it |
+| 4 | G-credit-top | credit | `credit_explanation.public_tier` has a line whose direction is against; the first one | The factor weighing most on your credit result: {factor} |
+| 5 | G-zakat-due | zakat | zakat computed, liability above 0, and `zakat.hawl_completion_date` within 60 days of `as_of`, before or after | Your zakat year ends on {date}. The estimate so far is {amount} (after the date: Your zakat year ended on {date}. The estimate is {amount}) |
+| 6 | G-sharia-question | sharia | `sharia_screen.disclosures` has at least one question | Questions for you on the Sharia screen: {count}. They are shown for information |
+| 7 | G-review | review | `anomaly.flags` has at least one transaction | Transactions listed for you to review: {count}. A full list is normal: it is a queue for a person, not an alarm |
+| 8 | G-zakat-pending | zakat | zakat computed and `zakat.nisab_source_status` not in the catalogue's verified list | The zakat estimate uses a nisab price that is not yet confirmed. Treat it as an estimate |
+| 9 | G-cash-ok | forecast | `forecast.crunch_alert.level` is none and every projected minimum balance is at or above 0 | Your forecast stays above your cash floor through day {days} of the forecast |
+| | G-nothing | | no rule fired, on a business where at least one lens ran | Nothing needs your attention right now |
+
+Changes from the SOP's draft table, each because of what the API returns:
+- **G-cash-watch is new.** 10001's forecast stays above the floor while its crunch alert is at Watch. Without this
+  rule the owner would have been told only that the forecast stays above the floor.
+- **G-sharia-question is new.** The Sharia screen lists questions for the owner (disclosures) that are not rules for
+  review; they get their own, lower line.
+- **G-credit-top quotes the backend's own line** verbatim (U4) instead of a factor label, because the API gives no
+  English label for a factor.
+- **G-review's wording** follows the review page's own framing (a queue, not an alarm); the SOP's "unusual
+  transactions are waiting" would have overstated a list that is always filled to ten.
+- **Counts are written as "thing: {count}"**, so no sentence needs plural forms in either language (rule A6).
+- **G-nothing is silent when no lens ran** (a business refused as insufficient data): "nothing needs your attention"
+  would not be true of a business nothing was computed for.
+
+**Figures.** Every amount and date is the API's value through the app's own formatters. One figure is worked out:
+G-cash-floor's date is `as_of` plus the returned number of days, and its sentence says "around". Its amount is the
+lowest projected balance the API returned, and the sentence says "about".
+
+**Who sees it.** The owner only. The DECISIONS 58 roles table does not cover a new owner-only block, so the admin, the
+public demo and the Compliance View see none; this is for Faris to confirm. The role is read in the browser, as
+`RoleRecord` does.
+
+**Print.** The block is hidden in print and is not on the decision sheet, so the sheet's page count for 10001 is
+unchanged.
+
+**For 10001 the overview shows:** G-cash-watch, G-credit-top, G-zakat-due (ended 21 July 2026, estimate 5,963.26).
+
+### IN3: change over time
+
+**Route.** `GET /insights/history?business_id=` (`api/insights.py`, Faris as acting API owner). For four profile
+features it returns the value as of the business's own as-of date and as of earlier dates 30 days apart. Each value is
+the profile engine's own, through `pipeline.data.run_profiles`, with only the as-of date moved: the four features are
+computed from daily aggregates inside the trailing 90-day window, so nothing else needs to change. A date is included
+only if the whole 90-day window before it lies inside the business's data, so every point is the same measure. Nothing
+is interpolated. The newest point equals `/profile` today (tested for 10001 and one business per other sector). The
+route is keyed, rate-limited per business, explicit on `insufficient_data`, and carries the same receipt as `/profile`.
+Nothing in `lenses/`, `compliance/`, `pipeline/` or `profile_engine/` was edited.
+
+**The four figures:** `avg_monthly_inflow`, `inflow_outflow_ratio`, `avg_daily_balance`, `cash_flow_volatility`. They
+are profile figures the owner already sees, and they depend on daily data alone. The Arabic labels are the backend's
+own factor labels, except volatility: the backend calls it «استقرار التدفق النقدي» (stability), which would read
+backwards beside "up" and "down", so the block says «تقلب التدفق النقدي» (draft).
+
+**What the data supports.** 10001 has 180 days of data (1 February to 30 July 2026), which gives four dated values.
+Of the first 45 serving businesses: 34 have four, 3 have three, 2 have one or two, 4 have none, and 2 are refused as
+insufficient data. The shortest history among the 300 is 30 days.
+
+**Display.** Inside the profile figures on the overview: the current value; a direction word and the API's two values
+("Up since 30 June 2026: 231,437.86 then, 232,275.55 now"), with no difference worked out; a small line of the dated
+values; and the same values as a table. Fewer than three dates shows "Not enough history yet to show a trend". A date
+with no value has no mark and the line does not join across it. The line is drawn at once. Marks are 44 px targets
+with the 14 px dot and the shared focus ring, and show a readout on hover, focus and tap. Time runs left to right in
+Arabic.
+
+**Credit and zakat results over time are not shown.** Recomputing a lens result for a past date needs the lens's own
+code run on past inputs, and several of its inputs (counterparty windows, obligations, the balance-sheet snapshot)
+are stored only as of today. The web app never rebuilds a lens result (decision 10).
+
+### IN2: peer comparison stopped (S6)
+
+The comparison with similar businesses was not built for the owner. Schema §36.4 is titled "Rejected: Synthetic-
+Population Peer Benchmarking": it rejects a "how do you compare to peers" feature because it presents a comparison
+against synthetic businesses to the person least able to detect the substitution. Rule U9 (entry 41) is "No peer
+benchmarking (§36.4)", with a test. Decision 9 above adds labelling but does not say it overrides §36.4 or U9, and the
+SOP's stop code S6 says that where the SOP conflicts with the schema or DECISIONS beyond section 1a, the repo is
+followed and the conflict reported.
+
+What the data would support, for the record: sector groups among the 300 serving businesses whose profile ran are
+retail trade 143, construction 98, food and beverage 36 and professional services 5, so the last would need the
+all-businesses fallback. A read-only route and its tests were written and then taken out before anything was pushed;
+they are kept outside the repo as a patch. The same schema section points to the self-comparison of §36.2 as the
+version that keeps the useful part, and that is IN3.
+
+Options for the team: keep the rejection (nothing to do); or amend §36.4 and U9 by a team decision, after which the
+route and a comparison block can be added.
+
+### Checks
+
+At the head of the branch, on the quick backend (N = 300 serving businesses):
+
+- `tsc` and ESLint clean; the build compiles.
+- vitest: 380 passed (347 at the end of entry 61).
+- Playwright, full suite, all projects: 1159 passed, 0 failed, 3 skipped (the three explained in entry 61). The run
+  before the last fixes had 1156 passed and 3 failed, all three the admin finder's refusal tests, which expected the
+  old message for typed numbers; they now name the message each input gets and also check that no request is sent.
+  Both tour walks and all 36 visual snapshots pass inside the full run, which they did not before the request layer.
+- The API log for the full run holds 13 rate-limit refusals, all for business 10011, which one test exhausts on
+  purpose to check the "request limit" state; there is no other 429.
+- That log also showed a fault in the first version of the request layer: the one retry after a 429 never reached the
+  API, because Next remembers identical requests within one page render. Each request now carries an abort signal,
+  the documented way to opt out, and the log shows the retry (two refusals per route in that test, not one).
+- Visual snapshots: none changed. The new blocks are owner-only or inside closed sections, so the public pages the
+  snapshots cover are the same.
+- The decision sheet for 10001 prints on 3 pages, as before. Ten quick overview loads show no error state.
+- pytest, on the current store (`MAAL_STORE=data/serving_quick.duckdb`): 229 passed, 1 failed, 2 skipped; before this
+  entry 221 passed, 1 failed (a test that expects 1,000 businesses, where the quick store holds 300). The difference is
+  the 8 new history tests. On the default `data/serving.duckdb`: 215 passed, 12 failed, 3 errors, 2 skipped, against
+  214 passed and 8 failed before. That store is stale (built before entry 30: "business(es) have thinned rows but no
+  counterparty_windows rows"), which is the cause of the 8 old failures and of the 7 new tests that need the store.
+  It needs rebuilding with `python -m api.store`; this entry does not touch it.
+
+**Deviations from the SOP.** The branch starts from `faris/ui-motion`, not `main` (S10). IN2 is not built (S6). CR1 and
+CR2 are one commit, because the validation and the hint are one component. The validator is used by the sign-in field
+and the admin finder's number path, not by the three name pickers and the prefix filter. An empty registration field
+is refused on sending, not on leaving it. Lens-page guidance sits at the end of the page, after the record card. The
+manual pass in a visible browser was done by automated checks and screenshots; nobody has yet walked it by eye.
+
+**Sign-off:** ☐ team (entry field, guidance, trend) ☐ compliance owner (guidance wording on zakat and Sharia, Arabic copy) ☐ credit lens owner (credit guidance line) ☐ API owner (new read-only route, request layer)
