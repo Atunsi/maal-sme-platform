@@ -1,4 +1,4 @@
-:HL["/maal-sme-platform/preview/_next/static/chunks/25-y0sygd80og.css","style"]
+:HL["/maal-sme-platform/preview/_next/static/chunks/2dlwbns4vg461.css","style"]
 :HL["/maal-sme-platform/preview/_next/static/media/ibm_plex_mono_latin_400_normal-s.p.3xdfs0-p_zi4c.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/maal-sme-platform/preview/_next/static/media/ibm_plex_mono_latin_500_normal-s.p.11q3guvgd1r20.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/maal-sme-platform/preview/_next/static/media/ibm_plex_sans_arabic_arabic_400_normal-s.p.0a8jtlzovcn2x.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
@@ -16,4 +16,4 @@
 3:[["children",{"s":{"n":"id","t":"d","k":"10010","s":[]},"h":100,"c":"$Q4"}]]
 2:[["children",{"s":"business","h":72,"c":"$Q3"}]]
 1:[["children",{"s":{"n":"locale","t":"d","k":"ar","s":["app-icon","fonts"]},"h":56,"c":"$Q2"}]]
-0:{"b":"uVu7_5rj_dEoL11Izdg-W","t":{"t":{"s":"","h":88,"c":"$Q1"}}}
+0:{"b":"35Wze4cStl0aVxSxw2uAJ","t":{"t":{"s":"","h":88,"c":"$Q1"}}}
