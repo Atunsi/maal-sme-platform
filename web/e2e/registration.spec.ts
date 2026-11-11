@@ -66,6 +66,11 @@ test("entry field error is announced and tied to the field", async ({ page }) =>
   }
   // CR-V1: none of that called anything.
   expect(requests).toEqual([]);
+  // With the last error still showing, the demo number is one real click away: the message stays put as focus
+  // leaves the field, so the button does not move from under the pointer.
+  await page.getByRole("button", { name: "Use the demo number 10001" }).click();
+  await expect(field).toHaveValue("10001");
+  await expect(error).toHaveCount(0);
   // Leaving the field checks the format; typing clears the message.
   await field.fill("abc");
   await page.getByLabel("Password").focus();

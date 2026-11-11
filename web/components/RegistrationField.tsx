@@ -74,7 +74,10 @@ export function RegistrationField({ r, demo, demoNumber, value, onValue, problem
         }}
         onBlur={() => {
           // Leaving the field checks the format of what was typed. An empty field is only refused on sending.
-          if (value.trim() !== "") onProblem(formatProblem(value));
+          // It can raise a message but never clears one: a message that went away as focus left would move the
+          // page under the pointer, and a click on the demo number below would miss. Typing clears it.
+          const found = value.trim() === "" ? null : formatProblem(value);
+          if (found) onProblem(found);
         }}
       />
       {problem && (

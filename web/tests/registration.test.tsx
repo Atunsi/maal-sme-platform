@@ -139,4 +139,18 @@ describe("commercial registration number", () => {
     expect(document.activeElement).toBe(field); // focus returns to the field
     expect(formatProblem("")).toBe("empty");
   });
+
+  it("the demo number can be clicked right after any error", () => {
+    // Leaving the field never removes a message, so the hint's button does not move away from the pointer.
+    render(<SignInForm locale="en" s={en.signIn} r={en.registration} demo={DEMO} />);
+    const field = screen.getByLabelText(en.registration.label) as HTMLInputElement;
+    fireEvent.change(field, { target: { value: "10999" } });
+    fireEvent.submit(field.closest("form")!);
+    expect(screen.getByRole("alert").textContent).toContain("No demo business has this number");
+    fireEvent.blur(field);
+    expect(screen.getByRole("alert").textContent).toContain("No demo business has this number"); // still there
+    fireEvent.click(screen.getByRole("button", { name: "Use the demo number 10001" }));
+    expect(field.value).toBe("10001");
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
 });
