@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { TrendLine, type TrendPoint } from "@/components/TrendLine";
-import { ApiError, Num, Sar, SubHeading, TD, TH } from "@/components/ui";
+import { ApiError, Num, Sar, TD, TH } from "@/components/ui";
 import { formatDate, formatFixed, formatSar, formatSarSpoken } from "@/lib/format";
 import { fill, fillNodes, type Locale, type Messages } from "@/lib/i18n";
 import type { ApiResult, HistoryResponse } from "@/lib/types";
@@ -86,27 +86,39 @@ function Row({ metric, history, locale, m }: { metric: string; history: NonNulla
   );
 }
 
+/** OV1 (DECISIONS 63): its own section on the overview, with a heading at the readouts' level, open without a click. */
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section id="trends" aria-labelledby="trends-title" data-trends className="drift min-w-0 border border-line bg-card p-6">
+      <h2 id="trends-title" className="heading mb-3 text-heading">
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
 /**
- * IN3 (DECISIONS 62): change over time, inside the profile figures. A business beside its own past (schema
- * §36.2); it is compared with no other business (§36.4, U9), and the intro says so. Only dates the API
- * returned are shown; a business whose profile did not run gets no block at all.
+ * IN3 (DECISIONS 62): change over time. OV1 (DECISIONS 63): its own section between the readouts and the profile
+ * figures, no longer inside them. A business beside its own past (schema §36.2); it is compared with no other
+ * business (§36.4, U9), and the intro says so. Only dates the API returned are shown; a business whose profile did
+ * not run gets no block at all (the overview passes the profile result in for that).
  */
-export async function Trends({ result, locale, m }: { result: Promise<ApiResult<HistoryResponse>>; locale: Locale; m: Messages }) {
+export async function Trends({ result, profile, locale, m }: { result: Promise<ApiResult<HistoryResponse>>; profile?: Promise<ApiResult<unknown>>; locale: Locale; m: Messages }) {
+  if (profile && !(await profile).ok) return null;
   const r = await result;
   const t = m.trend;
   if (!r.ok) {
     return (
-      <section aria-label={t.title} data-trends className="mt-5">
-        <SubHeading>{t.title}</SubHeading>
+      <Section title={t.title}>
         <ApiError kind={r.kind} detail={r.detail} m={m} />
-      </section>
+      </Section>
     );
   }
   const history = r.data.history;
   if (!history) return null;
   return (
-    <section aria-label={t.title} data-trends className="mt-5">
-      <SubHeading>{t.title}</SubHeading>
+    <Section title={t.title}>
       <p className="mb-4 text-label text-muted">{t.intro}</p>
       {history.points.length === 0 ? (
         <p className="text-label text-muted" data-trend-short>
@@ -119,6 +131,6 @@ export async function Trends({ result, locale, m }: { result: Promise<ApiResult<
           ))}
         </div>
       )}
-    </section>
+    </Section>
   );
 }

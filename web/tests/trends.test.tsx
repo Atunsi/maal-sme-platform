@@ -86,7 +86,7 @@ describe("change over time", () => {
     // Time runs left to right in Arabic too.
     const arabic = await show(data, "ar");
     expect(arabic.container.querySelector("[data-trend-line]")!.getAttribute("dir")).toBe("ltr");
-    expect(arabic.container.querySelector("[data-trends] h3")!.textContent).toBe(ar.trend.title);
+    expect(arabic.container.querySelector("[data-trends] h2")!.textContent).toBe(ar.trend.title);
   });
 
   it("short history shows the sentence", async () => {

@@ -123,18 +123,13 @@ export default async function OverviewPage({ params, searchParams }: Props) {
           </Lens>
         </div>
       </section>
+      {/* OV1 (DECISIONS 63): the order is verdict, readouts, how your figures have moved, profile features, in the
+          markup itself. Change over time is its own section, open without a click; no profile, no block. */}
+      <Suspense fallback={null}>
+        <Trends result={history} profile={profile} locale={locale} m={m} />
+      </Suspense>
       <Lens title={m.dashboard.profileTitle} result={profile} m={m}>
-        {(data) => (
-          <ProfilePanel
-            data={data}
-            m={m}
-            trends={
-              <Suspense fallback={null}>
-                <Trends result={history} locale={locale} m={m} />
-              </Suspense>
-            }
-          />
-        )}
+        {(data) => <ProfilePanel data={data} m={m} />}
       </Lens>
     </Page>
   );

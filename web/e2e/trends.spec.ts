@@ -4,11 +4,9 @@ import { expectAxeClean } from "./axe";
 
 const openProfile = async (page: import("@playwright/test").Page) => page.locator("#profile > details > summary").click();
 
-test("trend sits inside the profile figures and shows only what the API returned", async ({ page }) => {
+test("trend shows only what the API returned", async ({ page }) => {
   await page.goto("/en/business/10001?as=owner", { waitUntil: "networkidle" });
-  // Closed with the profile figures, so the overview is no longer than before until they are opened.
-  await expect(page.locator("[data-trends]")).toBeHidden();
-  await openProfile(page);
+  // OV1 (DECISIONS 63): its own section, open without a click.
   const block = page.locator("[data-trends]");
   await expect(block).toBeVisible();
   await expect(block).toContainText("is not compared with any other business");
@@ -35,7 +33,6 @@ test("latest trend value equals the current value", async ({ page }) => {
 
 test("trend marks show a readout on focus and never move a value", async ({ page }) => {
   await page.goto("/en/business/10001", { waitUntil: "networkidle" });
-  await openProfile(page);
   const row = page.locator('[data-trend="avg_daily_balance"]');
   const first = row.locator("[data-trend-point]").first();
   const before = await row.locator("[data-trend-current]").innerText();
@@ -57,7 +54,6 @@ test("trend marks show a readout on focus and never move a value", async ({ page
 
 test("short history shows the sentence", async ({ page }) => {
   await page.goto("/en/business/10032", { waitUntil: "networkidle" });
-  await openProfile(page);
   const block = page.locator("[data-trends]");
   await expect(block.locator("[data-trend-short]").first()).toHaveText("Not enough history yet to show a trend");
   await expect(block.locator("[data-trend-line]")).toHaveCount(0);
@@ -71,7 +67,6 @@ for (const [locale, theme, width] of [["en", "light", 1280], ["ar", "dark", 1280
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
     await page.goto(`/${locale}/business/10004`, { waitUntil: "networkidle" });
-    await openProfile(page);
     await expect(page.locator("[data-trends]")).toBeVisible();
     for (const summary of await page.locator("[data-trend-table] summary").all()) await summary.click();
     await expectAxeClean(page);
@@ -81,3 +76,48 @@ for (const [locale, theme, width] of [["en", "light", 1280], ["ar", "dark", 1280
     await expect(page.locator("[data-trend-line]").first()).toHaveAttribute("dir", "ltr");
   });
 }
+
+// OV1 (DECISIONS 63): the overview's four sections, in the markup and on screen, for every role, locale and width.
+const ORDER = ["verdict", "readouts", "trends", "profile"] as const;
+for (const role of ["owner", "default"] as const) {
+  for (const locale of ["en", "ar"] as const) {
+    for (const width of [1280, 390]) {
+      test(`overview sections follow the fixed order: ${role} ${locale} ${width}`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`/${locale}/business/10001${role === "owner" ? "?as=owner" : ""}`, { waitUntil: "networkidle" });
+        const found = await page.evaluate((order) => {
+          const pick: Record<string, Element | null> = {
+            verdict: document.querySelector("[data-tour='verdict']"),
+            readouts: document.querySelector("section[aria-labelledby='readouts']"),
+            trends: document.querySelector("[data-trends]"),
+            profile: document.querySelector("#profile"),
+          };
+          const els = order.map((k) => pick[k]);
+          if (els.some((el) => !el)) return { missing: order.filter((k) => !pick[k]) };
+          const domOrdered = els.every((el, i) => i === 0 || els[i - 1]!.compareDocumentPosition(el!) & Node.DOCUMENT_POSITION_FOLLOWING);
+          const tops = els.map((el) => el!.getBoundingClientRect().top + window.scrollY);
+          // No CSS order or reversed flex to fake it (OV1, decision 3).
+          const faked = els.some((el) => {
+            const s = getComputedStyle(el!);
+            const p = getComputedStyle(el!.parentElement!);
+            return s.order !== "0" || p.flexDirection.endsWith("reverse");
+          });
+          return { domOrdered, tops, faked };
+        }, ORDER);
+        expect(found).not.toHaveProperty("missing");
+        expect(found.domOrdered).toBe(true);
+        expect(found.faked).toBe(false);
+        for (let i = 1; i < found.tops!.length; i++) expect(found.tops![i]).toBeGreaterThan(found.tops![i - 1]!);
+      });
+    }
+  }
+}
+
+test("figures moved is visible without opening anything", async ({ page }) => {
+  await page.goto("/en/business/10001", { waitUntil: "networkidle" });
+  const block = page.locator("[data-trends]");
+  await expect(block).toBeVisible();
+  await expect(block.getByRole("heading", { level: 2, name: "How your figures have moved" })).toBeVisible();
+  await expect(block.locator("xpath=ancestor::details")).toHaveCount(0);
+  await expect(block.locator("[data-trend-line]").first()).toBeVisible();
+});
