@@ -50,6 +50,8 @@ save("/businesses-snapshot", snapshot);
 for (const { business_id: id } of snapshot) {
   save(`/profile/${id}`, await get(`/profile/${id}`));
   for (const lens of ["credit", "forecast", "anomaly", "zakat"]) save(`/lenses/${lens}?business_id=${id}`, await get(`/lenses/${lens}?business_id=${id}`));
+  // IN3 (DECISIONS 62): the business's own history, so the snapshot's trend block needs no live API.
+  save(`/insights/history?business_id=${id}`, await get(`/insights/history?business_id=${id}`));
   process.stdout.write(".");
 }
 console.log(`\ncaptured ${snapshot.length} businesses of ${listed.length} serving, into ${DIR}/`);

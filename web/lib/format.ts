@@ -51,6 +51,11 @@ export function formatRaw(value: number, locale: Locale, digits: Digits = "latn"
   return plain(new Intl.NumberFormat(TAGS[locale][digits], { maximumFractionDigits: 20, useGrouping: false }).format(value));
 }
 
+/** A plain figure to a fixed number of decimals (IN3: a ratio to two), with the page's digits. */
+export function formatFixed(value: number, locale: Locale, decimals: number, digits: Digits = "latn"): string {
+  return plain(new Intl.NumberFormat(TAGS[locale][digits], { minimumFractionDigits: decimals, maximumFractionDigits: decimals, useGrouping: false }).format(value));
+}
+
 /**
  * B4: a percentage as one string with its sign, so the digits switch converts the sign with the number.
  * `value` is already in percent (6.5 means 6.5%). Without `decimals` every digit the API sent is kept, as

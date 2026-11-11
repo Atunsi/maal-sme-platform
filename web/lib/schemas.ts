@@ -256,6 +256,18 @@ export const ProfileResponse = z.object({
   null_reasons: z.record(z.string(), z.string()),
 });
 
+// IN3 (DECISIONS 62): GET /insights/history. A business's own profile figures as of earlier dates, oldest first.
+// Like a lens, a null body is legal only as the explicit refusal (§15). It carries the same receipt as /profile.
+export const HistoryPoint = z.object({ as_of: isoDate, metrics: z.record(z.string(), z.number()) });
+export const HistoryResponse = z
+  .object({
+    ...header,
+    history: z
+      .object({ window_days: z.number().int(), step_days: z.number().int(), metrics: z.array(z.string()), points: z.array(HistoryPoint), deterministic: z.literal(true) })
+      .nullable(),
+  })
+  .refine((r) => refusalIsExplicit(r.history, r), { message: "history may be null only with lens_not_run_reason" });
+
 // A scenario object is the Week 8 object, not an API response, so it differs from the routes above:
 // sharia_screen sits under governance, the reason key is plural, and credit sections are null, not absent.
 export const ScenarioObject = z

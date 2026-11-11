@@ -9,6 +9,7 @@ import type {
   ForecastBody,
   ForecastResponse,
   HealthResponse,
+  HistoryResponse,
   ProfileResponse,
   Receipt,
   ScenarioIndex,
@@ -28,6 +29,7 @@ export type AnomalyResponse = z.infer<typeof AnomalyResponse>;
 export type ZakatResponse = z.infer<typeof ZakatResponse>;
 export type ProfileResponse = z.infer<typeof ProfileResponse>;
 export type HealthResponse = z.infer<typeof HealthResponse>;
+export type HistoryResponse = z.infer<typeof HistoryResponse>;
 export type ScenarioObject = z.infer<typeof ScenarioObject>;
 export type ScenarioIndex = z.infer<typeof ScenarioIndex>;
 export type BusinessesResponse = z.infer<typeof BusinessesResponse>;

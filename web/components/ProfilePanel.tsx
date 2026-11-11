@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Card, Code, Num, TableScroll, TD, TH } from "@/components/ui";
 import { localeOf, type Messages } from "@/lib/i18n";
 import type { ProfileResponse } from "@/lib/types";
@@ -8,7 +9,7 @@ import { recordInput } from "@/lib/record";
  * Raw names and values only. U9: the sector-relative z-scores (features 55-59) are listed like any
  * other feature and are never framed as a comparison with peers or a sector average (§36.4).
  */
-export function ProfilePanel({ data, m }: { data: ProfileResponse; m: Messages }) {
+export function ProfilePanel({ data, m, trends }: { data: ProfileResponse; m: Messages; /** IN3: change over time, after the figures. */ trends?: ReactNode }) {
   const d = m.dashboard;
   return (
     <Card id="profile" title={d.profileTitle} className="drift">
@@ -40,6 +41,8 @@ export function ProfilePanel({ data, m }: { data: ProfileResponse; m: Messages }
             </table>
           </TableScroll>
         </div>
+        {/* IN3 (DECISIONS 62): the business's own figures over time. Not a comparison with peers (U9, §36.4). */}
+        {trends}
         {/* LG5 (DECISIONS 60): the profile's record sits inside the figures it describes, so the overview shows one
             record card (the verdict's) until the figures are opened. Who sees what (DECISIONS 58) is unchanged. */}
         <DecisionRecord input={recordInput("profile", data)} receipt={data.receipt} lens={m.receipt.profile} locale={localeOf(m)} m={m} />

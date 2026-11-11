@@ -1,0 +1,61 @@
+{
+  "business_id": 10032,
+  "population": "serving",
+  "data_source": "synthetic",
+  "sector": "construction",
+  "as_of": "2026-07-30",
+  "status": "partial_profile",
+  "coverage_days_90d": 82,
+  "partial_profile_unavailable_features": [
+    "revenue_growth_rate_90d",
+    "expense_growth_rate_90d",
+    "inflow_break_recency_days",
+    "counterparty_persistence_ratio"
+  ],
+  "history": {
+    "window_days": 90,
+    "step_days": 30,
+    "metrics": [
+      "avg_monthly_inflow",
+      "inflow_outflow_ratio",
+      "avg_daily_balance",
+      "cash_flow_volatility"
+    ],
+    "points": [
+      {
+        "as_of": "2026-06-30",
+        "metrics": {
+          "avg_monthly_inflow": 605071.6466666666,
+          "inflow_outflow_ratio": 0.8884290063457545,
+          "avg_daily_balance": 295904.2704444444,
+          "cash_flow_volatility": 68486.8922925877
+        }
+      },
+      {
+        "as_of": "2026-07-30",
+        "metrics": {
+          "avg_monthly_inflow": 533829.9466666667,
+          "inflow_outflow_ratio": 0.8158494797626246,
+          "avg_daily_balance": 155037.15144444446,
+          "cash_flow_volatility": 66826.41647820854
+        }
+      }
+    ],
+    "deterministic": true
+  },
+  "receipt": {
+    "schema_version": "v2.10",
+    "config_sha256": "4964d746a1d503e1b235d458afff797c7cc5dd7511fbfea1cb9adabea173d953",
+    "lens_config_sha256": "0e7da017a93cc682bc07c90509a65c6bc7b8c0cd5dec10bb55f64039436580ea",
+    "credit_model_version": "v1",
+    "credit_model_sha256": "7ed936b6ee7e3331b7555b94e74b1aa4fc5126d32ab973f0d01ba16261ec9274",
+    "credit_model_cv_auc": 0.5911,
+    "credit_model_oracle_ceiling_auc": 0.666,
+    "reference_stats_sha256": "e7d4beb01d7ffe2583a91a6cad2c53e124ee241391a09137a2e3609b05217f60",
+    "sharia_rules_sha256": "e90efd67c9ad7887c520fec5d589ed0bb8b9a952a0d37be93b99657110a30cf3",
+    "code_commit": "4d50ab35f7b0916c1bf3cf72eedf9432bbbaab07+dirty",
+    "generated_by": "api",
+    "data_sha256": "a5614036068fa6a6fc049d5c66a823b0a3aac4d259b2485f2a38287aa7da0e60",
+    "output_sha256": "650cc5365d7e942936b2960dd99f87f7c51ebc70e0d6e68f22fe140dd5326f6b"
+  }
+}

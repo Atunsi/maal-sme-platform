@@ -7,6 +7,7 @@ import {
   BusinessesResponse,
   CreditResponse,
   ForecastResponse,
+  HistoryResponse,
   ProfileResponse,
   ScenarioCatalog,
   ScenarioObject,
@@ -24,14 +25,17 @@ const SCHEMAS: Record<string, ZodType> = {
   businesses: BusinessesResponse,
   scenarios: ScenarioCatalog,
   custom: ScenarioObject,
+  // DECISIONS 62 (IN3): GET /insights/history
+  history: HistoryResponse,
 };
 
 describe("fixtures parse", () => {
   const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
 
-  it("covers 29 captured (25 lens, 4 from the DECISIONS 44 routes) and 5 synthetic-state fixtures", () => {
+  it("covers 34 captured (25 lens, 4 from the DECISIONS 44 routes, 5 history) and 5 synthetic-state fixtures", () => {
     expect(files.filter((f) => f.includes("_synthetic_state"))).toHaveLength(5);
-    expect(files.filter((f) => !f.includes("_synthetic_state"))).toHaveLength(29);
+    expect(files.filter((f) => !f.includes("_synthetic_state") && !f.startsWith("history_"))).toHaveLength(29);
+    expect(files.filter((f) => f.startsWith("history_"))).toHaveLength(5); // 4, 3, 2 and 0 dates, and one refusal
   });
 
   it.each(files)("%s", (file) => {

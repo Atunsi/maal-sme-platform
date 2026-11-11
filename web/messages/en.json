@@ -846,6 +846,26 @@
       }
     }
   },
+  "trend": {
+    "title": "How your figures have moved",
+    "intro": "Each figure is the same 90-day measure, worked out again as of earlier dates. It uses your own data only and is not compared with any other business.",
+    "metrics": {
+      "avg_monthly_inflow": "Average monthly inflow",
+      "inflow_outflow_ratio": "Inflow to outflow ratio",
+      "avg_daily_balance": "Average daily balance",
+      "cash_flow_volatility": "Cash flow volatility"
+    },
+    "up": "Up since {date}",
+    "down": "Down since {date}",
+    "same": "No change since {date}",
+    "thenNow": "{previous} then, {current} now",
+    "short": "Not enough history yet to show a trend",
+    "values": "Show the values",
+    "date": "As of",
+    "value": "Value",
+    "point": "{date}, {value}",
+    "chart": "{metric}, from {from} to {to}"
+  },
   "admin": {
     "eyebrow": "Serving population, synthetic data",
     "title": "All businesses",

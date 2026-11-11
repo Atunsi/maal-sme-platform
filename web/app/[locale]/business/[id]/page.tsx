@@ -7,10 +7,11 @@ import { Lens, NotServing } from "@/components/LensPage";
 import { PrintButton } from "@/components/PrintButton";
 import { OverviewNextSteps } from "@/components/NextSteps";
 import { ProfilePanel } from "@/components/ProfilePanel";
+import { Trends } from "@/components/Trends";
 import { creditReadout, forecastReadout, ReadoutCard, reviewReadout, shariaReadout, zakatReadout } from "@/components/Readouts";
 import { ApiError, Card, Page } from "@/components/ui";
 import { VerdictSheet } from "@/components/VerdictSheet";
-import { getAnomaly, getCredit, getForecast, getProfile, getZakat } from "@/lib/api";
+import { getAnomaly, getCredit, getForecast, getHistory, getProfile, getZakat } from "@/lib/api";
 import { roleOf, roleQuery } from "@/lib/businesses";
 import { fill, getMessages, isLocale } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
@@ -47,6 +48,7 @@ export default async function OverviewPage({ params, searchParams }: Props) {
   const forecast = getForecast(id, scope);
   const profile = getProfile(id, scope);
   const anomaly = getAnomaly(id, scope);
+  const history = getHistory(id, scope); // IN3: after the lenses, so it delays no card
 
   const first = await credit;
   if (!first.ok && first.kind === "not_found") return <NotServing locale={locale} m={m} id={rawId} />;
@@ -122,7 +124,17 @@ export default async function OverviewPage({ params, searchParams }: Props) {
         </div>
       </section>
       <Lens title={m.dashboard.profileTitle} result={profile} m={m}>
-        {(data) => <ProfilePanel data={data} m={m} />}
+        {(data) => (
+          <ProfilePanel
+            data={data}
+            m={m}
+            trends={
+              <Suspense fallback={null}>
+                <Trends result={history} locale={locale} m={m} />
+              </Suspense>
+            }
+          />
+        )}
       </Lens>
     </Page>
   );

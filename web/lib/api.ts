@@ -10,6 +10,7 @@ import {
   CreditResponse,
   ForecastResponse,
   HealthResponse,
+  HistoryResponse,
   ProfileResponse,
   ScenarioCatalog,
   ScenarioObject,
@@ -126,6 +127,8 @@ export const getCredit = (id: number, scope?: Scope) => get(`/lenses/credit?busi
 export const getForecast = (id: number, scope?: Scope) => get(`/lenses/forecast?business_id=${id}`, ForecastResponse, BUSINESS_DATA_MS, scope);
 export const getAnomaly = (id: number, scope?: Scope) => get(`/lenses/anomaly?business_id=${id}`, AnomalyResponse, BUSINESS_DATA_MS, scope);
 export const getZakat = (id: number, scope?: Scope) => get(`/lenses/zakat?business_id=${id}`, ZakatResponse, BUSINESS_DATA_MS, scope);
+// IN3 (DECISIONS 62): the business's own figures as of earlier dates.
+export const getHistory = (id: number, scope?: Scope) => get(`/insights/history?business_id=${id}`, HistoryResponse, BUSINESS_DATA_MS, scope);
 
 // DECISIONS 44 routes, through the same queue.
 export type BusinessQuery = { offset: number; limit: number; sector?: string; q?: string };
