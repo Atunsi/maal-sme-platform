@@ -1,6 +1,7 @@
 // U14: with reduced motion nothing animates and every page shows its final state at once. The base
 // style of each animated element is its final state, so this holds even with the keyframes gone.
 import { expect, test, type Page } from "@playwright/test";
+import en from "../messages/en.json";
 
 async function settledWithoutMotion(page: Page, path: string) {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -77,7 +78,13 @@ test("reduced motion: U6 the Sharia frame and its outline stand without animatio
 
 test("reduced motion: U7 zakat shows the nisab plate, the bars and the nisab marker", async ({ page }) => {
   await settledWithoutMotion(page, "/en/business/10001/zakat");
-  await expect(page.getByText("Nisab price is a commercial quote, pending independent verification")).toBeVisible();
+  // The plate carries the words for the status the API returns. Since entry 54 that is the World Bank monthly
+  // average, not the commercial quote this test used to expect (it had failed since that change reached the UI).
+  // It must be the plate itself, visible, with exactly the catalogue's words for that status (U7, R7).
+  const plate = page.locator("main .plate", { hasText: en.zakat.nisabStatus.world_bank_monthly_average_pending_sharia_advisor });
+  await expect(plate).toBeVisible();
+  await expect(plate).toHaveText(en.zakat.nisabStatus.world_bank_monthly_average_pending_sharia_advisor);
+  expect(en.zakat.nisabVerified as string[]).not.toContain("world_bank_monthly_average_pending_sharia_advisor");
   expect(await widthOf(page, ".fill-bar")).toBeGreaterThan(100);
   await expect(page.getByText(/^nisab /)).toBeVisible();
 });
