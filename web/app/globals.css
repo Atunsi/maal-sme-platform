@@ -524,15 +524,7 @@ a.themebtn {
   cursor: pointer;
 }
 
-/* The repeated motif: small Arabic logos drifting under the header and between sections. */
-.weave {
-  height: 28px;
-  background-image: var(--tile);
-  background-size: 28px 28px;
-  background-repeat: repeat-x;
-  animation: weave 40s linear infinite;
-}
-.weave.ondark,
+/* The section mark's tile on a dark band (DECISIONS 59: the drifting logo band that shared this rule is gone). */
 .mk.ondark {
   background-image: url("/brand/maal-logo-tile-dark.svg");
 }
@@ -1095,14 +1087,6 @@ details.faq[open] .faq-close {
     transform: none;
   }
 }
-@keyframes weave {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: -560px 0;
-  }
-}
 
 @keyframes draw {
   from {
@@ -1596,7 +1580,6 @@ body > header:first-of-type {
     background: #ffffff;
   }
   header,
-  .weave,
   nav,
   button,
   [data-print-hide],

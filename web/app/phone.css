@@ -39,9 +39,6 @@
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
   }
-  body > header:first-of-type + .weave {
-    display: none;
-  }
   .menu-drop {
     transform-origin: top;
     animation: menudrop 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;

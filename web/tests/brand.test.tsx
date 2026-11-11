@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { ArabicLogo, EnglishWordmark, LogoBand, SectionMark } from "@/components/brand/Logos";
+import { ArabicLogo, EnglishWordmark, SectionMark } from "@/components/brand/Logos";
 import { AR_BODY, AR_MADDA, EN_BODY, EN_MADDA } from "@/components/brand/logoPaths";
 import { DigitsToggle } from "@/components/DigitsToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -62,14 +62,10 @@ describe("logos", () => {
     expect(classes).toEqual(["lg-body", "lg-madda", "lg-body lg-late", "lg-madda lg-late"]);
   });
 
-  it("the band and section mark are decorative", () => {
-    const { container } = render(
-      <>
-        <LogoBand />
-        <SectionMark />
-      </>,
-    );
-    expect([...container.children].map((el) => el.getAttribute("aria-hidden"))).toEqual(["true", "true"]);
+  // DECISIONS 59 removed the drifting logo band, so it is no longer a subject here; the section mark's check stays.
+  it("the section mark is decorative", () => {
+    const { container } = render(<SectionMark />);
+    expect([...container.children].map((el) => el.getAttribute("aria-hidden"))).toEqual(["true"]);
   });
 });
 

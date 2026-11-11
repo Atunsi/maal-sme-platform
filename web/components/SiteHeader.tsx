@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
-import { ArabicLogo, EnglishWordmark, LogoBand } from "@/components/brand/Logos";
+import { ArabicLogo, EnglishWordmark } from "@/components/brand/Logos";
 import { BusinessSwitcher } from "@/components/BusinessSwitcher";
 import { CommandPalette, type PaletteScenario } from "@/components/CommandPalette";
 import { DigitsToggle } from "@/components/DigitsToggle";
@@ -144,7 +144,6 @@ export function SiteHeader({ locale, m, scenarios, businessIds }: { locale: Loca
           </div>
         </div>
       </header>
-      <LogoBand />
     </>
   );
 }

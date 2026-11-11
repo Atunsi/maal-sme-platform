@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { ArabicLogo, EnglishWordmark, LogoBand, SectionMark } from "@/components/brand/Logos";
+import { ArabicLogo, EnglishWordmark, SectionMark } from "@/components/brand/Logos";
 import { Flow } from "@/components/Flow";
 import { TryBusinesses } from "@/components/TryBusinesses";
 import { Plate, Sar } from "@/components/ui";
@@ -156,7 +156,6 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           )}
         </div>
       </section>
-      <LogoBand />
       <TryBusinesses locale={locale} m={m} />
 
       <section aria-label={l.builtFor} className="bleed border-b border-line bg-card">
@@ -214,7 +213,6 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         <p className="mt-3.5 text-[13px] text-muted">{l.factsNote}</p>
       </section>
 
-      <LogoBand />
       <section id="different" aria-labelledby="diffh" className="on-hero" style={{ background: "var(--night)", color: "var(--night-ink)" }}>
         <div className="mx-auto flex max-w-[1240px] flex-col gap-10 px-6 py-[72px] sm:py-[88px]">
           <SectionHead eyebrow={l.whyEyebrow} title={l.whyTitle} id="diffh" onDark />
@@ -255,7 +253,6 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       </section>
 
       <section aria-label={l.closeLabel} className="on-hero bg-hero text-white">
-        <LogoBand onDark />
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-6 px-6 py-[72px]">
           <div>
             <div className="flex items-end gap-4">

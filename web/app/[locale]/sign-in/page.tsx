@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArabicLogo, EnglishWordmark, LogoBand } from "@/components/brand/Logos";
+import { ArabicLogo, EnglishWordmark } from "@/components/brand/Logos";
 import { DigitsToggle } from "@/components/DigitsToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SignInForm } from "@/components/SignInForm";
@@ -21,9 +21,6 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
   return (
     <div data-motion="full" data-phone="signin" className="flex min-h-[860px] flex-wrap">
       <section aria-label={s.about} data-phone="signin-brand" className="on-hero relative flex min-w-0 flex-[1_1_560px] flex-col justify-between gap-10 overflow-hidden bg-hero px-8 pb-14 pt-[76px] text-white sm:px-14">
-        <div className="absolute inset-x-0 top-0">
-          <LogoBand onDark />
-        </div>
         <div aria-hidden="true" className="absolute -bottom-40 -end-[120px] opacity-[0.08]">
           <ArabicLogo height={700} color="#ffffff" />
         </div>

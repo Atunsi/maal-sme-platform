@@ -42,11 +42,6 @@ export function EnglishWordmark(props: Props) {
   return <Logo {...props} viewBox={EN_VIEWBOX} body={EN_BODY} madda={EN_MADDA} late />;
 }
 
-/** The band of small logos that drifts under the header and between landing sections. */
-export function LogoBand({ onDark }: { onDark?: boolean }) {
-  return <div aria-hidden="true" className={`weave${onDark ? " ondark" : ""}`} />;
-}
-
 /** The small logo before a section label. */
 export function SectionMark({ onDark }: { onDark?: boolean }) {
   return <span aria-hidden="true" className={`mk${onDark ? " ondark" : ""}`} />;

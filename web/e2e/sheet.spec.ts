@@ -23,7 +23,7 @@ test("print sheet shows the required labels", async ({ page }) => {
 test("print sheet hides navigation and toggles", async ({ page }) => {
   await page.emulateMedia({ media: "print" });
   await page.goto("/en/business/10001/sheet?as=admin", { waitUntil: "networkidle" });
-  for (const selector of ["header", "nav", ".weave", "button", "[data-print-hide]"]) {
+  for (const selector of ["header", "nav", "button", "[data-print-hide]"]) { // DECISIONS 59: the logo band is gone
     for (const el of await page.locator(selector).all()) await expect(el).toBeHidden();
   }
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
