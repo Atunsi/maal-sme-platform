@@ -4604,3 +4604,110 @@ serving, 482 pages): https://at1808.github.io/maal-sme-platform/preview/ .
 **Items left out.** None. No stop condition was met.
 
 Sign-off: ☐ team (type scale, header, motion) ☐ compliance owner (nisab status and rule list wording, Arabic copy) ☐ credit lens owner (credit page layout)
+
+## 61. Motion close-out: Arabic for synthetic data is «مصطنعة» (MO9), page transition check, carried test failures traced — PROPOSED (2026-11-11)
+
+**Touches:** `web/` only, plus this entry. Done on `faris/ui-motion` after entry 60, following Part 1 of
+`SOP_close_out_merge_and_owner_insights.md`. This entry completes entry 60; entry 60's text is not edited.
+
+**Decision taken for this work, word for word (SOP section 1a, decision 1; Faris, 2026-11-11).**
+
+1. **«مصطنعة» (Faris).** Decision 1a.13 of the motion SOP v2 applies in full. It is copied in Phase B.
+
+The motion SOP v2 itself was not available to the run (the run of entry 60 followed v1). What Phase B of this SOP
+copies from it, word for word, is the replacement table:
+
+| Before | After |
+|---|---|
+| بيانات اصطناعية | بيانات مصطنعة |
+| مصدر البيانات: اصطناعية | مصدر البيانات: مصطنعة |
+| اصطناعي (masculine noun) | مصطنع |
+| الاصطناعية (definite, data) | المصطنعة |
+
+**What this adds to entry 57.** Entry 57 fixed one Arabic term per concept (rule A7) but its text has no row for
+"synthetic", and the A7 test lists no form for it. This entry adds that row: synthetic (of data) is «مصطنعة». The one
+exception is artificial intelligence, which stays «ذكاء اصطناعي» / «الذكاء الاصطناعي».
+
+**New rule.**
+
+| # | Rule | Enforced by | Test name |
+|---|---|---|---|
+| MO9 | Arabic never calls the data «اصطناعية» | The catalogue and the fixed-text files | `arabic synthetic is not اصطناعية` (tests/arabic-synthetic.test.ts: scans `messages/ar.json`, `lib/tour.ts`, `lib/glossary.ts`, `lib/howItWorks.ts`; fails on any «اصطناعي» outside the two AI phrases) and `arabic pages say مصطنعة for the data source` (e2e/polish.spec.ts: footer on the landing page, sign-in, the 10001 overview and credit page; the header line on the two business pages; no «اصطناعي» anywhere in the page text) |
+
+**Every string changed (all Arabic values remain drafts).** Every match was the feminine form, so each change is
+«اصطناعية» to «مصطنعة», or «الاصطناعية» to «المصطنعة». Each sentence was read in full afterwards; none needed
+rewording. No draft mark was removed: every Arabic string is a draft for the compliance owner for other reasons.
+
+| Key or file | Before | After |
+|---|---|---|
+| `footer.scope` | بيانات اصطناعية فقط. المجموعة: الخدمة. لا تحتفظ ه … | بيانات مصطنعة فقط. المجموعة: الخدمة. لا تحتفظ هذه النسخة ا … |
+| `enums.data_source.synthetic` | اصطناعية | مصطنعة |
+| `landing.lead` | مآل يقرأ التدفق النقدي للمنشأة الصغيرة من خلال أر … | … د يعيد تشغيله. وهذه النسخة التجريبية تشتغل على بيانات مصطنعة. |
+| `landing.illustrative` | توضيحي، بيانات اصطناعية | توضيحي، بيانات مصطنعة |
+| `landing.tryIntro` | خمس منشآت اصطناعية، وحدة لكل حالة تعيدها الواجهة  … | خمس منشآت مصطنعة، وحدة لكل حالة تعيدها الواجهة البرمجية. وكل  … |
+| `landing.faq.0.a` | لا. مآل يعرض مخرجات عدسة تمويل تجريبية على بيانات … | لا. مآل يعرض مخرجات عدسة تمويل تجريبية على بيانات مصطنعة. وهو ليس عرضًا من أي بنك، وهامش الربح ليس مع … |
+| `landing.faq.2.a` | لا. كل منشأة في النسخة التجريبية اصطناعية. ويتطلب … | لا. كل منشأة في النسخة التجريبية مصطنعة. ويتطلب أي تشغيل فعلي إشعارًا بموجب نظام حما … |
+| `landing.project` | مآل، مشروع تخرج جامعي. نسخة تجريبية على بيانات اصطناعية فقط. | مآل، مشروع تخرج جامعي. نسخة تجريبية على بيانات مصطنعة فقط. |
+| `signIn.synthetic` | هذه النسخة التجريبية تشتغل على بيانات اصطناعية. | هذه النسخة التجريبية تشتغل على بيانات مصطنعة. |
+| `admin.eyebrow` | مجموعة الخدمة، بيانات اصطناعية | مجموعة الخدمة، بيانات مصطنعة |
+| `admin.note` | خمس منشآت مختارة لتعرض كل حالة تعيدها الواجهة الب … | … يدها الواجهة البرمجية (مجموعة الخدمة، N = {n}، بيانات مصطنعة). والقائمة الكاملة تحتاج GET /businesses، وه … |
+| `lib/glossary.ts` line 18 | تقدير نموذج مخاطر التمويل لاحتمال تعثر المنشأة في … | … مال تعثر المنشأة في السداد. وهو مخرج نموذج على بيانات مصطنعة، وليس معدلًا مقيسًا. |
+| `lib/glossary.ts` line 30 | قيمة AUC لمؤشر المخاطر المخفي لدى المولّد على هذه … | … C لمؤشر المخاطر المخفي لدى المولّد على هذه البيانات المصطنعة، وهي أقصى ما يبلغه أي نموذج هنا. تبيّن مقدار … |
+| `lib/glossary.ts` line 162 | بيانات اصطناعية | بيانات مصطنعة |
+| `lib/howItWorks.ts` line 45 | كل منشأة هنا [[synthetic-data\|بيانات اصطناعية]]  … | كل منشأة هنا [[synthetic-data\|بيانات مصطنعة]] ينتجها مولّد المشروع من إعدادات ثابتة. لا  … |
+| `lib/howItWorks.ts` line 225 | كل هذا يعمل على بيانات اصطناعية، فلا يصف أي رقم هنا سوقًا حقيقية. | كل هذا يعمل على بيانات مصطنعة، فلا يصف أي رقم هنا سوقًا حقيقية. |
+
+Long sentences are shown around the changed word; nothing else in them changed.
+
+**Matches left alone.** `tests/record.test.ts` line 93, a pattern that looks for «ذكاء اصطناعي» (AI). Three lines of
+this file inside entry 59, which quote the old "no AI" wording. Nothing fitted neither list.
+
+**Backend text.** No Python, YAML or JSON file outside `web/` contains the word, so there is no backend text left for
+an owner to change.
+
+**Tests that expected the old word.** `tests/visuals.test.tsx` (the footer scope) and `e2e/pages.spec.ts` (the footer
+constant) now expect «بيانات مصطنعة فقط». 18 Arabic visual baselines were rewritten: same sizes, and the only pixels
+that differ are on the data source line and the footer line (five text lines on the landing page).
+
+**CK1, page transitions use no experimental flag: pass.** `web/next.config.*` has no `experimental` key and no
+`viewTransition` setting; no file under `web/app`, `web/components` or `web/lib` imports an `unstable_` name. The one
+import is `import { Suspense, ViewTransition, type ReactNode } from "react";` in `web/app/[locale]/layout.tsx`. The
+installed Next's own guide, `node_modules/next/dist/docs/01-app/02-guides/view-transitions.md`, says: "View transitions
+work in the App Router with no configuration. React 19.3 includes the `<ViewTransition>` component and
+`addTransitionType` API used in this guide."
+
+**CK2, `tests/motion.test.ts` (R6) identical to the base: pass.** `git diff 5c6d923 HEAD -- web/tests/motion.test.ts`
+is empty.
+
+**The carried Playwright failures.**
+
+- **`reduced motion: U7 zakat shows the nisab plate, the bars and the nisab marker`.** Failed every time. It expected
+  the plate text "Nisab price is a commercial quote, pending independent verification". Since entry 54 the API returns
+  `world_bank_monthly_average_pending_sharia_advisor`, so the app, correctly, shows that status's plate. The test was
+  stale from the moment entry 54 reached the UI branch. The app was right; the test is fixed. It now requires the plate
+  element itself (`main .plate`) to be visible with exactly the catalogue's words for the status the API returns, and
+  that the status is not in `nisabVerified`. That is stricter than before, which only looked for the text anywhere on
+  the page. Passed 3 of 3 headed.
+- **`tour walks all steps for 10001`, English and Arabic.** Fails only under the API's limit of 60 requests a minute
+  per business. Alone, the English walk passed 3 of 3; back to back, the Arabic walk failed 2 of 5, each time with the
+  page showing "HTTP 429" where the verdict should be, and a new 429 in the API log. In the full run of entry 60 the
+  English walk failed and the Arabic one passed; in this entry's first full run it was the reverse. So the Arabic walk
+  was never "fixed as a side effect": it was lucky. The app's page is right and the test is right; the web server
+  simply asks the API for business 10001 too often. The fix is the shared request layer (FX3) of the next entry, and
+  both walks are rerun there.
+- **`visual: zakat en light 1280`.** Passed 5 of 5 alone, and failed in the last full run with a 900 px error page
+  (429) in place of the 1909 px page. Same cause, same fix. Because the visual file runs in order and stops at the
+  first failure, 31 later snapshot tests did not run in that full run; all 36 pass when the file runs alone.
+
+**The three skipped tests.** `records the Latin words on every Arabic page` is a recording tool that runs only when
+`ARABIC_RECORD` names a file; it should stay skipped in a normal run. `phone scenario select scrolls to the diff` is
+skipped on the tablet-768 and laptop-1280 projects because the select exists only on phones; it runs on the two phone
+projects. Both skips are right.
+
+**Checks at the end of this entry's work.** `tsc` and ESLint clean; build compiles; vitest 347 passed (345 before, plus
+the two MO9 tests); pytest 214 passed, 8 failed, 2 skipped, equal to the baseline. Playwright, full suite on the quick
+backend: before any change, 1126 passed, 2 failed (U7 zakat, Arabic tour), 3 skipped; at the end, 1095 passed, 3 failed
+(both tour walks and the zakat snapshot, all three on a 429), 3 skipped, 31 did not run. The suite does not yet exit 0;
+every remaining failure has the rate limit as its root cause and is carried to FX3.
+
+**Sign-off:** ☐ team (the word for synthetic) ☐ compliance owner (Arabic copy)
