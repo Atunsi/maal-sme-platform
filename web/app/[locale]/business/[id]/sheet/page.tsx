@@ -200,10 +200,11 @@ export default async function SheetPage({ params }: Props) {
   const sh = m.sheet;
 
   // Through the queue, like the overview.
-  const credit = getCredit(id);
-  const zakat = getZakat(id);
-  const forecast = getForecast(id);
-  const anomaly = getAnomaly(id);
+  const scope = { locale }; // FX3, RL2: the sheet reads its role in the browser, so the key holds the locale only
+  const credit = getCredit(id, scope);
+  const zakat = getZakat(id, scope);
+  const forecast = getForecast(id, scope);
+  const anomaly = getAnomaly(id, scope);
   const [c, z, f, a] = await Promise.all([credit, zakat, forecast, anomaly]);
   if (!c.ok && c.kind === "not_found") return <NotServing locale={locale} m={m} id={rawId} />;
 

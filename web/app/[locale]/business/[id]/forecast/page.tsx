@@ -6,9 +6,9 @@ import { titleFor } from "@/lib/page-title";
 
 export const generateMetadata = titleFor((m) => m.nav.forecast);
 
-export default function ForecastPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
+export default function ForecastPage({ params, searchParams }: { params: Promise<{ locale: string; id: string }>; searchParams: Promise<{ as?: string | string[] }> }) {
   return (
-    <LensPage params={params} load={getForecast} title={(m) => m.forecast.title}>
+    <LensPage params={params} searchParams={searchParams} load={getForecast} title={(m) => m.forecast.title}>
       {(data, { locale, m }) => <ForecastCard data={data} locale={locale} m={m} />}
     </LensPage>
   );

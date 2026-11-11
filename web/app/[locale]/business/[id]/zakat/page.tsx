@@ -6,9 +6,9 @@ import { titleFor } from "@/lib/page-title";
 
 export const generateMetadata = titleFor((m) => m.nav.zakat);
 
-export default function ZakatPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
+export default function ZakatPage({ params, searchParams }: { params: Promise<{ locale: string; id: string }>; searchParams: Promise<{ as?: string | string[] }> }) {
   return (
-    <LensPage params={params} load={getZakat} title={(m) => m.zakat.title}>
+    <LensPage params={params} searchParams={searchParams} load={getZakat} title={(m) => m.zakat.title}>
       {(data, { locale, m }) => <ZakatCard data={data} locale={locale} m={m} />}
     </LensPage>
   );

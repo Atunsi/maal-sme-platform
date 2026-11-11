@@ -24,7 +24,9 @@ describe("page requests", () => {
 
   it("the overview starts the slowest route last", () => {
     const body = route();
-    expect(body.indexOf("= getAnomaly(id)")).toBeGreaterThan(body.indexOf("= getProfile(id)"));
+    // FX3: each call now carries the request layer's scope. Both must be there, anomaly after profile.
+    expect(body.indexOf("= getProfile(id, scope)")).toBeGreaterThan(-1);
+    expect(body.indexOf("= getAnomaly(id, scope)")).toBeGreaterThan(body.indexOf("= getProfile(id, scope)"));
   });
 
   it("no page reaches the API except through lib/api.ts", () => {

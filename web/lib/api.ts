@@ -15,6 +15,8 @@ import {
   ScenarioObject,
   ZakatResponse,
 } from "@/lib/schemas";
+import { BUSINESS_DATA_MS, REFERENCE_DATA_MS, RETRY_AFTER_DEFAULT_MS, RETRY_AFTER_MAX_MS } from "@/lib/cache-lifetimes";
+import { apiLayer, cacheKey, retryDelayMs, type Scope } from "@/lib/request-layer";
 import { STATIC, staticBusinesses, staticJson } from "@/lib/static-data";
 import type { ApiErrorKind, ApiResult } from "@/lib/types";
 
@@ -32,8 +34,20 @@ function oneAtATime<T>(task: () => Promise<T>): Promise<T> {
   return run;
 }
 
-function get<S extends z.ZodType>(path: string, schema: S): Promise<ApiResult<z.output<S>>> {
-  return oneAtATime(() => request(path, schema));
+// FX3 (DECISIONS 62): every read goes through the shared request layer (lib/request-layer.ts) and then the queue.
+// The same read asked twice at once is one upstream call; a good answer is kept in this process's memory for
+// `lifetimeMs`; the key holds the route, the role and the locale. Errors are never kept. The snapshot build reads
+// files, so it skips the layer.
+const layer = apiLayer;
+
+function get<S extends z.ZodType>(path: string, schema: S, lifetimeMs: number, scope?: Scope): Promise<ApiResult<z.output<S>>> {
+  if (STATIC) return oneAtATime(() => request(path, schema));
+  return layer.shared(
+    cacheKey(path, scope),
+    lifetimeMs,
+    () => oneAtATime(() => request(path, schema)),
+    (result) => result.ok && lifetimeMs > 0,
+  );
 }
 
 /** A POST goes through the same queue: the store bug does not care about the method. */
@@ -66,15 +80,23 @@ async function request<S extends z.ZodType>(path: string, schema: S, body?: unkn
   const key = process.env.MAAL_API_KEY;
   if (!url || !key) return { ok: false, kind: "config" };
 
-  let res: Response;
-  try {
-    // The API computes every answer fresh and attaches a receipt, so nothing here is cached.
-    res = await fetch(url + path, {
+  // Next's own fetch cache stays off: the request layer above decides what is kept, and for how long.
+  const send = () =>
+    fetch(url + path, {
       method: body === undefined ? "GET" : "POST",
       headers: body === undefined ? { "X-API-Key": key } : { "X-API-Key": key, "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
     });
+  let res: Response;
+  try {
+    res = await send();
+    if (res.status === 429 && body === undefined) {
+      // FX3: on a 429, wait for the time the API states (1 s if it states none) and try once more. Never a loop:
+      // a second 429 falls through to the page's own error state.
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs(res.headers.get("retry-after"), RETRY_AFTER_DEFAULT_MS, RETRY_AFTER_MAX_MS)));
+      res = await send();
+    }
   } catch {
     return { ok: false, kind: "network" };
   }
@@ -95,21 +117,24 @@ async function request<S extends z.ZodType>(path: string, schema: S, body?: unkn
   return { ok: false, kind: "contract", detail: issues.join("; ") };
 }
 
-export const getHealth = () => get("/health", HealthResponse);
-export const getProfile = (id: number) => get(`/profile/${id}`, ProfileResponse);
-export const getCredit = (id: number) => get(`/lenses/credit?business_id=${id}`, CreditResponse);
-export const getForecast = (id: number) => get(`/lenses/forecast?business_id=${id}`, ForecastResponse);
-export const getAnomaly = (id: number) => get(`/lenses/anomaly?business_id=${id}`, AnomalyResponse);
-export const getZakat = (id: number) => get(`/lenses/zakat?business_id=${id}`, ZakatResponse);
+export type { Scope } from "@/lib/request-layer";
+
+// The health line is never kept (lifetime 0): it must say what the API says now.
+export const getHealth = () => get("/health", HealthResponse, 0);
+export const getProfile = (id: number, scope?: Scope) => get(`/profile/${id}`, ProfileResponse, BUSINESS_DATA_MS, scope);
+export const getCredit = (id: number, scope?: Scope) => get(`/lenses/credit?business_id=${id}`, CreditResponse, BUSINESS_DATA_MS, scope);
+export const getForecast = (id: number, scope?: Scope) => get(`/lenses/forecast?business_id=${id}`, ForecastResponse, BUSINESS_DATA_MS, scope);
+export const getAnomaly = (id: number, scope?: Scope) => get(`/lenses/anomaly?business_id=${id}`, AnomalyResponse, BUSINESS_DATA_MS, scope);
+export const getZakat = (id: number, scope?: Scope) => get(`/lenses/zakat?business_id=${id}`, ZakatResponse, BUSINESS_DATA_MS, scope);
 
 // DECISIONS 44 routes, through the same queue.
 export type BusinessQuery = { offset: number; limit: number; sector?: string; q?: string };
-export const getBusinesses = ({ offset, limit, sector, q }: BusinessQuery) => {
+export const getBusinesses = ({ offset, limit, sector, q }: BusinessQuery, scope?: Scope) => {
   const params = new URLSearchParams({ offset: String(offset), limit: String(limit) });
   if (sector) params.set("sector", sector);
   if (q) params.set("q", q);
-  return get(`/businesses?${params}`, BusinessesResponse);
+  return get(`/businesses?${params}`, BusinessesResponse, REFERENCE_DATA_MS, scope);
 };
-export const getScenarioCatalog = () => get("/scenarios", ScenarioCatalog);
+export const getScenarioCatalog = (scope?: Scope) => get("/scenarios", ScenarioCatalog, REFERENCE_DATA_MS, scope);
 export type Shock = { type: string; params: Record<string, number> };
 export const runCustomScenario = (shocks: Shock[]) => post("/scenarios/run", { shocks }, ScenarioObject);

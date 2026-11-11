@@ -9,7 +9,7 @@ import { recordInput } from "@/lib/record";
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ view?: string | string[] }>;
+  searchParams: Promise<{ view?: string | string[]; as?: string | string[] }>;
 };
 
 export const generateMetadata = titleFor((m) => m.nav.credit);
@@ -17,7 +17,7 @@ export const generateMetadata = titleFor((m) => m.nav.credit);
 export default async function CreditPage({ params, searchParams }: Props) {
   const initialView = (await searchOf(searchParams)).view === "compliance" ? "compliance" : "public";
   return (
-    <LensPage params={params} load={getCredit} title={(m) => m.credit.title}>
+    <LensPage params={params} searchParams={searchParams} load={getCredit} title={(m) => m.credit.title}>
       {(data, { locale, m }) => (
         <>
           <CreditCard data={data} initialView={initialView} locale={locale} m={m} />

@@ -115,8 +115,9 @@ export default async function AdminPage({ params, searchParams }: Props) {
   // streamed boundary would stay hidden without JavaScript. The five demo rows then stream in. Each row's
   // status and decision come from the API, never from this file.
   // The online snapshot holds a few dozen businesses and cannot search on a server: one page, all of them.
-  const list = STATIC ? getBusinesses({ offset: 0, limit: 50 }) : getBusinesses({ offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE, sector: sector || undefined, q: q || undefined });
-  const rows = DEMO_BUSINESSES.map((id) => ({ id, result: getCredit(id) }));
+  const scope = { locale, role }; // FX3, RL2
+  const list = STATIC ? getBusinesses({ offset: 0, limit: 50 }) : getBusinesses({ offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE, sector: sector || undefined, q: q || undefined }, scope);
+  const rows = DEMO_BUSINESSES.map((id) => ({ id, result: getCredit(id, scope) }));
   const listView = await AllBusinesses({ result: list, locale, m, query, links, page });
   const range = { min: String(SERVING_ID_MIN), max: String(SERVING_ID_MAX) };
   // The online snapshot can open only the businesses it captured, so its finder offers only those.

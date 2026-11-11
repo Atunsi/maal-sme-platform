@@ -5,6 +5,9 @@ import { ApiError, Card, CardLoading, Page } from "@/components/ui";
 import { fill, getMessages, isLocale, type Locale, type Messages } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import type { ApiResult } from "@/lib/types";
+import type { Scope } from "@/lib/request-layer";
+import { roleOf } from "@/lib/businesses";
+import { searchOf } from "@/lib/static-data";
 import { nameOf } from "@/lib/business-names";
 import { localeOf } from "@/lib/i18n";
 
@@ -58,12 +61,15 @@ async function Body<T>({ result, render, locale, m, id, title }: { result: Promi
 /** A page for one lens: it fetches that lens alone, through the queue in lib/api.ts. */
 export async function LensPage<T>({
   params,
+  searchParams,
   load,
   title,
   children,
 }: {
   params: Params;
-  load: (id: number) => Promise<ApiResult<T>>;
+  /** The page's query: the demo role in it is part of the request layer's key (FX3, RL2). */
+  searchParams?: Promise<{ as?: string | string[] }>;
+  load: (id: number, scope: Scope) => Promise<ApiResult<T>>;
   title: (m: Messages) => string;
   children: (data: T, context: { locale: Locale; m: Messages }) => ReactNode;
 }) {
@@ -72,6 +78,7 @@ export async function LensPage<T>({
   const m = getMessages(locale);
   const id = Number(rawId);
   if (!isServingId(id)) return <NotServing locale={locale} m={m} id={rawId} />;
+  const scope: Scope = { locale, role: roleOf(searchParams ? (await searchOf(searchParams)).as : null) };
   return (
     <Suspense
       fallback={
@@ -85,7 +92,7 @@ export async function LensPage<T>({
         </Page>
       }
     >
-      <Body result={load(id)} render={(data) => children(data, { locale, m })} locale={locale} m={m} id={rawId} title={title(m)} />
+      <Body result={load(id, scope)} render={(data) => children(data, { locale, m })} locale={locale} m={m} id={rawId} title={title(m)} />
     </Suspense>
   );
 }

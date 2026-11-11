@@ -9,7 +9,7 @@ import { creditReadout, forecastReadout, ReadoutCard, reviewReadout, shariaReado
 import { ApiError, Card, Page } from "@/components/ui";
 import { VerdictSheet } from "@/components/VerdictSheet";
 import { getAnomaly, getCredit, getForecast, getProfile, getZakat } from "@/lib/api";
-import { roleQuery } from "@/lib/businesses";
+import { roleOf, roleQuery } from "@/lib/businesses";
 import { fill, getMessages, isLocale } from "@/lib/i18n";
 import { isServingId } from "@/lib/population";
 import { TOUR_STEPS } from "@/lib/tour";
@@ -39,11 +39,12 @@ export default async function OverviewPage({ params, searchParams }: Props) {
 
   // All five start here and never reject. lib/api.ts runs them one at a time for now, so the order
   // matters: the anomaly route is the slowest, and last it delays no other card.
-  const credit = getCredit(id);
-  const zakat = getZakat(id);
-  const forecast = getForecast(id);
-  const profile = getProfile(id);
-  const anomaly = getAnomaly(id);
+  const scope = { locale, role: roleOf(as) }; // FX3, RL2: part of the request layer's key
+  const credit = getCredit(id, scope);
+  const zakat = getZakat(id, scope);
+  const forecast = getForecast(id, scope);
+  const profile = getProfile(id, scope);
+  const anomaly = getAnomaly(id, scope);
 
   const first = await credit;
   if (!first.ok && first.kind === "not_found") return <NotServing locale={locale} m={m} id={rawId} />;

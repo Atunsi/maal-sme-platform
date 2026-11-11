@@ -11,7 +11,7 @@ const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_da
 
 /** One demo business: its ID, its decision plate and profile status, both read from the API, never typed. */
 export async function TryCard({ id, locale, m }: { id: number; locale: Locale; m: Messages }) {
-  const r = await getCredit(id); // through the queue in lib/api.ts, from the server
+  const r = await getCredit(id, { locale }); // through the request layer and the queue in lib/api.ts, from the server
   const l = m.landing;
   if (!r.ok) {
     // A failed card says so and blocks no other card. Not a link: there is nothing to open.

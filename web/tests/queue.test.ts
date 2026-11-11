@@ -34,7 +34,7 @@ afterEach(() => {
 });
 
 describe("request queue", () => {
-  const dashboard = () => [getProfile(10001), getCredit(10001), getZakat(10001), getForecast(10001), getAnomaly(10001)];
+  const dashboard = (id = 10001) => [getProfile(id), getCredit(id), getZakat(id), getForecast(id), getAnomaly(id)];
 
   it("never has more than one request in flight for one dashboard", async () => {
     stubFetch();
@@ -45,7 +45,9 @@ describe("request queue", () => {
 
   it("never has more than one in flight across concurrent visitors", async () => {
     stubFetch();
-    await Promise.all([...dashboard(), ...dashboard(), ...dashboard()]);
+    // Three visitors on three businesses: the request layer (FX3) shares identical reads, so identical dashboards
+    // would be 5 requests. Different businesses keep this at 15 requests through the one queue.
+    await Promise.all([...dashboard(10001), ...dashboard(10002), ...dashboard(10004)]);
     expect(started).toHaveLength(15);
     expect(peak).toBe(1);
   });
