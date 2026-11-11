@@ -4941,7 +4941,7 @@ route and a comparison block can be added.
 At the head of the branch, on the quick backend (N = 300 serving businesses):
 
 - `tsc` and ESLint clean; the build compiles.
-- vitest: 380 passed (347 at the end of entry 61).
+- vitest: 381 passed (347 at the end of entry 61).
 - Playwright, full suite, all projects: 1159 passed, 0 failed, 3 skipped (the three explained in entry 61). The run
   before the last fixes had 1156 passed and 3 failed, all three the admin finder's refusal tests, which expected the
   old message for typed numbers; they now name the message each input gets and also check that no request is sent.
@@ -4951,6 +4951,10 @@ At the head of the branch, on the quick backend (N = 300 serving businesses):
 - That log also showed a fault in the first version of the request layer: the one retry after a 429 never reached the
   API, because Next remembers identical requests within one page render. Each request now carries an abort signal,
   the documented way to opt out, and the log shows the retry (two refusals per route in that test, not one).
+- The check against the static preview found a fault in the entry field: after an "unknown number" message, leaving
+  the field removed the message, the page moved up, and a click on the demo number missed. Leaving the field can now
+  raise a message but never clears one; typing clears it. Tested in vitest and Playwright. After this fix and the
+  two above, the registration, sign-in and click files were rerun (57 passed), not the whole suite again.
 - Visual snapshots: none changed. The new blocks are owner-only or inside closed sections, so the public pages the
   snapshots cover are the same.
 - The decision sheet for 10001 prints on 3 pages, as before. Ten quick overview loads show no error state.
