@@ -12,7 +12,7 @@ It is a demo on synthetic data. It has no real accounts, tracking or logging of 
 | `/[locale]` | Public landing page |
 | `/[locale]/sign-in` | Demo sign-in, two roles |
 | `/[locale]/admin` | The five demo businesses, then every serving business from `GET /businesses`, searched with `?q=`, `?sector=` and `?page=` |
-| `/[locale]/business/[id]` | Overview: verdict sheet, receipt, five readouts, profile features |
+| `/[locale]/business/[id]` | Overview: verdict sheet, receipt, what to do next (owner), five readouts, profile features with change over time |
 | `/[locale]/business/[id]/credit` | Credit, with the Compliance View at `?view=compliance` |
 | `/[locale]/business/[id]/sharia` | Sharia screen |
 | `/[locale]/business/[id]/zakat` | Zakat |
@@ -224,10 +224,49 @@ animation and transition, and a second one stops the view-transition pseudo-elem
 Under reduced motion every row above is off. The four loops are the ones found before entry 60;
 `tests/motion-rules.test.ts` fails if a new one appears.
 
+## Owner insights (entry 62, PROPOSED)
+
+**Request layer.** Every server-side API read goes through `lib/request-layer.ts`, then the queue in
+`lib/api.ts`. The same read asked twice at once is one upstream call. A good answer is kept in the
+server's memory: 30 s for business data, 5 min for the business list and the scenario catalogue, never
+for the health line (`lib/cache-lifetimes.ts`). The key is locale, demo role and route, so an answer never
+crosses business, role or locale. Errors and 429s are never kept; a 429 is retried once after the time the
+API states. This is memory in the server process, not browser storage. Ten overview loads of one business
+make 6 upstream calls instead of 50, so a page view no longer runs into the API's 60-a-minute limit.
+
+**Commercial registration number.** `lib/registrationNumber.ts` is the one validator. It drops spaces and
+dashes, reads Arabic-Indic and Persian digits, then answers in order: empty; not digits; 5 digits (a demo
+number, which must exist); 10 digits starting with 7 (well formed for a real registration, which this demo
+does not hold); 10 digits not starting with 7; any other length. Nothing is called for input that fails a
+format step, and nothing is ever called from the browser: the demo range comes from `GET /businesses` on
+the server (`lib/demo-numbers.ts`). `components/RegistrationField.tsx` is the field: label "Commercial
+registration number", the always-visible hint "Demo commercial registration number: 10001" whose number
+fills the field, and a message tied to the field that is announced once. Sign-in uses it, and the admin
+finder reads typed digits the same way. A bad or unknown number in the address shows the not-found state
+with the same hint.
+
+**What to do next.** `lib/guidance.ts` is the rule table: nine rules over fields the API already returns,
+plus "nothing needs your attention". A rule picks a fixed sentence from `messages` (`guidance.rules`),
+quotes values through the app's own formatters, and carries the field and value that fired it.
+`components/NextSteps.tsx` shows at most three lines, highest priority first, each with a link and a
+"Why am I seeing this?" disclosure: under the verdict on the overview, and a lens's own lines at the end of
+its page. The owner only (`components/OwnerOnly.tsx`, read in the browser like `RoleRecord`); hidden in
+print. No sentence promises an outcome or gives a ruling (`tests/guidance.test.tsx`). To add a rule: add
+it to `RULES` with a priority no other rule has, add its sentences to both catalogues, and the tests will
+say what is missing.
+
+**Change over time.** `GET /insights/history` returns four profile figures as of earlier dates, 30 days
+apart, each the engine's own trailing-90-day measure. `components/Trends.tsx` shows them inside the
+profile figures: the current value, a direction word with the API's two values, a small line
+(`components/TrendLine.tsx`) and the same values as a table. Only dates the API returned are marked;
+fewer than three shows a sentence instead of a line. It compares a business with its own past only: peer
+benchmarking stays rejected (schema §36.4, rule U9).
+
 ## Demo sign-in
 
 `/sign-in` chooses a role and routes to a page. The password for both roles is `pass`, checked in the
-browser only; the registration number and username are not read, and the username need not be an email.
+browser only; the username is not read and need not be an email. Since entry 62 the owner's commercial
+registration number is checked in the browser and chooses which demo business opens (see "Owner insights").
 It creates no account or session, stores nothing, sets no cookie and sends nothing to the API. The fields
 are unnamed. The role rides in the URL (`?as=owner` or `?as=admin`), proves nothing and gates nothing:
 `/admin` is open to anyone who visits it. A real deployment would need PDPL handling.

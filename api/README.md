@@ -44,6 +44,7 @@ hold in the routing, not just in a diagram.
 | `GET /lenses/forecast` | Profile | 30/60/90-day projection + crunch alert |
 | `GET /lenses/anomaly` | Profile | flagged transactions with `flag_reason` — **never** `fraud_reason`, and **never** raw anomaly scores (§29) |
 | `GET /lenses/zakat` | Balance-sheet snapshot (separate) | annual Zakat liability |
+| `GET /insights/history` | Profile, recomputed as of earlier dates | four daily-data features (`avg_monthly_inflow`, `inflow_outflow_ratio`, `avg_daily_balance`, `cash_flow_volatility`) every 30 days back, each the full trailing-90-day measure; a date whose window is not inside the data is absent. A business beside its own past (§36.2), never beside another business (§36.4). Read-only, keyed, rate-limited, with a receipt (DECISIONS 62) |
 
 ## Non-negotiable constraints
 
