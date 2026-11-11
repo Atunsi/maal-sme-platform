@@ -155,6 +155,72 @@ Light and dark tokens are CSS variables in `app/globals.css`, on a `th-light` or
 `<html>`. The default follows `prefers-color-scheme`. A choice is kept in `localStorage` only, never
 in a cookie. `.panel` is a dark surface in either theme; components inside it need no dark variant.
 
+## Type scale, surfaces and motion (entry 60, PROPOSED)
+
+**Type scale.** Four text sizes, as tokens on `:root` in `app/globals.css`: label 14 px, body 16 px,
+value 18 px, heading 22 px (20 px under 768 px). Arabic gets taller line heights on `html[lang="ar"]`.
+Tailwind uses them as `text-label`, `text-body`, `text-value`, `text-heading`; `phone.css` uses the
+same variables. Display numbers (the verdict and the big amounts) keep their own sizes. Nothing on a
+page is smaller than 14 px.
+
+**Header.** At 768 px and wider the site header is sticky and condenses (less padding, a smaller
+brand) as the page scrolls, through a CSS scroll timeline where the browser supports one; elsewhere
+it stays full size. `scroll-padding-top` keeps a focused control from sitting under it. The phone
+header is unchanged. The demo role label is short on screen ("Demo: business owner") with the full
+text for screen readers and as a tooltip.
+
+**Surfaces.** Three levels: `--elev-0` is the page, `--elev-1` a card, `--elev-2` a raised surface
+(the verdict, the glossary tip, the display and scenario panels). In dark mode level 2 is a lighter
+colour; in light mode it differs by its shadow. The verdict and the lens heads carry a faint accent
+wash. The print sheet drops the wash and every shadow.
+
+**Motion.** Motion never changes a value: amounts render once and are never counted up. Reveals move
+things into place, they never hide them. Under `prefers-reduced-motion: reduce` one block stops every
+animation and transition, and a second one stops the view-transition pseudo-elements.
+
+- *Page changes* use React's `ViewTransition` around the page in `app/[locale]/layout.tsx`, which
+  Next 16 supports in the App Router with no config. Every router navigation crossfades in 0.25 s.
+  The header, the tour panel, the active nav item and each lens heading carry a
+  `view-transition-name`, so they hold still or travel to their new place in 0.3 s. A browser
+  without the View Transitions API changes the page at once.
+- *Theme changes* crossfade in 0.2 s through `document.startViewTransition` in `ThemeToggle.tsx`;
+  without the API, or under reduced motion, the theme switches at once.
+- *Hover* styles sit inside `@media (hover: hover)`, so touch screens never get a stuck hover. Plates,
+  headings and static cards have none. Every control shows the same focus ring (2 px, accent colour,
+  2 px offset) and presses down to 98 %.
+- *Segmented controls* (credit view, sign-in role) have a thumb that slides under the pressed half.
+- `.drift` moves a section up 16 px as it scrolls into view (CSS view timeline; no script, no scroll
+  listener). `tests/motion.test.ts` checks it never touches opacity.
+
+| Keyframes | Used by | What moves | Time | Loops |
+| --- | --- | --- | --- | --- |
+| `rise` | `.rise` (most cards and sections on first paint) | fades in, up 14 px | 0.6 s, staggered | no |
+| `slidein` | `.slidein` | fades in, up 24 px | 0.6 s | no |
+| `stamp` | `.stamp` (the verdict word) | fades in, scales 1.35 to 1 | 0.6 s after 0.2 s | no |
+| `growx` | `.verdict-rule`, `.bar-grow`, `.fill-bar`, `.play-progress-fill` | grows from the start edge | 0.6 s; Play all 8 s | no |
+| `lgrise`, `lgland` | `.lg-body`, `.lg-madda` (the logo mark) | the mark rises; the madda lands | 0.6 s, 0.55 s | no |
+| `draw` | `.frame-path` | a line draws itself | 0.6 s | no |
+| `breathe` | `.frame` (a warning frame) | background shifts between two warning tints | 4 s | yes |
+| `drop` | `.drop` | fades in, down 18 px | 0.5 s | no |
+| `reveal` | `.reveal` | uncovered from the start edge | 0.6 s after 0.4 s | no |
+| `pulse` | `.pulse-ring` (the "live" dot) | a ring grows and fades | 1.8 s | yes |
+| `fade` | `.fade-late`, `.app-more-scrim` | fades in | 0.5 s; 0.18 s | no |
+| `sweep`, `fillw` | `.scan`, `.scan-fill` (landing check animation) | a line sweeps across; a bar fills | 0.6 s | no |
+| `dotin` | `.tick-bar` | chart ticks pop in | 0.35 s | no |
+| `stampin` | `.stamp-in` | fades in, scales 1.5 to 1 | 0.5 s | no |
+| `flash` | `.flash` (a changed row) | background settles from a strong to a soft accent | 0.6 s | no |
+| `travel` | `.dot` (landing pipeline) | a dot crosses the line | 2.4 s | yes |
+| `float` | `.floaty` (landing illustration) | bobs 8 px | 6 s | yes |
+| `menudrop` | `.menu-drop` (phone menu) | fades in, down 6 px | 0.18 s | no |
+| `moreup` | `.app-more` (phone "More" sheet) | fades in, up 8 px | 0.2 s | no |
+| `popin` | `.palette`, `.switcher-panel`, `.finder-list` | fades in, down 4 px | 0.16 to 0.2 s | no |
+| `sheetup` | `.tour-panel` on phones | slides up from the bottom | 0.32 s | no |
+| `drift` | `.drift` | up 16 px while scrolling into view | scroll | no |
+| `header-condense`, `header-brand` | the sticky header at 768 px and wider | less padding; brand to 80 % | first 96 px of scroll | no |
+
+Under reduced motion every row above is off. The four loops are the ones found before entry 60;
+`tests/motion.test.ts` fails if a new one appears.
+
 ## Demo sign-in
 
 `/sign-in` chooses a role and routes to a page. The password for both roles is `pass`, checked in the
