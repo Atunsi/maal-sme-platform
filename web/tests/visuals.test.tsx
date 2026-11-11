@@ -341,7 +341,7 @@ describe("demo sign-in", () => {
     expect(en.admin.eyebrow).toContain("synthetic data");
     expect(en.footer.scope).toContain("Synthetic data only. Population: serving.");
     // DECISIONS 57 (1a.6): the serving population is «الخدمة», as in enums.population.serving.
-    expect(ar.footer.scope).toContain("بيانات اصطناعية فقط. المجموعة: الخدمة.");
+    expect(ar.footer.scope).toContain("بيانات مصطنعة فقط. المجموعة: الخدمة.");
   });
 });
 

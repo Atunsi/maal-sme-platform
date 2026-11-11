@@ -312,3 +312,16 @@ test("demo role label stays on one line", async ({ page }) => {
     expect(parseFloat(await label.evaluate((el) => getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
   }
 });
+
+// MO9 (DECISIONS 61): Arabic says «مصطنعة» for synthetic data, never «اصطناعية».
+test("arabic pages say مصطنعة for the data source", async ({ page }) => {
+  for (const path of ["/ar", "/ar/sign-in", "/ar/business/10001", "/ar/business/10001/credit"]) {
+    await page.goto(path, { waitUntil: "networkidle" });
+    await expect(page.locator("footer").last(), path).toContainText("بيانات مصطنعة فقط");
+    // The header line of a business page names the data source.
+    if (path.includes("/business/")) await expect(page.locator("main").first(), path).toContainText("مصدر البيانات: مصطنعة");
+    const body = (await page.locator("body").innerText()).replace(/(?:ال)?ذكاء (?:ال)?اصطناعي/g, "");
+    expect(body, path).not.toContain("اصطناعي");
+    await pause();
+  }
+});

@@ -15,7 +15,7 @@ export const GLOSSARY = [
   {
     id: "pd",
     en: { term: "PD (probability of default)", definition: "The credit model's estimate of how likely the business is to fall behind on repayment. It is a model output on synthetic data, not a measured rate." },
-    ar: { term: "احتمالية التعثر", definition: "تقدير نموذج مخاطر التمويل لاحتمال تعثر المنشأة في السداد. وهو مخرج نموذج على بيانات اصطناعية، وليس معدلًا مقيسًا.", draft: true },
+    ar: { term: "احتمالية التعثر", definition: "تقدير نموذج مخاطر التمويل لاحتمال تعثر المنشأة في السداد. وهو مخرج نموذج على بيانات مصطنعة، وليس معدلًا مقيسًا.", draft: true },
     source: "DECISIONS.md entry 23 (credit lens v1)",
   },
   {
@@ -27,7 +27,7 @@ export const GLOSSARY = [
   {
     id: "oracle-ceiling",
     en: { term: "Oracle ceiling", definition: "The AUC of the generator's hidden risk index on this synthetic data: the most any model could reach here. It shows how much signal the data holds." },
-    ar: { term: "السقف المرجعي", definition: "قيمة AUC لمؤشر المخاطر المخفي لدى المولّد على هذه البيانات الاصطناعية، وهي أقصى ما يبلغه أي نموذج هنا. تبيّن مقدار الإشارة في البيانات.", draft: true },
+    ar: { term: "السقف المرجعي", definition: "قيمة AUC لمؤشر المخاطر المخفي لدى المولّد على هذه البيانات المصطنعة، وهي أقصى ما يبلغه أي نموذج هنا. تبيّن مقدار الإشارة في البيانات.", draft: true },
     source: "DECISIONS.md entry 21 (oracle ceiling, latent risk index)",
   },
   {
@@ -159,7 +159,7 @@ export const GLOSSARY = [
   {
     id: "synthetic-data",
     en: { term: "Synthetic data", definition: "Data made by the project's generator from a fixed configuration. None of it comes from a real business." },
-    ar: { term: "بيانات اصطناعية", definition: "بيانات ينتجها مولّد المشروع من إعدادات ثابتة. لا يأتي شيء منها من منشأة حقيقية.", draft: true },
+    ar: { term: "بيانات مصطنعة", definition: "بيانات ينتجها مولّد المشروع من إعدادات ثابتة. لا يأتي شيء منها من منشأة حقيقية.", draft: true },
     source: "docs/Behavioral_Profile_Feature_Schema.md §12",
   },
   {
