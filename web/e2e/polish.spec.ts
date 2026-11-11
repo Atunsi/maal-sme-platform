@@ -148,18 +148,19 @@ test("reduced motion disables page and theme transitions", async ({ page }) => {
 
 // MO4: navigation works the same without the View Transitions API.
 test("navigation works without view transitions", async ({ page }) => {
+  // The static preview adds a trailing slash to each path, so the URL checks allow one.
   await page.addInitScript(() => {
     delete (Document.prototype as unknown as { startViewTransition?: unknown }).startViewTransition;
   });
   await page.goto("/en/business/10001?as=owner", { waitUntil: "networkidle" });
   expect(await page.evaluate(() => "startViewTransition" in document)).toBe(false);
   await page.locator("header nav a", { hasText: "Zakat" }).click();
-  await expect(page).toHaveURL(/\/en\/business\/10001\/zakat\?as=owner$/);
+  await expect(page).toHaveURL(/\/en\/business\/10001\/zakat\/?\?as=owner$/);
   await expect(page.locator("main h1")).toBeVisible();
   await page.locator("header nav a", { hasText: "Overview" }).click();
-  await expect(page).toHaveURL(/\/en\/business\/10001\?as=owner$/);
+  await expect(page).toHaveURL(/\/en\/business\/10001\/?\?as=owner$/);
   await page.locator("[data-r=lens]", { hasText: "Forecast" }).click();
-  await expect(page).toHaveURL(/\/en\/business\/10001\/forecast\?as=owner$/);
+  await expect(page).toHaveURL(/\/en\/business\/10001\/forecast\/?\?as=owner$/);
 });
 
 test("page transition stays under the cap", async ({ page }) => {
