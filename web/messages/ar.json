@@ -34,6 +34,8 @@
     "signOut": "تسجيل الخروج",
     "roleOwner": "الدور التجريبي: مالك منشأة",
     "roleAdmin": "الدور التجريبي: مشرف",
+    "roleOwnerShort": "تجريبي: مالك منشأة",
+    "roleAdminShort": "تجريبي: مشرف",
     "themeDark": "الوضع الداكن",
     "digitsArab": "الأرقام الهندية (٠١٢٣)",
     "menu": "القائمة",
@@ -310,7 +312,8 @@
     "nisabBasis": "أساس النصاب",
     "nisabStatus": {
       "placeholder_unverified": "سعر النصاب قيمة مؤقتة غير موثقة",
-      "commercial_quote_documented_pending_independent_verification": "سعر النصاب مأخوذ من تسعيرة تجارية، بانتظار التحقق المستقل"
+      "commercial_quote_documented_pending_independent_verification": "سعر النصاب مأخوذ من تسعيرة تجارية، بانتظار التحقق المستقل",
+      "world_bank_monthly_average_pending_sharia_advisor": "سعر النصاب متوسط شهري من البنك الدولي، بانتظار تأكيد المستشار الشرعي"
     },
     "nisabUnknown": "سعر النصاب لم يُتحقق منه تحققًا مستقلًا",
     "nisabVerified": [],
@@ -467,6 +470,9 @@
   "enums": {
     "library_status": {
       "proposed": "مقترحة"
+    },
+    "rule_table_status": {
+      "proposed_unverified": "جدول ضوابط مقترح لم يُعتمد بعد"
     },
     "status": {
       "scored": "جرى التقييم",

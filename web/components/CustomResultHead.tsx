@@ -29,10 +29,10 @@ export function CustomResultHead({ title, path, copy }: { title: string; path: s
   }, [ran]);
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <h2 ref={ref} id="custom-result" tabIndex={-1} className="heading scroll-mt-4 text-[26px] outline-none focus-visible:outline-2">
+      <h2 ref={ref} id="custom-result" tabIndex={-1} className="heading scroll-mt-4 text-heading outline-none focus-visible:outline-2">
         {title}
       </h2>
-      <span className="flex items-center gap-2 text-sm" data-copy-link>
+      <span className="flex items-center gap-2 text-label" data-copy-link>
         <CopyButton value={`${origin}${path}`} name="result_url" labels={copy} />
       </span>
     </div>

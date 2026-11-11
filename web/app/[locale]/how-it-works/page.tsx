@@ -35,7 +35,7 @@ export default async function HowItWorksPage({ params, searchParams }: Props) {
           <span className="eyebrow">{intro.eyebrow}</span>
         </div>
         <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{intro.title}</h1>
-        <p className="mt-2 max-w-3xl text-[15px] text-muted">{intro.intro}</p>
+        <p className="mt-2 max-w-3xl text-body text-muted">{intro.intro}</p>
       </div>
       <Flow steps={m.landing.steps} />
       <div className="flex flex-col gap-5">
@@ -46,14 +46,14 @@ export default async function HowItWorksPage({ params, searchParams }: Props) {
               key={section.id}
               id={section.id}
               aria-labelledby={`${section.id}-title`}
-              className="rise flex flex-col gap-3 border border-line bg-card p-6 sm:p-8"
+              className={`${i ? "drift " : ""}rise flex flex-col gap-3 border border-line bg-card p-6 sm:p-8`}
               style={{ animationDelay: delay(2 + i) }}
             >
-              <h2 id={`${section.id}-title`} className="heading text-[26px]">
+              <h2 id={`${section.id}-title`} className="heading text-heading">
                 {s.title}
               </h2>
               {s.body.map((paragraph) => (
-                <p key={paragraph} className="max-w-3xl text-[15px] leading-relaxed">
+                <p key={paragraph} className="max-w-3xl text-body leading-relaxed">
                   {segments(paragraph).map((part, j) => {
                     if (typeof part === "string") return part;
                     if (seen.has(part.term)) return part.text;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { formatInt, formatSar, formatSarSpoken } from "@/lib/format";
 import { fill, type Locale } from "@/lib/i18n";
 
@@ -85,9 +85,15 @@ export function floorLabelPlacement(lines: Pt[][], others: Box[], zero: number, 
   return { y: best!.y, box: best!.box, clear: false };
 }
 
+/** One mark size for every point on a chart, the review timeline's dots included (globals.css .tick-bar). */
+const MARK_PX = 14;
+
 export function ForecastChart({ data, locale, labels }: Props) {
   // How much smaller than its 700 units the chart renders (1 on a laptop, about 2 on a phone).
   const [k, setK] = useState(1);
+  // VS3 (DECISIONS 60): drawing units per screen pixel, so the points are drawn at the review marks' 14 px.
+  const [unitsPerPx, setUnitsPerPx] = useState(1);
+  const floorFill = `floor-${useId().replace(/[^a-zA-Z0-9-]/g, "")}`;
   // Phones also get a taller plot (by the same factor), so the larger labels have room between the lines.
   const plotBottom = TOP + (BOTTOM - TOP) * k;
   const floorBottom = plotBottom + (FLOOR_BOTTOM - BOTTOM) * k;
@@ -108,7 +114,7 @@ export function ForecastChart({ data, locale, labels }: Props) {
   const padTop = (k - 1) * END_FONT * 1.6;
   const dayY = floorBottom + 6 + font;
   const height = dayY + 8;
-  const dot = 5 * Math.sqrt(k);
+  const dot = (MARK_PX / 2) * unitsPerPx;
   const text = { fontFamily: "var(--font-mono)", fontSize: font };
   // The higher line is labelled above its end and the lower line below, clear of both lines.
   const modelHigher = last.model >= last.baseline;
@@ -134,7 +140,10 @@ export function ForecastChart({ data, locale, labels }: Props) {
     if (!el || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(([entry]) => {
       const width = entry?.contentRect.width ?? 0;
-      if (width > 0) setK(Math.min(2.2, Math.max(1, W / width)));
+      if (width > 0) {
+        setK(Math.min(2.2, Math.max(1, W / width)));
+        setUnitsPerPx(W / width);
+      }
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -225,7 +234,14 @@ export function ForecastChart({ data, locale, labels }: Props) {
         }}
       >
         <svg viewBox={`0 ${-padTop} ${W} ${height + padTop}`} role="img" aria-label={labels.alt} className="h-auto w-full">
-          {below && <rect x={LEFT} y={zero} width={RIGHT - LEFT} height={floorBottom - zero} rx={4} fill="var(--badSoft)" />}
+          {/* VS3: the zone below the cash floor fades from the floor line down, so the line reads as the edge. */}
+          <defs>
+            <linearGradient id={floorFill} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="var(--badSoft)" />
+              <stop offset="1" stopColor="var(--badSoft)" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          {below && <rect x={LEFT} y={zero} width={RIGHT - LEFT} height={floorBottom - zero} rx={4} fill={`url(#${floorFill})`} />}
           {data.slice(1, -1).map((d) => (
             <line key={d.day} x1={x(d.day)} x2={x(d.day)} y1={TOP} y2={floorBottom} stroke="var(--rule)" />
           ))}
@@ -248,8 +264,8 @@ export function ForecastChart({ data, locale, labels }: Props) {
               <circle key={`b${d.day}`} cx={x(d.day)} cy={y(d.baseline)} r={dot} fill="var(--ochre)" />,
             ])}
           </g>
-          <circle className="pulse-ring" cx={x(first.day)} cy={y(first.model)} r={6} fill="none" stroke="var(--accent)" strokeWidth={2} />
-          <circle cx={x(first.day)} cy={y(first.model)} r={6} fill="var(--accent)" />
+          <circle className="pulse-ring" cx={x(first.day)} cy={y(first.model)} r={dot} fill="none" stroke="var(--accent)" strokeWidth={2} />
+          <circle cx={x(first.day)} cy={y(first.model)} r={dot} fill="var(--accent)" />
           <g className="fade-late">
             {endLabels.map((l) => (
               <text key={l.value + l.y} x={RIGHT - 12} y={l.y} textAnchor="end" fill="var(--ink)" style={{ ...text, fontSize: endFont }}>
@@ -280,7 +296,7 @@ export function ForecastChart({ data, locale, labels }: Props) {
           data-readout
           dir={locale === "ar" ? "rtl" : "ltr"}
           aria-hidden="true"
-          className="rounded-ctl pointer-events-none absolute top-1 z-10 min-w-[180px] max-w-[calc(100%-8px)] border border-line bg-card px-3 py-2 text-sm shadow-md"
+          className="rounded-ctl pointer-events-none absolute top-1 z-10 min-w-[180px] max-w-[calc(100%-8px)] border border-line bg-card px-3 py-2 text-label shadow-md"
           style={at > 0.5 ? { right: `${((1 - at) * 100).toFixed(2)}%`, marginRight: 8 } : { left: `${(at * 100).toFixed(2)}%`, marginLeft: 8 }}
         >
           <div className="font-semibold">{shown.title}</div>

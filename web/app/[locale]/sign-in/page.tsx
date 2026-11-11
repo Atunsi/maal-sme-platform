@@ -33,14 +33,14 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
             <EnglishWordmark height={44} color="#ffffff" label={getMessages("en").app.name} animate />
           </h1>
           <span aria-hidden="true" className="verdict-rule w-[120px] text-gold" style={{ height: 5, animationDelay: "1.8s" }} />
-          <p className="rise max-w-[520px] text-xl leading-normal" style={{ animationDelay: "2s" }}>
+          <p className="rise max-w-[520px] text-value leading-normal" style={{ animationDelay: "2s" }}>
             <span lang="ar">{arName}</span> {s.meaning}
           </p>
-          <p className="rise max-w-[520px] text-[15px]" style={{ color: "var(--hero-muted)", animationDelay: "2.2s" }}>
+          <p className="rise max-w-[520px] text-body" style={{ color: "var(--hero-muted)", animationDelay: "2.2s" }}>
             {s.receiptLine}
           </p>
         </div>
-        <div className="rise eyebrow relative flex flex-wrap gap-6 !text-xs" style={{ color: "var(--hero-muted)", animationDelay: "2.4s" }}>
+        <div className="rise eyebrow relative flex flex-wrap gap-6 !text-label" style={{ color: "var(--hero-muted)", animationDelay: "2.4s" }}>
           {lenses.map((lens) => (
             <span key={lens}>{lens}</span>
           ))}
@@ -63,7 +63,7 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
             <p className="mt-1.5 text-muted">{s.intro}</p>
           </div>
           <SignInForm locale={locale} s={s} />
-          <div className="rise text-[13px] text-muted" style={{ animationDelay: "0.75s" }}>
+          <div className="rise text-label text-muted" style={{ animationDelay: "0.75s" }}>
             <p className="font-medium text-ink">{s.demo}</p>
             <p className="mt-1">{s.synthetic}</p>
           </div>

@@ -68,7 +68,7 @@ export function ScenarioPlayer({ names, labels, current, hrefBase, text }: Props
       <button type="button" className="solid-btn min-h-11" onClick={toggle}>
         {playing ? text.pause : text.play}
       </button>
-      <span className="text-sm text-muted" data-position>
+      <span className="text-label text-muted" data-position>
         {fill(text.position, { x: String(index + 1), y: String(names.length) })}
       </span>
       {/* I4: a thin bar fills over each step while playing and starts again on the next one (keyed by the

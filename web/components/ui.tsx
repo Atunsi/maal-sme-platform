@@ -36,17 +36,17 @@ export function Page({ children }: { children: ReactNode }) {
   return <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pb-12 pt-6 sm:gap-8 sm:px-6 sm:pb-16 sm:pt-10">{children}</div>;
 }
 
-export function Card({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
+export function Card({ id, title, children, className }: { id?: string; title: string; children: ReactNode; className?: string }) {
   return (
-    <section id={id} aria-label={title} className="min-w-0 border border-line bg-card p-6">
-      <h2 className="heading mb-3 text-2xl">{title}</h2>
+    <section id={id} aria-label={title} className={`min-w-0 border border-line bg-card p-6${className ? ` ${className}` : ""}`}>
+      <h2 className="heading mb-3 text-heading">{title}</h2>
       {children}
     </section>
   );
 }
 
 export function SubHeading({ children }: { children: ReactNode }) {
-  return <h3 className="heading caps mb-2 mt-5 text-sm text-muted">{children}</h3>;
+  return <h3 className="heading caps mb-2 mt-5 text-label text-muted">{children}</h3>;
 }
 
 export function Fields({ children }: { children: ReactNode }) {
@@ -60,7 +60,7 @@ export function Fields({ children }: { children: ReactNode }) {
 export function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <div className="min-w-0">
-      <dt className="text-sm text-muted">{label}</dt>
+      <dt className="text-label text-muted">{label}</dt>
       <dd className="break-words font-medium">{children}</dd>
     </div>
   );
@@ -103,7 +103,7 @@ export function Probability({ value, locale }: { value: number; locale: Locale }
   const { pct, exact } = formatProbability(value, locale);
   return (
     <bdi dir="ltr" data-probability>
-      {pct} <span className="font-mono text-[0.8em] text-muted">({exact})</span>
+      {pct} <span className="font-mono text-label text-muted">({exact})</span>
     </bdi>
   );
 }
@@ -129,7 +129,7 @@ export function BackendText({ en, ar, locale, m }: { en: string; ar?: string | n
       <span lang="en" dir="ltr" data-backend className="block text-start">
         {en}
       </span>
-      {locale === "ar" && <span className="text-xs text-muted">{m.common.englishTemplate}</span>}
+      {locale === "ar" && <span className="text-label text-muted">{m.common.englishTemplate}</span>}
     </span>
   );
 }
@@ -137,7 +137,7 @@ export function BackendText({ en, ar, locale, m }: { en: string; ar?: string | n
 /** Raw identifiers and hashes as returned. */
 export function Code({ children }: { children: ReactNode }) {
   return (
-    <code lang="en" dir="ltr" className="break-all font-mono text-sm">
+    <code lang="en" dir="ltr" className="break-all font-mono text-label">
       {children}
     </code>
   );
@@ -145,7 +145,7 @@ export function Code({ children }: { children: ReactNode }) {
 
 export function ProvenanceLine({ value, locale, m }: { value: Provenance; locale: Locale; m: Messages }) {
   return (
-    <p className="mb-3 text-sm text-muted">
+    <p className="mb-3 text-label text-muted">
       {m.common.population}: {m.enums.population[value.population]}, {m.common.dataSource}:{" "}
       {m.enums.data_source[value.data_source]}, {m.common.asOf}: <bdi>{formatDate(value.as_of, locale)}</bdi>
     </p>
@@ -165,12 +165,12 @@ export function Refusal({ reason, coverage, m }: { reason: "insufficient_data" |
       </p>
       <p className="mt-2">{m.refusal.body}</p>
       {reason && (
-        <p className="mt-1 text-sm">
+        <p className="mt-1 text-label">
           {m.refusal.reason}: {m.enums.lens_status[reason]} (<Code>{reason}</Code>)
         </p>
       )}
       {coverage !== undefined && coverage !== null && (
-        <p className="mt-1 text-sm" data-refusal-coverage>
+        <p className="mt-1 text-label" data-refusal-coverage>
           {m.common.coverage}: <Num>{formatInt(coverage, locale)}</Num>
         </p>
       )}
@@ -185,7 +185,7 @@ export function ApiError({ kind, detail, m }: { kind: ApiErrorKind; detail?: str
     <div role="alert" className="border border-bad bg-bad-soft p-4 text-bad">
       <p>{m.errors[kind]}</p>
       {detail && (
-        <div className="mt-1 font-mono text-sm">
+        <div className="mt-1 font-mono text-label">
           <BackendText en={detail} locale={localeOf(m)} m={m} />
         </div>
       )}
@@ -202,7 +202,7 @@ export function ApiError({ kind, detail, m }: { kind: ApiErrorKind; detail?: str
 export function CardLoading({ title, m, tall }: { title: string; m: Messages; tall?: boolean }) {
   return (
     <section aria-label={title} aria-busy="true" data-skeleton className={`flex min-w-0 flex-col gap-3 border border-line bg-card p-5 ${tall ? "min-h-[420px]" : "min-h-[200px]"}`}>
-      <span className="text-[13px] text-muted">{title}</span>
+      <span className="text-label text-muted">{title}</span>
       <span aria-hidden="true" className="skeleton h-6 w-24" />
       <span aria-hidden="true" className="skeleton h-5 w-40" />
       <span aria-hidden="true" className="skeleton h-3.5 w-3/4" />
@@ -223,5 +223,5 @@ export function TableScroll({ label, tall, children }: { label: string; tall?: b
   );
 }
 
-export const TH = "border-b border-line px-4 py-3 text-start text-sm font-medium text-muted";
-export const TD = "border-b border-line2 px-4 py-2.5 text-sm";
+export const TH = "border-b border-line px-4 py-3 text-start text-label font-medium text-muted";
+export const TD = "border-b border-line2 px-4 py-2.5 text-label";

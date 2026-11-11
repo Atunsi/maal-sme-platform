@@ -36,7 +36,7 @@ export async function CustomResult({ shocks, locale, m, retry }: { shocks: Shock
         <Plate variant="warn">{c.plate}</Plate>
       </div>
       <ScenarioCompare baseline={baseline.data} chosen={custom.data} names={index.ok ? scenarioNames(index.data.scenarios, locale) : undefined} locale={locale} m={m} />
-      <p className="text-[13px] text-muted">{m.scenarios.caveat}</p>
+      <p className="text-label text-muted">{m.scenarios.caveat}</p>
     </section>
   );
 }

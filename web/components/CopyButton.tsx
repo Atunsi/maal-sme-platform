@@ -45,10 +45,10 @@ export function CopyButton({ value, name, labels }: { value: string; name: strin
             value={value}
             aria-label={name}
             dir="ltr"
-            className="field min-h-9 w-56 max-w-full font-mono text-xs"
+            className="field min-h-9 w-56 max-w-full font-mono text-label"
             onFocus={(event) => event.currentTarget.select()}
           />
-          <span className="text-xs text-muted">{labels.fallback}</span>
+          <span className="text-label text-muted">{labels.fallback}</span>
         </span>
       )}
       <span role="status" aria-live="polite" className="sr-only">

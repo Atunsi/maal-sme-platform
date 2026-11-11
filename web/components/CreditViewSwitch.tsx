@@ -37,8 +37,8 @@ export function CreditViewSwitch({ initialView, labels, publicSlot, complianceSl
       type="button"
       aria-pressed={view === value}
       onClick={() => choose(value)}
-      className={`min-h-11 cursor-pointer border-0 px-4.5 py-2.5 text-sm transition-colors ${
-        view === value ? "bg-ink font-semibold text-page" : "bg-card font-medium text-ink"
+      className={`min-h-11 cursor-pointer border-0 px-4.5 py-2.5 text-label transition-colors ${
+        view === value ? "font-semibold text-page" : "font-medium text-ink"
       }`}
     >
       {label}
@@ -47,7 +47,9 @@ export function CreditViewSwitch({ initialView, labels, publicSlot, complianceSl
 
   return (
     <div className="flex flex-col gap-6">
-      <div role="group" aria-label={labels.group} className="rise clip-box flex self-start border border-ink" style={{ animationDelay: delay(1) }}>
+      <div role="group" aria-label={labels.group} data-thumb={view === "public" ? "start" : "end"} className="segmented rise clip-box grid grid-cols-2 self-start border border-ink bg-card" style={{ animationDelay: delay(1) }}>
+        {/* MT4 (DECISIONS 60): the thumb is decoration; the pressed button and its label carry the state. */}
+        <span aria-hidden="true" className="segmented-thumb bg-ink" />
         {button("public", labels.public)}
         {button("compliance", labels.compliance)}
       </div>

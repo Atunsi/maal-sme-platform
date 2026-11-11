@@ -34,6 +34,8 @@
     "signOut": "Sign out",
     "roleOwner": "Demo role: business owner",
     "roleAdmin": "Demo role: admin",
+    "roleOwnerShort": "Demo: business owner",
+    "roleAdminShort": "Demo: admin",
     "themeDark": "Dark theme",
     "digitsArab": "Arabic-Indic digits",
     "menu": "Menu",
@@ -290,7 +292,8 @@
     "nisabBasis": "Nisab basis",
     "nisabStatus": {
       "placeholder_unverified": "Nisab price is a placeholder, unverified",
-      "commercial_quote_documented_pending_independent_verification": "Nisab price is a commercial quote, pending independent verification"
+      "commercial_quote_documented_pending_independent_verification": "Nisab price is a commercial quote, pending independent verification",
+      "world_bank_monthly_average_pending_sharia_advisor": "Nisab price is a World Bank monthly average, pending Sharia-advisor confirmation"
     },
     "nisabUnknown": "Nisab price not independently verified",
     "nisabVerified": [],
@@ -439,6 +442,9 @@
   "enums": {
     "library_status": {
       "proposed": "proposed"
+    },
+    "rule_table_status": {
+      "proposed_unverified": "Rule list proposed, not yet verified"
     },
     "status": {
       "scored": "Scored",

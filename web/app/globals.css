@@ -101,6 +101,31 @@
   --glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
 }
 
+/* LG3 (DECISIONS 60): one type scale. Labels and captions, body sentences, values in rows and card titles,
+   section headings; nothing rendered is under 14 px. Display sizes (44, 52, 76 px and the phone equivalents)
+   sit outside the scale. Arabic takes taller lines. */
+:root {
+  --fs-label: 14px;
+  --fs-body: 16px;
+  --fs-value: 18px;
+  --fs-heading: 22px;
+  --lh-label: 1.5;
+  --lh-body: 1.6;
+  --lh-value: 1.4;
+  --lh-heading: 1.3;
+}
+html[lang="ar"] {
+  --lh-label: 1.6;
+  --lh-body: 1.75;
+  --lh-value: 1.5;
+  --lh-heading: 1.4;
+}
+@media (max-width: 767.98px) {
+  :root {
+    --fs-heading: 20px;
+  }
+}
+
 /* Animation origins follow the reading direction, so bars grow from the right in Arabic. */
 :root {
   --o-start: left;
@@ -132,10 +157,22 @@
   --r-ctl: 10px;
   --r-plate: 6px;
   --r-bar: 4px;
-  --card-shadow: 0 1px 2px rgba(16, 20, 24, 0.05), 0 6px 18px rgba(16, 20, 24, 0.06);
+  --card-shadow: var(--elev-1-shadow);
+}
+/* VS1 (DECISIONS 60): three tiers. 0 is the page, 1 a card, 2 a raised surface (the verdict, popovers, menus).
+   In light, a raised surface keeps the white of a card and casts a deeper shadow; in dark, where shadows barely
+   show, each tier is lighter than the one below and carries a hairline from --rule. */
+:root {
+  --elev-0: var(--bg);
+  --elev-1: var(--surface);
+  --elev-2: var(--surface);
+  --elev-1-shadow: 0 1px 2px rgba(16, 20, 24, 0.05), 0 6px 18px rgba(16, 20, 24, 0.06);
+  --elev-2-shadow: 0 2px 6px rgba(16, 20, 24, 0.06), 0 16px 36px rgba(16, 20, 24, 0.13);
 }
 .th-dark {
-  --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 22px rgba(0, 0, 0, 0.45);
+  --elev-2: #1c2230;
+  --elev-1-shadow: 0 0 0 1px var(--rule), 0 8px 22px rgba(0, 0, 0, 0.45);
+  --elev-2-shadow: 0 0 0 1px var(--rule), 0 16px 36px rgba(0, 0, 0, 0.55);
 }
 .border,
 .bg-card,
@@ -193,6 +230,15 @@
   --color-hero: var(--hero);
   --color-solid: #2e3192;
   --color-gold: #c9a227;
+  /* LG3: the scale as utilities (text-label, text-body, text-value, text-heading). */
+  --text-label: var(--fs-label);
+  --text-label--line-height: var(--lh-label);
+  --text-body: var(--fs-body);
+  --text-body--line-height: var(--lh-body);
+  --text-value: var(--fs-value);
+  --text-value--line-height: var(--lh-value);
+  --text-heading: var(--fs-heading);
+  --text-heading--line-height: var(--lh-heading);
   /* The riyal face comes first in every stack; its unicode-range is U+20C1 only (layout.tsx). */
   --font-sans: var(--font-riyal), var(--font-plex-sans), var(--font-plex-arabic), system-ui, sans-serif;
   --font-cond: var(--font-riyal), var(--font-plex-cond), var(--font-plex-arabic), system-ui, sans-serif;
@@ -222,12 +268,11 @@ html {
 /* Press feedback the moment a finger lands: the control dips a little and comes back as it lifts. It uses
    `scale`, not `transform`, so it never fights a component's own transform, and :where() keeps it at zero
    specificity, so a component's own transition always wins. Reduced motion keeps the opacity cue alone. */
-:where(button, .solid-btn, .themebtn, .navlink, [role="tab"], summary) {
-  transition: scale 0.14s ease-out;
+:where(button, .solid-btn, .themebtn, .navlink, .copy-btn, .cta, [role="tab"], summary) {
+  transition: scale 0.08s ease-out;
 }
-:where(button, .solid-btn, .themebtn, .navlink, [role="tab"], summary):not(:disabled):active {
-  scale: 0.97;
-  transition-duration: 0.05s;
+:where(button, .solid-btn, .themebtn, .navlink, .copy-btn, .cta, [role="tab"], summary):not(:disabled):active {
+  scale: 0.98;
 }
 :where(.textlink, .navlink, .tour-dot):active {
   opacity: 0.7;
@@ -238,8 +283,13 @@ html {
   }
 }
 
+/* MT3 (DECISIONS 60): one focus ring for every control. --focus meets 3:1 on every surface tier in both themes
+   (accent: 9.65 to 10.66 on light grounds, 7.16 to 8.70 on dark). */
+:root {
+  --focus: var(--accent);
+}
 :focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -273,7 +323,7 @@ summary {
   padding: 5px 10px;
   font-family: var(--font-cond);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--fs-label);
   line-height: 1.3;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -318,12 +368,12 @@ summary {
 }
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--fs-label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 :lang(ar) .plate {
-  font-size: 14px;
+  font-size: var(--fs-label);
 }
 :lang(ar) .plate,
 :lang(ar) .caps,
@@ -361,7 +411,7 @@ summary {
   background: transparent;
   color: var(--ink);
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fs-label);
   cursor: pointer;
 }
 /* A link styled as a button (the tour's Back and End tour) keeps the 44 px tap target. */
@@ -406,12 +456,14 @@ a.themebtn {
   background: transparent;
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-label);
   font-weight: 600;
   cursor: pointer;
 }
-.copy-btn:hover {
-  border-color: var(--ink);
+@media (hover: hover) {
+  .copy-btn:hover {
+    border-color: var(--ink);
+  }
 }
 
 /* Chart readouts (E5): a transparent target over a mark, and its tip. Shown by state, so Esc closes it. */
@@ -436,7 +488,7 @@ a.themebtn {
   background: var(--ink);
   color: var(--bg);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-label);
   line-height: 1.4;
   text-align: start;
   pointer-events: none;
@@ -478,10 +530,11 @@ a.themebtn {
   padding: 8px 11px;
   border: 1px solid var(--fieldLine);
   border-radius: var(--r-ctl);
-  background: var(--surface);
+  background: var(--elev-2);
+  box-shadow: var(--elev-2-shadow);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-label);
   font-weight: 400;
   line-height: 1.45;
   letter-spacing: normal;
@@ -505,7 +558,7 @@ a.themebtn {
 .field {
   min-height: 48px;
   padding: 0 14px;
-  font-size: 16px;
+  font-size: var(--fs-body);
   background: var(--field);
   color: var(--ink);
   border: 1px solid var(--fieldLine);
@@ -559,9 +612,11 @@ a.themebtn {
 .lift {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 0 -4px #2e3192;
+@media (hover: hover) {
+  .lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 0 -4px #2e3192;
+  }
 }
 .lg-body {
   transform-box: fill-box;
@@ -767,9 +822,13 @@ a.themebtn {
     background 0.15s;
   animation: dotin 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
-.tick:hover .tick-bar,
 .tick:focus-visible .tick-bar {
   transform: scale(1.25);
+}
+@media (hover: hover) {
+  .tick:hover .tick-bar {
+    transform: scale(1.25);
+  }
 }
 .tick[aria-pressed="true"] .tick-bar {
   background: var(--ochre);
@@ -817,10 +876,12 @@ html[dir="rtl"] .lane > .lane-name {
   gap: 10px;
   padding: 0;
   border: 0;
-  font-size: 14px;
+  font-size: var(--fs-label);
 }
-.lanes .reason-toggle.lane-name:hover > span:first-child {
-  text-decoration: underline;
+@media (hover: hover) {
+  .lanes .reason-toggle.lane-name:hover > span:first-child {
+    text-decoration: underline;
+  }
 }
 .lane-count {
   display: inline-flex;
@@ -831,7 +892,7 @@ html[dir="rtl"] .lane > .lane-name {
   background: var(--accentSoft);
   color: var(--accent);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-label);
   font-weight: 600;
   text-decoration: none;
 }
@@ -874,7 +935,7 @@ html[dir="rtl"] .lane > .lane-name {
   padding-inline-start: 4px;
   color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-label);
   white-space: nowrap;
 }
 .lane-axis .scan {
@@ -912,8 +973,10 @@ html[dir="rtl"] .lane > .lane-name {
 .row-pick {
   transition: background 0.2s;
 }
-.row-pick:hover {
-  background: var(--bg);
+@media (hover: hover) {
+  .row-pick:hover {
+    background: var(--bg);
+  }
 }
 /* B8: the date cell's button picks the row from the keyboard; it reads as the date, not as a control. */
 .row-button {
@@ -962,8 +1025,10 @@ body:has([data-motion="full"]) .lg-madda.lg-late {
 .menu-link {
   transition: background 0.2s, padding 0.2s;
 }
-.menu-link:hover {
-  padding-inline-start: 24px;
+@media (hover: hover) {
+  .menu-link:hover {
+    padding-inline-start: 24px;
+  }
 }
 
 /* Landing: the flow's travelling dots, the floating card and the plain details rows. */
@@ -992,9 +1057,11 @@ body:has([data-motion="full"]) .lg-madda.lg-late {
 .cta {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 -2px #c9a227;
+@media (hover: hover) {
+  .cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 -2px #c9a227;
+  }
 }
 details.faq summary {
   list-style: none;
@@ -1041,14 +1108,6 @@ details.faq[open] .faq-close {
   }
   to {
     transform: scaleX(1);
-  }
-}
-@keyframes growy {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
   }
 }
 @keyframes stamp {
@@ -1235,7 +1294,7 @@ details.faq[open] .faq-close {
     display: block;
     margin-bottom: 2px;
     font-family: var(--font-sans);
-    font-size: 11px;
+    font-size: var(--fs-label);
     font-weight: 400;
     color: var(--muted);
   }
@@ -1284,6 +1343,17 @@ main fieldset.border {
 }
 main :is(.border.bg-card, .panel) :is(.border.bg-card, .panel) {
   box-shadow: none;
+}
+/* VS1, VS2 (DECISIONS 60): the verdict is the raised tier, with a soft accent glow behind its upper start corner.
+   Decoration only: it does not move, no text sits on a contrast below 4.5:1, and it prints as plain white. Each
+   lens page's head card carries the same glow, fainter, so the pages read as one family. */
+main .border.bg-card.elev-2 {
+  background-color: var(--elev-2);
+  background-image: radial-gradient(120% 90% at var(--o-start) 0%, var(--accentSoft), transparent 62%);
+  box-shadow: var(--elev-2-shadow);
+}
+main [data-phone="lens-head"] {
+  background-image: radial-gradient(110% 120% at var(--o-start) 0%, color-mix(in srgb, var(--accentSoft) 60%, transparent), transparent 60%);
 }
 main .border.bg-card:has(> [role="region"] > table) {
   overflow: hidden;
@@ -1383,7 +1453,7 @@ details.phone-fold > summary::-webkit-details-marker {
   background: none;
   color: var(--muted);
   font: inherit;
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
@@ -1444,7 +1514,7 @@ details.phone-fold > summary::-webkit-details-marker {
   padding: 0 14px;
   border-radius: 10px;
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--fs-body);
   font-weight: 500;
   text-decoration: none;
 }
@@ -1522,6 +1592,164 @@ body {
 body > header:first-of-type {
   padding-top: env(safe-area-inset-top, 0px);
 }
+
+/* MT3 (DECISIONS 60): feedback by role. Text links grow an underline from the reading start; bordered controls shift
+   their border and ground one step; a reading card that is a link keeps its lift and underlines its "open" line.
+   Plates, static cards and headings have no hover style (MO8). Hover sits inside (hover: hover), so a tap never
+   leaves a control looking hovered. */
+.textlink,
+.lift [data-r="open"] {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: var(--o-start) calc(50% + 0.75em);
+  background-size: 0 1px;
+  transition: background-size 0.15s ease;
+}
+.lift [data-r="open"] {
+  background-position: var(--o-start) 100%;
+}
+.themebtn,
+.copy-btn {
+  transition: border-color 0.15s ease, background-color 0.15s ease, scale 0.08s ease-out;
+}
+@media (hover: hover) {
+  .textlink:hover,
+  .lift:hover [data-r="open"] {
+    background-size: 100% 1px;
+  }
+  .themebtn:hover,
+  .copy-btn:hover {
+    border-color: var(--ink);
+    background-color: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+}
+
+/* MT4 (DECISIONS 60): the segmented controls' thumb slides to the pressed half in 0.2 s; inset-inline mirrors it in
+   Arabic. Under reduced motion it jumps (the global block). */
+.segmented {
+  position: relative;
+}
+.segmented > button {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+.segmented-thumb {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 50%;
+  transition: inset-inline-start 0.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.segmented[data-thumb="end"] > .segmented-thumb {
+  inset-inline-start: 50%;
+}
+
+/* MT1 (DECISIONS 60): page transitions. The page crossfades in 0.25 s; a carried element (a reading card's title
+   travelling to its lens page's heading, the active nav mark sliding to the new page's link) takes at most 0.3 s.
+   The header and the tour panel are named so they stay still while the page changes. Each name is unique on a
+   page. Without the View Transitions API the page simply changes, as before; under reduced motion nothing moves. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+::view-transition-group(*) {
+  animation-duration: 0.3s;
+}
+/* MT5: the theme change is a plain crossfade of the whole page in 0.2 s; nothing travels. */
+html[data-vt="theme"]::view-transition-old(root),
+html[data-vt="theme"]::view-transition-new(root) {
+  animation-duration: 0.2s;
+}
+html[data-vt="theme"]::view-transition-group(*) {
+  animation-duration: 0s;
+}
+body > header:first-of-type {
+  view-transition-name: site-header;
+}
+.tour-panel {
+  view-transition-name: tour-panel;
+}
+.navlink[aria-current="page"] {
+  view-transition-name: nav-active;
+}
+.app-tab[aria-current="page"] {
+  view-transition-name: nav-active-phone;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* MT2 (DECISIONS 60): sections below the first screen drift up into place as they enter the viewport. The motion
+   is tied to the scroll position, not to time, moves `transform` only, at most 16 px, and is done once the element
+   is a quarter into view: the content is readable at every position, and in a full-page screenshot. The first
+   screen keeps its .rise entrance. Off under reduced motion (the global block) and in print. */
+@supports (animation-timeline: view()) {
+  .drift {
+    animation: drift linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 25%;
+  }
+}
+@keyframes drift {
+  from {
+    transform: translateY(16px);
+  }
+  to {
+    transform: none;
+  }
+}
+@media print {
+  .drift {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* LG2 (DECISIONS 60): from 768 px up the header stays in view, on its solid surface with the hairline under it,
+   and condenses as the page scrolls: less padding and a smaller logo, driven by the scroll position itself (a
+   CSS scroll timeline, no script). Without scroll timelines, or under reduced motion, it is sticky at full height.
+   Phones keep their own glass bar (app/phone.css). Anchors, focus and tour targets land below it. */
+@media (min-width: 768px) {
+  html {
+    scroll-padding-top: var(--header-h);
+  }
+  body > header:first-of-type {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+  @supports (animation-timeline: scroll()) {
+    body > header:first-of-type .header-row {
+      animation: header-condense linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 96px;
+    }
+    body > header:first-of-type .header-brand {
+      transform-origin: var(--o-start) center;
+      animation: header-brand linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 96px;
+    }
+  }
+}
+:root {
+  --header-h: 72px;
+}
+@keyframes header-condense {
+  to {
+    padding-block: 4px;
+  }
+}
+@keyframes header-brand {
+  to {
+    transform: scale(0.8);
+  }
+}
 .tour-panel {
   padding-bottom: env(safe-area-inset-bottom, 0px);
   /* It rises from the bottom edge once, when the tour starts (it stays mounted between steps). */
@@ -1545,6 +1773,11 @@ body > header:first-of-type {
   margin: 16mm;
 }
 @media print {
+  main .border.bg-card.elev-2,
+  main [data-phone="lens-head"] {
+    background-image: none !important;
+    box-shadow: none !important;
+  }
   html.th-dark,
   html.th-light {
     --bg: #f3f4f1;
@@ -1626,8 +1859,8 @@ body > header:first-of-type {
     padding: 10px;
     border: 1px solid var(--rule);
     border-radius: var(--r-box);
-    background: var(--surface);
-    box-shadow: 0 8px 24px rgba(16, 20, 24, 0.12);
+    background: var(--elev-2);
+    box-shadow: var(--elev-2-shadow);
   }
 }
 
@@ -1721,7 +1954,7 @@ body > header:first-of-type {
 .switcher-panel {
   border: 1px solid var(--rule);
   border-radius: var(--r-box);
-  background: var(--surface);
+  background: var(--elev-2);
 }
 @media (min-width: 768px) {
   .switcher-panel {
@@ -1729,7 +1962,7 @@ body > header:first-of-type {
     top: calc(100% + 8px);
     inset-inline-end: 0;
     z-index: 45;
-    box-shadow: 0 8px 24px rgba(16, 20, 24, 0.12);
+    box-shadow: var(--elev-2-shadow);
   }
 }
 .switcher-option {
@@ -1742,9 +1975,13 @@ body > header:first-of-type {
   border-radius: var(--r-ctl);
   cursor: pointer;
 }
-.switcher-option.is-active,
-.switcher-option:hover {
+.switcher-option.is-active {
   background: var(--accentSoft);
+}
+@media (hover: hover) {
+  .switcher-option:hover {
+    background: var(--accentSoft);
+  }
 }
 /* The admin's "Find a business" matches: a solid list under the field. */
 .finder-list {

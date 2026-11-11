@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { notFound } from "next/navigation";
-import { Suspense, type ReactNode } from "react";
+import { Suspense, ViewTransition, type ReactNode } from "react";
 import { AppTabBar } from "@/components/AppTabBar";
 import { DigitsSync } from "@/components/DigitsToggle";
 import { FooterLinks } from "@/components/FooterLinks";
@@ -140,14 +140,15 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           />
         </Suspense>
         <main id="main" className="w-full flex-1">
-          {children}
+          {/* MT1 (DECISIONS 60): a page change crossfades; named elements (globals.css) travel or stay still. */}
+          <ViewTransition>{children}</ViewTransition>
         </main>
         <footer className="border-t border-line">
           <div className="mx-auto flex max-w-[1240px] flex-col gap-1 px-4 py-4 sm:px-6">
             <Suspense>
               <FooterLinks locale={locale} footer={m.footer} />
             </Suspense>
-            <p className="text-[13px] text-muted">{m.footer.scope}</p>
+            <p className="text-label text-muted">{m.footer.scope}</p>
           </div>
         </footer>
         <HtmlState locale={locale} />

@@ -21,8 +21,8 @@ function Step({ label, value, strong, children }: { label: string; value: ReactN
   return (
     <>
       <div className={strong ? "font-semibold" : undefined}>
-        <div className="text-sm">{label}</div>
-        <div className="font-mono text-lg">{value}</div>
+        <div className="text-label">{label}</div>
+        <div className="font-mono text-value">{value}</div>
       </div>
       <div className="relative h-[30px]">{children}</div>
     </>
@@ -50,7 +50,7 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
   ];
   return (
     <section aria-labelledby="build" data-tour="waterfall" className="flex flex-col gap-5 border border-line bg-card p-5 sm:p-9">
-      <h2 id="build" className="heading text-2xl">
+      <h2 id="build" className="heading text-heading">
         {n.buildTitle}
       </h2>
       <div className="relative">
@@ -71,7 +71,7 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
             {/* The label sits on the side of the marker with more room and wraps within it, so it never runs off
                 a phone screen. */}
             <div
-              className="drop absolute top-[34px] w-max font-mono text-xs text-warn"
+              className="drop absolute top-[34px] w-max font-mono text-label text-warn"
               style={
                 z.nisab_value_sar / scale > 0.5
                   ? { insetInlineEnd: `calc(100% - ${nisabAt} + 10px)`, maxWidth: `calc(${nisabAt} - 10px)`, animationDelay: delay(3) }
@@ -88,8 +88,8 @@ function Waterfall({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) 
           {bars.map((bar) => (
             <Fragment key={bar.label}>
               <div aria-hidden="true" className={`invisible ${bar.strong ? "font-semibold" : ""}`}>
-                <div className="text-sm">{bar.label}</div>
-                <div className="font-mono text-lg">{sar(bar.amount)}</div>
+                <div className="text-label">{bar.label}</div>
+                <div className="font-mono text-value">{sar(bar.amount)}</div>
               </div>
               <div className="relative h-[30px]">
                 <TipButton
@@ -116,12 +116,14 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
   const date = (iso: string) => formatDate(iso, locale);
   const marker = snapshot ? pct(at(snapshot) - at(start), at(end) - at(start)) : null;
   const share = snapshot ? (at(snapshot) - at(start)) / (at(end) - at(start) || 1) : 0;
-  // B18: the snapshot label sits over its marker, kept inside the track near either end.
-  const snapshotShift = share < 0.15 ? "0" : share > 0.85 ? "-100%" : "-50%";
+  // B18: the snapshot label sits over its marker, kept inside the track. Shifting it back by its own share of the
+  // track keeps both edges inside at any width and label length (left edge share x (track - label) >= 0), and the
+  // marker always falls within the label. The 14 px scale of DECISIONS 60 made the fixed -50% step overflow at 360 px.
+  const snapshotShift = `${(-Math.min(Math.max(share, 0), 1) * 100).toFixed(2)}%`;
   const alt = fill(n.hawlAlt, { start: date(start), end: date(end), snapshot: snapshot ? date(snapshot) : m.common.dash });
   return (
     <section aria-labelledby="hawl" className="rise flex min-w-0 flex-[999_1_560px] flex-col gap-5 border border-line bg-card p-5 sm:p-9" style={{ animationDelay: delay(1) }}>
-      <h2 id="hawl" className="heading text-2xl">
+      <h2 id="hawl" className="heading text-heading">
         <Term id="hawl" locale={locale}>
           {n.hawlTitle}
         </Term>
@@ -134,16 +136,17 @@ function Hawl({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
         {marker && (
           <div className="drop absolute top-7 -ml-[7px] box-border h-[26px] w-3.5 border-[3px] border-ink bg-card" style={{ left: marker, animationDelay: delay(3) }} />
         )}
-        {/* B18: below 400 px each end label takes two lines, so the start and end labels cannot collide. */}
-        <div data-hawl-label="start" className="absolute left-0 top-[62px] max-w-[48%] font-mono text-xs">
+        {/* B18: below 400 px each end label takes two lines, so the start and end labels cannot collide. At 14 px
+            (LG3, DECISIONS 60) the labels take tight lines, so a three-line snapshot label still clears them. */}
+        <div data-hawl-label="start" className="absolute left-0 top-[62px] max-w-[48%] font-mono text-label leading-tight">
           <span className="block min-[400px]:inline">{n.hawlStart}</span> <span className="block min-[400px]:inline">{date(start)}</span>
         </div>
-        <div data-hawl-label="end" className="absolute right-0 top-[62px] max-w-[48%] text-end font-mono text-xs">
+        <div data-hawl-label="end" className="absolute right-0 top-[62px] max-w-[48%] text-end font-mono text-label leading-tight">
           <span className="block min-[400px]:inline">{n.hawlEnd}</span> <span className="block min-[400px]:inline">{date(end)}</span>
         </div>
         {snapshot && marker && (
           <div data-hawl-label="snapshot" className="absolute top-0 w-max max-w-full" style={{ left: marker, translate: `${snapshotShift} 0` }}>
-            <div className="drop font-mono text-xs" style={{ animationDelay: delay(3) }}>
+            <div className="drop font-mono text-label leading-tight" style={{ animationDelay: delay(3) }}>
               {n.snapshot} {date(snapshot)}
             </div>
           </div>
@@ -163,13 +166,13 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
   const n = m.zakat;
   return (
     <section aria-labelledby="amount" className="panel rise flex min-w-0 flex-[1_1_420px] flex-col gap-4 p-5 sm:p-9" style={{ animationDelay: delay(2) }}>
-      <h2 id="amount" className="heading text-2xl">
+      <h2 id="amount" className="heading text-heading">
         {n.amountTitle}
       </h2>
       <div aria-hidden="true" className="rounded-bar relative h-11 overflow-hidden" style={{ background: "var(--panelRule)" }}>
         <div className="fill-bar fill-from-start start-0 min-w-3" style={{ width: pct(z.rate, 1), background: "var(--gold-amount)", animationDelay: delay(4) }} />
       </div>
-      <div className="font-mono text-base leading-relaxed">
+      <div className="font-mono text-body leading-relaxed">
         {z.zakat_base_sar !== undefined && (
           <div>
             {n.base} <Sar value={z.zakat_base_sar} locale={locale} />
@@ -180,12 +183,12 @@ function Amount({ z, locale, m }: { z: Zakat; locale: Locale; m: Messages }) {
         </div>
         {/* U10: a calculation that did not run shows no amount, never a zero. */}
         {z.status !== "not_computed" && z.liability_sar !== null && (
-          <div className="text-[26px]" style={{ color: "var(--gold-amount)" }}>
+          <div className="text-heading" style={{ color: "var(--gold-amount)" }}>
             <span>{n.liability}</span> <Sar value={z.liability_sar} locale={locale} />
           </div>
         )}
       </div>
-      <p className="text-[13px] text-muted">{n.asReturned}</p>
+      <p className="text-label text-muted">{n.asReturned}</p>
     </section>
   );
 }
@@ -198,7 +201,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
       <div className="flex items-center gap-3">
         <Plate variant={STATUS_VARIANT[z.status]}>{m.enums.zakat_status[z.status]}</Plate>
         {z.status !== "not_computed" && z.liability_sar !== null && (
-          <span className="font-mono text-[26px] sm:text-[34px]">
+          <span className="font-mono text-heading sm:text-[34px]">
             <Sar value={z.liability_sar} locale={locale} />
           </span>
         )}
@@ -208,7 +211,7 @@ export function ZakatCard({ data, locale, m }: { data: ZakatResponse; locale: Lo
   );
   return (
     <>
-      <LensHead data={data} title={n.pageTitle} aside={aside} locale={locale} m={m} />
+      <LensHead transition="zakat" data={data} title={n.pageTitle} aside={aside} locale={locale} m={m} />
       {!z ? (
         <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
       ) : (

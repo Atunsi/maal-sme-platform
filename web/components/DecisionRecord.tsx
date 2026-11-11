@@ -27,12 +27,12 @@ export function PlainCard({ input, locale, m, className, headless }: { input: Re
         {r.questionsBody}{" "}
         <span className="mt-1 inline-flex flex-wrap items-center gap-2">
           <span className="sr-only">{r.reference}: </span>
-          <bdi dir="ltr" data-latin data-reference className="font-mono text-sm font-semibold">
+          <bdi dir="ltr" data-latin data-reference className="font-mono text-label font-semibold">
             {lines.reference}
           </bdi>
           <CopyButton value={lines.reference} name={r.reference} labels={copyLabels(m)} />
         </span>
-        <span className="mt-1 block text-[13px] text-muted">
+        <span className="mt-1 block text-label text-muted">
           <Term id="reference" locale={locale}>
             {r.reference}
           </Term>
@@ -49,11 +49,11 @@ export function PlainCard({ input, locale, m, className, headless }: { input: Re
       className={className ?? "mt-4 border border-line bg-card p-4 sm:p-5"}
     >
       {!headless && (
-        <h2 id={id} className="heading text-lg">
+        <h2 id={id} className="heading text-value">
           {r.title}
         </h2>
       )}
-      <dl className={`flex flex-col gap-2.5 text-sm ${headless ? "" : "mt-2"}`}>
+      <dl className={`flex flex-col gap-2.5 text-body ${headless ? "" : "mt-2"}`}>
         {rows.map(([label, value]) => (
           <div key={label}>
             <dt className="font-semibold text-muted">{label}</dt>

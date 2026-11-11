@@ -54,6 +54,8 @@ test("rerun command is shown verbatim from scope, and hash check reports match a
 
 test("profile receipt shows no rerun command; scenario receipts show their own", async ({ page }) => {
   await page.goto("/en/business/10001", { waitUntil: "networkidle" });
+  // LG5 (DECISIONS 60): the profile record sits inside the profile figures; open them first.
+  await page.locator("#profile > details > summary").click();
   const profile = page.locator("details[data-receipt]").filter({ hasText: "Technical record: profile" }) // DECISIONS 58;
   await profile.locator("summary").click();
   await expect(profile.locator("[data-rerun]")).toHaveCount(0);
@@ -74,6 +76,8 @@ for (const [locale, theme, id] of [
     await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
     for (const path of [`/business/${id}`, `/business/${id}/credit`, "/scenarios?s=severe_collapse"]) {
       await page.goto(`/${locale}${path}`, { waitUntil: "networkidle" });
+      // LG5 (DECISIONS 60): open the profile figures so the record inside them is checked too.
+      if (await page.locator("#profile > details > summary").count()) await page.locator("#profile > details > summary").click();
       for (const summary of await page.locator("details[data-receipt] > summary").all()) await summary.click();
       await expectAxeClean(page);
     }

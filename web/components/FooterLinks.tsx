@@ -9,7 +9,7 @@ import type { Locale, Messages } from "@/lib/i18n";
 export function FooterLinks({ locale, footer }: { locale: Locale; footer: Messages["footer"] }) {
   const query = roleQuery(useSearchParams().get("as"));
   return (
-    <nav aria-label={footer.links} className="flex flex-wrap gap-x-5 text-sm">
+    <nav aria-label={footer.links} className="flex flex-wrap gap-x-5 text-label">
       <Link href={`/${locale}/how-it-works${query}`} prefetch={false} className="textlink">
         {footer.how}
       </Link>

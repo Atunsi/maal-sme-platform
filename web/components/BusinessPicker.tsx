@@ -55,7 +55,7 @@ export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels }
 
   return (
     <form role="search" onSubmit={open} noValidate className="finder w-full max-w-md">
-      <label htmlFor="business-id" className="block text-sm font-medium">
+      <label htmlFor="business-id" className="block text-label font-medium">
         {labels.input}
       </label>
       <div className="relative mt-1.5 flex gap-2.5">
@@ -98,7 +98,7 @@ export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels }
                 }}
               >
                 <span className="font-semibold">{nameOf(id, locale)}</span>
-                <span className="ms-auto font-mono text-sm text-muted">
+                <span className="ms-auto font-mono text-label text-muted">
                   <Num>{id}</Num>
                 </span>
               </li>
@@ -107,7 +107,7 @@ export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels }
         )}
       </div>
       {invalid && (
-        <p id="business-id-error" role="alert" className="mt-2 text-sm text-bad">
+        <p id="business-id-error" role="alert" className="mt-2 text-label text-bad">
           {labels.invalid}
         </p>
       )}

@@ -120,9 +120,9 @@ export function BusinessSwitcher({ locale, m }: { locale: Locale; m: Pick<Messag
       </button>
       {open && (
         <div role="dialog" aria-label={s.label} className="switcher-panel flex w-[min(320px,calc(100vw-32px))] flex-col gap-2 p-3">
-          <label className="flex flex-col gap-1 text-sm font-medium">
+          <label className="flex flex-col gap-1 text-label font-medium">
             {s.label}
-            <span className="text-xs font-normal text-muted">{s.help}</span>
+            <span className="text-label font-normal text-muted">{s.help}</span>
             <input
               ref={input}
               role="combobox"
@@ -144,7 +144,7 @@ export function BusinessSwitcher({ locale, m }: { locale: Locale; m: Pick<Messag
               onKeyDown={onKey}
             />
           </label>
-          {failed && searching && <p className="text-sm text-bad">{failed}</p>}
+          {failed && searching && <p className="text-label text-bad">{failed}</p>}
           <ul id={listId} role="listbox" aria-label={searching ? s.results : s.demo} className="flex max-h-72 flex-col overflow-auto">
             {options.map((option, i) => {
               const plate = plates[option.id];
@@ -165,16 +165,16 @@ export function BusinessSwitcher({ locale, m }: { locale: Locale; m: Pick<Messag
                   {/* The name to read, the ID to search by (the field above takes digits). */}
                   <span className="flex flex-col">
                     <span className="font-semibold">{nameOf(option.id, locale)}</span>
-                    <span data-latin className="font-mono text-xs text-muted">
+                    <span data-latin className="font-mono text-label text-muted">
                       {option.id}
                     </span>
                   </span>
-                  {option.sector && <span className="text-xs text-muted">{m.enums.sector[option.sector as keyof Messages["enums"]["sector"]]}</span>}
-                  {!searching && plate && (plate.ok ? <Plate variant={plate.variant}>{plate.word}</Plate> : <span className="text-xs text-bad">{plate.word}</span>)}
+                  {option.sector && <span className="text-label text-muted">{m.enums.sector[option.sector as keyof Messages["enums"]["sector"]]}</span>}
+                  {!searching && plate && (plate.ok ? <Plate variant={plate.variant}>{plate.word}</Plate> : <span className="text-label text-bad">{plate.word}</span>)}
                 </li>
               );
             })}
-            {searching && found !== null && options.length === 0 && <li className="px-2 py-2 text-sm text-muted">{s.none}</li>}
+            {searching && found !== null && options.length === 0 && <li className="px-2 py-2 text-label text-muted">{s.none}</li>}
           </ul>
         </div>
       )}

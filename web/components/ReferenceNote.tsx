@@ -15,7 +15,7 @@ function Note({ businessId, current, labels }: Props) {
   // Only "earlier result": the UI cannot know whether the data or the method changed, so it never says which.
   const stale = current !== null && current !== ref;
   return (
-    <p className="flex flex-wrap items-center gap-2 text-sm" data-reference-note>
+    <p className="flex flex-wrap items-center gap-2 text-label" data-reference-note>
       <span>
         {fill(labels.opened, { ref: "" }).trim()}{" "}
         <bdi dir="ltr" data-latin className="font-mono font-semibold">

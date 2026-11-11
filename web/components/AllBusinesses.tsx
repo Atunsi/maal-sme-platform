@@ -19,10 +19,10 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
   const { total, businesses } = r.data;
   // One page when every match is already here (the online snapshot lists all of its few at once).
   const pages = businesses.length >= total ? 1 : Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const th = "border-b border-line px-6 py-3 text-start text-[13px] font-medium text-muted";
+  const th = "border-b border-line px-6 py-3 text-start text-label font-medium text-muted";
   return (
     <>
-      <p className="text-sm">
+      <p className="text-label">
         {fillNodes(pluralForm(total, a.total, locale), { n: <Num>{formatInt(total, locale)}</Num> })}
       </p>
       {businesses.length === 0 ? (
@@ -49,11 +49,11 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
                   <tr key={b.business_id} className="row-pick border-t border-line2">
                     <th scope="row" className="px-6 py-2 text-start font-normal">
                       <span className="block font-semibold">{nameOf(b.business_id, locale)}</span>
-                      <span className="block font-mono text-sm text-muted">
+                      <span className="block font-mono text-label text-muted">
                         <Num>{b.business_id}</Num>
                       </span>
                     </th>
-                    <td className="px-6 py-2 text-sm" data-label={a.sector}>
+                    <td className="px-6 py-2 text-label" data-label={a.sector}>
                       {m.enums.sector[b.sector]}
                     </td>
                     <td className="px-6 py-2 text-end">
@@ -69,7 +69,7 @@ export async function AllBusinesses({ result, locale, m, query, links, page }: L
         </div>
       )}
       {pages > 1 && (
-        <nav aria-label={a.allTable} className="flex flex-wrap items-center gap-4 text-sm">
+        <nav aria-label={a.allTable} className="flex flex-wrap items-center gap-4 text-label">
           {page > 1 && (
             <Link href={links(page - 1)} className="textlink font-semibold" rel="prev">
               {a.prev}

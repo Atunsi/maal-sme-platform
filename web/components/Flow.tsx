@@ -9,9 +9,9 @@ export function Flow({ steps, full }: { steps: readonly { title: string; text: s
       {steps.map((step, i) => (
         <div key={step.title} className="contents">
           <div className="rise flex min-w-0 flex-[1_1_200px] flex-col gap-2 border border-line bg-card p-5" style={{ animationDelay: full ? `${(0.2 + i * 0.2).toFixed(1)}s` : delay(2 + i) }}>
-            <span className="font-mono text-xs text-muted">{pad(i)}</span>
-            <span className="heading text-[22px]">{step.title}</span>
-            <span className="text-sm text-muted">{step.text}</span>
+            <span className="font-mono text-label text-muted">{pad(i)}</span>
+            <span className="heading text-heading">{step.title}</span>
+            <span className="text-label text-muted">{step.text}</span>
           </div>
           {i < steps.length - 1 && (
             <div aria-hidden="true" className="flowline">

@@ -33,10 +33,10 @@ export function FactorDetails({ businessId, feature, features, locale, glossaryH
   const entry = result?.ok ? result.values[feature] : undefined;
   return (
     <span className="mt-1 block">
-      <button type="button" className="textlink text-sm font-semibold" aria-expanded={open} aria-controls={panelId} data-factor={feature} onClick={toggle}>
+      <button type="button" className="textlink text-label font-semibold" aria-expanded={open} aria-controls={panelId} data-factor={feature} onClick={toggle}>
         {labels.more}
       </button>
-      <span id={panelId} hidden={!open} className="mt-1 block border-s-2 border-line ps-3 text-sm" data-factor-panel>
+      <span id={panelId} hidden={!open} className="mt-1 block border-s-2 border-line ps-3 text-label" data-factor-panel>
         {!result ? (
           open && <span role="status">{labels.loading}</span>
         ) : !result.ok ? (

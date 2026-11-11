@@ -95,7 +95,7 @@ export function ScenarioSelect({ label, entries }: { label: string; entries: { n
   const router = useRouter();
   const current = entries.find((e) => e.current)?.name ?? entries[0]?.name;
   return (
-    <label className="flex flex-col gap-1.5 text-sm font-medium md:hidden">
+    <label className="flex flex-col gap-1.5 text-label font-medium md:hidden">
       {label}
       <select
         className="field"
@@ -122,7 +122,7 @@ export function DiffHeading({ id, children }: { id: string; children: ReactNode 
   return (
     <Suspense
       fallback={
-        <h2 id={id} tabIndex={-1} className="heading scroll-mt-4 text-[22px] outline-none focus-visible:outline-2">
+        <h2 id={id} tabIndex={-1} className="heading scroll-mt-4 text-heading outline-none focus-visible:outline-2">
           {children}
         </h2>
       }
@@ -144,7 +144,7 @@ function DiffHeadingFocus({ id, children }: { id: string; children: ReactNode })
     replaceParam("jump", null);
   }, [jump, scenario]);
   return (
-    <h2 id={id} ref={ref} tabIndex={-1} className="heading scroll-mt-4 text-[22px] outline-none focus-visible:outline-2">
+    <h2 id={id} ref={ref} tabIndex={-1} className="heading scroll-mt-4 text-heading outline-none focus-visible:outline-2">
       {children}
     </h2>
   );

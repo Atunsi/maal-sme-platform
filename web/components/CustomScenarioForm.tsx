@@ -72,7 +72,7 @@ export function CustomScenarioForm({
       <input type="hidden" name="locale" value={hidden.locale} />
       {hidden.as && <input type="hidden" name="as" value={hidden.as} />}
       {starts.length > 0 && (
-        <label className="flex max-w-md flex-col gap-1.5 text-sm font-medium">
+        <label className="flex max-w-md flex-col gap-1.5 text-label font-medium">
           {c.startFrom}
           <select
             className="field"
@@ -93,12 +93,12 @@ export function CustomScenarioForm({
           </select>
         </label>
       )}
-      <p className="text-sm text-muted">{fill(pluralForm(catalog.max_shocks, c.tooMany, localeOf(m)), { n: formatInt(catalog.max_shocks, localeOf(m)) })}</p>
+      <p className="text-label text-muted">{fill(pluralForm(catalog.max_shocks, c.tooMany, localeOf(m)), { n: formatInt(catalog.max_shocks, localeOf(m)) })}</p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {Object.entries(catalog.shock_types).map(([type, spec]) => (
           <fieldset key={type} className="flex flex-col gap-3 border border-line bg-card p-5">
-            <legend className="heading px-1 text-xl">{types[type] ?? type}</legend>
-            <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
+            <legend className="heading px-1 text-value">{types[type] ?? type}</legend>
+            <label className="flex min-h-11 items-center gap-3 text-label font-medium">
               <input type="checkbox" name="include" value={type} checked={state.included.has(type)} onChange={() => toggle(type)} className="h-5 w-5" />
               {c.include}
             </label>
@@ -106,7 +106,7 @@ export function CustomScenarioForm({
               const key = `${type}.${name}`;
               const label = params[name] ?? name;
               return (
-                <div key={name} className="flex flex-col gap-1 text-sm font-medium">
+                <div key={name} className="flex flex-col gap-1 text-label font-medium">
                   <label className="flex flex-col gap-1">
                     {label}
                     <input
@@ -134,21 +134,21 @@ export function CustomScenarioForm({
                     onChange={(event) => setValue(key, event.target.value)}
                     className="custom-slider w-full max-w-xs"
                   />
-                  <span className="text-xs font-normal text-muted">
+                  <span className="text-label font-normal text-muted">
                     {fill(c.range, { min: String(b.min), max: String(b.max), unit: units[b.unit] ?? b.unit }).trim()}
                   </span>
                 </div>
               );
             })}
             {Object.entries(spec.fixed).map(([name, value]) => (
-              <p key={name} className="text-xs text-muted">
+              <p key={name} className="text-label text-muted">
                 {c.fixed} <bdi className="font-mono">{String(value)}</bdi>
               </p>
             ))}
           </fieldset>
         ))}
       </div>
-      <p className="text-sm" data-custom-summary>
+      <p className="text-label" data-custom-summary>
         {summary.length ? fill(c.summary, { list: summary.join("; ") }) : c.noneChosen}
       </p>
       <button type="submit" className="solid-btn min-h-12 self-start">

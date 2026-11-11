@@ -61,15 +61,18 @@ export function SiteHeader({ locale, m, scenarios, businessIds }: { locale: Loca
   const admin = role === "admin" || rest === "/admin";
   // X5: a demo role, not access control, so the label names no business.
   const signedIn = role === "admin" ? nav.roleAdmin : role === "owner" ? nav.roleOwner : null;
+  // LG1 (DECISIONS 60): the label never wraps. It shows its short form at every width (the full form did not fit
+  // one row at 1440 px in Arabic, R8); the full form stays for screen readers and in title.
+  const signedInShort = role === "admin" ? nav.roleAdminShort : role === "owner" ? nav.roleOwnerShort : null;
 
   const items = navItems(rest, base, query, nav, admin);
   const close = () => setOpenOn(null);
   return (
     <>
       <header className="bleed border-b border-line bg-card">
-        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-2 gap-y-3 px-4 py-3 sm:px-6">
+        <div className="header-row mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-2 gap-y-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3.5">
-            <Link href={base} aria-label={nav.home} className="flex min-h-11 min-w-11 items-center gap-3.5 text-accent no-underline">
+            <Link href={base} aria-label={nav.home} className="header-brand flex min-h-11 min-w-11 items-center gap-3.5 text-accent no-underline">
               {/* E7: below 390 px the Arabic logo stands alone at 32 px, as the design rule allows. */}
               <ArabicLogo height={46} animate className="h-8 w-auto min-[390px]:h-[46px]" />
               <span className="hidden min-[390px]:inline-flex">
@@ -77,7 +80,7 @@ export function SiteHeader({ locale, m, scenarios, businessIds }: { locale: Loca
               </span>
             </Link>
             {/* Beside the link, not in it: visible text must be part of a link's accessible name. */}
-            {!signedIn && <span className="hidden max-w-[120px] border-s border-line ps-3.5 text-xs leading-tight text-muted lg:block">{m.app.tagline}</span>}
+            {!signedIn && <span className="hidden max-w-[120px] border-s border-line ps-3.5 text-label leading-tight text-muted lg:block">{m.app.tagline}</span>}
           </div>
           {/* The language and theme icons stay in the header row at every width, last on laptops. E7: below
               768 px the page links and the other buttons fold into the menu. */}
@@ -104,7 +107,7 @@ export function SiteHeader({ locale, m, scenarios, businessIds }: { locale: Loca
               menuButton.current?.focus();
             }}
           >
-            <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-1.5 text-[15px] md:ms-auto md:flex-row md:flex-wrap md:text-sm">
+            <nav aria-label={rest === "" ? nav.sections : nav.main} className="flex flex-col gap-x-1.5 text-body md:ms-auto md:flex-row md:flex-wrap md:text-label">
               {items.map((item) => (
                 // No prefetch: a prefetch renders the page on the server, and its API calls would join the queue
                 // (lib/api.ts) ahead of the page the visitor actually opens next.
@@ -115,8 +118,13 @@ export function SiteHeader({ locale, m, scenarios, businessIds }: { locale: Loca
             </nav>
             <div className="flex flex-wrap items-center gap-1.5 md:ms-auto">
               {signedIn && (
-                <span className="max-w-[6.5rem] text-xs font-semibold leading-tight" data-demo-role>
-                  {signedIn}
+                <span className="whitespace-nowrap text-label font-semibold leading-tight" data-demo-role title={signedIn ?? undefined}>
+                  <span aria-hidden="true" data-demo-role-short>
+                    {signedInShort}
+                  </span>
+                  <span className="sr-only" data-demo-role-full>
+                    {signedIn}
+                  </span>
                 </span>
               )}
               <CommandPalette locale={locale} m={m} scenarios={scenarios} businessIds={businessIds} />

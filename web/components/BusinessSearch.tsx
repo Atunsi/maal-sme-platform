@@ -14,9 +14,9 @@ export function BusinessSearch({ locale, role, q, sector, sectors, labels }: { l
       {role && <input type="hidden" name="as" value={role} />}
       {/* B16: the hint sits between the label and the field, so with items-end every field and button shares
           one line at laptop width. */}
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-label font-medium">
         {labels.searchLabel}
-        <span id="search-help" className="text-xs font-normal text-muted">
+        <span id="search-help" className="text-label font-normal text-muted">
           {labels.searchHelp}
         </span>
         <input
@@ -31,7 +31,7 @@ export function BusinessSearch({ locale, role, q, sector, sectors, labels }: { l
           className="field w-44 font-mono"
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex flex-col gap-1 text-label font-medium">
         {labels.sectorLabel}
         <select name="sector" defaultValue={sector} className="field min-w-48">
           <option value="">{labels.anySector}</option>

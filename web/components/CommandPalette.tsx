@@ -137,7 +137,7 @@ export function CommandPalette({ locale, m, scenarios, businessIds }: { locale: 
         createPortal(
         <div className="palette-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()}>
           <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId} className="palette" onKeyDown={onKey} data-palette>
-            <h2 id={titleId} className="heading text-xl">
+            <h2 id={titleId} className="heading text-value">
               {s.title}
             </h2>
             <input
@@ -173,10 +173,10 @@ export function CommandPalette({ locale, m, scenarios, businessIds }: { locale: 
                   }}
                 >
                   <span lang={item.lang}>{item.label}</span>
-                  <span className="text-xs text-muted">{item.group}</span>
+                  <span className="text-label text-muted">{item.group}</span>
                 </li>
               ))}
-              {matches.length === 0 && <li className="px-2 py-2 text-sm text-muted">{s.none}</li>}
+              {matches.length === 0 && <li className="px-2 py-2 text-label text-muted">{s.none}</li>}
             </ul>
           </div>
         </div>,

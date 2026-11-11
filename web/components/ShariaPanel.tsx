@@ -5,6 +5,7 @@ import { BackendText, Code, Plate, SubHeading, TableScroll, TD, TH } from "@/com
 import type { Locale, Messages } from "@/lib/i18n";
 import type { CreditResponse } from "@/lib/types";
 import { delay } from "@/lib/motion";
+import { label } from "@/lib/labels";
 
 const STATUS_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
 
@@ -20,8 +21,8 @@ function PendingFrame({ m }: { m: Messages }) {
       <svg aria-hidden="true" className="frame-line">
         <rect className="frame-path" pathLength={1} />
       </svg>
-      <p className="heading text-2xl text-warn">{m.sharia.label}</p>
-      <p className="mt-1 text-sm text-muted">{m.sharia.frameNote}</p>
+      <p className="heading text-heading text-warn">{m.sharia.label}</p>
+      <p className="mt-1 text-label text-muted">{m.sharia.frameNote}</p>
     </div>
   );
 }
@@ -32,9 +33,9 @@ function Checked({ label, value, result, index }: { label: ReactNode; value: Rea
       className="rise grid grid-cols-1 items-center gap-x-4 gap-y-1 border-t border-line2 px-7 py-4 sm:grid-cols-3"
       style={{ animationDelay: delay(1 + index) }}
     >
-      <span className="text-[13px] text-muted">{label}</span>
-      <span className="font-mono text-base">{value}</span>
-      <span className="text-sm text-muted sm:justify-self-end">{result}</span>
+      <span className="text-label text-muted">{label}</span>
+      <span className="font-mono text-body">{value}</span>
+      <span className="text-label text-muted sm:justify-self-end">{result}</span>
     </div>
   );
 }
@@ -48,11 +49,11 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
   const status = <Plate variant={STATUS_VARIANT[s.sharia_screen_status]}>{m.enums.sharia[s.sharia_screen_status]}</Plate>;
   return (
     <>
-      <LensHead data={data} title={m.sharia.title} aside={status} locale={locale} m={m} />
+      <LensHead transition="sharia" data={data} title={m.sharia.title} aside={status} locale={locale} m={m} />
       <PendingFrame m={m} />
 
       <section aria-labelledby="checked" data-phone="checked" className="border border-line bg-card">
-        <h2 id="checked" className="heading border-b-2 border-ink px-7 py-5 text-[22px]">
+        <h2 id="checked" className="heading border-b-2 border-ink px-7 py-5 text-value">
           {m.sharia.checked}
         </h2>
         <Checked label={m.sharia.evidence} value={m.enums.evidence[s.evidence_basis]} result={m.sharia.used} index={0} />
@@ -65,12 +66,12 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
         {/* C6: compliance/sharia.py, screen(), branch (a): with no MCC the screen falls back to the registered
             sector, and a sector the rule table's no_mcc_by_sector marks compliant triggers no rule. */}
         {s.declared_mcc === null && s.evidence_basis === "registered_sector" && s.sharia_screen_status === "compliant" && (
-          <p data-no-mcc className="border-t border-line2 px-7 py-4 text-sm">
+          <p data-no-mcc className="border-t border-line2 px-7 py-4 text-label">
             {m.sharia.noMccSector}
           </p>
         )}
         <Checked label={m.sharia.ruleTableVersion} value={<Code>{s.rule_table_version}</Code>} result={m.sharia.recorded} index={2} />
-        <Checked label={<Term id="rule-table-status" locale={locale}>{m.sharia.ruleTableStatus}</Term>} value={<Code>{s.rule_table_status}</Code>} result={m.sharia.notConfirmed} index={3} />
+        <Checked label={<Term id="rule-table-status" locale={locale}>{m.sharia.ruleTableStatus}</Term>} value={label("rule_table_status", s.rule_table_status, m)} result={m.sharia.notConfirmed} index={3} />
       </section>
 
       {s.rules_triggered.length > 0 && (
@@ -109,13 +110,13 @@ export function ShariaPanel({ data, locale, m }: { data: CreditResponse; locale:
 
       {questions.length > 0 && (
         <section aria-labelledby="ask" data-phone="ask" className="panel rise flex flex-col gap-3 p-8" style={{ animationDelay: delay(4) }}>
-          <h2 id="ask" className="heading caps text-sm text-muted">
+          <h2 id="ask" className="heading caps text-label text-muted">
             {m.sharia.questions}
           </h2>
-          <p className="text-sm text-muted">{m.sharia.questionsNote}</p>
+          <p className="text-label text-muted">{m.sharia.questionsNote}</p>
           <ul className="flex flex-col gap-3">
             {questions.map((question) => (
-              <li key={question.en} className="max-w-[860px] text-[22px] leading-snug">
+              <li key={question.en} className="max-w-[860px] text-value leading-snug">
                 <BackendText en={question.en} ar={question.ar} locale={locale} m={m} />
               </li>
             ))}

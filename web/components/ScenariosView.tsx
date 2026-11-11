@@ -41,12 +41,12 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
   return (
     <Page>
       <div className="rise">
-        <div className="flex items-center gap-2.5 font-mono text-[13px] text-muted">
+        <div className="flex items-center gap-2.5 font-mono text-label text-muted">
           <SectionMark />
           <span className="eyebrow">{fill(pluralForm(menu.length, sc.eyebrow, locale), { id: index.data.base_business, name: nameOf(index.data.base_business, locale), n: formatInt(menu.length, locale) })}</span>
         </div>
         <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{sc.title}</h1>
-        <p className="mt-2 max-w-3xl text-sm text-muted">{sc.intro}</p>
+        <p className="mt-2 max-w-3xl text-label text-muted">{sc.intro}</p>
         <Link href={`/${locale}/scenarios/custom${roleQuery(as)}`} className="textlink font-semibold">
           {m.custom.link}
         </Link>
@@ -73,7 +73,7 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
         <ScenarioMenu
           label={sc.menu}
           locale={locale}
-          footer={locale === "ar" && menu.some((entry) => !entry.label_ar) ? <p className="border-t border-line p-3 text-xs text-muted">{m.common.englishTemplate}</p> : undefined}
+          footer={locale === "ar" && menu.some((entry) => !entry.label_ar) ? <p className="border-t border-line p-3 text-label text-muted">{m.common.englishTemplate}</p> : undefined}
           entries={menu.map((entry, i) => {
             const current = entry.name === selected.name;
             const { name, detail, lang } = scenarioText(entry, locale);
@@ -85,14 +85,14 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
               style: { animationDelay: delay(1 + Math.floor(i / 2)) },
               children: (
                 <>
-                  <span aria-hidden="true" className="font-mono text-xs opacity-75">
+                  <span aria-hidden="true" className="font-mono text-label opacity-75">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span lang={lang} dir={lang ? "ltr" : undefined} data-latin className="text-start font-semibold">
                     {name}
                   </span>
                   {detail && (
-                    <span lang={lang} dir={lang ? "ltr" : undefined} data-latin className="text-start text-[13px] opacity-85">
+                    <span lang={lang} dir={lang ? "ltr" : undefined} data-latin className="text-start text-label opacity-85">
                       {detail}
                     </span>
                   )}
@@ -114,7 +114,7 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
           )}
 
           <div className="panel rise flex flex-col gap-4 p-7" style={{ animationDelay: delay(4) }}>
-            <h2 className="heading text-[22px]">{sc.findingsTitle}</h2>
+            <h2 className="heading text-heading">{sc.findingsTitle}</h2>
             <ol className="grid grid-cols-1 gap-px sm:grid-cols-2" style={{ background: "var(--panelRule)" }}>
               {sc.findings.map((finding, i) => (
                 <li key={finding} className="bg-panel p-4">
@@ -123,8 +123,8 @@ export async function ScenariosView({ locale, asked, as, changed }: ViewProps) {
                 </li>
               ))}
             </ol>
-            <p className="text-[13px] text-muted">{sc.caveat}</p>
-            <p className="text-[13px] text-muted">
+            <p className="text-label text-muted">{sc.caveat}</p>
+            <p className="text-label text-muted">
               {sc.library}: <Num>{index.data.library_version}</Num> ({label("library_status", index.data.library_status, m)})
             </p>
           </div>

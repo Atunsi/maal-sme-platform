@@ -69,21 +69,21 @@ export function ReceiptPanel({ receipt, lens, m, note, rerun, open }: Props) {
   return (
     <details className="mt-4 border border-line p-3" data-receipt open={open}>
       {/* DECISIONS 58: the technical record, for auditors; owners see the plain card (DecisionRecord). */}
-      <summary className="text-sm font-medium">{fill(m.record.technicalFor, { lens })}</summary>
+      <summary className="text-label font-medium">{fill(m.record.technicalFor, { lens })}</summary>
       <div className="mt-2">
-        <p className="mb-2 text-sm text-muted">{m.record.technicalHint}</p>
-        <p className="text-sm font-semibold text-muted">{r.scope}</p>
+        <p className="mb-2 text-label text-muted">{m.record.technicalHint}</p>
+        <p className="text-label font-semibold text-muted">{r.scope}</p>
         {scope ? (
-          <ScopeText scope={scope} scopeAr={scopeAr} locale={localeOf(m)} className="mb-2 text-sm" />
+          <ScopeText scope={scope} scopeAr={scopeAr} locale={localeOf(m)} className="mb-2 text-label" />
         ) : (
-          <p className="mb-2 text-sm">{r.noScope}</p>
+          <p className="mb-2 text-label">{r.noScope}</p>
         )}
         {note}
         {command && (
           <div className="mb-2" data-rerun>
-            <p className="text-sm font-semibold text-muted">{r.rerun}</p>
+            <p className="text-label font-semibold text-muted">{r.rerun}</p>
             <div className="flex flex-wrap items-center gap-2">
-              <pre lang="en" dir="ltr" className="rounded-ctl min-w-0 whitespace-pre-wrap break-all bg-page px-3 py-2 text-start font-mono text-xs">
+              <pre lang="en" dir="ltr" className="rounded-ctl min-w-0 whitespace-pre-wrap break-all bg-page px-3 py-2 text-start font-mono text-label">
                 <code>{command}</code>
               </pre>
               <CopyButton value={command} name={r.rerun} labels={labels} />

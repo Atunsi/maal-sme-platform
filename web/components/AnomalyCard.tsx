@@ -35,7 +35,7 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
           ))}
         </div>
       ) : null}
-      <div className="text-[13px] text-muted">{fill(pluralForm(computed.transactions_scanned, n.listedOf, locale), { n: formatInt(computed.transactions_scanned, locale) })}</div>
+      <div className="text-label text-muted">{fill(pluralForm(computed.transactions_scanned, n.listedOf, locale), { n: formatInt(computed.transactions_scanned, locale) })}</div>
       <div aria-hidden="true" className="ms-auto mt-2 h-1.5 w-[220px] max-w-full bg-line">
         <div className="scan-fill" />
       </div>
@@ -43,7 +43,7 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
   );
   return (
     <>
-      <LensHead data={data} title={n.title} aside={aside} locale={locale} m={m} />
+      <LensHead transition="review" data={data} title={n.title} aside={aside} locale={locale} m={m} />
       {!a ? (
         <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
       ) : a.status === "not_computed" ? (
@@ -55,8 +55,8 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
           {/* The chart card carries the framing (U8) and the scan window; the method sits with the receipt. */}
           {a.flags.length === 0 ? (
             <>
-              <p className="text-sm text-muted">{n.queue}</p>
-              <p className="text-sm text-muted">
+              <p className="text-label text-muted">{n.queue}</p>
+              <p className="text-label text-muted">
                 {n.window}: <bdi>{fill(n.windowValue, { from: formatDate(a.scan_window.from, locale), to: formatDate(a.scan_window.to, locale) })}</bdi>
               </p>
               <p>{n.noFlags}</p>
@@ -74,7 +74,7 @@ export function AnomalyCard({ data, locale, m }: { data: AnomalyResponse; locale
         m={m}
         note={
           computed && (
-            <div className="mb-2 text-sm">
+            <div className="mb-2 text-label">
               <p className="font-semibold text-muted">{n.method}</p>
               <BackendText en={computed.method} ar={computed.method_ar} locale={locale} m={m} />
             </div>

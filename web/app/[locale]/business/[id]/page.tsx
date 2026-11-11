@@ -82,34 +82,34 @@ export default async function OverviewPage({ params, searchParams }: Props) {
           <ApiError kind={first.kind} detail={first.detail} m={m} />
         </Card>
       )}
-      <section aria-labelledby="readouts" className="flex flex-col gap-3.5">
-        <h2 id="readouts" className="heading caps text-[15px] text-muted">
+      <section aria-labelledby="readouts" className="drift flex flex-col gap-3.5">
+        <h2 id="readouts" className="heading caps text-body text-muted">
           {m.overview.readouts}
         </h2>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
           <Lens title={m.nav.credit} result={credit} m={m}>
             {(data) => (
-              <ReadoutCard lens={m.nav.credit} href={`${root}/credit${query}`} readout={creditReadout(data, locale, m)} partial={partial(data.status)} index={0} m={m} />
+              <ReadoutCard transition="credit" lens={m.nav.credit} href={`${root}/credit${query}`} readout={creditReadout(data, locale, m)} partial={partial(data.status)} index={0} m={m} />
             )}
           </Lens>
           <Lens title={m.nav.sharia} result={credit} m={m}>
             {(data) => (
-              <ReadoutCard lens={m.nav.sharia} href={`${root}/sharia${query}`} readout={shariaReadout(data, locale, m)} partial={partial(data.status)} index={1} m={m} />
+              <ReadoutCard transition="sharia" lens={m.nav.sharia} href={`${root}/sharia${query}`} readout={shariaReadout(data, locale, m)} partial={partial(data.status)} index={1} m={m} />
             )}
           </Lens>
           <Lens title={m.nav.zakat} result={zakat} m={m}>
             {(data) => (
-              <ReadoutCard lens={m.nav.zakat} href={`${root}/zakat${query}`} readout={zakatReadout(data, locale, m)} partial={partial(data.status)} index={2} m={m} />
+              <ReadoutCard transition="zakat" lens={m.nav.zakat} href={`${root}/zakat${query}`} readout={zakatReadout(data, locale, m)} partial={partial(data.status)} index={2} m={m} />
             )}
           </Lens>
           <Lens title={m.nav.forecast} result={forecast} m={m}>
             {(data) => (
-              <ReadoutCard lens={m.nav.forecast} href={`${root}/forecast${query}`} readout={forecastReadout(data, locale, m)} partial={partial(data.status)} index={3} m={m} />
+              <ReadoutCard transition="forecast" lens={m.nav.forecast} href={`${root}/forecast${query}`} readout={forecastReadout(data, locale, m)} partial={partial(data.status)} index={3} m={m} />
             )}
           </Lens>
           <Lens title={m.nav.review} result={anomaly} m={m}>
             {(data) => (
-              <ReadoutCard lens={m.nav.review} href={`${root}/review${query}`} readout={reviewReadout(data, locale, m)} partial={partial(data.status)} index={4} m={m} />
+              <ReadoutCard transition="review" lens={m.nav.review} href={`${root}/review${query}`} readout={reviewReadout(data, locale, m)} partial={partial(data.status)} index={4} m={m} />
             )}
           </Lens>
         </div>

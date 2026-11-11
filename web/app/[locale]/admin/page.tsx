@@ -43,7 +43,7 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
       {/* The admin sees both: the business's display name, and its ID, which the API, receipts and search use. */}
       <th scope="row" className={`${cell} text-start font-normal`}>
         <span className="block font-semibold">{nameOf(id, locale)}</span>
-        <span className="block font-mono text-sm text-muted">
+        <span className="block font-mono text-label text-muted">
           <Num>{id}</Num>
         </span>
       </th>
@@ -55,12 +55,12 @@ async function Row({ id, result, locale, m, index, query }: RowProps) {
           <td className={cell} data-label={a.credit}>
             <Plate variant={plate!.variant}>{plate!.word}</Plate>
           </td>
-          <td className={`${cell} text-sm text-muted`} data-label={a.shows}>
+          <td className={`${cell} text-label text-muted`} data-label={a.shows}>
             {shows(r.data, m)}
           </td>
         </>
       ) : (
-        <td colSpan={3} className={`${cell} text-sm text-bad`}>
+        <td colSpan={3} className={`${cell} text-label text-bad`}>
           {a.error} {m.errors[r.kind]}
         </td>
       )}
@@ -151,7 +151,7 @@ export default async function AdminPage({ params, searchParams }: Props) {
         <TableScroll label={a.tableLabel}>
         <table data-phone="link-rows" className="stack-sm w-full border-collapse md:min-w-[820px]">
           <thead>
-            <tr className="text-start text-[13px] text-muted">
+            <tr className="text-start text-label text-muted">
               <th scope="col" className={`${th} text-start`}>
                 {a.business}
               </th>

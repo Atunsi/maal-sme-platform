@@ -31,7 +31,7 @@ type Factors = { businessId: number; names: Record<string, string> };
 function LineText({ line, factors, locale, m }: { line: Line; factors: Factors; locale: Locale; m: Messages }) {
   const feature = line.feature_id === null ? undefined : factors.names[String(line.feature_id)];
   return (
-    <span className="factor-words block min-w-0 text-base">
+    <span className="factor-words block min-w-0 text-body">
       <BackendText en={line.text} ar={line.text_ar} locale={locale} m={m} />
       <span className="mt-1 flex flex-wrap gap-2">
         <Plate variant="ink">{m.enums.magnitude[line.magnitude!]}</Plate>
@@ -82,7 +82,7 @@ function PublicTier({ lines, factors, locale, m }: { lines: Line[]; factors: Fac
       {onAxis.length > 0 && (
         <>
           {/* The legend sits over the tracks, one label to each side of the axis. */}
-          <div className="factor-legend heading caps text-[13px]">
+          <div className="factor-legend heading caps text-label">
             <span aria-hidden="true" />
             <span className="factor-legend-track">
               <span className="text-end text-bad">{m.credit.against}</span>
@@ -92,7 +92,7 @@ function PublicTier({ lines, factors, locale, m }: { lines: Line[]; factors: Fac
           {onAxis.map((line, i) => (
             <AxisRow key={line.feature_id ?? `line-${i}`} line={line} index={i} factors={factors} locale={locale} m={m} />
           ))}
-          <p className="mt-4 text-[13px] text-muted">{m.credit.barNote}</p>
+          <p className="mt-4 text-label text-muted">{m.credit.barNote}</p>
         </>
       )}
     </section>
@@ -102,8 +102,8 @@ function PublicTier({ lines, factors, locale, m }: { lines: Line[]; factors: Fac
 function Term({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <div className="min-w-0 py-3 sm:p-5">
-      <dt className="text-[13px] text-muted">{label}</dt>
-      <dd className={`${figureFont(children)} text-xl`}>{children}</dd>
+      <dt className="text-label text-muted">{label}</dt>
+      <dd className={`${figureFont(children)} text-value`}>{children}</dd>
     </div>
   );
 }
@@ -115,7 +115,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
   if (!credit || !detail || !explanation) {
     return (
       <>
-        <LensHead data={data} title={m.credit.title} locale={locale} m={m} />
+        <LensHead transition="credit" data={data} title={m.credit.title} locale={locale} m={m} />
         <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
       </>
     );
@@ -131,7 +131,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
     <div className="flex items-center gap-3">
       <Plate variant={plate.variant}>{plate.word}</Plate>
       {credit.amount_sar !== null && (
-        <span className="font-mono text-xl">
+        <span className="font-mono text-value">
           <Sar value={credit.amount_sar} locale={locale} />
         </span>
       )}
@@ -139,7 +139,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
   );
   return (
     <>
-      <LensHead data={data} title={title} aside={aside} locale={locale} m={m} />
+      <LensHead transition="credit" data={data} title={title} aside={aside} locale={locale} m={m} />
       <CreditViewSwitch
         initialView={initialView}
         labels={{ group: m.credit.viewLabel, public: m.credit.viewPublic, compliance: m.credit.viewCompliance }}
@@ -200,7 +200,7 @@ export function CreditCard({ data, initialView, locale, m }: Props) {
           </ul>
         </section>
       )}
-      <p className="text-[13px] text-muted">{m.credit.note}</p>
+      <p className="text-label text-muted">{m.credit.note}</p>
     </>
   );
 }

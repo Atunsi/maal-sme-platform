@@ -131,7 +131,8 @@ describe("Sharia panel", () => {
     for (const name of ["credit_10001", "credit_10003", "credit_10037", "credit_hard_flag_synthetic_state"]) {
       const { unmount } = render(<ShariaPanel data={fixture(name, CreditResponse)} locale="en" m={en} />);
       expect(screen.getByText(en.sharia.label)).toBeTruthy();
-      expect(screen.getByText("proposed_unverified")).toBeTruthy();
+      // LG4 (DECISIONS 60): the status is shown in words; the raw code stays in the technical record.
+      expect(screen.getByText(en.enums.rule_table_status.proposed_unverified)).toBeTruthy();
       unmount();
     }
   });

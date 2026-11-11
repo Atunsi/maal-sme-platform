@@ -29,8 +29,8 @@ function points(f: Computed): ForecastPoint[] {
 function Figure({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="min-w-0 py-3 sm:p-5">
-      <dt className="text-[13px] text-muted">{label}</dt>
-      <dd className={`${figureFont(children)} text-[22px]`}>{children}</dd>
+      <dt className="text-label text-muted">{label}</dt>
+      <dd className={`${figureFont(children)} text-heading`}>{children}</dd>
     </div>
   );
 }
@@ -51,10 +51,10 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
           <Sar value={f.balance_today_sar} locale={locale} />
         </Figure>
         <Figure label={n.hazard}>
-          <ul className="text-base">
+          <ul className="text-body">
             {hazard.map(({ key, days, value }) => (
               <li key={key}>
-                <span className="font-sans text-[13px] text-muted">{days}</span> {value === null ? m.common.dash : <Probability value={value} locale={locale} />}
+                <span className="font-sans text-label text-muted">{days}</span> {value === null ? m.common.dash : <Probability value={value} locale={locale} />}
               </li>
             ))}
           </ul>
@@ -96,7 +96,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
             today: n.today,
           }}
         />
-        <div className="flex flex-wrap gap-7 text-sm">
+        <div className="flex flex-wrap gap-7 text-label">
           <span className="flex items-center gap-2">
             <span aria-hidden="true" className="h-0 w-7 border-t-[3px] border-dotted border-accent" />
             {n.model}
@@ -107,11 +107,12 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
           </span>
         </div>
         {/* One line: both lines are projections, joined between four points (the API sends no daily history). */}
-        <p data-points-note className="text-[13px] text-muted">
+        <p data-points-note className="text-label text-muted">
           {n.pointsNote}
         </p>
       </section>
       <section aria-label={n.tableLabel} className="rise border border-line bg-card" style={{ animationDelay: delay(3) }}>
+        <div className="drift">
         <TableScroll label={n.chartTitle}>
           <table data-phone="forecast-list" className="stack-sm w-full md:min-w-[720px]">
             <thead>
@@ -148,6 +149,7 @@ function Body({ f, locale, m }: { f: Computed; locale: Locale; m: Messages }) {
             </tbody>
           </table>
         </TableScroll>
+        </div>
       </section>
     </>
   );
@@ -160,7 +162,7 @@ export function ForecastCard({ data, locale, m }: { data: ForecastResponse; loca
   const lastDay = computed?.model.at(-1)?.horizon_days;
   const aside = computed && (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted">
+      <span className="text-label text-muted">
         <Term id="crunch-alert" locale={locale}>
           {n.alert}
         </Term>
@@ -170,7 +172,7 @@ export function ForecastCard({ data, locale, m }: { data: ForecastResponse; loca
   );
   return (
     <>
-      <LensHead data={data} title={lastDay ? fill(n.pageTitle, { n: lastDay }) : n.title} aside={aside} locale={locale} m={m} />
+      <LensHead transition="forecast" data={data} title={lastDay ? fill(n.pageTitle, { n: lastDay }) : n.title} aside={aside} locale={locale} m={m} />
       {!f ? (
         <Refusal reason={data.lens_not_run_reason} coverage={data.coverage_days_90d} m={m} />
       ) : f.status === "not_computed" ? (
@@ -189,7 +191,7 @@ export function ForecastCard({ data, locale, m }: { data: ForecastResponse; loca
         m={m}
         note={
           computed && (
-            <div className="mb-2 text-sm">
+            <div className="mb-2 text-label">
               <p className="font-semibold text-muted">{n.method}</p>
               <BackendText en={computed.method} ar={computed.method_ar} locale={locale} m={m} />
             </div>

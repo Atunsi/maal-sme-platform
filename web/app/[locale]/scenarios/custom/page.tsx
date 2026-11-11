@@ -81,7 +81,7 @@ export default async function CustomScenarioPage({ params, searchParams }: Props
           <span className="eyebrow">{fill(c.eyebrow, { id: catalog.data.base_business, name: nameOf(catalog.data.base_business, locale) })}</span>
         </div>
         <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{c.title}</h1>
-        <p className="mt-2 max-w-3xl text-sm text-muted">{c.intro}</p>
+        <p className="mt-2 max-w-3xl text-label text-muted">{c.intro}</p>
         <Link href={`/${locale}/scenarios${query}`} className="textlink font-semibold">
           {c.back}
         </Link>

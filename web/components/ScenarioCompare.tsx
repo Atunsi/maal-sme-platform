@@ -108,7 +108,7 @@ function Head({ object, align, names, locale, m }: { object: ScenarioObject; ali
       <span lang={head.lang} dir={head.lang ? "ltr" : undefined} className="block text-start font-semibold">
         {head.name}
       </span>
-      <span dir="ltr" data-latin className="block text-start font-mono text-[11px] font-normal text-muted">
+      <span dir="ltr" data-latin className="block text-start font-mono text-label font-normal text-muted">
         {object.receipt.output_sha256.slice(0, SHORT)}
       </span>
     </th>
@@ -136,7 +136,7 @@ export function ScenarioCompare({ baseline, chosen, names, locale, m }: Props) {
   const right = column(chosen, locale, m);
   // U7: one plate per distinct status across the two objects, so neither object's status goes unshown.
   const nisabStatuses = [...new Set([baseline, chosen].flatMap((o) => (o.zakat ? [o.zakat.nisab_source_status] : [])))];
-  const note = <p className="mb-2 text-sm">{s.receiptNote}</p>;
+  const note = <p className="mb-2 text-label">{s.receiptNote}</p>;
   return (
     <div data-testid="scenario-compare" data-tour="diff" className="flex flex-col gap-4">
       <ProvenanceLine value={chosen} locale={locale} m={m} />
@@ -147,7 +147,7 @@ export function ScenarioCompare({ baseline, chosen, names, locale, m }: Props) {
             <thead>
               <tr className="border-b-2 border-ink">
                 <th scope="col" className={`${TH} !py-5`}>
-                  <span className="heading block text-[22px] text-ink">{s.diff}</span>
+                  <span className="heading block text-heading text-ink">{s.diff}</span>
                 </th>
                 <Head object={baseline} names={names} locale={locale} m={m} />
                 <Head object={chosen} names={names} locale={locale} m={m} />
@@ -163,7 +163,7 @@ export function ScenarioCompare({ baseline, chosen, names, locale, m }: Props) {
                       <span className="flex items-center gap-3">
                         <Plate
                           variant={changed ? "accent" : "line"}
-                          className={`w-[84px] flex-none !px-0 text-center !text-[11px] ${changed ? "stamp-in" : ""}`}
+                          className={`w-[84px] flex-none !px-0 text-center !text-label ${changed ? "stamp-in" : ""}`}
                           style={changed ? { animationDelay: entrance } : undefined}
                         >
                           {changed ? s.changed : s.same}
@@ -171,12 +171,12 @@ export function ScenarioCompare({ baseline, chosen, names, locale, m }: Props) {
                         <span>{label}</span>
                       </span>
                     </th>
-                    <td data-label={headName(baseline, names, locale, m).name} className="border-s border-line px-5 py-3 font-mono text-sm">
+                    <td data-label={headName(baseline, names, locale, m).name} className="border-s border-line px-5 py-3 font-mono text-label">
                       {left[key]!.shown}
                     </td>
                     <td
                       data-label={headName(chosen, names, locale, m).name}
-                      className={`border-s border-line px-5 py-3 font-mono text-sm ${changed ? "flash bg-accent-soft font-semibold" : ""}`}
+                      className={`border-s border-line px-5 py-3 font-mono text-label ${changed ? "flash bg-accent-soft font-semibold" : ""}`}
                       style={changed ? { animationDelay: entrance } : undefined}
                     >
                       {right[key]!.shown}
@@ -194,7 +194,7 @@ export function ScenarioCompare({ baseline, chosen, names, locale, m }: Props) {
           <NisabPlate key={status} status={status} m={m} />
         ))}
       </div>
-      <p className="text-sm">{m.anomaly.queue}</p>
+      <p className="text-label">{m.anomaly.queue}</p>
       <SubHeading>{s.receipts}</SubHeading>
       {/* The scope's verify line does not apply to an overlay (DECISIONS 41): show the scenario's own command. */}
       {/* DECISIONS 58: a scenario is an illustration, not an owner's result, so it has no plain card. Both technical

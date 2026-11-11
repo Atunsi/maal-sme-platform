@@ -25,7 +25,7 @@ describe("print sheet", () => {
     expect(text).toContain(en.overview.markupLabel); // U1
     expect(text).toContain(en.overview.lateValue); // U2
     expect(text).toContain(en.sharia.label); // U6
-    expect(text).toContain(credit.sharia_screen.rule_table_status);
+    expect(text).toContain(en.enums.rule_table_status.proposed_unverified); // LG4: words, not the raw code
     expect(text).toContain(nisabPlate(zakat.zakat!.nisab_source_status, en)!.words); // U7, the fixture's own status
     expect(text).toContain(en.zakat.asReturned); // Not a ZATCA assessment
     expect(text).toContain(`${en.common.population}: ${en.enums.population.serving}`); // U11
@@ -46,6 +46,9 @@ describe("print sheet", () => {
     expect(owner).not.toContain(credit.receipt.scope!);
     expect(owner).not.toContain(credit.receipt.output_sha256);
     expect(owner).not.toContain("output_sha256");
+    // LG4 (DECISIONS 60): the owner reads words, not the rule table or nisab status codes.
+    expect(owner).not.toContain("proposed_unverified");
+    expect(owner).not.toContain("world_bank_monthly_average_pending_sharia_advisor");
   });
 
   it("U13 as amended: the admin's print sheet keeps the scope verbatim", async () => {

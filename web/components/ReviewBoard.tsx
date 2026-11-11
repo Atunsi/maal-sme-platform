@@ -146,17 +146,17 @@ export function ReviewBoard({ a, locale, labels, intro }: { a: Computed; locale:
       <section aria-label={n.timeline} data-tour="timeline" className="flex flex-col gap-4 border border-line bg-card p-5 sm:p-8">
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="heading text-[22px] sm:text-[26px]">{n.chartTitle}</h2>
-            <span className="text-sm text-muted">
+            <h2 className="heading text-heading sm:text-heading">{n.chartTitle}</h2>
+            <span className="text-label text-muted">
               <bdi>{fill(n.windowValue, { from: formatDate(from, locale), to: formatDate(to, locale) })}</bdi>
             </span>
           </div>
-          {intro && <p className="text-sm text-muted">{intro}</p>}
+          {intro && <p className="text-label text-muted">{intro}</p>}
         </div>
         {/* Time runs left to right in Arabic too, so the lanes are pinned LTR; their names keep the page's direction. */}
         <div dir="ltr" role="group" aria-label={fill(pluralForm(a.flags.length, n.timelineAlt, locale), { n: formatInt(a.flags.length, locale), from: formatDate(from, locale), to: formatDate(to, locale) })} className="lanes" data-track>
           <div className="lane lane-head">
-            <span dir={dirOf(locale)} className="lane-name text-xs text-muted">
+            <span dir={dirOf(locale)} className="lane-name text-label text-muted">
               <Term id="flag-reason" locale={locale}>
                 {n.reason}
               </Term>
@@ -232,7 +232,7 @@ export function ReviewBoard({ a, locale, labels, intro }: { a: Computed; locale:
         </div>
         {/* The cap's count (E11) is of every flag; with a filter on, the page says how many it shows. */}
         {visible.length !== a.flags.length && (
-          <p role="status" className="text-sm text-muted" data-showing>
+          <p role="status" className="text-label text-muted" data-showing>
             {fill(n.showing, { x: formatInt(visible.length, locale), y: formatInt(a.flags.length, locale) })}
           </p>
         )}

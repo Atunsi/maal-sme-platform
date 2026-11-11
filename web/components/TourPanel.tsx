@@ -129,7 +129,7 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="eyebrow text-accent">{labels.region}</span>
           <span className="flex items-center gap-3">
-            <span className="text-sm text-muted" data-tour-position>
+            <span className="text-label text-muted" data-tour-position>
               {fill(labels.position, { x: String(index + 1), y: String(TOUR_STEPS.length) })}
             </span>
             <button type="button" className="textlink font-semibold" aria-expanded={!collapsed} aria-controls={bodyId} data-tour-collapse onClick={() => setCollapsed(!collapsed)}>
@@ -141,12 +141,12 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
           id={titleId}
           ref={title}
           tabIndex={-1}
-          className="tour-title heading text-2xl outline-none focus-visible:outline-2"
+          className="tour-title heading text-heading outline-none focus-visible:outline-2"
           onBlur={(event) => delete event.currentTarget.dataset.stepFocus}
         >
           {text.title}
         </h2>
-        {!collapsed && <p className="max-w-3xl text-[15px]">{text.caption}</p>}
+        {!collapsed && <p className="max-w-3xl text-body">{text.caption}</p>}
         {!collapsed && (
           // I10: one dot per step under the caption, each a link to that step.
           <ol aria-label={labels.steps} className="flex flex-wrap items-center" data-tour-dots>
@@ -166,7 +166,7 @@ export function TourPanel({ locale, labels }: { locale: Locale; labels: TourLabe
           </ol>
         )}
         {missingStep === step.id && (
-          <p role="status" className="text-sm font-medium text-warn">
+          <p role="status" className="text-label font-medium text-warn">
             {labels.missing}
           </p>
         )}

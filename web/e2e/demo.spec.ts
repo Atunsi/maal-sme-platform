@@ -25,7 +25,7 @@ test("sign-in sends no request and stores nothing", async ({ page, context }) =>
   await page.getByLabel("Password").fill("pass");
   await page.getByRole("button", { name: "Sign in to my business" }).click();
   await expect(page).toHaveURL(/\/en\/business\/10001\?as=owner$/);
-  await expect(page.getByText("Demo role: business owner")).toBeVisible(); // X5
+  await expect(page.getByText("Demo: business owner")).toBeVisible(); // X5, the short form (LG1); the full one is checked below
 
   expect(requests.filter(({ method }) => method !== "GET")).toEqual([]);
   expect(requests.filter(({ url, body }) => `${url}${body ?? ""}`.includes(TYPED))).toEqual([]);
@@ -57,14 +57,14 @@ test("the Admin role routes to the admin page and shows in the header", async ({
   await page.getByRole("button", { name: "Sign in as admin" }).click();
   await expect(page).toHaveURL(/\/en\/admin\?as=admin$/);
   await expect(page.getByRole("heading", { name: "All businesses" })).toBeVisible();
-  await expect(page.getByText("Demo role: admin")).toBeVisible(); // X5
+  await expect(page.getByText("Demo: admin")).toBeVisible(); // X5, the short form (LG1); the full one is checked below
 });
 
 test("the demo role stays in the URL as the visitor moves between pages", async ({ page }) => {
   await page.goto("/en/business/10016?as=owner", { waitUntil: "networkidle" });
   await page.getByRole("link", { name: "Zakat", exact: true }).first().click();
   await expect(page).toHaveURL(/\/business\/10016\/zakat\?as=owner$/);
-  await expect(page.getByText("Demo role: business owner")).toBeVisible(); // X5
+  await expect(page.getByText("Demo: business owner")).toBeVisible(); // X5, the short form (LG1); the full one is checked below
 });
 
 test("admin rows read their status and decision from the API", async ({ page }) => {
@@ -86,7 +86,7 @@ test("admin links open a business with the admin role", async ({ page }) => {
   // The five demo businesses have their own table; 10004 is also on the first page of the full list.
   await page.getByRole("region", { name: "Businesses", exact: true }).getByRole("link", { name: `Open ${nameOf(10004, "en")}`, exact: true }).click();
   await expect(page).toHaveURL(/\/en\/business\/10004\?as=admin$/);
-  await expect(page.getByText("Demo role: admin")).toBeVisible(); // X5
+  await expect(page.getByText("Demo: admin")).toBeVisible(); // X5, the short form (LG1); the full one is checked below
   const main = page.getByRole("navigation", { name: "Pages" });
   await main.getByRole("link", { name: "Zakat", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/business\/10004\/zakat\?as=admin$/);
@@ -178,10 +178,14 @@ test("demo role label names no business", async ({ page }) => {
   // X5: a demo role, not access control: the owner label carries no business ID, on any business.
   await page.goto("/en/business/10013/zakat?as=owner", { waitUntil: "networkidle" });
   const role = page.locator("header [data-demo-role]");
-  await expect(role).toHaveText("Demo role: business owner");
+  // LG1 (DECISIONS 60): the short form shows; the full form stays for screen readers and in title.
+  await expect(role.locator("[data-demo-role-full]")).toHaveText("Demo role: business owner");
+  await expect(role.locator("[data-demo-role-short]")).toHaveText("Demo: business owner");
+  await expect(role).toHaveAttribute("title", "Demo role: business owner");
   await expect(role).not.toHaveText(/[0-9]/);
   await page.goto("/ar/business/10013?as=admin", { waitUntil: "networkidle" });
-  await expect(page.locator("header [data-demo-role]")).toHaveText("الدور التجريبي: مشرف");
+  await expect(page.locator("header [data-demo-role-full]")).toHaveText("الدور التجريبي: مشرف");
+  await expect(page.locator("header [data-demo-role-short]")).toHaveText("تجريبي: مشرف");
 });
 
 test("registration hint is visible text", async ({ page }) => {

@@ -17,10 +17,10 @@ export function HashCheck({ expected, labels }: { expected: string; labels: Hash
 
   return (
     <div className="mt-3 flex flex-col gap-1.5" data-hash-check>
-      <label htmlFor={`${id}-hash`} className="text-sm font-semibold text-muted">
+      <label htmlFor={`${id}-hash`} className="text-label font-semibold text-muted">
         {labels.label}
       </label>
-      <span id={`${id}-help`} className="text-xs text-muted">
+      <span id={`${id}-help`} className="text-label text-muted">
         {labels.help}
       </span>
       <span className="flex flex-wrap items-center gap-2">
@@ -38,7 +38,7 @@ export function HashCheck({ expected, labels }: { expected: string; labels: Hash
           onKeyDown={(event) => {
             if (event.key === "Enter") check();
           }}
-          className="field min-h-11 w-full max-w-md font-mono text-xs"
+          className="field min-h-11 w-full max-w-md font-mono text-label"
         />
         <button type="button" onClick={check} className="copy-btn min-h-11">
           {labels.check}

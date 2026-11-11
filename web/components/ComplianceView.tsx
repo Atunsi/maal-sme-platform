@@ -27,7 +27,7 @@ function KeyValueTable({ rows, words, keyLabel, valueLabel }: { rows: Record<str
             <td className={TD}>
               <Code>{key}</Code>
             </td>
-            <td className={TD}>{words?.[key] ? <span className="font-sans text-sm">{words[key]}</span> : <Code>{value}</Code>}</td>
+            <td className={TD}>{words?.[key] ? <span className="font-sans text-label">{words[key]}</span> : <Code>{value}</Code>}</td>
           </tr>
         ))}
       </tbody>
@@ -56,7 +56,7 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
   const phrasesAr = locale === "ar" ? tier.phrases_ar : undefined;
   const labelsAr = locale === "ar" ? tier.feature_labels_ar : undefined;
   return (
-    <div data-testid="compliance-view" data-tour="compliance" className="panel slidein flex flex-col gap-1 p-5 font-mono text-[13px] sm:p-9">
+    <div data-testid="compliance-view" data-tour="compliance" className="panel slidein flex flex-col gap-1 p-5 font-mono text-label sm:p-9">
       <Fields>
         <Field label={c.units}>
           <BackendText en={tier.units} ar={tier.units_ar} locale={locale} m={m} />
@@ -105,7 +105,7 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
                   <td className={TD}>{trace ? <Code>{trace.thresholdRule}</Code> : m.common.dash}</td>
                   <td className={TD}>{trace ? <Code>{trace.phraseKey}</Code> : m.common.dash}</td>
                   <td className={TD}>
-                    {!trace ? m.common.dash : phrasesAr?.[trace.phraseKey] ? <span className="font-sans text-sm">{phrasesAr[trace.phraseKey]}</span> : <Code>{trace.phrase}</Code>}
+                    {!trace ? m.common.dash : phrasesAr?.[trace.phraseKey] ? <span className="font-sans text-label">{phrasesAr[trace.phraseKey]}</span> : <Code>{trace.phrase}</Code>}
                   </td>
                 </tr>
               );
@@ -139,7 +139,7 @@ export function ComplianceView({ explanation, detail, receipt, locale, m }: Prop
                   <Num>{row.feature_id}</Num>
                 </td>
                 <td className={TD}>
-                  {labelsAr?.[row.feature] && <span className="block font-sans text-sm">{labelsAr[row.feature]}</span>}
+                  {labelsAr?.[row.feature] && <span className="block font-sans text-label">{labelsAr[row.feature]}</span>}
                   <Code>{row.feature}</Code>
                 </td>
                 <td className={TD}>

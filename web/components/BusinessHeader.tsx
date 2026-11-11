@@ -19,7 +19,7 @@ type Base = { data: Head; locale: Locale; m: Messages };
 
 function MetaRow({ data, locale, m }: Base) {
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[13px] text-muted">
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-label text-muted">
       <SectionMark />
       <span className="uppercase">{fill(m.dashboard.title, { id: data.business_id, name: nameOf(data.business_id, localeOf(m)) })}</span>
       <span>{m.enums.sector[data.sector]}</span>
@@ -35,7 +35,7 @@ function PartialNote({ data, m }: Pick<Base, "data" | "m">) {
   if (data.status !== "partial_profile") return null;
   return (
     <div>
-      <p className="text-sm">{m.partial.body}</p>
+      <p className="text-label">{m.partial.body}</p>
       <ul className="mt-1 flex flex-wrap gap-2">
         {(data.partial_profile_unavailable_features ?? []).map((feature) => (
           <li key={feature}>
@@ -52,7 +52,7 @@ export function BusinessHeader({ data, locale, m }: Base) {
   return (
     <div className="flex flex-col gap-2">
       <MetaRow data={data} locale={locale} m={m} />
-      <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
+      <div className="flex flex-wrap items-center gap-3 text-label text-muted">
         <Plate variant={STATUS_VARIANT[data.status]}>{m.enums.status[data.status]}</Plate>
         <span>
           {m.common.coverage}:{" "}
@@ -66,13 +66,16 @@ export function BusinessHeader({ data, locale, m }: Base) {
 }
 
 /** The top of a lens page. A scored business needs no status plate; any other state shows its own. */
-export function LensHead({ data, title, aside, locale, m }: Base & { title: string; aside?: ReactNode }) {
+/** `transition` names the heading for the page transition from the overview's reading card (MT1, DECISIONS 60). */
+export function LensHead({ data, title, aside, locale, m, transition }: Base & { title: string; aside?: ReactNode; transition?: string }) {
   return (
     <div data-phone="lens-head" className="rise flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <MetaRow data={data} locale={locale} m={m} />
-          <h1 className="heading mt-2 text-[40px] sm:text-[52px]">{title}</h1>
+          <h1 className="heading mt-2 text-[40px] sm:text-[52px]" style={transition ? { viewTransitionName: `lens-${transition}` } : undefined}>
+            {title}
+          </h1>
         </div>
         {aside}
       </div>

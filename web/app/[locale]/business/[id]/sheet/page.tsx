@@ -16,6 +16,7 @@ import { nameOf } from "@/lib/business-names";
 import { titleFor } from "@/lib/page-title";
 import { RoleRecord } from "@/components/RoleRecord";
 import { recordInput, recordLines } from "@/lib/record";
+import { label } from "@/lib/labels";
 
 
 const STATUS_VARIANT = { scored: "ink", partial_profile: "warn", insufficient_data: "warn" } as const;
@@ -248,7 +249,8 @@ export default async function SheetPage({ params }: Props) {
                   <Plate variant={SHARIA_VARIANT[data.sharia_screen.sharia_screen_status]}>{m.enums.sharia[data.sharia_screen.sharia_screen_status]}</Plate>
                 </Row>
                 <Row label={m.sharia.ruleTableStatus}>
-                  <Code>{data.sharia_screen.rule_table_status}</Code>
+                  {/* LG4 (DECISIONS 60): words for the code; the raw code stays in the technical record. */}
+                  {label("rule_table_status", data.sharia_screen.rule_table_status, m)}
                 </Row>
               </dl>
             </>

@@ -11,9 +11,9 @@ import { recordInput } from "@/lib/record";
 export function ProfilePanel({ data, m }: { data: ProfileResponse; m: Messages }) {
   const d = m.dashboard;
   return (
-    <Card id="profile" title={d.profileTitle}>
+    <Card id="profile" title={d.profileTitle} className="drift">
       <details>
-        <summary className="text-sm font-medium">{d.profileIntro}</summary>
+        <summary className="text-label font-medium">{d.profileIntro}</summary>
         <div className="mt-2">
           <TableScroll label={d.profileTitle} tall>
             <table className="w-full">
@@ -40,8 +40,10 @@ export function ProfilePanel({ data, m }: { data: ProfileResponse; m: Messages }
             </table>
           </TableScroll>
         </div>
+        {/* LG5 (DECISIONS 60): the profile's record sits inside the figures it describes, so the overview shows one
+            record card (the verdict's) until the figures are opened. Who sees what (DECISIONS 58) is unchanged. */}
+        <DecisionRecord input={recordInput("profile", data)} receipt={data.receipt} lens={m.receipt.profile} locale={localeOf(m)} m={m} />
       </details>
-      <DecisionRecord input={recordInput("profile", data)} receipt={data.receipt} lens={m.receipt.profile} locale={localeOf(m)} m={m} />
     </Card>
   );
 }

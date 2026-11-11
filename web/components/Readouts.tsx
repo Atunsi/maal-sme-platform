@@ -70,7 +70,7 @@ export const forecastReadout: Fn<ForecastResponse> = (data, locale, m) => {
         m.common.dash
       ) : (
         <>
-          <span className="font-sans text-[13px]">{fill(m.overview.hazardOver, { days: fill(pluralForm(Number.parseInt(horizon, 10), m.forecast.horizonDays, locale), { n: formatInt(Number.parseInt(horizon, 10), locale) }) })}</span>{" "}
+          <span className="font-sans text-label">{fill(m.overview.hazardOver, { days: fill(pluralForm(Number.parseInt(horizon, 10), m.forecast.horizonDays, locale), { n: formatInt(Number.parseInt(horizon, 10), locale) }) })}</span>{" "}
           <Probability value={hazard} locale={locale} />
         </>
       ),
@@ -98,9 +98,9 @@ export const reviewReadout: Fn<AnomalyResponse> = (data, locale, m) => {
   };
 };
 
-type CardProps = { lens: string; href: string; readout: Readout; partial?: string; index: number; m: Messages };
+type CardProps = { lens: string; href: string; readout: Readout; partial?: string; index: number; m: Messages ; transition?: string };
 
-export function ReadoutCard({ lens, href, readout, partial, index, m }: CardProps) {
+export function ReadoutCard({ lens, href, readout, partial, index, m, transition }: CardProps) {
   return (
     <RoleLink
       href={href}
@@ -108,16 +108,18 @@ export function ReadoutCard({ lens, href, readout, partial, index, m }: CardProp
       className="lift rise flex min-h-[200px] flex-col gap-2.5 border border-line bg-card p-5 text-ink no-underline"
       style={{ animationDelay: delay(2 + index) }}
     >
-      <span data-r="lens" className="text-[13px] text-muted">{lens}</span>
+      <span data-r="lens" className="text-label text-muted" style={transition ? { viewTransitionName: `lens-${transition}` } : undefined}>
+        {lens}
+      </span>
       <span data-r="plate">
         <Plate variant={readout.variant}>{readout.state}</Plate>
       </span>
-      <span data-r="figure" className={`${figureFont(readout.figure)} text-[17px]`}>
+      <span data-r="figure" className={`${figureFont(readout.figure)} text-value`}>
         {readout.figure}
       </span>
-      <span data-r="note" className="text-[13px] text-muted">{readout.note}</span>
-      {partial && <span data-r="note" className="text-[13px] text-warn">{partial}</span>}
-      <span data-r="open" className="mt-auto text-sm font-semibold text-accent">{fill(m.overview.open, { lens })}</span>
+      <span data-r="note" className="text-label text-muted">{readout.note}</span>
+      {partial && <span data-r="note" className="text-label text-warn">{partial}</span>}
+      <span data-r="open" className="mt-auto text-label font-semibold text-accent">{fill(m.overview.open, { lens })}</span>
     </RoleLink>
   );
 }

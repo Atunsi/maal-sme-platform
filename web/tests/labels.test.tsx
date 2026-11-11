@@ -8,6 +8,7 @@ import { ZakatCard } from "@/components/ZakatCard";
 import { LABEL_GROUPS, label, labelWord } from "@/lib/labels";
 import { AnomalyResponse, CreditResponse, ZakatResponse } from "@/lib/schemas";
 import { ar, en, fixture } from "./helpers";
+import { ShariaPanel } from "@/components/ShariaPanel";
 
 const ALLOWED = "[data-receipt], [data-testid=compliance-view], [data-backend]";
 
@@ -20,6 +21,9 @@ function codes(): Set<string> {
   const a = fixture("anomaly_10001", AnomalyResponse).anomaly!;
   if (a.status === "computed") for (const f of a.flags) [f.counterparty_type, f.category].forEach((v) => all.add(v));
   all.add(fixture("credit_10001", CreditResponse).credit!.late_penalty_policy);
+  // LG4 (DECISIONS 60): the nisab status and the rule table status are covered too.
+  all.add(z.nisab_source_status);
+  all.add(fixture("credit_10001", CreditResponse).sharia_screen.rule_table_status);
   return all;
 }
 
@@ -48,6 +52,7 @@ describe("labels", () => {
         <CreditCard key="c" data={fixture("credit_10001", CreditResponse)} initialView="public" locale={locale} m={m} />,
         <ZakatCard key="z" data={fixture("zakat_10001", ZakatResponse)} locale={locale} m={m} />,
         <ReviewBoard key="r" a={anomaly} locale={locale} labels={m} />,
+        <ShariaPanel key="s" data={fixture("credit_10001", CreditResponse)} locale={locale} m={m} />,
       ]) {
         const { container, unmount } = render(<main>{ui}</main>);
         expect(rawCodesShown(container)).toEqual([]);
