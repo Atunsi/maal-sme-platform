@@ -190,7 +190,7 @@ animation and transition, and a second one stops the view-transition pseudo-elem
   2 px offset) and presses down to 98 %.
 - *Segmented controls* (credit view, sign-in role) have a thumb that slides under the pressed half.
 - `.drift` moves a section up 16 px as it scrolls into view (CSS view timeline; no script, no scroll
-  listener). `tests/motion.test.ts` checks it never touches opacity.
+  listener). `tests/motion-rules.test.ts` checks it never touches opacity.
 
 | Keyframes | Used by | What moves | Time | Loops |
 | --- | --- | --- | --- | --- |
@@ -219,7 +219,7 @@ animation and transition, and a second one stops the view-transition pseudo-elem
 | `header-condense`, `header-brand` | the sticky header at 768 px and wider | less padding; brand to 80 % | first 96 px of scroll | no |
 
 Under reduced motion every row above is off. The four loops are the ones found before entry 60;
-`tests/motion.test.ts` fails if a new one appears.
+`tests/motion-rules.test.ts` fails if a new one appears.
 
 ## Demo sign-in
 

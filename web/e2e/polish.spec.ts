@@ -115,7 +115,7 @@ test("amount text never changes after first render", async ({ page }) => {
 
 // MO2: without scrolling, nothing in <main> is hidden by motion once entrances are done.
 // Static decoration with a fixed opacity class is not motion; only elements with a finite (entrance or scroll) animation count;
-// the four loops of MO5 are decoration and are checked in tests/motion.test.ts.
+// the four loops of MO5 are decoration and are checked in tests/motion-rules.test.ts.
 test("scroll reveals never hide content", async ({ page }) => {
   for (const path of ["/en/business/10001", "/en/how-it-works", "/en"]) {
     await page.goto(path, { waitUntil: "networkidle" });
