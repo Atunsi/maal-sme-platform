@@ -213,6 +213,8 @@ def insights_history(business_id: BusinessId, s: Authorised) -> dict:
         body.update({"lens_not_run_reason": "insufficient_data", "history": None})  # §15: explicit, never silent
     else:
         body["history"] = insights.history(s.ctx.cfg, tables, business_id)
+    # The same receipt /profile carries: the inputs' hash and the hash of this answer.
+    body["receipt"] = {**s.ctx.receipt_base, "data_sha256": p.data_hash[business_id], "output_sha256": output_sha256(_clean(body))}
     return _clean(body)
 
 

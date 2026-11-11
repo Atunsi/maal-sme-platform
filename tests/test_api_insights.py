@@ -120,6 +120,20 @@ def test_history_of_a_past_date_ignores_later_rows(client):
         assert v == float(row[m])
 
 
+def test_history_carries_the_same_receipt_as_the_profile(client):
+    """Same inputs, so the same data hash as /profile; the output hash is this answer's own, and it is stable."""
+    from pipeline.week8 import output_sha256
+
+    body = client.get(ROUTE, params={"business_id": 10001}, headers=H).json()
+    profile = client.get("/profile/10001", headers=H).json()
+    assert body["receipt"]["data_sha256"] == profile["receipt"]["data_sha256"]
+    assert set(body["receipt"]) == set(profile["receipt"])
+    without = {k: v for k, v in body.items() if k != "receipt"}
+    assert body["receipt"]["output_sha256"] == output_sha256(without)
+    again = client.get(ROUTE, params={"business_id": 10001}, headers=H).json()
+    assert again == body  # deterministic
+
+
 def test_history_names_no_other_business_and_compares_with_none(client):
     """U9, schema §36.4: this is a business beside its own past. No group, no percentile, no other business."""
     body = client.get(ROUTE, params={"business_id": 10001}, headers=H).json()
