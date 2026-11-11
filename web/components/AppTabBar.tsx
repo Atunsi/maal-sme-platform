@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
 import type { Locale, Messages } from "@/lib/i18n";
+import { PAGE_TRANSITION } from "@/lib/motion";
 
 type Tab = { href: string; label: string; icon: ReactNode; current: boolean };
 type Labels = { glossary: string; how: string; search: string };
@@ -158,7 +159,7 @@ export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Message
           <ul>
             {extra.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} prefetch={false} aria-current={item.current ? "page" : undefined} onClick={() => setMoreOn(null)}>
+                <Link href={item.href} prefetch={false} transitionTypes={PAGE_TRANSITION} aria-current={item.current ? "page" : undefined} onClick={() => setMoreOn(null)}>
                   {item.label}
                 </Link>
               </li>
@@ -169,7 +170,7 @@ export function AppTabBar({ locale, nav, links }: { locale: Locale; nav: Message
       <ul className="app-tabs" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
         {tabs.map((t) => (
           <li key={t.href}>
-            <Link href={t.href} prefetch={false} aria-current={t.current ? "page" : undefined} className="app-tab">
+            <Link href={t.href} prefetch={false} transitionTypes={PAGE_TRANSITION} aria-current={t.current ? "page" : undefined} className="app-tab">
               {t.icon}
               <span>{t.label}</span>
             </Link>

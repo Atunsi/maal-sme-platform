@@ -140,8 +140,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           />
         </Suspense>
         <main id="main" className="w-full flex-1">
-          {/* MT1 (DECISIONS 60): a page change crossfades; named elements (globals.css) travel or stay still. */}
-          <ViewTransition>{children}</ViewTransition>
+          {/* MT1 (DECISIONS 60): a navigation tagged with PAGE_TRANSITION (lib/motion.ts) crossfades, and named elements
+              (globals.css) travel or stay still. Any other update, Play all and Back included, changes at once. */}
+          <ViewTransition default={{ page: "auto", default: "none" }}>{children}</ViewTransition>
         </main>
         <footer className="border-t border-line">
           <div className="mx-auto flex max-w-[1240px] flex-col gap-1 px-4 py-4 sm:px-6">

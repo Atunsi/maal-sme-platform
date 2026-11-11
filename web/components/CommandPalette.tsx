@@ -10,6 +10,7 @@ import { isServingId, SERVING_IDS } from "@/lib/population";
 import { findBusinesses, nameOf } from "@/lib/business-names";
 import { OPEN_SEARCH } from "@/components/AppTabBar";
 import { fill } from "@/lib/i18n";
+import { PAGE_TRANSITION } from "@/lib/motion";
 
 export type PaletteScenario = { name: string; label: string; lang?: "en" };
 type Item = { id: string; label: string; lang?: "en"; group: string; href: string };
@@ -103,7 +104,7 @@ export function CommandPalette({ locale, m, scenarios, businessIds }: { locale: 
     if (!item) return;
     setOpen(false);
     setQuery("");
-    router.push(item.href);
+    router.push(item.href, { transitionTypes: PAGE_TRANSITION });
   };
 
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {

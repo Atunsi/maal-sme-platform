@@ -7,6 +7,7 @@ import { Plate } from "@/components/ui";
 import { nameOf } from "@/lib/business-names";
 import { DEMO_BUSINESSES, roleQuery } from "@/lib/businesses";
 import type { Locale, Messages } from "@/lib/i18n";
+import { PAGE_TRANSITION } from "@/lib/motion";
 
 type Option = { id: number; sector?: string };
 
@@ -92,7 +93,7 @@ export function BusinessSwitcher({ locale, m }: { locale: Locale; m: Pick<Messag
   };
   const choose = (id: number) => {
     setOpen(false);
-    router.push(switchHref(pathname, id, role));
+    router.push(switchHref(pathname, id, role), { transitionTypes: PAGE_TRANSITION });
   };
 
   const onKey = (event: KeyboardEvent<HTMLInputElement>) => {

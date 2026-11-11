@@ -6,9 +6,9 @@ test("print sheet shows the required labels", async ({ page }) => {
   await page.goto("/en/business/10001/sheet", { waitUntil: "networkidle" });
   const sheet = page.locator("article.sheet");
   await expect(sheet).toContainText("Rule-based screening, pending Sharia-advisor confirmation"); // U6
-  // U7: the plate for the response's own status. Since entry 54 the nisab uses the monthly gold price, a status the
-  // catalogue has no words for yet, so the plate reads "not independently verified" (it failed on main's stale text).
-  await expect(sheet).toContainText("Nisab price not independently verified");
+  // U7: the plate for the response's own status. Since entry 54 the nisab uses the monthly gold price; LG4
+  // (DECISIONS 60) gives that status its own words, so the plate names the source instead of the generic fallback.
+  await expect(sheet).toContainText("Nisab price is a World Bank monthly average, pending Sharia-advisor confirmation");
   await expect(sheet).toContainText("Not a ZATCA assessment");
   await expect(sheet).toContainText("Base markup, fixed at signing"); // U1
   await expect(sheet).toContainText("go to charity"); // U2

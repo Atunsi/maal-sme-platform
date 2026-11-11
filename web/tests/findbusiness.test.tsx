@@ -61,7 +61,7 @@ describe("Find a business", () => {
     const options = screen.getAllByRole("option");
     expect(options).toHaveLength(1);
     fireEvent.mouseDown(options[0]!);
-    expect(push).toHaveBeenCalledWith("/en/business/10001?as=admin");
+    expect(push).toHaveBeenCalledWith("/en/business/10001?as=admin", { transitionTypes: ["page"] }); // MT1: a page transition
   });
 
   it("opens a full ID, and says so before any call when nothing matches", () => {
@@ -74,7 +74,7 @@ describe("Find a business", () => {
     expect(push).not.toHaveBeenCalled();
     fireEvent.change(box, { target: { value: "10004" } });
     fireEvent.click(screen.getByRole("button", { name: en.picker.submit }));
-    expect(push).toHaveBeenCalledWith("/en/business/10004");
+    expect(push).toHaveBeenCalledWith("/en/business/10004", { transitionTypes: ["page"] });
   });
 });
 

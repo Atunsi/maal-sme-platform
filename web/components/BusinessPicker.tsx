@@ -6,6 +6,7 @@ import { findBusinesses, nameOf } from "@/lib/business-names";
 import { isServingId, SERVING_IDS } from "@/lib/population";
 import { withRole } from "@/components/RoleLink";
 import { Num } from "@/components/ui";
+import { PAGE_TRANSITION } from "@/lib/motion";
 
 type Props = {
   locale: "en" | "ar";
@@ -31,7 +32,7 @@ export function BusinessPicker({ locale, query = "", ids = SERVING_IDS, labels }
   const listed = matches.length > 0;
 
   // The role is read from the address at the moment of opening: the online snapshot renders this page with none.
-  const go = (id: number) => router.push(withRole(`/${locale}/business/${id}${query}`, new URLSearchParams(window.location.search).get("as")));
+  const go = (id: number) => router.push(withRole(`/${locale}/business/${id}${query}`, new URLSearchParams(window.location.search).get("as")), { transitionTypes: PAGE_TRANSITION });
   function open(event: React.FormEvent) {
     event.preventDefault();
     const text = value.trim();

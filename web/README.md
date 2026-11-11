@@ -179,7 +179,10 @@ things into place, they never hide them. Under `prefers-reduced-motion: reduce` 
 animation and transition, and a second one stops the view-transition pseudo-elements.
 
 - *Page changes* use React's `ViewTransition` around the page in `app/[locale]/layout.tsx`, which
-  Next 16 supports in the App Router with no config. Every router navigation crossfades in 0.25 s.
+  Next 16 supports in the App Router with no config. It animates only navigations tagged with the
+  `page` transition type (`PAGE_TRANSITION` in `lib/motion.ts`): the header nav, the phone tab bar, the
+  overview's reading cards, the business switcher and search results. They crossfade in 0.25 s. Play all,
+  the scenario menu, `?view=`, the language link and Back/Forward change the page at once.
   The header, the tour panel, the active nav item and each lens heading carry a
   `view-transition-name`, so they hold still or travel to their new place in 0.3 s. A browser
   without the View Transitions API changes the page at once.

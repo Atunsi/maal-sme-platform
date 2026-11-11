@@ -86,6 +86,8 @@ test("arabic digits never touch hashes or commands", async ({ page }) => {
   await expect(page.locator("main h1, main h2").first()).toBeVisible();
   // DECISIONS 58: the aside's short hashes are gone; the reference number is the identifier left there, and stays Latin.
   await expect(page.locator("aside [data-reference]")).toHaveText(/^M-10037-[0-9A-F]{8}$/);
+  // LG5 (DECISIONS 60): the profile record sits inside the profile figures; open them so its codes are checked too.
+  await page.locator("#profile > details > summary").click();
   for (const summary of await page.locator("details[data-receipt] > summary").all()) await summary.click();
   for (const code of await page.locator("details[data-receipt] code").all()) await expect(code).not.toHaveText(ARAB);
   await expect(page.locator("[data-rerun] code").first()).toHaveText("python -m pipeline.verify <file>");

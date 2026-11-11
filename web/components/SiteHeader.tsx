@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { DEMO_BUSINESS, roleQuery } from "@/lib/businesses";
 import { tourHref, tourStep, withTourEnded } from "@/lib/tour";
 import type { Locale, Messages } from "@/lib/i18n";
+import { PAGE_TRANSITION } from "@/lib/motion";
 
 type Item = { href: string; label: string; current?: boolean };
 
@@ -111,7 +112,7 @@ export function SiteHeader({ locale, m, scenarios, businessIds }: { locale: Loca
               {items.map((item) => (
                 // No prefetch: a prefetch renders the page on the server, and its API calls would join the queue
                 // (lib/api.ts) ahead of the page the visitor actually opens next.
-                <Link key={item.href} href={item.href} prefetch={false} aria-current={item.current ? "page" : undefined} className="navlink" onClick={close}>
+                <Link key={item.href} href={item.href} prefetch={false} transitionTypes={PAGE_TRANSITION} aria-current={item.current ? "page" : undefined} className="navlink" onClick={close}>
                   {item.label}
                 </Link>
               ))}

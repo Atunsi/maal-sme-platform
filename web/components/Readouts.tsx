@@ -6,7 +6,7 @@ import { formatInt } from "@/lib/format";
 import { fill, type Locale, type Messages, pluralForm } from "@/lib/i18n";
 import { nisabPlate } from "@/lib/nisab";
 import type { AnomalyResponse, CreditResponse, ForecastResponse, ZakatResponse } from "@/lib/types";
-import { delay } from "@/lib/motion";
+import { PAGE_TRANSITION, delay } from "@/lib/motion";
 
 const SHARIA_VARIANT = { compliant: "ok", soft_flag_review: "warn", hard_flag: "bad" } as const;
 const LEVEL_VARIANT = { none: "ok", watch: "warn", crunch: "bad" } as const;
@@ -103,6 +103,7 @@ type CardProps = { lens: string; href: string; readout: Readout; partial?: strin
 export function ReadoutCard({ lens, href, readout, partial, index, m, transition }: CardProps) {
   return (
     <RoleLink
+      transitionTypes={PAGE_TRANSITION}
       href={href}
       data-phone="readout"
       className="lift rise flex min-h-[200px] flex-col gap-2.5 border border-line bg-card p-5 text-ink no-underline"
