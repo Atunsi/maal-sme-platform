@@ -4343,3 +4343,96 @@ before), so the reference lookup runs on the live app only; the card and `?ref=`
 **Preview.** `gh-pages` commit `9e9b335` replaces only `preview/` with the static build of this branch at `57480f5` (base path `/maal-sme-platform/preview`, 482 pages): https://at1808.github.io/maal-sme-platform/preview/ . Owner, admin and public views, the reference number and the Arabic crawl passed against a local copy of that build (110 of 110), which also shows `?as=owner` switching the view in the static snapshot.
 
 **Sign-off:** ☐ team (who sees what, card wording) ☐ credit lens owner (credit "how it was reached" lines) ☐ compliance owner (Sharia lines, Arabic wording)
+
+## 59. Decision record wording (option C) and removal of the logo band — PROPOSED (2026-11-11)
+
+**Touches:** `web/` only, plus this entry and the READMEs. Done on `faris/record-wording` from `faris/receipt-plain` at
+`f176ce7` (entry 58), following `SOP_record_wording_and_logo_band.md` v1 (Faris's review of 2026-11-11: he chose option
+C for the "how we decided" wording and asked for the drifting logo band to be removed). Merge order:
+`faris/arabic-riyal`, then `faris/receipt-plain`, then this branch.
+
+**Decisions taken for this work, word for word (SOP section 1a).**
+1. **Option C wording.** Each "how we decided" line names what assessed the data (a scoring model trained on business transaction patterns, a fixed list of Sharia rules, or a fixed method), then says every business is assessed the same way.
+2. **No "no AI" claim.** No owner-facing string says or suggests that no AI, no model or no machine learning was used. The credit score and the review flags come from trained models. The fact that no generated text is involved belongs in the technical record and DECISIONS, not on the owner card.
+3. **Names.** Card title "About this result" / «عن هذه النتيجة». Line heading "How we decided" / «كيف قرّرنا». The technical record keeps its name.
+4. **DECISIONS 58 is amended, not rewritten.** Its items 2 (the card name) and 4 ("How it was reached" bullet) are replaced by 1a.1 to 1a.3 here. Entry 58's text is not edited; the new entry says which items it replaces.
+5. **The logo band is removed everywhere.** `LogoBand`, the `.weave` styles and the `weave` animation are deleted. The section mark (`SectionMark`, class `mk`), both logos and the tile SVGs stay unchanged.
+6. **No new storage, no new dependency, nothing outside `web/`** except DECISIONS and the READMEs.
+
+**What this replaces in entry 58.** Item 2 (the card was "How this result was reached") and the "How it was reached"
+bullet of item 4 (its lines said "fixed rules and a fixed scoring method" and, for credit, "No AI wrote this result").
+Entry 58's text stays as it was. The keys of the `record` catalogue group are unchanged, so `lib/record.ts`, `howKeys`
+and the roles table are unchanged.
+
+**Every changed string, before and after (all Arabic values drafts).**
+
+| Key or file | Before | After |
+|---|---|---|
+| `record.title` (en) | How this result was reached | About this result |
+| `record.how` (en) | How it was reached | How we decided |
+| `record.howBy.credit_approved_unconditional` (en) | Calculated from your transactions by fixed rules and a fixed scoring method. No AI wrote this result. | A scoring model trained on business transaction patterns assessed your bank transactions. Every business goes through the same model and rules. |
+| `record.howBy.credit_approved_conditional` (en) | Calculated from your transactions by fixed rules and a fixed scoring method. No AI wrote this result. A Sharia reviewer will check your answers before the offer is final. | A scoring model trained on business transaction patterns assessed your bank transactions. Every business goes through the same model and rules. A Sharia reviewer will check your answers before the offer is final. |
+| `record.howBy.credit_declined` (en) | Calculated from your transactions by fixed rules and a fixed scoring method. The reasons are shown with the decision. | A scoring model trained on business transaction patterns assessed your bank transactions. Every business goes through the same model and rules. The reasons are shown with the decision. |
+| `record.howBy.credit_sharia_hard_flag` (en) | Checked against a fixed list of Sharia rules. The registered activity is outside them, so no financing was calculated. | Your registered activity was checked against a fixed list of Sharia rules. It falls outside them, so no financing was calculated. |
+| `record.howBy.sharia` (en) | Checked against a fixed list of Sharia rules. | Your registered activity and transactions were checked against a fixed list of Sharia rules. Every business is checked against the same list. |
+| `record.howBy.zakat` (en) | Calculated by a fixed zakat method from your balance sheet. | Your zakat was calculated from your balance sheet by a fixed method. Every business is calculated the same way. |
+| `record.howBy.forecast` (en) | Projected by a fixed method from your past cash flow. | A fixed forecasting method projected your cash flow from your past transactions. Every business goes through the same method. |
+| `record.howBy.review` (en) | Flagged by fixed checks and a fixed statistical method on your transactions. A flag is a reason to look, not a finding. | Fixed checks and a model trained on your own past transactions looked for unusual activity. A flag is a reason to look, not a finding. |
+| `record.howBy.profile` (en) | Measured from your transactions by fixed formulas. | Your figures were measured from your transactions by fixed formulas. Every business is measured the same way. |
+| `record.title` (ar) | كيف وصلنا إلى هذه النتيجة | عن هذه النتيجة |
+| `record.how` (ar) | كيف وصلنا إليها | كيف قرّرنا |
+| `record.howBy.credit_approved_unconditional` (ar) | حُسبت من معاملاتك وفق قواعد ثابتة وطريقة تقييم ثابتة، ولم يكتب هذه النتيجة ذكاء اصطناعي. | قيّم نموذج تقييم مُدرَّب على أنماط معاملات المنشآت معاملاتك البنكية، وتمرّ كل المنشآت بالنموذج والقواعد نفسها. |
+| `record.howBy.credit_approved_conditional` (ar) | حُسبت من معاملاتك وفق قواعد ثابتة وطريقة تقييم ثابتة، ولم يكتب هذه النتيجة ذكاء اصطناعي. وسيراجع مختص شرعي إجاباتك قبل اعتماد العرض. | قيّم نموذج تقييم مُدرَّب على أنماط معاملات المنشآت معاملاتك البنكية، وتمرّ كل المنشآت بالنموذج والقواعد نفسها. وسيراجع مختص شرعي إجاباتك قبل اعتماد العرض. |
+| `record.howBy.credit_declined` (ar) | حُسبت من معاملاتك وفق قواعد ثابتة وطريقة تقييم ثابتة، والأسباب معروضة مع القرار. | قيّم نموذج تقييم مُدرَّب على أنماط معاملات المنشآت معاملاتك البنكية، وتمرّ كل المنشآت بالنموذج والقواعد نفسها. والأسباب معروضة مع القرار. |
+| `record.howBy.credit_sharia_hard_flag` (ar) | فُحصت وفق قائمة ثابتة من الضوابط الشرعية، والنشاط المسجّل خارجها، فلم يُحسب أي تمويل. | فُحص نشاطك المسجّل وفق قائمة ثابتة من الضوابط الشرعية، ولأنه خارجها لم يُحسب أي تمويل. |
+| `record.howBy.sharia` (ar) | فُحصت وفق قائمة ثابتة من الضوابط الشرعية. | فُحص نشاطك المسجّل ومعاملاتك وفق قائمة ثابتة من الضوابط الشرعية، وتُفحص كل المنشآت وفق القائمة نفسها. |
+| `record.howBy.zakat` (ar) | حُسبت بطريقة ثابتة لحساب الزكاة من ميزانيتك. | حُسبت زكاتك من ميزانيتك بطريقة ثابتة، وتُحسب لكل المنشآت بالطريقة نفسها. |
+| `record.howBy.forecast` (ar) | قُدّرت بطريقة ثابتة من تدفقاتك النقدية السابقة. | قدّرت طريقة تنبؤ ثابتة تدفقاتك النقدية من معاملاتك السابقة، وتمرّ كل المنشآت بالطريقة نفسها. |
+| `record.howBy.review` (ar) | أُشير إليها بفحوص ثابتة وطريقة إحصائية ثابتة على معاملاتك، والإشارة سبب للمراجعة وليست حكمًا. | بحثت فحوص ثابتة ونموذج مُدرَّب على معاملاتك السابقة عن أي نشاط غير معتاد، والإشارة سبب للمراجعة وليست حكمًا. |
+| `record.howBy.profile` (ar) | قيست من معاملاتك بمعادلات ثابتة. | قيست أرقامك من معاملاتك بمعادلات ثابتة، وتُقاس لكل المنشآت بالطريقة نفسها. |
+| `lib/tour.ts` | en: { title: "How this result was reached", caption: "Every result says what data it used and how it was reached, and gives a reference number to quote if you have a question. Auditors can open the technical record." }, | en: { title: "About this result", caption: "Every result says what data it used and how we decided, and gives a reference number to quote if you have a question. Auditors can open the technical record." }, |
+| `lib/tour.ts` | ar: { title: "كيف وصلنا إلى هذه النتيجة", caption: "تبيّن كل نتيجة البيانات التي اعتمدت عليها وكيف وصلنا إليها، وتعطيك رقمًا مرجعيًا تذكره إذا كان لديك استفسار. ويستطيع المدققون فتح السجل التقني.", draft: true }, | ar: { title: "عن هذه النتيجة", caption: "تبيّن كل نتيجة البيانات التي اعتمدت عليها وكيف قرّرنا، وتعطيك رقمًا مرجعيًا تذكره إذا كان لديك استفسار. ويستطيع المدققون فتح السجل التقني.", draft: true }, |
+| `lib/howItWorks.ts` | what data it used, how it was reached and a [[reference|reference number]] | what data it used, how we decided and a [[reference|reference number]] |
+| `lib/howItWorks.ts` | البيانات التي اعتمدت عليها وكيف وصلنا إليها، مع [[reference|رقم مرجعي]] | البيانات التي اعتمدت عليها وكيف قرّرنا، مع [[reference|رقم مرجعي]] |
+| `lib/howItWorks.ts` | linkLabel: "See how a result was reached", | linkLabel: "See how we decide", |
+| `lib/howItWorks.ts` | linkLabel: "اطّلع على كيفية الوصول إلى نتيجة", | linkLabel: "اطّلع على كيف نقرّر", |
+
+**PR7, enforcement and test.** No owner-facing string claims that no AI or no model was used. Enforced by the `record`
+catalogue group, the tour's `receipt` step and how-it-works' `receipts` section; test `owner text makes no no-ai claim`
+(tests/record.test.ts) scans all three in both locales for "AI", "artificial", «ذكاء اصطناعي» and «الذكاء». It was shown to
+fail on the entry 58 wording.
+
+**Each "how we decided" line, and the code that makes it true.**
+
+| Line | Where it is true |
+|---|---|
+| Credit: "a scoring model trained on business transaction patterns ... Every business goes through the same model and rules" | `lenses/credit/model.py` `score()` and `decide()` over `lenses/credit/model_v1.json`, a logistic model trained by `lenses/credit/train.py` on the research population's profile features; every serving business uses the same artifact and `lens_config.credit` rules. (The SOP's W1 called it XGBoost; it is logistic, per entry 21. The wording holds either way.) |
+| Sharia hard flag: "checked against a fixed list of Sharia rules; outside them, so no financing was calculated" | `compliance/sharia.py` `screen()` over `sharia_rules.yaml`; `apply_sharia_gate`: hard flag, `decline_origin = compliance`, no amount |
+| Sharia: "registered activity and transactions ... the same list" | `screen()` reads the declared MCC (or registered sector) and the business's own transactions |
+| Zakat: "from your balance sheet by a fixed method" | `lenses/zakat/zakat.py` `compute_zakat()` on `balances_monthly` |
+| Forecast: "a fixed forecasting method" | `lens_config.forecast.method = naive90` (`lenses/forecast/methods.py`), a trailing 90-day mean, not fitted on data, so "fixed" holds (S5 did not apply) |
+| Review: "fixed checks and a model trained on your own past transactions" | `lenses/anomaly/anomaly.py`: hard rules and a per-business Isolation Forest fitted on that business's transactions (fixed seed); U8 holds (no fraud, no score) |
+| Profile: "fixed formulas" | `profile_engine/features.py` |
+
+**The logo band.** Removed from `components/SiteHeader.tsx` (under the header, every page), `app/[locale]/page.tsx`
+(three times between landing sections), `app/[locale]/sign-in/page.tsx` (top of the brand panel) and
+`components/brand/Logos.tsx` (the component). `app/globals.css` loses `.weave`, `@keyframes weave` and `.weave` in the
+print rule; `.weave.ondark, .mk.ondark` becomes `.mk.ondark`; `--tile` stays (the section mark uses it). `app/phone.css`
+loses its band rule. No spacing was added: each place the band sat already has a section boundary (the header's
+hairline, section backgrounds and padding). Tile SVG sha256 unchanged: dark `7412a5ae...bd87`, light `237cc4de...faa1`.
+This closes the looping-motion part of the item open since the redesign report for the band. Looping animations that
+remain: `breathe` on the Sharia pending frame (`.frame`, ShariaPanel), `pulse` on the forecast chart's today point
+(`.pulse-ring`), `travel` on the landing page's flow dots (`.dot`, Flow.tsx) and `float` on the landing hero card
+(`.floaty`). All four stop under reduced motion.
+
+**Tests changed, none loosened.** `tests/record.test.ts`: the expected titles; the "no line but the conditional one
+claims a person" check now also covers `credit_sharia_hard_flag` and `sharia`; new PR7. `tests/brand.test.tsx`: "the
+band and section mark are decorative" became "the section mark is decorative" (the band no longer exists; the section
+mark's check is the same). `e2e/sheet.spec.ts`: `.weave` left its hidden-in-print list; the animation-count check
+stays. New `e2e/band.spec.ts`: "no logo band on any page".
+
+**Checks.** Baseline (receipt-plain f176ce7): vitest 337, Playwright 1,066 passed, 4 failed. Final: vitest 338, Playwright 1,074 passed, the same 4 failed (motion U7 nisab plate, tour en and ar, visual zakat en light 1280, all failing on the baseline too), 3 skipped, 31 not run. 34 of 36 visual baselines changed, each by the wording and the missing band only.
+
+**Preview.** `gh-pages` commit `ea9a036` replaces only `preview/` with the static build of this branch at `ad89a89`: https://at1808.github.io/maal-sme-platform/preview/ . The band spec and the owner record tests passed against a local copy (32 of 32), and the built HTML has no "No AI" text and no band.
+
+**Sign-off:** ☐ team (wording, logo band) ☐ credit lens owner (credit lines) ☐ compliance owner (Sharia lines, Arabic wording)
