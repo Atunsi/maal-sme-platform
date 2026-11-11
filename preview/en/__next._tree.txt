@@ -14,4 +14,4 @@
 :HL["/maal-sme-platform/preview/_next/static/media/riyal_regular.p.1j_0gc8-6_jrs.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 2:[["children",{"s":"__PAGE__","h":128}]]
 1:[["children",{"s":{"n":"locale","t":"d","k":"en","s":["app-icon","fonts"]},"h":48,"c":"$Q2"}]]
-0:{"b":"EsyfHlaCktjdsnbyllIwW","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
+0:{"b":"uVu7_5rj_dEoL11Izdg-W","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
