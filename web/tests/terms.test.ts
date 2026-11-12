@@ -1,4 +1,5 @@
-// TB1 (DECISIONS 63): one component renders the glossary term button, and no stylesheet gives it a second look.
+// TT1 (DECISIONS 64): one component renders the glossary term, the button stays plain, and only the term tip
+// carries the tint, from its one token.
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -14,27 +15,35 @@ function files(dir: string, ext: RegExp): string[] {
   return out;
 }
 
-describe("term buttons (TB1)", () => {
-  it("only one term button class exists", () => {
-    // The class "term" on its own, not term-wrap or term-tip.
+const rules = (pattern: RegExp) => {
+  const out: { sheet: string; selector: string; body: string }[] = [];
+  for (const sheet of files(join(webRoot, "app"), /\.css$/)) {
+    for (const [, selector, body] of readFileSync(sheet, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      if (pattern.test(selector!)) out.push({ sheet: relative(webRoot, sheet).replaceAll("\\", "/"), selector: selector!.trim(), body: body! });
+    }
+  }
+  return out;
+};
+
+describe("term tips (TT1)", () => {
+  it("only one term component exists", () => {
     const uses = [...files(join(webRoot, "components"), /\.tsx$/), ...files(join(webRoot, "app"), /\.tsx$/)].filter((file) =>
       /className=(["'`])(?:[^"'`]*\s)?term(?:\s[^"'`]*)?\1/.test(readFileSync(file, "utf8")),
     );
     expect(uses.map((f) => relative(webRoot, f).replaceAll("\\", "/"))).toEqual(["components/Term.tsx"]);
   });
 
-  it("the term background comes from the term tokens only", () => {
-    const sheets = files(join(webRoot, "app"), /\.css$/);
-    const found: string[] = [];
-    for (const sheet of sheets) {
-      const css = readFileSync(sheet, "utf8");
-      // Every rule whose selector names .term (not .term-wrap or .term-tip) and sets a background.
-      for (const [, selector, body] of css.matchAll(/([^{}]*\.term(?![\w-])[^{}]*)\{([^{}]*)\}/g)) {
-        for (const [, value] of body!.matchAll(/background(?:-color)?\s*:\s*([^;]+);/g)) {
-          if (!/^var\(--term-bg(?:-active)?\)$|^none(?:\s*!important)?$/.test(value!.trim())) found.push(`${relative(webRoot, sheet)} ${selector!.trim()}: ${value}`);
-        }
-      }
-    }
+  it("the term button has no background but none", () => {
+    const found = rules(/\.term(?![\w-])/)
+      .flatMap(({ sheet, selector, body }) => [...body.matchAll(/background(?:-color|-image)?\s*:\s*([^;]+);/g)].map(([, v]) => ({ sheet, selector, v: v!.trim() })))
+      .filter(({ v }) => v !== "none")
+      .map(({ sheet, selector, v }) => `${sheet} ${selector}: ${v}`);
     expect(found).toEqual([]);
+  });
+
+  it("the tip's tint comes from the tip token only", () => {
+    const found = rules(/\.term-tip(?![\w-])/)
+      .flatMap(({ sheet, selector, body }) => [...body.matchAll(/background-image\s*:\s*([^;]+);/g)].map(([, v]) => `${sheet} ${selector}: ${v!.trim()}`));
+    expect(found).toEqual(["app/globals.css .term-wrap > .term-tip: linear-gradient(var(--term-tip-tint), var(--term-tip-tint))"]);
   });
 });

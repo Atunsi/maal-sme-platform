@@ -262,7 +262,7 @@ section on the overview (entry 63, below): the current value, a direction word w
 fewer than three shows a sentence instead of a line. It compares a business with its own past only: peer
 benchmarking stays rejected (schema §36.4, rule U9).
 
-## Overview order and term buttons (entry 63, PROPOSED)
+## Overview order and term tips (entries 63 and 64, PROPOSED)
 
 **Overview order (OV1).** The business overview shows four sections, top to bottom, at every width, in both
 languages and for every role: the verdict (with its aside, its "About this result" card and the owner's
@@ -272,13 +272,13 @@ a disclosure, with the profile's record inside it, LG5). The order is the markup
 no reversed flex. A business whose profile did not run shows no trend section. Tested in
 `e2e/trends.spec.ts` ("overview sections follow the fixed order").
 
-**Term buttons (TB1).** One component, `components/Term.tsx`, renders the glossary term button, and one
-class, `.term` in `globals.css`, styles it from five tokens: `--term-bg` (the accent at 10%, mostly
-see-through), `--term-bg-active` (16%, on hover and while open), `--term-fg` (`currentColor`: a term keeps
-the colour of its sentence), `--term-radius` (`--r-bar`) and `--term-pad` (`0 3px`). The dotted underline
-stays, so a term never relies on its tint alone; the shared focus ring and press dip apply; the background
-fades with the page's 0.35 s timing. In print a term is plain text. Tested in `e2e/terms.spec.ts` and
-`tests/terms.test.ts`; never add a second background or a per-page override.
+**Term buttons and tips (TB1, moved to the tip by entry 64).** One component, `components/Term.tsx`,
+renders a glossary term: a plain inline button (no fill, no padding, inherited colour, dotted underline) and
+its definition, the term tip (`.term-tip`). The tip carries the light tint: `--term-tip-tint`, the accent at
+10%, laid over the tip's own surface (solid or glass) as a background image, so the definition never sits on
+the page below it. The tint and the tip's glass are declared on the tip itself, so a tip inside a dark
+`.panel` takes the panel's accent and surface. Tested in `e2e/terms.spec.ts` (one rule on every page, 4.5:1
+for the tip's text, plain buttons) and `tests/terms.test.ts`; never give the button a background.
 
 ## Demo sign-in
 

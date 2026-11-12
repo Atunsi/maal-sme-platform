@@ -5083,3 +5083,50 @@ at, and the only differences are the new section position and the term tint. Scr
 2. Whether 16% should come down a little, given the 4.51 margin in the light theme.
 
 **Sign-off:** ☐ team (overview order, term button look)
+
+## 64. Term tint moved from the term button to the term tip — PROPOSED (2026-11-12)
+
+**Touches:** `web/` only (`app/globals.css`, `e2e/terms.spec.ts`, `tests/terms.test.ts`, visual baselines), this
+entry and `web/README.md`. Done on `faris/term-tip` from `main` at `d9b8cbe`. Amends entry 63's TB1; OV1 stands.
+
+**Decision (Faris, 2026-11-12, word for word):** "undo the the changes you did on the term buttons and apply them
+to the term-tip".
+
+**Term button: back to before entry 63.** `.term` is again exactly as it was at `bce2054`: no background, no
+padding, no radius, inherited colour, dotted underline, no transition of its own, no print rule. The five
+`--term-*` tokens are removed.
+
+**Term tip: the tint.** `.term-tip` (the definition that opens below a term) carries one token,
+`--term-tip-tint`, the accent at 10%, laid over the tip's own surface as a `background-image`, so the tip stays
+opaque or glass as before and the text inside never sits on the page beneath. Its ink, border, radius, padding,
+shadow and glass are otherwise unchanged. The tip only shows while open, so entry 63's second strength (16% on
+hover and while open) has no state to attach to and is not used.
+
+**Fixed on the way: a tip inside a dark panel was unreadable.** The new contrast check found the "Reference" tip
+in the overview's "About this result" panel at 1.97:1 in the light theme, with or without the tint. `.panel`
+switches `--surface`, `--ink` and `--accent` to its dark colours, but `--glass` (and `--elev-2`) were resolved on
+`:root`, so the tip showed the panel's light text on 72% white glass. The tint, the glass and `--elev-2` are now
+declared on the tip itself (`.term-wrap > .term-tip`, with dark's 68% glass under `.th-dark`), so they resolve
+the colours in force where the tip sits: a tip in a dark panel is dark glass with the panel's accent tint.
+
+**Contrast**, tip text against the tint over the tip's surface over what lies under it, lowest over every tip on
+the overview, credit, Sharia, zakat, forecast and how-it-works pages (en and ar): light 14.24:1, dark 10.87:1.
+Before the fix, light was 1.97 (the panel tip).
+
+**Tests.** `e2e/terms.spec.ts` rewritten: "term tips share one tint" (both themes: every tip's tint is its
+local accent at 8 to 14%, one radius and padding, 4.5:1 for its text) and "term buttons have no fill" (both
+themes, at rest and open; the open tip shows the tint). `tests/terms.test.ts`: "only one term component
+exists", "the term button has no background but none", "the tip's tint comes from the tip token only". The
+entry 63 tests for the button tint and its print rule are removed with the feature they tested.
+
+**Checks.** Typecheck and lint pass. Vitest 384 passed. Playwright, full suite: 1,172 passed, 0 failed, 3 skipped
+(33 min); one test fewer than entry 63's 1,173 because the button-tint and print tests were replaced by the tip
+tests. The 36 visual baselines pass unchanged (no snapshot opens a tip, and the button tint was within the
+snapshot tolerance). In one partial run "glossary tip stays open while the pointer moves onto it" failed once and
+passed 4 of 4 alone, the same flake as entry 63. Screenshots: `web/docs/screenshots/fx-tip-{page,panel}-{light,dark}.png`.
+
+**Unchanged:** wording, values, roles, the API, dependencies, OV1.
+
+**Open question for Faris:** whether 10% reads right on the tip; see `web/docs/screenshots/fx-tip-*`.
+
+**Sign-off:** ☐ team (term tip look)
